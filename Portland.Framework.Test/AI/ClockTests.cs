@@ -1,10 +1,6 @@
 ﻿using NUnit.Framework;
 
-using Portland.AI;
-
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Portland.AI
 {
