@@ -80,8 +80,9 @@ namespace ProceduralToolkit.Tests
 			// 	return t2;
 			// }
 
-			Vector3 tangent = direction;
-			Vector3.OrthoNormalize(ref direction, ref tangent);
+			Vector3d d2 = direction;
+			Vector3d tangent = d2;
+			Vector3d.OrthoNormalize(ref d2, ref tangent);
 			return tangent;
 		}
 

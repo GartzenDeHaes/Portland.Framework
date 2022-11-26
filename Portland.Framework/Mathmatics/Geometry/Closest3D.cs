@@ -143,16 +143,16 @@ namespace Portland.Mathmatics.Geometry
 		/// Value of one means that the projected point coincides with <paramref name="segmentB"/>.</param>
 		public static Vector3 PointSegment(in Vector3 point, in Vector3 segmentA, in Vector3 segmentB, out float projectedX)
 		{
-			Vector3 segmentDirection = segmentB - segmentA;
+			Vector3d segmentDirection = segmentB - segmentA;
 			var sqrSegmentLength = segmentDirection.SqrMagnitude;
-			if (sqrSegmentLength < MathHelper.Epsilond)
+			if (sqrSegmentLength < MathHelper.Epsilonf)
 			{
 				// The segment is a point
 				projectedX = 0;
 				return segmentA;
 			}
 
-			var pointProjection = Vector3.Dot(segmentDirection, point - segmentA);
+			var pointProjection = Vector3d.Dot(segmentDirection, point - segmentA);
 			if (pointProjection <= 0)
 			{
 				projectedX = 0;
@@ -164,7 +164,7 @@ namespace Portland.Mathmatics.Geometry
 				return segmentB;
 			}
 
-			projectedX = pointProjection / sqrSegmentLength;
+			projectedX = (float)(pointProjection / sqrSegmentLength);
 			return segmentA + segmentDirection * projectedX;
 		}
 
