@@ -10,14 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Graphics\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\MonoGame.Mathmatics\MonoGame.Mathmatics\MonoGame.Mathmatics.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="NLog" Version="5.0.5" />
   </ItemGroup>
 

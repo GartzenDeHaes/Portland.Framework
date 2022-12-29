@@ -2,8 +2,6 @@
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -69,8 +67,8 @@ namespace Portland.Mathmatics.Geometry
 
                int index = 0;
 
-               position.X = x;
-               position.Y = y;
+               position.x = x;
+               position.y = y;
 
                float weightSum = 0f;
                int numVertices = 0;
@@ -81,8 +79,8 @@ namespace Portland.Mathmatics.Geometry
                   {
                      int yCoord = y + j;
 
-                     v.X = xCoord;
-                     v.Y = yCoord;
+                     v.x = xCoord;
+                     v.y = yCoord;
 
                      if (xCoord < 0 || xCoord >= width || yCoord < 0 || yCoord >= height) continue;
 
@@ -104,11 +102,11 @@ namespace Portland.Mathmatics.Geometry
 
                for (int n = 0; n < numVertices; n++)
                {
-                  v.X = x + xOffsets[n];
-                  v.Y = y + yOffsets[n];
+                  v.x = x + xOffsets[n];
+                  v.y = y + yOffsets[n];
 
                   float weight = MathF.Max(0, (float)(erosionRadius - (v - position).Magnitude)) / weightSum;
-                  erosionBrush.erosionBrushVertices[y * width + x][n] = (float)(v.Y * width + v.X);
+                  erosionBrush.erosionBrushVertices[y * width + x][n] = (float)(v.y * width + v.x);
                   erosionBrush.erosionBrushWeights[y * width + x][n] = weight;
                }
             }
@@ -138,8 +136,8 @@ namespace Portland.Mathmatics.Geometry
 
                int index = 0;
 
-               position.X = x;
-               position.Y = y;
+               position.x = x;
+               position.y = y;
 
                float weightSum = 0f;
                int numVertices = 0;
@@ -150,8 +148,8 @@ namespace Portland.Mathmatics.Geometry
                   {
                      int yCoord = y + j;
 
-                     v.X = xCoord;
-                     v.Y = yCoord;
+                     v.x = xCoord;
+                     v.y = yCoord;
 
                      if (xCoord < 0 || xCoord >= width || yCoord < 0 || yCoord >= height) continue;
 
@@ -173,11 +171,11 @@ namespace Portland.Mathmatics.Geometry
 
                for (int n = 0; n < numVertices; n++)
                {
-                  v.X = x + xOffsets[n];
-                  v.X = y + yOffsets[n];
+                  v.x = x + xOffsets[n];
+                  v.x = y + yOffsets[n];
 
                   float weight = MathF.Max(0, (float)(depositionRadius - (v - position).Magnitude)) / weightSum;
-                  depositionBrush.depositionBrushVertices[y * width + x][n] = (float)(v.Y * width + v.X);
+                  depositionBrush.depositionBrushVertices[y * width + x][n] = (float)(v.y * width + v.x);
                   depositionBrush.depositionBrushWeights[y * width + x][n] = weight;
                }
             }
@@ -251,7 +249,7 @@ namespace Portland.Mathmatics.Geometry
                position += direction;
 
                // Check whether droplet has stopped moving or flowed over the edge of the map
-               if ((direction.X == 0 && direction.Y == 0) || position.X < 0 || position.X >= mapWidth - 1 || position.Y < 0 || position.Y >= mapHeight - 1)
+               if ((direction.x == 0 && direction.y == 0) || position.x < 0 || position.x >= mapWidth - 1 || position.y < 0 || position.y >= mapHeight - 1)
                {
                   break;
                }
@@ -293,8 +291,8 @@ namespace Portland.Mathmatics.Geometry
 
          void DepositSediment(float sedimentDeposited)
          {
-            int coordX = (int)position.X;
-            int coordY = (int)position.Y;
+            int coordX = (int)position.x;
+            int coordY = (int)position.y;
 
             int brushIndex = coordY * mapWidth + coordX;
 
@@ -312,8 +310,8 @@ namespace Portland.Mathmatics.Geometry
 
          void ErodeSediment(float sedimentEroded)
          {
-            int coordX = (int)position.X;
-            int coordY = (int)position.Y;
+            int coordX = (int)position.x;
+            int coordY = (int)position.y;
 
             int brushIndex = coordY * mapWidth + coordX;
 
@@ -331,11 +329,11 @@ namespace Portland.Mathmatics.Geometry
 
          float GetNewHeight()
          {
-            int coordX = (int)position.X;
-            int coordY = (int)position.Y;
+            int coordX = (int)position.x;
+            int coordY = (int)position.y;
 
-            float offsetX = (float)position.X - coordX;
-            float offsetY = (float)position.Y - coordY;
+            float offsetX = (float)position.x - coordX;
+            float offsetY = (float)position.y - coordY;
 
             float heightNW = heightMap[coordX, coordY];
             float heightNE = heightMap[coordX + 1, coordY];
@@ -354,11 +352,11 @@ namespace Portland.Mathmatics.Geometry
 
          Vector2 GetGradient()
          {
-            int coordX = (int)position.X;
-            int coordY = (int)position.Y;
+            int coordX = (int)position.x;
+            int coordY = (int)position.y;
 
-            float offsetX = (float)position.X - coordX;
-            float offsetY = (float)position.Y - coordY;
+            float offsetX = (float)position.x - coordX;
+            float offsetY = (float)position.y - coordY;
 
             return new Vector2(
                 (heightMap[coordX + 1, coordY] - heightMap[coordX, coordY]) * (1 - offsetX) - (heightMap[coordX + 1, coordY + 1] - heightMap[coordX, coordY + 1]) * offsetX,

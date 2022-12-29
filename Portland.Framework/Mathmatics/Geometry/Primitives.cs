@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -287,7 +285,7 @@ namespace Portland.Mathmatics.Geometry
 				for (var i = 0; i < segments; i++)
 				{
 					Vector2 uv = Geometry.PointOnCircle2(0.5f, currentAngle) + new Vector2(0.5f, 0.5f);
-					uv.X = 1 - uv.X;
+					uv.x = 1 - uv.x;
 					fanUV[i] = uv;
 					currentAngle += segmentAngle;
 				}
@@ -345,7 +343,7 @@ namespace Portland.Mathmatics.Geometry
 				{
 					Vector2 uv = Geometry.PointOnCircle2(0.5f, currentAngle) + new Vector2(0.5f, 0.5f);
 					upperDiskUV.Add(uv);
-					uv.X = 1 - uv.X;
+					uv.x = 1 - uv.x;
 					lowerDiskUV.Add(uv);
 				}
 				currentAngle += segmentAngle;
@@ -395,7 +393,7 @@ namespace Portland.Mathmatics.Geometry
 				{
 					Vector2 uv = Geometry.PointOnCircle2(0.5f, currentAngle) + new Vector2(0.5f, 0.5f);
 					upperDiskUV.Add(uv);
-					uv.X = 1 - uv.X;
+					uv.x = 1 - uv.x;
 					lowerDiskUV.Add(uv);
 				}
 				currentAngle += segmentAngle;
@@ -724,16 +722,16 @@ namespace Portland.Mathmatics.Geometry
 					// Top cap vertex
 					Vector3 normal = Geometry.PointOnSphere(1f, (float)(s * horizontalAngle), 90f - (float)(r * verticalAngle));
 					Vector3 vertex = new Vector3(
-						 x: radius * normal.X,
-						 y: radius * normal.Y + cylinderHeight / 2,
-						 z: radius * normal.Z);
+						 x: radius * normal.x,
+						 y: radius * normal.y + cylinderHeight / 2,
+						 z: radius * normal.z);
 					vertices[vi] = vertex;
 					normals[vi] = normal;
 					vi++;
 
 					// Bottom cap vertex
-					vertices[vi] = new Vector3(vertex.X, -vertex.Y, vertex.Z);
-					normals[vi] = new Vector3(normal.X, -normal.Y, normal.Z);
+					vertices[vi] = new Vector3(vertex.x, -vertex.y, vertex.z);
+					normals[vi] = new Vector3(normal.x, -normal.y, normal.z);
 					vi++;
 
 					int top_s1r1 = vi - 2;

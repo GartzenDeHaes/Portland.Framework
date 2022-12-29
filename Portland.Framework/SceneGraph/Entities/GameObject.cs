@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !UNITY_5_3_OR_NEWER
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -60,3 +62,5 @@ namespace Portland.SceneGraph
 		}
 	}
 }
+
+#endif

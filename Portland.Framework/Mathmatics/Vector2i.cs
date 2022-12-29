@@ -30,8 +30,6 @@ using System.Globalization;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics
@@ -259,8 +257,8 @@ namespace Portland.Mathmatics
 
 		public static Vector2i Max(Vector2 value1, Vector2 value2)
 		{
-			return new Vector2i(value1.X > value2.X ? (float)value1.X : (float)value2.X,
-								 value1.Y > value2.Y ? (float)value1.Y : (float)value2.Y);
+			return new Vector2i(value1.x > value2.x ? (float)value1.x : (float)value2.x,
+								 value1.y > value2.y ? (float)value1.y : (float)value2.y);
 		}
 
 		public static void Max(ref Vector2i value1, ref Vector2i value2, out Vector2i result)

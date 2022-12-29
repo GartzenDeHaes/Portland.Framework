@@ -7,8 +7,6 @@ using System;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace MonoGame.Tests.Framework
@@ -53,15 +51,15 @@ namespace MonoGame.Tests.Framework
 			Vector3 v2 = new Vector3(-10.5f, 0.2f, 1000.0f);
 			v1.Normalize();
 			var expectedResult = new Vector3(-0.0104994215f, 0.000199988979f, 0.999944866f);
-			Assert.True(MathHelper.Approximately(v1.X, expectedResult.X));
-			Assert.True(MathHelper.Approximately(v1.Y, expectedResult.Y));
-			Assert.True(MathHelper.Approximately(v1.Z, expectedResult.Z));
+			Assert.True(MathHelper.Approximately(v1.x, expectedResult.x));
+			Assert.True(MathHelper.Approximately(v1.y, expectedResult.y));
+			Assert.True(MathHelper.Approximately(v1.z, expectedResult.z));
 
 			Assert.That(expectedResult, Is.EqualTo(v1).Using(Vector3Comparer.Epsilon));
 			v2 = Vector3.Normalize(v2);
-			Assert.True(MathHelper.Approximately(v2.X, expectedResult.X));
-			Assert.True(MathHelper.Approximately(v2.Y, expectedResult.Y));
-			Assert.True(MathHelper.Approximately(v2.Z, expectedResult.Z));
+			Assert.True(MathHelper.Approximately(v2.x, expectedResult.x));
+			Assert.True(MathHelper.Approximately(v2.y, expectedResult.y));
+			Assert.True(MathHelper.Approximately(v2.z, expectedResult.z));
 			Assert.That(expectedResult, Is.EqualTo(v2).Using(Vector3Comparer.Epsilon));
 		}
 
@@ -139,9 +137,9 @@ namespace MonoGame.Tests.Framework
 
 			vector3.Deconstruct(out x, out y, out z);
 
-			Assert.AreEqual(x, vector3.X);
-			Assert.AreEqual(y, vector3.Y);
-			Assert.AreEqual(z, vector3.Z);
+			Assert.AreEqual(x, vector3.x);
+			Assert.AreEqual(y, vector3.y);
+			Assert.AreEqual(z, vector3.z);
 		}
 
 		[Test]

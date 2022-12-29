@@ -2,8 +2,6 @@ using System;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -238,14 +236,14 @@ namespace Portland.Mathmatics.Geometry
 
 		public static bool PointSegmentCollinear(Vector2 segmentA, Vector2 segmentB, Vector2 point)
 		{
-			if (Math.Abs(segmentA.X - segmentB.X) < MathHelper.Epsilond)
+			if (Math.Abs(segmentA.x - segmentB.x) < MathHelper.Epsilond)
 			{
 				// Vertical
-				if (segmentA.Y <= point.Y && point.Y <= segmentB.Y)
+				if (segmentA.y <= point.y && point.y <= segmentB.y)
 				{
 					return true;
 				}
-				if (segmentA.Y >= point.Y && point.Y >= segmentB.Y)
+				if (segmentA.y >= point.y && point.y >= segmentB.y)
 				{
 					return true;
 				}
@@ -253,11 +251,11 @@ namespace Portland.Mathmatics.Geometry
 			else
 			{
 				// Not vertical
-				if (segmentA.X <= point.X && point.X <= segmentB.X)
+				if (segmentA.x <= point.x && point.x <= segmentB.x)
 				{
 					return true;
 				}
-				if (segmentA.X >= point.X && point.X >= segmentB.X)
+				if (segmentA.x >= point.x && point.x >= segmentB.x)
 				{
 					return true;
 				}

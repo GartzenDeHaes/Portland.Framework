@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics
@@ -57,9 +55,9 @@ namespace Portland.Mathmatics
 #else
 		public Vector3h(Vector3 v)
 		{
-			X = new Half(v.X);
-			Y = new Half(v.Y);
-			Z = new Half(v.Z);
+			X = new Half(v.x);
+			Y = new Half(v.y);
+			Z = new Half(v.z);
 		}
 #endif
 
@@ -193,14 +191,14 @@ namespace Portland.Mathmatics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Vector3h va, in Vector3 vb)
 		{
-			return va.X == vb.X && va.Z == vb.Z && (float)va.Y == vb.Y;
+			return va.X == vb.x && va.Z == vb.z && (float)va.Y == vb.y;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Vector3h va, in Vector3 vb)
 		{
-			return va.X != vb.X || va.Z != vb.Z || (float)va.Y != vb.Y;
+			return va.X != vb.x || va.Z != vb.z || (float)va.Y != vb.y;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -212,7 +210,7 @@ namespace Portland.Mathmatics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Vector3h(in Vector3 v)
 		{
-			return new Vector3h(v.X, v.Y, v.Z);
+			return new Vector3h(v.x, v.y, v.z);
 		}
 #endif
 	}

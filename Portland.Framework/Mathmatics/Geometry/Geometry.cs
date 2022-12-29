@@ -4,8 +4,6 @@ using System.Text;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -713,7 +711,7 @@ namespace Portland.Mathmatics.Geometry
 				min = Vector2.Min(min, vertex);
 				max = Vector2.Max(max, vertex);
 			}
-			return Rect.MinMaxRect(min.X, min.Y, max.X, max.Y);
+			return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
 		}
 
 		/// <summary>
@@ -1171,7 +1169,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector2 Range(Vector2 min, Vector2 max)
 		{
-			return new Vector2(MathHelper.RandomRange(min.X, max.X), MathHelper.RandomRange(min.Y, max.Y));
+			return new Vector2(MathHelper.RandomRange(min.x, max.x), MathHelper.RandomRange(min.y, max.y));
 		}
 
 		/// <summary>
@@ -1179,7 +1177,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector3 Range(Vector3 min, Vector3 max)
 		{
-			return new Vector3(MathHelper.RandomRange((float)min.X, (float)max.X), MathHelper.RandomRange((float)min.Y, (float)max.Y), MathHelper.RandomRange((float)min.Z, (float)max.Z));
+			return new Vector3(MathHelper.RandomRange((float)min.x, (float)max.x), MathHelper.RandomRange((float)min.y, (float)max.y), MathHelper.RandomRange((float)min.z, (float)max.z));
 		}
 
 		/// <summary>
@@ -1187,7 +1185,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector4 Range(Vector4 min, Vector4 max)
 		{
-			return new Vector4(MathHelper.RandomRange(min.X, max.X), MathHelper.RandomRange(min.Y, max.Y), MathHelper.RandomRange(min.Z, max.Z), MathHelper.RandomRange(min.W, max.W));			
+			return new Vector4(MathHelper.RandomRange(min.x, max.x), MathHelper.RandomRange(min.y, max.y), MathHelper.RandomRange(min.z, max.z), MathHelper.RandomRange(min.w, max.w));			
 		}
 
 		/// <summary>
@@ -1209,7 +1207,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector2 Range(Vector2 min, Vector2 max, int variants)
 		{
-			return new Vector2(Range(min.X, max.X, variants), Range(min.Y, max.Y, variants));
+			return new Vector2(Range(min.x, max.x, variants), Range(min.y, max.y, variants));
 		}
 
 		/// <summary>
@@ -1218,7 +1216,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector3 Range(Vector3 min, Vector3 max, int variants)
 		{
-			return new Vector3(Range((float)min.X, (float)max.X, variants), Range((float)min.Y, (float)max.Y, variants), Range((float)min.Z, (float)max.Z, variants));
+			return new Vector3(Range((float)min.x, (float)max.x, variants), Range((float)min.y, (float)max.y, variants), Range((float)min.z, (float)max.z, variants));
 		}
 
 		/// <summary>
@@ -1227,8 +1225,8 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector4 Range(Vector4 min, Vector4 max, int variants)
 		{
-			return new Vector4(Range(min.X, max.X, variants), Range(min.Y, max.Y, variants), Range(min.Z, max.Z, variants),
-				 Range(min.W, max.W, variants));
+			return new Vector4(Range(min.x, max.x, variants), Range(min.y, max.y, variants), Range(min.z, max.z, variants),
+				 Range(min.w, max.w, variants));
 		}
 	}
 }

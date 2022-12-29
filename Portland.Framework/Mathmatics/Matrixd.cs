@@ -6,10 +6,10 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
+using Portland.Mathmatics.Geometry;
+
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics
@@ -73,22 +73,22 @@ namespace Portland.Mathmatics
 		/// <param name="row4">A fourth row of the created matrix.</param>
 		public Matrixd(Vector4 row1, Vector4 row2, Vector4 row3, Vector4 row4)
 		{
-			this.M11 = (double)row1.X;
-			this.M12 = (double)row1.Y;
-			this.M13 = (double)row1.Z;
-			this.M14 = (double)row1.W;
-			this.M21 = (double)row2.X;
-			this.M22 = (double)row2.Y;
-			this.M23 = (double)row2.Z;
-			this.M24 = (double)row2.W;
-			this.M31 = (double)row3.X;
-			this.M32 = (double)row3.Y;
-			this.M33 = (double)row3.Z;
-			this.M34 = (double)row3.W;
-			this.M41 = (double)row4.X;
-			this.M42 = (double)row4.Y;
-			this.M43 = (double)row4.Z;
-			this.M44 = (double)row4.W;
+			this.M11 = (double)row1.x;
+			this.M12 = (double)row1.y;
+			this.M13 = (double)row1.z;
+			this.M14 = (double)row1.w;
+			this.M21 = (double)row2.x;
+			this.M22 = (double)row2.y;
+			this.M23 = (double)row2.z;
+			this.M24 = (double)row2.w;
+			this.M31 = (double)row3.x;
+			this.M32 = (double)row3.y;
+			this.M33 = (double)row3.z;
+			this.M34 = (double)row3.w;
+			this.M41 = (double)row4.x;
+			this.M42 = (double)row4.y;
+			this.M43 = (double)row4.z;
+			this.M44 = (double)row4.w;
 		}
 
 		#endregion
@@ -1287,10 +1287,10 @@ namespace Portland.Mathmatics
 		/// <param name="result">A <see cref="Matrixd"/> that can be used to flatten geometry onto the specified plane from the specified direction as an output parameter.</param>
 		public static void CreateShadow(ref Vector3d lightDirection, ref Plane plane, out Matrixd result)
 		{
-			double dot = (plane.Normal.X * lightDirection.X) + (plane.Normal.Y * lightDirection.Y) + (plane.Normal.Z * lightDirection.Z);
-			double x = -plane.Normal.X;
-			double y = -plane.Normal.Y;
-			double z = -plane.Normal.Z;
+			double dot = (plane.Normal.x * lightDirection.X) + (plane.Normal.y * lightDirection.Y) + (plane.Normal.z * lightDirection.Z);
+			double x = -plane.Normal.x;
+			double y = -plane.Normal.y;
+			double z = -plane.Normal.z;
 			double d = -plane.D;
 
 			result.M11 = (double)((x * lightDirection.X) + dot);
@@ -1410,9 +1410,9 @@ namespace Portland.Mathmatics
 		{
 			Plane plane;
 			Plane.Normalize(value, out plane);
-			double x = (double)plane.Normal.X;
-			double y = (double)plane.Normal.Y;
-			double z = (double)plane.Normal.Z;
+			double x = (double)plane.Normal.x;
+			double y = (double)plane.Normal.y;
+			double z = (double)plane.Normal.z;
 			double num3 = -2f * x;
 			double num2 = -2f * y;
 			double num = -2f * z;
@@ -1804,7 +1804,7 @@ namespace Portland.Mathmatics
 		/// Creates a new <see cref="Matrixd"/> that contains linear interpolation of the values in specified matrixes.
 		/// </summary>
 		/// <param name="matrix1">The first <see cref="Matrixd"/>.</param>
-		/// <param name="matrix2">The second <see cref="Vector2f"/>.</param>
+		/// <param name="matrix2">The second <see cref="Vector2"/>.</param>
 		/// <param name="amount">Weighting value(between 0.0 and 1.0).</param>
 		/// <returns>>The result of linear interpolation of the specified matrixes.</returns>
 		public static Matrixd Lerp(Matrixd matrix1, Matrixd matrix2, double amount)
@@ -1832,7 +1832,7 @@ namespace Portland.Mathmatics
 		/// Creates a new <see cref="Matrixd"/> that contains linear interpolation of the values in specified matrixes.
 		/// </summary>
 		/// <param name="matrix1">The first <see cref="Matrixd"/>.</param>
-		/// <param name="matrix2">The second <see cref="Vector2f"/>.</param>
+		/// <param name="matrix2">The second <see cref="Vector2"/>.</param>
 		/// <param name="amount">Weighting value(between 0.0 and 1.0).</param>
 		/// <param name="result">The result of linear interpolation of the specified matrixes as an output parameter.</param>
 		public static void Lerp(ref Matrixd matrix1, ref Matrixd matrix2, double amount, out Matrixd result)

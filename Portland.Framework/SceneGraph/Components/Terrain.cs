@@ -4,8 +4,6 @@ using System.Text;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 using Portland.Mathmatics.Geometry;
@@ -41,9 +39,9 @@ namespace Portland.SceneGraph
 
 		public override BoundingBox GetBoundingBox()
 		{
-			float widthDiv2 = _heightMap.SizeInWorldUnits.X / 2;
-			float depthDiv2 = _heightMap.SizeInWorldUnits.Z / 2;
-			return new BoundingBox(new Vector3(Transform.Position.X - widthDiv2, Transform.Position.Y, Transform.Position.Z - depthDiv2), new Vector3(Transform.Position.X + widthDiv2, Transform.Position.Y, Transform.Position.Z + depthDiv2));
+			float widthDiv2 = _heightMap.SizeInWorldUnits.x / 2;
+			float depthDiv2 = _heightMap.SizeInWorldUnits.z / 2;
+			return new BoundingBox(new Vector3(Transform.Position.x - widthDiv2, Transform.Position.y, Transform.Position.z - depthDiv2), new Vector3(Transform.Position.x + widthDiv2, Transform.Position.y, Transform.Position.z + depthDiv2));
 		}
 
 		/// <summary>

@@ -5,8 +5,6 @@ using System.Text;
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
 using UnityEngine.Rendering;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -871,7 +869,7 @@ namespace Portland.Mathmatics.Geometry
 			}
 			for (var i = 0; i < list.Count; i++)
 			{
-				list[i] = new Vector2(1 - list[i].X, list[i].Y);
+				list[i] = new Vector2(1 - list[i].x, list[i].y);
 			}
 			return this;
 		}
@@ -901,7 +899,7 @@ namespace Portland.Mathmatics.Geometry
 			}
 			for (var i = 0; i < list.Count; i++)
 			{
-				list[i] = new Vector2(list[i].X, 1 - list[i].Y);
+				list[i] = new Vector2(list[i].x, 1 - list[i].y);
 			}
 			return this;
 		}

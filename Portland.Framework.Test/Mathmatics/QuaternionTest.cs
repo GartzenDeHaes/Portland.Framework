@@ -1,10 +1,10 @@
 ﻿
 using NUnit.Framework;
 
+using Portland.Mathmatics;
+
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace MonoGame.Tests.Framework
@@ -30,10 +30,10 @@ namespace MonoGame.Tests.Framework
 		public void Constructors()
 		{
 			Quaternion expected;
-			expected.X = 1;
-			expected.Y = 2;
-			expected.Z = 3;
-			expected.W = 4;
+			expected.x = 1;
+			expected.y = 2;
+			expected.z = 3;
+			expected.w = 4;
 			Compare(expected, new Quaternion(1, 2, 3, 4));
 			Compare(expected, new Quaternion(new Vector3(1, 2, 3), 4));
 #if !XNA
@@ -179,10 +179,10 @@ namespace MonoGame.Tests.Framework
 
 			quaternion.Deconstruct(out x, out y, out z, out w);
 
-			Assert.AreEqual(x, quaternion.X);
-			Assert.AreEqual(y, quaternion.Y);
-			Assert.AreEqual(z, quaternion.Z);
-			Assert.AreEqual(w, quaternion.W);
+			Assert.AreEqual(x, quaternion.x);
+			Assert.AreEqual(y, quaternion.y);
+			Assert.AreEqual(z, quaternion.z);
+			Assert.AreEqual(w, quaternion.w);
 		}
 #endif
 	}

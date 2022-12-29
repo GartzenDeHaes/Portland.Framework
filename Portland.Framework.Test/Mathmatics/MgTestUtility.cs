@@ -9,10 +9,11 @@ using System.Runtime.InteropServices;
 
 using NUnit.Framework;
 
+using Portland.Mathmatics;
+using Portland.Mathmatics.Geometry;
+
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace MonoGame.Tests
@@ -150,9 +151,9 @@ namespace MonoGame.Tests
 
 		public bool Equals(BoundingSphere x, BoundingSphere y)
 		{
-			return Math.Abs(x.Center.X - y.Center.X) < _epsilon &&
-					  Math.Abs(x.Center.Y - y.Center.Y) < _epsilon &&
-					  Math.Abs(x.Center.Z - y.Center.Z) < _epsilon &&
+			return Math.Abs(x.Center.x - y.Center.x) < _epsilon &&
+					  Math.Abs(x.Center.y - y.Center.y) < _epsilon &&
+					  Math.Abs(x.Center.z - y.Center.z) < _epsilon &&
 					  Math.Abs(x.Radius - y.Radius) < _epsilon;
 		}
 
@@ -175,8 +176,8 @@ namespace MonoGame.Tests
 
 		public bool Equals(Vector2 x, Vector2 y)
 		{
-			return Math.Abs(x.X - y.X) < _epsilon &&
-					 Math.Abs(x.Y - y.Y) < _epsilon;
+			return Math.Abs(x.x - y.x) < _epsilon &&
+					 Math.Abs(x.y - y.y) < _epsilon;
 		}
 
 		public int GetHashCode(Vector2 obj)
@@ -198,9 +199,9 @@ namespace MonoGame.Tests
 
 		public bool Equals(Vector3 x, Vector3 y)
 		{
-			return Math.Abs(x.X - y.X) < _epsilon &&
-					 Math.Abs(x.Y - y.Y) < _epsilon &&
-					 Math.Abs(x.Z - y.Z) < _epsilon;
+			return Math.Abs(x.x - y.x) < _epsilon &&
+					 Math.Abs(x.y - y.y) < _epsilon &&
+					 Math.Abs(x.z - y.z) < _epsilon;
 		}
 
 		public int GetHashCode(Vector3 obj)
@@ -215,17 +216,17 @@ namespace MonoGame.Tests
 
 		private readonly float _epsilon;
 
-		private Vector4Comparer(float epsilon)
+		public Vector4Comparer(float epsilon)
 		{
 			_epsilon = epsilon;
 		}
 
 		public bool Equals(Vector4 x, Vector4 y)
 		{
-			return Math.Abs(x.X - y.X) < _epsilon &&
-					 Math.Abs(x.Y - y.Y) < _epsilon &&
-					 Math.Abs(x.Z - y.Z) < _epsilon &&
-					 Math.Abs(x.W - y.W) < _epsilon;
+			return Math.Abs(x.x - y.x) < _epsilon &&
+					 Math.Abs(x.y - y.y) < _epsilon &&
+					 Math.Abs(x.z - y.z) < _epsilon &&
+					 Math.Abs(x.w - y.w) < _epsilon;
 		}
 
 		public int GetHashCode(Vector4 obj)
@@ -247,10 +248,10 @@ namespace MonoGame.Tests
 
 		public bool Equals(Quaternion x, Quaternion y)
 		{
-			return Math.Abs(x.X - y.X) < _epsilon &&
-					 Math.Abs(x.Y - y.Y) < _epsilon &&
-					 Math.Abs(x.Z - y.Z) < _epsilon &&
-					 Math.Abs(x.W - y.W) < _epsilon;
+			return Math.Abs(x.x - y.x) < _epsilon &&
+					 Math.Abs(x.y - y.y) < _epsilon &&
+					 Math.Abs(x.z - y.z) < _epsilon &&
+					 Math.Abs(x.w - y.w) < _epsilon;
 		}
 
 		public int GetHashCode(Quaternion obj)
@@ -271,9 +272,9 @@ namespace MonoGame.Tests
 
 		public bool Equals(Plane x, Plane y)
 		{
-			return Math.Abs(x.Normal.X - y.Normal.X) < _epsilon &&
-					 Math.Abs(x.Normal.Y - y.Normal.Y) < _epsilon &&
-					 Math.Abs(x.Normal.Z - y.Normal.Z) < _epsilon &&
+			return Math.Abs(x.Normal.x - y.Normal.x) < _epsilon &&
+					 Math.Abs(x.Normal.y - y.Normal.y) < _epsilon &&
+					 Math.Abs(x.Normal.z - y.Normal.z) < _epsilon &&
 					 Math.Abs(x.D - y.D) < _epsilon;
 		}
 

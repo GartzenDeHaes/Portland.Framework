@@ -8,8 +8,6 @@ using System.Runtime.InteropServices;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -32,10 +30,10 @@ namespace Portland.Mathmatics.Geometry
 
       public Rect(Vector2 position, Vector2 size)
       {
-         m_XMin = position.X;
-         m_YMin = position.Y;
-         m_Width = size.X;
-         m_Height = size.Y;
+         m_XMin = position.x;
+         m_YMin = position.y;
+         m_Width = size.x;
+         m_Height = size.y;
       }
 
       public Rect(Rect source)
@@ -68,24 +66,24 @@ namespace Portland.Mathmatics.Geometry
       public Vector2 Position
       {
          get { return new Vector2(m_XMin, m_YMin); }
-         set { m_XMin = value.X; m_YMin = value.Y; }
+         set { m_XMin = value.x; m_YMin = value.y; }
       }
 
       public Vector2 Center
       {
          get { return new Vector2(X + m_Width / 2f, Y + m_Height / 2f); }
-         set { m_XMin = value.X - m_Width / 2f; m_YMin = value.Y - m_Height / 2f; }
+         set { m_XMin = value.x - m_Width / 2f; m_YMin = value.y - m_Height / 2f; }
       }
 
-      public Vector2 Min { get { return new Vector2(xMin, yMin); } set { xMin = value.X; yMin = value.Y; } }
+      public Vector2 Min { get { return new Vector2(xMin, yMin); } set { xMin = value.x; yMin = value.y; } }
 
-      public Vector2 Max { get { return new Vector2(xMax, yMax); } set { xMax = value.X; yMax = value.Y; } }
+      public Vector2 Max { get { return new Vector2(xMax, yMax); } set { xMax = value.x; yMax = value.y; } }
 
       public float Width { get { return m_Width; } set { m_Width = value; } }
 
       public float Height { get { return m_Height; } set { m_Height = value; } }
 
-      public Vector2 size { get { return new Vector2(m_Width, m_Height); } set { m_Width = value.X; m_Height = value.Y; } }
+      public Vector2 size { get { return new Vector2(m_Width, m_Height); } set { m_Width = value.x; m_Height = value.y; } }
 
       public float xMin { get { return m_XMin; } set { float oldxmax = xMax; m_XMin = value; m_Width = oldxmax - m_XMin; } }
       public float yMin { get { return m_YMin; } set { float oldymax = yMax; m_YMin = value; m_Height = oldymax - m_YMin; } }
@@ -94,13 +92,13 @@ namespace Portland.Mathmatics.Geometry
 
       public bool Contains(Vector2 point)
       {
-         return (point.X >= xMin) && (point.X < xMax) && (point.Y >= yMin) && (point.Y < yMax);
+         return (point.x >= xMin) && (point.x < xMax) && (point.y >= yMin) && (point.y < yMax);
       }
 
       // Returns true if the /x/ and /y/ components of /point/ is a point inside this rectangle.
       public bool Contains(Vector3 point)
       {
-         return (point.X >= xMin) && (point.X < xMax) && (point.Y >= yMin) && (point.Y < yMax);
+         return (point.x >= xMin) && (point.x < xMax) && (point.y >= yMin) && (point.y < yMax);
       }
 
       public bool Contains(Vector3 point, bool allowInverse)
@@ -109,10 +107,10 @@ namespace Portland.Mathmatics.Geometry
          {
             return Contains(point);
          }
-         bool xAxis = Width < 0f && (point.X <= xMin) && (point.X > xMax) ||
-             Width >= 0f && (point.X >= xMin) && (point.X < xMax);
-         bool yAxis = Height < 0f && (point.Y <= yMin) && (point.Y > yMax) ||
-             Height >= 0f && (point.Y >= yMin) && (point.Y < yMax);
+         bool xAxis = Width < 0f && (point.x <= xMin) && (point.x > xMax) ||
+             Width >= 0f && (point.x >= xMin) && (point.x < xMax);
+         bool yAxis = Height < 0f && (point.y <= yMin) && (point.y > yMax) ||
+             Height >= 0f && (point.y >= yMin) && (point.y < yMax);
          return xAxis && yAxis;
       }
 
@@ -156,16 +154,16 @@ namespace Portland.Mathmatics.Geometry
       public static Vector2 NormalizedToPoint(Rect rectangle, Vector2 normalizedRectCoordinates)
       {
          return new Vector2(
-             MathHelper.Lerp(rectangle.X, rectangle.xMax, normalizedRectCoordinates.X),
-             MathHelper.Lerp(rectangle.Y, rectangle.yMax, normalizedRectCoordinates.Y)
+             MathHelper.Lerp(rectangle.X, rectangle.xMax, normalizedRectCoordinates.x),
+             MathHelper.Lerp(rectangle.Y, rectangle.yMax, normalizedRectCoordinates.y)
          );
       }
 
       public static Vector2 PointToNormalized(Rect rectangle, Vector2 point)
       {
          return new Vector2(
-             MathHelper.InverseLerp(rectangle.X, rectangle.xMax, point.X),
-             MathHelper.InverseLerp(rectangle.Y, rectangle.yMax, point.Y)
+             MathHelper.InverseLerp(rectangle.X, rectangle.xMax, point.x),
+             MathHelper.InverseLerp(rectangle.Y, rectangle.yMax, point.y)
          );
       }
 

@@ -10,9 +10,9 @@
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
+
+using Portland.Mathmatics;
 
 namespace Maximum.SceneGraph
 {
@@ -290,9 +290,9 @@ namespace Maximum.SceneGraph
 
 		public void SetScale(float x, float y, float z)
 		{
-			Scale.X = x;
-			Scale.Y = y;
-			Scale.Z = z;
+			Scale.x = x;
+			Scale.y = y;
+			Scale.z = z;
 		}
 
 		public void ScaleBy(float factor)

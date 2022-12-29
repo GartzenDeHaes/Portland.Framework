@@ -1,10 +1,11 @@
 ﻿
 using NUnit.Framework;
 
+using Portland.Mathmatics;
+using Portland.Mathmatics.Geometry;
+
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace MonoGame.Tests.Framework

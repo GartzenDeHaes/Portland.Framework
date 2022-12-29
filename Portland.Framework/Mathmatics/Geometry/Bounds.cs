@@ -2,8 +2,6 @@
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -107,9 +105,9 @@ namespace Portland.Mathmatics.Geometry
 		// Does another bounding box intersect with this bounding box?
 		public bool Intersects(Bounds bounds)
 		{
-			return (Min.X <= bounds.Max.X) && (Max.X >= bounds.Min.X) &&
-				 (Min.Y <= bounds.Max.Y) && (Max.Y >= bounds.Min.Y) &&
-				 (Min.Z <= bounds.Max.Z) && (Max.Z >= bounds.Min.Z);
+			return (Min.x <= bounds.Max.x) && (Max.x >= bounds.Min.x) &&
+				 (Min.y <= bounds.Max.y) && (Max.y >= bounds.Min.y) &&
+				 (Min.z <= bounds.Max.z) && (Max.z >= bounds.Min.z);
 		}
 
 		public bool IntersectRay(Ray ray) 

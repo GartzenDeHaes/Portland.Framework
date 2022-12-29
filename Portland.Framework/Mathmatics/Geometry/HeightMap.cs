@@ -5,8 +5,6 @@ using System.Text;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -45,18 +43,18 @@ namespace Portland.Mathmatics.Geometry
 
 		private int XWorldToLocal(int x)
 		{
-			return (int)((float)RawWidth * (x / SizeInWorldUnits.X));
+			return (int)((float)RawWidth * (x / SizeInWorldUnits.x));
 		}
 
 		private int ZWorldToLocal(int z)
 		{
-			return (int)((float)RawHeight * (z / SizeInWorldUnits.Z));
+			return (int)((float)RawHeight * (z / SizeInWorldUnits.z));
 		}
 
 		private float YLocalToWorld(float y)
 		{
 			// y [0, 1]
-			return y * SizeInWorldUnits.Y;
+			return y * SizeInWorldUnits.y;
 		}
 
 		/// <summary>

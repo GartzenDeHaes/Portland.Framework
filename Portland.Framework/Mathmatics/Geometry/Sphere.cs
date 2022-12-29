@@ -2,8 +2,6 @@
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -78,7 +76,7 @@ namespace Portland.Mathmatics.Geometry
 
       public static explicit operator Circle2(Sphere sphere)
       {
-         return new Circle2(sphere.Center.X, sphere.Center.Y, sphere.Radius);
+         return new Circle2(sphere.Center.x, sphere.Center.y, sphere.Radius);
       }
 
       public static Sphere operator +(Sphere sphere, Vector3 vector)

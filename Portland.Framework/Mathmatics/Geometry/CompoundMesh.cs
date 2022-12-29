@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 #if UNITY_5_3_OR_NEWER

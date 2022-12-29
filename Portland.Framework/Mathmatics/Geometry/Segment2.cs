@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics.Geometry
@@ -40,7 +38,7 @@ namespace Portland.Mathmatics.Geometry
 			{
 				Vector2 min = Vector2.Min(a, b);
 				Vector2 max = Vector2.Max(a, b);
-				return Rect.MinMaxRect(min.X, min.Y, max.X, max.Y);
+				return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
 			}
 		}
 

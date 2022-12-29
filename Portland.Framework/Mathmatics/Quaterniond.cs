@@ -8,8 +8,6 @@ using System.Runtime.Serialization;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics
@@ -91,10 +89,10 @@ namespace Portland.Mathmatics
 		/// <param name="value">The x, y, z coordinates in 3d-space and the rotation component.</param>
 		public Quaterniond(Vector4 value)
 		{
-			this.X = (double)value.X;
-			this.Y = (double)value.Y;
-			this.Z = (double)value.Z;
-			this.W = (double)value.W;
+			this.X = (double)value.x;
+			this.Y = (double)value.y;
+			this.Z = (double)value.z;
+			this.W = (double)value.w;
 		}
 
 		#endregion
@@ -306,7 +304,7 @@ namespace Portland.Mathmatics
 			double half = angle * 0.5f;
 			double sin = Math.Sin(half);
 			double cos = Math.Cos(half);
-			return new Quaterniond((double)(axis.X * sin), (double)(axis.Y * sin), (double)(axis.Z * sin), cos);
+			return new Quaterniond((double)(axis.x * sin), (double)(axis.y * sin), (double)(axis.z * sin), cos);
 		}
 
 		/// <summary>
@@ -320,9 +318,9 @@ namespace Portland.Mathmatics
 			double half = angle * 0.5f;
 			double sin = Math.Sin(half);
 			double cos = Math.Cos(half);
-			result.X = (double)(axis.X * sin);
-			result.Y = (double)(axis.Y * sin);
-			result.Z = (double)(axis.Z * sin);
+			result.X = (double)(axis.x * sin);
+			result.Y = (double)(axis.y * sin);
+			result.Z = (double)(axis.z * sin);
 			result.W = cos;
 		}
 
@@ -332,9 +330,9 @@ namespace Portland.Mathmatics
 			var sin = Math.Sin(half);
 			var cos = Math.Cos(half);
 			Quaterniond result;
-			result.X = axis.X * sin;
-			result.Y = axis.Y * sin;
-			result.Z = axis.Z * sin;
+			result.X = axis.x * sin;
+			result.Y = axis.y * sin;
+			result.Z = axis.z * sin;
 			result.W = cos;
 			return result;
 		}

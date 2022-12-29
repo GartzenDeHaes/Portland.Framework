@@ -1,12 +1,10 @@
-﻿using System;
+﻿#if !UNITY_5_3_OR_NEWER
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-#if UNITY_5_3_OR_NEWER
-using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
-#endif
+using Portland.Mathmatics.Geometry;
 
 namespace Portland.SceneGraph
 {
@@ -39,3 +37,5 @@ namespace Portland.SceneGraph
 		}
 	}
 }
+
+#endif

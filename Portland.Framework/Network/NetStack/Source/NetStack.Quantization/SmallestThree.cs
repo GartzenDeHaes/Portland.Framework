@@ -22,10 +22,10 @@
 
 using System;
 
+using Portland.Mathmatics;
+
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace NetStack.Quantization
@@ -70,22 +70,22 @@ namespace NetStack.Quantization
 				switch (i)
 				{
 					case 0:
-						element = quaternion.X;
+						element = quaternion.x;
 
 						break;
 
 					case 1:
-						element = quaternion.Y;
+						element = quaternion.y;
 
 						break;
 
 					case 2:
-						element = quaternion.Z;
+						element = quaternion.z;
 
 						break;
 
 					case 3:
-						element = quaternion.W;
+						element = quaternion.w;
 
 						break;
 				}
@@ -107,27 +107,27 @@ namespace NetStack.Quantization
 			switch (m)
 			{
 				case 0:
-					af = quaternion.Y;
-					bf = quaternion.Z;
-					cf = quaternion.W;
+					af = quaternion.y;
+					bf = quaternion.z;
+					cf = quaternion.w;
 
 					break;
 				case 1:
-					af = quaternion.X;
-					bf = quaternion.Z;
-					cf = quaternion.W;
+					af = quaternion.x;
+					bf = quaternion.z;
+					cf = quaternion.w;
 
 					break;
 				case 2:
-					af = quaternion.X;
-					bf = quaternion.Y;
-					cf = quaternion.W;
+					af = quaternion.x;
+					bf = quaternion.y;
+					cf = quaternion.w;
 
 					break;
 				default:
-					af = quaternion.X;
-					bf = quaternion.Y;
-					cf = quaternion.Z;
+					af = quaternion.x;
+					bf = quaternion.y;
+					cf = quaternion.z;
 
 					break;
 			}

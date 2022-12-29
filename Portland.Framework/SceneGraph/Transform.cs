@@ -1,13 +1,11 @@
-﻿using System;
+﻿#if !UNITY_5_3_OR_NEWER
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-#if UNITY_5_3_OR_NEWER
-using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
-#endif
+using Portland.Mathmatics;
 
 namespace Portland.SceneGraph
 {
@@ -434,9 +432,9 @@ namespace Portland.SceneGraph
 
 		public void SetScale(float x, float y, float z)
 		{
-			_scale.X = x;
-			_scale.Y = y;
-			_scale.Z = z;
+			_scale.x = x;
+			_scale.y = y;
+			_scale.z = z;
 			OnTransformationsSet();
 		}
 
@@ -550,3 +548,5 @@ namespace Portland.SceneGraph
 		}
 	}
 }
+
+#endif

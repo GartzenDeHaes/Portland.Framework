@@ -3,8 +3,6 @@ using System.Runtime.InteropServices;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
-#else
-using Microsoft.Xna.Framework;
 #endif
 
 namespace Portland.Mathmatics
@@ -607,13 +605,13 @@ namespace Portland.Mathmatics
 		/// <param name="result">Transformed <see cref="Vector3d"/> as an output parameter.</param>
 		public static void Transform(ref Vector3d value, ref Quaternion rotation, out Vector3d result)
 		{
-			double x = 2 * (rotation.Y * value.Z - rotation.Z * value.Y);
-			double y = 2 * (rotation.Z * value.X - rotation.X * value.Z);
-			double z = 2 * (rotation.X * value.Y - rotation.Y * value.X);
+			double x = 2 * (rotation.y * value.Z - rotation.z * value.Y);
+			double y = 2 * (rotation.z * value.X - rotation.x * value.Z);
+			double z = 2 * (rotation.x * value.Y - rotation.y * value.X);
 
-			result.X = value.X + x * rotation.W + (rotation.Y * z - rotation.Z * y);
-			result.Y = value.Y + y * rotation.W + (rotation.Z * x - rotation.X * z);
-			result.Z = value.Z + z * rotation.W + (rotation.X * y - rotation.Y * x);
+			result.X = value.X + x * rotation.w + (rotation.y * z - rotation.z * y);
+			result.Y = value.Y + y * rotation.w + (rotation.z * x - rotation.x * z);
+			result.Z = value.Z + z * rotation.w + (rotation.x * y - rotation.y * x);
 		}
 
 		/// <summary>

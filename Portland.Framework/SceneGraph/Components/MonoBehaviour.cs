@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+#if !UNITY_5_3_OR_NEWER
+
 namespace Portland.SceneGraph.Components
 {
 	public class MonoBehaviour : Component, IMonoBehaviour
@@ -30,3 +32,5 @@ namespace Portland.SceneGraph.Components
 		}
 	}
 }
+
+#endif
