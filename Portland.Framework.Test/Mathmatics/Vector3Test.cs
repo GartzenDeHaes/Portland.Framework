@@ -72,7 +72,7 @@ namespace MonoGame.Tests.Framework
 			var expectedResult2 = new Vector3(33, -14, -1);
 
 			var v1 = new Vector3(1, 2, 3);
-			var m1 = new Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+			var m1 = new Matrix4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
 			var v2 = new Vector3(1, 2, 3);
 			var q1 = new Quaternion(2, 3, 4, 5);
@@ -98,13 +98,13 @@ namespace MonoGame.Tests.Framework
 			// Checking for overflows in hash calculation.
 			var max = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 			var min = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-			Assert.AreNotEqual(max.GetHashCode(), Vector3.Zero.GetHashCode());
-			Assert.AreNotEqual(min.GetHashCode(), Vector3.Zero.GetHashCode());
+			Assert.AreNotEqual(max.GetHashCode(), Vector3.zero.GetHashCode());
+			Assert.AreNotEqual(min.GetHashCode(), Vector3.zero.GetHashCode());
 
 			// Common values
 			var a = new Vector3(0f, 0f, 0f);
-			Assert.AreEqual(a.GetHashCode(), Vector3.Zero.GetHashCode());
-			Assert.AreNotEqual(a.GetHashCode(), Vector3.One.GetHashCode());
+			Assert.AreEqual(a.GetHashCode(), Vector3.zero.GetHashCode());
+			Assert.AreNotEqual(a.GetHashCode(), Vector3.one.GetHashCode());
 
 			// Individual properties alter hash
 			var xa = new Vector3(2f, 1f, 1f);

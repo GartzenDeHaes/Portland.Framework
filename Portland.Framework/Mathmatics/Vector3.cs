@@ -20,16 +20,16 @@ namespace Portland.Mathmatics
 	{
 		#region Static Fields
 
-		public static readonly Vector3 Zero = new Vector3(0f, 0f, 0f);
-		public static readonly Vector3 One = new Vector3(1f, 1f, 1f);
+		public static readonly Vector3 zero = new Vector3(0f, 0f, 0f);
+		public static readonly Vector3 one = new Vector3(1f, 1f, 1f);
 		public static readonly Vector3 UnitX = new Vector3(1f, 0f, 0f);
 		public static readonly Vector3 UnitY = new Vector3(0f, 1f, 0f);
 		public static readonly Vector3 UnitZ = new Vector3(0f, 0f, 1f);
-		public static readonly Vector3 Up = new Vector3(0f, 1f, 0f);
-		public static readonly Vector3 Down = new Vector3(0f, -1f, 0f);
-		public static readonly Vector3 Right = new Vector3(1f, 0f, 0f);
-		public static readonly Vector3 Left = new Vector3(-1f, 0f, 0f);
-		public static readonly Vector3 Forward = new Vector3(0f, 0f, 1f);
+		public static readonly Vector3 up = new Vector3(0f, 1f, 0f);
+		public static readonly Vector3 down = new Vector3(0f, -1f, 0f);
+		public static readonly Vector3 right = new Vector3(1f, 0f, 0f);
+		public static readonly Vector3 left = new Vector3(-1f, 0f, 0f);
+		public static readonly Vector3 forward = new Vector3(0f, 0f, 1f);
 		public static readonly Vector3 Backward = new Vector3(0f, 0f, -1f);
 		public static readonly Vector3 East = new Vector3(1, 0, 0);
 		public static readonly Vector3 West = new Vector3(-1, 0, 0);
@@ -569,6 +569,11 @@ namespace Portland.Mathmatics
 			get { return MathF.Sqrt((x * x) + (y * y) + (z * z)); }
 		}
 
+		public float magnitude
+		{
+			get { return Magnitude; }
+		}
+
 		/// <summary>
 		/// Returns the squared length of this <see cref="Vector3 />.
 		/// </summary>
@@ -576,6 +581,11 @@ namespace Portland.Mathmatics
 		public float SqrMagnitude
 		{
 			get { return (x * x) + (y * y) + (z * z); }
+		}
+
+		public float sqrMagnitude
+		{
+			get { return SqrMagnitude; }
 		}
 
 		/// <summary>
@@ -805,7 +815,7 @@ namespace Portland.Mathmatics
 			float factor = MathF.Sqrt((value.x * value.x) + (value.y * value.y) + (value.z * value.z));
 			if (factor == 0f)
 			{
-				return Vector3.Zero;
+				return Vector3.zero;
 			}
 			factor = 1f / factor;
 			return new Vector3(value.x * factor, value.y * factor, value.z * factor);
@@ -821,7 +831,7 @@ namespace Portland.Mathmatics
 			float factor = MathF.Sqrt((value.x * value.x) + (value.y * value.y) + (value.z * value.z));
 			if (factor == 0f)
 			{
-				result = Vector3.Zero;
+				result = Vector3.zero;
 				return;
 			}
 			factor = 1f / factor;
@@ -981,34 +991,34 @@ namespace Portland.Mathmatics
 
 		#region Transform
 
-		public Vector3 Transform(in Matrix matrix)
+		public Vector3 Transform(in Matrix4x4 matrix)
 		{
 			return Transform(this, matrix);
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3 /> that contains a transformation of 3d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3 /> that contains a transformation of 3d-vector by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector3 />.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <returns>Transformed <see cref="Vector3 />.</returns>
-		public static Vector3 Transform(in Vector3 position, in Matrix matrix)
+		public static Vector3 Transform(in Vector3 position, in Matrix4x4 matrix)
 		{
 			Transform(position, matrix, out var ret);
 			return ret;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3 /> that contains a transformation of 3d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3 /> that contains a transformation of 3d-vector by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector3 />.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="result">Transformed <see cref="Vector3 /> as an output parameter.</param>
-		public static void Transform(in Vector3 position, in Matrix matrix, out Vector3 result)
+		public static void Transform(in Vector3 position, in Matrix4x4 matrix, out Vector3 result)
 		{
-			var x = (position.x * matrix.M11) + (position.y * matrix.M21) + (position.z * matrix.M31) + matrix.M41;
-			var y = (position.x * matrix.M12) + (position.y * matrix.M22) + (position.z * matrix.M32) + matrix.M42;
-			var z = (position.x * matrix.M13) + (position.y * matrix.M23) + (position.z * matrix.M33) + matrix.M43;
+			var x = (position.x * matrix.m11) + (position.y * matrix.m21) + (position.z * matrix.m31) + matrix.m41;
+			var y = (position.x * matrix.m12) + (position.y * matrix.m22) + (position.z * matrix.m32) + matrix.m42;
+			var z = (position.x * matrix.m13) + (position.y * matrix.m23) + (position.z * matrix.m33) + matrix.m43;
 			result.x = x;
 			result.y = y;
 			result.z = z;
@@ -1045,15 +1055,15 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on vectors within array of <see cref="Vector3 /> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on vectors within array of <see cref="Vector3 /> by the specified <see cref="Matrix4x4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector3 /> should be written.</param>
 		/// <param name="length">The number of vectors to be transformed.</param>
-		public static void Transform(Vector3[] sourceArray, int sourceIndex, in Matrix matrix, Vector3[] destinationArray, int destinationIndex, int length)
+		public static void Transform(Vector3[] sourceArray, int sourceIndex, in Matrix4x4 matrix, Vector3[] destinationArray, int destinationIndex, int length)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");
@@ -1071,9 +1081,9 @@ namespace Portland.Mathmatics
 				var position = sourceArray[sourceIndex + i];
 				destinationArray[destinationIndex + i] =
 					 new Vector3(
-						  (position.x * matrix.M11) + (position.y * matrix.M21) + (position.z * matrix.M31) + matrix.M41,
-						  (position.x * matrix.M12) + (position.y * matrix.M22) + (position.z * matrix.M32) + matrix.M42,
-						  (position.x * matrix.M13) + (position.y * matrix.M23) + (position.z * matrix.M33) + matrix.M43);
+						  (position.x * matrix.m11) + (position.y * matrix.m21) + (position.z * matrix.m31) + matrix.m41,
+						  (position.x * matrix.m12) + (position.y * matrix.m22) + (position.z * matrix.m32) + matrix.m42,
+						  (position.x * matrix.m13) + (position.y * matrix.m23) + (position.z * matrix.m33) + matrix.m43);
 			}
 		}
 
@@ -1116,12 +1126,12 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on all vectors within array of <see cref="Vector3 /> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all vectors within array of <see cref="Vector3 /> by the specified <see cref="Matrix4x4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
-		public static void Transform(Vector3[] sourceArray, in Matrix matrix, Vector3[] destinationArray)
+		public static void Transform(Vector3[] sourceArray, in Matrix4x4 matrix, Vector3[] destinationArray)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");
@@ -1137,9 +1147,9 @@ namespace Portland.Mathmatics
 				var position = sourceArray[i];
 				destinationArray[i] =
 					 new Vector3(
-						  (position.x * matrix.M11) + (position.y * matrix.M21) + (position.z * matrix.M31) + matrix.M41,
-						  (position.x * matrix.M12) + (position.y * matrix.M22) + (position.z * matrix.M32) + matrix.M42,
-						  (position.x * matrix.M13) + (position.y * matrix.M23) + (position.z * matrix.M33) + matrix.M43);
+						  (position.x * matrix.m11) + (position.y * matrix.m21) + (position.z * matrix.m31) + matrix.m41,
+						  (position.x * matrix.m12) + (position.y * matrix.m22) + (position.z * matrix.m32) + matrix.m42,
+						  (position.x * matrix.m13) + (position.y * matrix.m23) + (position.z * matrix.m33) + matrix.m43);
 			}
 		}
 
@@ -1181,45 +1191,45 @@ namespace Portland.Mathmatics
 		#region TransformNormal
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3 /> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3 /> that contains a transformation of the specified normal by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector3 /> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <returns>Transformed normal.</returns>
-		public static Vector3 TransformNormal(Vector3 normal, in Matrix matrix)
+		public static Vector3 TransformNormal(Vector3 normal, in Matrix4x4 matrix)
 		{
 			TransformNormal(normal, matrix, out normal);
 			return normal;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3 /> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3 /> that contains a transformation of the specified normal by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector3 /> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="result">Transformed normal as an output parameter.</param>
-		public static void TransformNormal(in Vector3 normal, in Matrix matrix, out Vector3 result)
+		public static void TransformNormal(in Vector3 normal, in Matrix4x4 matrix, out Vector3 result)
 		{
-			var x = (normal.x * matrix.M11) + (normal.y * matrix.M21) + (normal.z * matrix.M31);
-			var y = (normal.x * matrix.M12) + (normal.y * matrix.M22) + (normal.z * matrix.M32);
-			var z = (normal.x * matrix.M13) + (normal.y * matrix.M23) + (normal.z * matrix.M33);
+			var x = (normal.x * matrix.m11) + (normal.y * matrix.m21) + (normal.z * matrix.m31);
+			var y = (normal.x * matrix.m12) + (normal.y * matrix.m22) + (normal.z * matrix.m32);
+			var z = (normal.x * matrix.m13) + (normal.y * matrix.m23) + (normal.z * matrix.m33);
 			result.x = x;
 			result.y = y;
 			result.z = z;
 		}
 
 		/// <summary>
-		/// Apply transformation on normals within array of <see cref="Vector3 /> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on normals within array of <see cref="Vector3 /> by the specified <see cref="Matrix4x4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector3 /> should be written.</param>
 		/// <param name="length">The number of normals to be transformed.</param>
 		public static void TransformNormal(Vector3[] sourceArray,
 		 int sourceIndex,
-		 in Matrix matrix,
+		 in Matrix4x4 matrix,
 		 Vector3[] destinationArray,
 		 int destinationIndex,
 		 int length)
@@ -1239,19 +1249,19 @@ namespace Portland.Mathmatics
 
 				destinationArray[destinationIndex + x] =
 					  new Vector3(
-						  (normal.x * matrix.M11) + (normal.y * matrix.M21) + (normal.z * matrix.M31),
-						  (normal.x * matrix.M12) + (normal.y * matrix.M22) + (normal.z * matrix.M32),
-						  (normal.x * matrix.M13) + (normal.y * matrix.M23) + (normal.z * matrix.M33));
+						  (normal.x * matrix.m11) + (normal.y * matrix.m21) + (normal.z * matrix.m31),
+						  (normal.x * matrix.m12) + (normal.y * matrix.m22) + (normal.z * matrix.m32),
+						  (normal.x * matrix.m13) + (normal.y * matrix.m23) + (normal.z * matrix.m33));
 			}
 		}
 
 		/// <summary>
-		/// Apply transformation on all normals within array of <see cref="Vector3 /> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all normals within array of <see cref="Vector3 /> by the specified <see cref="Matrix4x4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
-		public static void TransformNormal(Vector3[] sourceArray, in Matrix matrix, Vector3[] destinationArray)
+		public static void TransformNormal(Vector3[] sourceArray, in Matrix4x4 matrix, Vector3[] destinationArray)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");
@@ -1266,9 +1276,9 @@ namespace Portland.Mathmatics
 
 				destinationArray[i] =
 					 new Vector3(
-						  (normal.x * matrix.M11) + (normal.y * matrix.M21) + (normal.z * matrix.M31),
-						  (normal.x * matrix.M12) + (normal.y * matrix.M22) + (normal.z * matrix.M32),
-						  (normal.x * matrix.M13) + (normal.y * matrix.M23) + (normal.z * matrix.M33));
+						  (normal.x * matrix.m11) + (normal.y * matrix.m21) + (normal.z * matrix.m31),
+						  (normal.x * matrix.m12) + (normal.y * matrix.m22) + (normal.z * matrix.m32),
+						  (normal.x * matrix.m13) + (normal.y * matrix.m23) + (normal.z * matrix.m33));
 			}
 		}
 

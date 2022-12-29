@@ -19,11 +19,11 @@ namespace Portland.Mathmatics.Geometry
 		/// <summary>
 		/// Returns the normalized direction of the segment
 		/// </summary>
-		public Vector2 Direction => Vector2.Normalize(b - a);
+		public Vector2 Direction => (b - a).normalized;
 		/// <summary>
 		/// Returns the length of the segment
 		/// </summary>
-		public double Length => (b - a).Magnitude;
+		public double Length => (b - a).magnitude;
 		/// <summary>
 		/// Returns the center of the segment
 		/// </summary>

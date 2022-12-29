@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
+
 namespace Portland.Mathmatics.Geometry
 {
 	/// <summary>
@@ -344,8 +348,8 @@ namespace Portland.Mathmatics.Geometry
 			}
 		}
 
-		private static readonly Vector3 MaxVector3 = new Vector3(Single.MaxValue);
-		private static readonly Vector3 MinVector3 = new Vector3(Single.MinValue);
+		private static readonly Vector3 MaxVector3 = new Vector3(Single.MaxValue, Single.MaxValue, Single.MaxValue);
+		private static readonly Vector3 MinVector3 = new Vector3(Single.MinValue, Single.MinValue, Single.MinValue);
 
 		/// <summary>
 		/// Create a bounding box from the given list of points.
@@ -719,7 +723,7 @@ namespace Portland.Mathmatics.Geometry
 			Vector3 positiveVertex;
 			Vector3 negativeVertex;
 
-			if (plane.Normal.x >= 0)
+			if (plane.normal.x >= 0)
 			{
 				positiveVertex.x = Max.x;
 				negativeVertex.x = Min.x;
@@ -730,7 +734,7 @@ namespace Portland.Mathmatics.Geometry
 				negativeVertex.x = Max.x;
 			}
 
-			if (plane.Normal.y >= 0)
+			if (plane.normal.y >= 0)
 			{
 				positiveVertex.y = Max.y;
 				negativeVertex.y = Min.y;
@@ -741,7 +745,7 @@ namespace Portland.Mathmatics.Geometry
 				negativeVertex.y = Max.y;
 			}
 
-			if (plane.Normal.z >= 0)
+			if (plane.normal.z >= 0)
 			{
 				positiveVertex.z = Max.z;
 				negativeVertex.z = Min.z;
@@ -753,7 +757,7 @@ namespace Portland.Mathmatics.Geometry
 			}
 
 			// Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;
-			var distance = plane.Normal.x * negativeVertex.x + plane.Normal.y * negativeVertex.y + plane.Normal.z * negativeVertex.z + plane.D;
+			var distance = plane.normal.x * negativeVertex.x + plane.normal.y * negativeVertex.y + plane.normal.z * negativeVertex.z + plane.distance;
 			if (distance > 0)
 			{
 				result = PlaneIntersectionType.Front;
@@ -761,7 +765,7 @@ namespace Portland.Mathmatics.Geometry
 			}
 
 			// Inline Vector3.Dot(plane.Normal, positiveVertex) + plane.D;
-			distance = plane.Normal.x * positiveVertex.x + plane.Normal.y * positiveVertex.y + plane.Normal.z * positiveVertex.z + plane.D;
+			distance = plane.normal.x * positiveVertex.x + plane.normal.y * positiveVertex.y + plane.normal.z * positiveVertex.z + plane.distance;
 			if (distance < 0)
 			{
 				result = PlaneIntersectionType.Back;
@@ -858,6 +862,6 @@ namespace Portland.Mathmatics.Geometry
 
 		#endregion Public Methods
 
-		public static readonly BoundingBox One = new BoundingBox(Vector3.Zero, Vector3.One);
+		public static readonly BoundingBox One = new BoundingBox(Vector3.zero, Vector3.one);
 	}
 }

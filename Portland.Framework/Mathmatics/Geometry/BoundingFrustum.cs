@@ -5,6 +5,10 @@
 using System;
 using System.Diagnostics;
 
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
+
 namespace Portland.Mathmatics.Geometry
 {
 	/// <summary>
@@ -15,7 +19,7 @@ namespace Portland.Mathmatics.Geometry
 	{
 		#region Private Fields
 
-		private Matrix _matrix;
+		private Matrix4x4 _matrix;
 		private readonly Vector3[] _corners = new Vector3[CornerCount];
 		private readonly Plane[] _planes = new Plane[PlaneCount];
 
@@ -40,7 +44,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <summary>
 		/// Gets or sets the <see cref="Matrix"/> of the frustum.
 		/// </summary>
-		public Matrix Matrix
+		public Matrix4x4 Matrix
 		{
 			get { return this._matrix; }
 			set
@@ -107,6 +111,16 @@ namespace Portland.Mathmatics.Geometry
 		{
 			get
 			{
+#if UNITY_5_3_OR_NEWER
+				return string.Concat(
+					 "Near( ", this._planes[0].ToString(), " )  \r\n",
+					 "Far( ", this._planes[1].ToString(), " )  \r\n",
+					 "Left( ", this._planes[2].ToString(), " )  \r\n",
+					 "Right( ", this._planes[3].ToString(), " )  \r\n",
+					 "Top( ", this._planes[4].ToString(), " )  \r\n",
+					 "Bottom( ", this._planes[5].ToString(), " )  "
+					 );
+#else
 				return string.Concat(
 					 "Near( ", this._planes[0].DebugDisplayString, " )  \r\n",
 					 "Far( ", this._planes[1].DebugDisplayString, " )  \r\n",
@@ -115,27 +129,28 @@ namespace Portland.Mathmatics.Geometry
 					 "Top( ", this._planes[4].DebugDisplayString, " )  \r\n",
 					 "Bottom( ", this._planes[5].DebugDisplayString, " )  "
 					 );
+#endif
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Constructors
+#region Constructors
 
 		/// <summary>
 		/// Constructs the frustum by extracting the view planes from a matrix.
 		/// </summary>
 		/// <param name="value">Combined matrix which usually is (View * Projection).</param>
-		public BoundingFrustum(Matrix value)
+		public BoundingFrustum(Matrix4x4 value)
 		{
 			this._matrix = value;
 			this.CreatePlanes();
 			this.CreateCorners();
 		}
 
-		#endregion
+#endregion
 
-		#region Operators
+#region Operators
 
 		/// <summary>
 		/// Compares whether two <see cref="BoundingFrustum"/> instances are equal.
@@ -165,11 +180,11 @@ namespace Portland.Mathmatics.Geometry
 			return !(a == b);
 		}
 
-		#endregion
+#endregion
 
-		#region Public Methods
+#region Public Methods
 
-		#region Contains
+#region Contains
 
 		/// <summary>
 		/// Containment test between this <see cref="BoundingFrustum"/> and specified <see cref="BoundingBox"/>.
@@ -305,7 +320,7 @@ namespace Portland.Mathmatics.Geometry
 			result = ContainmentType.Contains;
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Compares whether current instance is equal to specified <see cref="BoundingFrustum"/>.
@@ -493,9 +508,9 @@ namespace Portland.Mathmatics.Geometry
 					 "}";
 		}
 
-		#endregion
+#endregion
 
-		#region Private Methods
+#region Private Methods
 
 		private void CreateCorners()
 		{
@@ -511,12 +526,12 @@ namespace Portland.Mathmatics.Geometry
 
 		private void CreatePlanes()
 		{
-			this._planes[0] = new Plane(-this._matrix.M13, -this._matrix.M23, -this._matrix.M33, -this._matrix.M43);
-			this._planes[1] = new Plane(this._matrix.M13 - this._matrix.M14, this._matrix.M23 - this._matrix.M24, this._matrix.M33 - this._matrix.M34, this._matrix.M43 - this._matrix.M44);
-			this._planes[2] = new Plane(-this._matrix.M14 - this._matrix.M11, -this._matrix.M24 - this._matrix.M21, -this._matrix.M34 - this._matrix.M31, -this._matrix.M44 - this._matrix.M41);
-			this._planes[3] = new Plane(this._matrix.M11 - this._matrix.M14, this._matrix.M21 - this._matrix.M24, this._matrix.M31 - this._matrix.M34, this._matrix.M41 - this._matrix.M44);
-			this._planes[4] = new Plane(this._matrix.M12 - this._matrix.M14, this._matrix.M22 - this._matrix.M24, this._matrix.M32 - this._matrix.M34, this._matrix.M42 - this._matrix.M44);
-			this._planes[5] = new Plane(-this._matrix.M14 - this._matrix.M12, -this._matrix.M24 - this._matrix.M22, -this._matrix.M34 - this._matrix.M32, -this._matrix.M44 - this._matrix.M42);
+			this._planes[0] = new Plane(-this._matrix.m13, -this._matrix.m23, -this._matrix.m33, -this._matrix.m43);
+			this._planes[1] = new Plane(this._matrix.m13 - this._matrix.m14, this._matrix.m23 - this._matrix.m24, this._matrix.m33 - this._matrix.m34, this._matrix.m43 - this._matrix.m44);
+			this._planes[2] = new Plane(-this._matrix.m14 - this._matrix.m11, -this._matrix.m24 - this._matrix.m21, -this._matrix.m34 - this._matrix.m31, -this._matrix.m44 - this._matrix.m41);
+			this._planes[3] = new Plane(this._matrix.m11 - this._matrix.m14, this._matrix.m21 - this._matrix.m24, this._matrix.m31 - this._matrix.m34, this._matrix.m41 - this._matrix.m44);
+			this._planes[4] = new Plane(this._matrix.m12 - this._matrix.m14, this._matrix.m22 - this._matrix.m24, this._matrix.m32 - this._matrix.m34, this._matrix.m42 - this._matrix.m44);
+			this._planes[5] = new Plane(-this._matrix.m14 - this._matrix.m12, -this._matrix.m24 - this._matrix.m22, -this._matrix.m34 - this._matrix.m32, -this._matrix.m44 - this._matrix.m42);
 
 			this.NormalizePlane(ref this._planes[0]);
 			this.NormalizePlane(ref this._planes[1]);
@@ -538,24 +553,24 @@ namespace Portland.Mathmatics.Geometry
 			Vector3 v1, v2, v3;
 			Vector3 cross;
 
-			Vector3.Cross(b.Normal, c.Normal, out cross);
+			Vector3.Cross(b.normal, c.normal, out cross);
 
 			float f;
-			Vector3.Dot(a.Normal, cross, out f);
+			Vector3.Dot(a.normal, cross, out f);
 			f *= -1.0f;
 
-			Vector3.Cross(b.Normal, c.Normal, out cross);
-			Vector3.Multiply(cross, a.D, out v1);
+			Vector3.Cross(b.normal, c.normal, out cross);
+			Vector3.Multiply(cross, a.distance, out v1);
 			//v1 = (a.D * (Vector3.Cross(b.Normal, c.Normal)));
 
 
-			Vector3.Cross(c.Normal, a.Normal, out cross);
-			Vector3.Multiply(cross, b.D, out v2);
+			Vector3.Cross(c.normal, a.normal, out cross);
+			Vector3.Multiply(cross, b.distance, out v2);
 			//v2 = (b.D * (Vector3.Cross(c.Normal, a.Normal)));
 
 
-			Vector3.Cross(a.Normal, b.Normal, out cross);
-			Vector3.Multiply(cross, c.D, out v3);
+			Vector3.Cross(a.normal, b.normal, out cross);
+			Vector3.Multiply(cross, c.distance, out v3);
 			//v3 = (c.D * (Vector3.Cross(a.Normal, b.Normal)));
 
 			result.x = (v1.x + v2.x + v3.x) / f;
@@ -565,14 +580,14 @@ namespace Portland.Mathmatics.Geometry
 
 		private void NormalizePlane(ref Plane p)
 		{
-			float factor = 1f / p.Normal.Magnitude;
-			p.Normal.x *= factor;
-			p.Normal.y *= factor;
-			p.Normal.z *= factor;
-			p.D *= factor;
+			float factor = 1f / p.normal.Magnitude;
+			p.normal.x *= factor;
+			p.normal.y *= factor;
+			p.normal.z *= factor;
+			p.distance *= factor;
 		}
 
-		#endregion
+#endregion
 	}
 }
 

@@ -24,7 +24,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <summary>
 		/// Returns the length of the segment
 		/// </summary>
-		public double Length => (b - a).Magnitude;
+		public double Length => (b - a).magnitude;
 
 		/// <summary>
 		/// Returns the center of the segment
@@ -91,7 +91,8 @@ namespace Portland.Mathmatics.Geometry
 
 		public Vector2 GetPoint2D(float position)
 		{
-			return Geometry.PointOnSegment3(a, b, position).ToVector2();
+			var v = Geometry.PointOnSegment3(a, b, position);
+			return new Vector2(v.x, v.y);
 		}
 
 		/// <summary>
@@ -134,7 +135,7 @@ namespace Portland.Mathmatics.Geometry
 
 		public static explicit operator Segment2(Segment3 segment)
 		{
-			return new Segment2(segment.a.ToVector2(), segment.b.ToVector2());
+			return new Segment2(new Vector2(segment.a.x, segment.a.y), new Vector2(segment.b.x, segment.b.y));
 		}
 
 		#endregion Casting operators

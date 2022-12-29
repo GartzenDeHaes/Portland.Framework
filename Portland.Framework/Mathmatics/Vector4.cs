@@ -542,48 +542,48 @@ namespace Portland.Mathmatics
 			result.z = value1.z - value2.z;
 		}
 
-		public static Vector4 Transform(in Vector2 position, in Matrix matrix)
+		public static Vector4 Transform(in Vector2 position, in Matrix4x4 matrix)
 		{
 			Vector4 result;
 			Transform(position, matrix, out result);
 			return result;
 		}
 
-		public static Vector4 Transform(in Vector3 position, in Matrix matrix)
+		public static Vector4 Transform(in Vector3 position, in Matrix4x4 matrix)
 		{
 			Vector4 result;
 			Transform(position, matrix, out result);
 			return result;
 		}
 
-		public static Vector4 Transform(in Vector4 vector, in Matrix matrix)
+		public static Vector4 Transform(in Vector4 vector, in Matrix4x4 matrix)
 		{
 			Transform(vector, matrix, out var vectoro);
 			return vectoro;
 		}
 
-		public static void Transform(in Vector2 position, in Matrix matrix, out Vector4 result)
+		public static void Transform(in Vector2 position, in Matrix4x4 matrix, out Vector4 result)
 		{
-			result = new Vector4((position.x * matrix.M11) + (position.y * matrix.M21) + matrix.M41,
-										(position.x * matrix.M12) + (position.y * matrix.M22) + matrix.M42,
-										(position.x * matrix.M13) + (position.y * matrix.M23) + matrix.M43,
-										(position.x * matrix.M14) + (position.y * matrix.M24) + matrix.M44);
+			result = new Vector4((position.x * matrix.m11) + (position.y * matrix.m21) + matrix.m41,
+										(position.x * matrix.m12) + (position.y * matrix.m22) + matrix.m42,
+										(position.x * matrix.m13) + (position.y * matrix.m23) + matrix.m43,
+										(position.x * matrix.m14) + (position.y * matrix.m24) + matrix.m44);
 		}
 
-		public static void Transform(in Vector3 position, in Matrix matrix, out Vector4 result)
+		public static void Transform(in Vector3 position, in Matrix4x4 matrix, out Vector4 result)
 		{
-			result = new Vector4((position.x * matrix.M11) + (position.y * matrix.M21) + (position.z * matrix.M31) + matrix.M41,
-										(position.x * matrix.M12) + (position.y * matrix.M22) + (position.z * matrix.M32) + matrix.M42,
-										(position.x * matrix.M13) + (position.y * matrix.M23) + (position.z * matrix.M33) + matrix.M43,
-										(position.x * matrix.M14) + (position.y * matrix.M24) + (position.z * matrix.M34) + matrix.M44);
+			result = new Vector4((position.x * matrix.m11) + (position.y * matrix.m21) + (position.z * matrix.m31) + matrix.m41,
+										(position.x * matrix.m12) + (position.y * matrix.m22) + (position.z * matrix.m32) + matrix.m42,
+										(position.x * matrix.m13) + (position.y * matrix.m23) + (position.z * matrix.m33) + matrix.m43,
+										(position.x * matrix.m14) + (position.y * matrix.m24) + (position.z * matrix.m34) + matrix.m44);
 		}
 
-		public static void Transform(in Vector4 vector, in Matrix matrix, out Vector4 result)
+		public static void Transform(in Vector4 vector, in Matrix4x4 matrix, out Vector4 result)
 		{
-			result = new Vector4((vector.x * matrix.M11) + (vector.y * matrix.M21) + (vector.z * matrix.M31) + (vector.w * matrix.M41),
-										(vector.x * matrix.M12) + (vector.y * matrix.M22) + (vector.z * matrix.M32) + (vector.w * matrix.M42),
-										(vector.x * matrix.M13) + (vector.y * matrix.M23) + (vector.z * matrix.M33) + (vector.w * matrix.M43),
-										(vector.x * matrix.M14) + (vector.y * matrix.M24) + (vector.z * matrix.M34) + (vector.w * matrix.M44));
+			result = new Vector4((vector.x * matrix.m11) + (vector.y * matrix.m21) + (vector.z * matrix.m31) + (vector.w * matrix.m41),
+										(vector.x * matrix.m12) + (vector.y * matrix.m22) + (vector.z * matrix.m32) + (vector.w * matrix.m42),
+										(vector.x * matrix.m13) + (vector.y * matrix.m23) + (vector.z * matrix.m33) + (vector.w * matrix.m43),
+										(vector.x * matrix.m14) + (vector.y * matrix.m24) + (vector.z * matrix.m34) + (vector.w * matrix.m44));
 		}
 
 		public override string ToString()

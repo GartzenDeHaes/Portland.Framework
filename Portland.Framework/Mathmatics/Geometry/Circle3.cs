@@ -27,11 +27,11 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public float Area => MathF.PI * Radius * Radius;
 
-		public static Circle3 unitXY => new Circle3(Vector3.Zero, Vector3.Backward, 1);
-		public static Circle3 unitXZ => new Circle3(Vector3.Zero, Vector3.Up, 1);
-		public static Circle3 unitYZ => new Circle3(Vector3.Zero, Vector3.Left, 1);
+		public static Circle3 unitXY => new Circle3(Vector3.zero, Vector3.Backward, 1);
+		public static Circle3 unitXZ => new Circle3(Vector3.zero, Vector3.up, 1);
+		public static Circle3 unitYZ => new Circle3(Vector3.zero, Vector3.left, 1);
 
-		public Circle3(float radius) : this(Vector3.Zero, Vector3.Backward, radius)
+		public Circle3(float radius) : this(Vector3.zero, Vector3.Backward, radius)
 		{
 		}
 

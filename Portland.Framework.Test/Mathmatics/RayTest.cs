@@ -58,7 +58,7 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void Deconstruct()
 		{
-			Ray ray = new Ray(Vector3.Backward, Vector3.Right);
+			Ray ray = new Ray(Vector3.Backward, Vector3.right);
 
 			Vector3 position = ray.Origin, direction = ray.Direction;
 

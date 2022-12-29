@@ -123,7 +123,7 @@ namespace Portland.Mathmatics
 								  (other.Z - Z) * (other.Z - Z));
 		}
 
-		public Vector3d Transform(in Matrix matrix)
+		public Vector3d Transform(in Matrixd matrix)
 		{
 			var x = (X * matrix.M11) + (Y * matrix.M21) + (Z * matrix.M31) + matrix.M41;
 			var y = (X * matrix.M12) + (Y * matrix.M22) + (Z * matrix.M32) + matrix.M42;
@@ -557,24 +557,24 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3d"/> that contains a transformation of 3d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3d"/> that contains a transformation of 3d-vector by the specified <see cref="Matrixd"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector3d"/>.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <returns>Transformed <see cref="Vector3d"/>.</returns>
-		public static Vector3d Transform(Vector3d position, Matrix matrix)
+		public static Vector3d Transform(Vector3d position, Matrixd matrix)
 		{
 			Transform(ref position, ref matrix, out position);
 			return position;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3d"/> that contains a transformation of 3d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3d"/> that contains a transformation of 3d-vector by the specified <see cref="Matrixd"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector3d"/>.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="result">Transformed <see cref="Vector3d"/> as an output parameter.</param>
-		public static void Transform(ref Vector3d position, ref Matrix matrix, out Vector3d result)
+		public static void Transform(ref Vector3d position, ref Matrixd matrix, out Vector3d result)
 		{
 			var x = (position.X * matrix.M11) + (position.Y * matrix.M21) + (position.Z * matrix.M31) + matrix.M41;
 			var y = (position.X * matrix.M12) + (position.Y * matrix.M22) + (position.Z * matrix.M32) + matrix.M42;
@@ -615,15 +615,15 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on vectors within array of <see cref="Vector3d"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on vectors within array of <see cref="Vector3d"/> by the specified <see cref="Matrixd"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector3d"/> should be written.</param>
 		/// <param name="length">The number of vectors to be transformed.</param>
-		public static void Transform(Vector3d[] sourceArray, int sourceIndex, ref Matrix matrix, Vector3d[] destinationArray, int destinationIndex, int length)
+		public static void Transform(Vector3d[] sourceArray, int sourceIndex, ref Matrixd matrix, Vector3d[] destinationArray, int destinationIndex, int length)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");
@@ -686,12 +686,12 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on all vectors within array of <see cref="Vector3d"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all vectors within array of <see cref="Vector3d"/> by the specified <see cref="Matrixd"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
-		public static void Transform(Vector3d[] sourceArray, ref Matrix matrix, Vector3d[] destinationArray)
+		public static void Transform(Vector3d[] sourceArray, ref Matrixd matrix, Vector3d[] destinationArray)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");
@@ -798,24 +798,24 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3d"/> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3d"/> that contains a transformation of the specified normal by the specified <see cref="Matrixd"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector3d"/> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <returns>Transformed normal.</returns>
-		public static Vector3d TransformNormal(Vector3d normal, Matrix matrix)
+		public static Vector3d TransformNormal(Vector3d normal, Matrixd matrix)
 		{
 			TransformNormal(normal, matrix, out normal);
 			return normal;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector3d"/> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector3d"/> that contains a transformation of the specified normal by the specified <see cref="Matrixd"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector3d"/> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="result">Transformed normal as an output parameter.</param>
-		public static void TransformNormal(in Vector3d normal, in Matrix matrix, out Vector3d result)
+		public static void TransformNormal(in Vector3d normal, in Matrixd matrix, out Vector3d result)
 		{
 			var x = (normal.X * matrix.M11) + (normal.Y * matrix.M21) + (normal.Z * matrix.M31);
 			var y = (normal.X * matrix.M12) + (normal.Y * matrix.M22) + (normal.Z * matrix.M32);
@@ -826,17 +826,17 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on normals within array of <see cref="Vector3d"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on normals within array of <see cref="Vector3d"/> by the specified <see cref="Matrixd"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector3d"/> should be written.</param>
 		/// <param name="length">The number of normals to be transformed.</param>
 		public static void TransformNormal(Vector3d[] sourceArray,
 		 int sourceIndex,
-		 ref Matrix matrix,
+		 ref Matrixd matrix,
 		 Vector3d[] destinationArray,
 		 int destinationIndex,
 		 int length)
@@ -863,12 +863,12 @@ namespace Portland.Mathmatics
 		}
 
 		/// <summary>
-		/// Apply transformation on all normals within array of <see cref="Vector3d"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all normals within array of <see cref="Vector3d"/> by the specified <see cref="Matrixd"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrixd"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
-		public static void TransformNormal(Vector3d[] sourceArray, ref Matrix matrix, Vector3d[] destinationArray)
+		public static void TransformNormal(Vector3d[] sourceArray, ref Matrixd matrix, Vector3d[] destinationArray)
 		{
 			if (sourceArray == null)
 				throw new ArgumentNullException("sourceArray");

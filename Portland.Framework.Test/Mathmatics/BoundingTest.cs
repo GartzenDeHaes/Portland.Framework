@@ -21,14 +21,14 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoxContainsVector3Test()
 		{
-			var box = new BoundingBox(Vector3.Zero, Vector3.One);
+			var box = new BoundingBox(Vector3.zero, Vector3.one);
 
-			Assert.AreEqual(ContainmentType.Disjoint, box.Contains(-Vector3.One));
+			Assert.AreEqual(ContainmentType.Disjoint, box.Contains(-Vector3.one));
 			Assert.AreEqual(ContainmentType.Disjoint, box.Contains(new Vector3(0.5f, 0.5f, -1f)));
-			Assert.AreEqual(ContainmentType.Contains, box.Contains(Vector3.Zero));
+			Assert.AreEqual(ContainmentType.Contains, box.Contains(Vector3.zero));
 			Assert.AreEqual(ContainmentType.Contains, box.Contains(new Vector3(0f, 0, 0.5f)));
 			Assert.AreEqual(ContainmentType.Contains, box.Contains(new Vector3(0f, 0.5f, 0.5f)));
-			Assert.AreEqual(ContainmentType.Contains, box.Contains(Vector3.One));
+			Assert.AreEqual(ContainmentType.Contains, box.Contains(Vector3.one));
 			Assert.AreEqual(ContainmentType.Contains, box.Contains(new Vector3(1f, 1, 0.5f)));
 			Assert.AreEqual(ContainmentType.Contains, box.Contains(new Vector3(1f, 0.5f, 0.5f)));
 			Assert.AreEqual(ContainmentType.Contains, box.Contains(new Vector3(0.5f, 0.5f, 0.5f)));
@@ -37,8 +37,8 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoxContainsIdenticalBox()
 		{
-			var b1 = new BoundingBox(Vector3.Zero, Vector3.One);
-			var b2 = new BoundingBox(Vector3.Zero, Vector3.One);
+			var b1 = new BoundingBox(Vector3.zero, Vector3.one);
+			var b2 = new BoundingBox(Vector3.zero, Vector3.one);
 
 			Assert.AreEqual(ContainmentType.Contains, b1.Contains(b2));
 		}
@@ -46,13 +46,13 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoundingSphereTests()
 		{
-			var zeroPoint = BoundingSphere.CreateFromPoints(new[] { Vector3.Zero });
+			var zeroPoint = BoundingSphere.CreateFromPoints(new[] { Vector3.zero });
 			Assert.AreEqual(new BoundingSphere(), zeroPoint);
 
-			var onePoint = BoundingSphere.CreateFromPoints(new[] { Vector3.One });
-			Assert.AreEqual(new BoundingSphere(Vector3.One, 0), onePoint);
+			var onePoint = BoundingSphere.CreateFromPoints(new[] { Vector3.one });
+			Assert.AreEqual(new BoundingSphere(Vector3.one, 0), onePoint);
 
-			var twoPoint = BoundingSphere.CreateFromPoints(new[] { Vector3.Zero, Vector3.One });
+			var twoPoint = BoundingSphere.CreateFromPoints(new[] { Vector3.zero, Vector3.one });
 			Assert.AreEqual(new BoundingSphere(new Vector3(0.5f, 0.5f, 0.5f), 0.8660254037844386f), twoPoint);
 
 			var threePoint = BoundingSphere.CreateFromPoints(new[] { new Vector3(0, 0, 0), new Vector3(-1, 0, 0), new Vector3(1, 1, 1) });
@@ -81,16 +81,16 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoundingBoxContainsBoundingSphere()
 		{
-			var testSphere = new BoundingSphere(Vector3.Zero, 1);
-			var testBox = new BoundingBox(-Vector3.One, Vector3.One);
+			var testSphere = new BoundingSphere(Vector3.zero, 1);
+			var testBox = new BoundingBox(-Vector3.one, Vector3.one);
 
 			Assert.AreEqual(testBox.Contains(testSphere), ContainmentType.Contains);
 
-			testSphere.Center -= Vector3.One;
+			testSphere.Center -= Vector3.one;
 
 			Assert.AreEqual(testBox.Contains(testSphere), ContainmentType.Intersects);
 
-			testSphere.Center -= Vector3.One;
+			testSphere.Center -= Vector3.one;
 
 			Assert.AreEqual(testBox.Contains(testSphere), ContainmentType.Disjoint);
 		}
@@ -98,8 +98,8 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoundingFrustumToBoundingBoxTests()
 		{
-			var view = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
-			var projection = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 100);
+			var view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 5), Vector3.zero, Vector3.up);
+			var projection = Matrix4x4.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 100);
 			var testFrustum = new BoundingFrustum(view * projection);
 
 			var bbox1 = new BoundingBox(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
@@ -122,19 +122,19 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void BoundingFrustumToBoundingFrustumTests()
 		{
-			var view = Matrix.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.Up);
-			var projection = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 100);
+			var view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 5), Vector3.zero, Vector3.up);
+			var projection = Matrix4x4.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 100);
 			var testFrustum = new BoundingFrustum(view * projection);
 
 			// Same frustum.
 			Assert.That(testFrustum.Contains(testFrustum), Is.EqualTo(ContainmentType.Contains));
 			Assert.That(testFrustum.Intersects(testFrustum), Is.True);
 
-			var otherFrustum = new BoundingFrustum(Matrix.Identity);
+			var otherFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
 			// Smaller frustum contained entirely inside.
-			var view2 = Matrix.CreateLookAt(new Vector3(0, 0, 4), Vector3.Zero, Vector3.Up);
-			var projection2 = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 50);
+			var view2 = Matrix4x4.CreateLookAt(new Vector3(0, 0, 4), Vector3.zero, Vector3.up);
+			var projection2 = Matrix4x4.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 50);
 			otherFrustum.Matrix = view2 * projection2;
 
 			Assert.That(testFrustum.Contains(otherFrustum), Is.EqualTo(ContainmentType.Contains));
@@ -147,23 +147,23 @@ namespace MonoGame.Tests.Framework
 			Assert.That(testFrustum.Intersects(otherFrustum), Is.True);
 
 			// Same size frustum, pointing in the opposite direction and not overlapping.
-			var view3 = Matrix.CreateLookAt(new Vector3(0, 0, 6), new Vector3(0, 0, 7), Vector3.Up);
+			var view3 = Matrix4x4.CreateLookAt(new Vector3(0, 0, 6), new Vector3(0, 0, 7), Vector3.up);
 			otherFrustum.Matrix = view3 * projection;
 
 			Assert.That(testFrustum.Contains(otherFrustum), Is.EqualTo(ContainmentType.Disjoint));
 			Assert.That(testFrustum.Intersects(otherFrustum), Is.False);
 
 			// Larger frustum, entirely containing test frustum.
-			var view4 = Matrix.CreateLookAt(new Vector3(0, 0, 10), Vector3.Zero, Vector3.Up);
-			var projection4 = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 1000);
+			var view4 = Matrix4x4.CreateLookAt(new Vector3(0, 0, 10), Vector3.zero, Vector3.up);
+			var projection4 = Matrix4x4.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4, 1, 1, 1000);
 			otherFrustum.Matrix = view4 * projection4;
 
 			Assert.That(testFrustum.Contains(otherFrustum), Is.EqualTo(ContainmentType.Intersects));
 			Assert.That(testFrustum.Intersects(otherFrustum), Is.True);
 
 			var bf =
-				 new BoundingFrustum(Matrix.CreateLookAt(new Vector3(0, 1, 1), new Vector3(0, 0, 0), Vector3.Up) *
-											Matrix.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4,
+				 new BoundingFrustum(Matrix4x4.CreateLookAt(new Vector3(0, 1, 1), new Vector3(0, 0, 0), Vector3.up) *
+											Matrix4x4.CreatePerspectiveFieldOfView((float)MathHelper.PiOver4,
 												 1.3f, 0.1f, 1000.0f));
 			var ray = new Ray(new Vector3(0, 0.5f, 0.5f), new Vector3(0, 0, 0));
 			var ray2 = new Ray(new Vector3(0, 1.0f, 1.0f), new Vector3(0, 0, 0));

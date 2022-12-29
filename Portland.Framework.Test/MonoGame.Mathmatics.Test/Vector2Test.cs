@@ -108,7 +108,7 @@ namespace MonoGame.Tests.Framework
 			var expectedResult2 = new Vector2(-0.0168301091f, 2.30964f);
 
 			var v1 = new Vector2(1, 2);
-			var m1 = new Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+			var m1 = new Matrix4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
 			var v2 = new Vector2(1.1f, 2.45f);
 			var q2 = new Quaternion(0.11f, 0.22f, 0.33f, 0.55f);
@@ -247,7 +247,7 @@ namespace MonoGame.Tests.Framework
 		public void TransformNormal()
 		{
 			var normal = new Vector2(1.5f, 2.5f);
-			var matrix = new Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+			var matrix = new Matrix4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
 			var expectedResult1 = new Vector2(14, 18);
 			var expectedResult2 = expectedResult1;

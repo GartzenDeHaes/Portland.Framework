@@ -19,7 +19,7 @@ using UnityEngine;
 namespace MonoGame.Tests
 {
 
-	public class MatrixComparer : IEqualityComparer<Matrix>
+	public class MatrixComparer : IEqualityComparer<Matrix4x4>
 	{
 		static public MatrixComparer Epsilon = new MatrixComparer(0.000001f);
 
@@ -30,27 +30,27 @@ namespace MonoGame.Tests
 			_epsilon = epsilon;
 		}
 
-		public bool Equals(Matrix x, Matrix y)
+		public bool Equals(Matrix4x4 x, Matrix4x4 y)
 		{
-			return Math.Abs(x.M11 - y.M11) < _epsilon &&
-					  Math.Abs(x.M12 - y.M12) < _epsilon &&
-					  Math.Abs(x.M13 - y.M13) < _epsilon &&
-					  Math.Abs(x.M14 - y.M14) < _epsilon &&
-					  Math.Abs(x.M21 - y.M21) < _epsilon &&
-					  Math.Abs(x.M22 - y.M22) < _epsilon &&
-					  Math.Abs(x.M23 - y.M23) < _epsilon &&
-					  Math.Abs(x.M24 - y.M24) < _epsilon &&
-					  Math.Abs(x.M31 - y.M31) < _epsilon &&
-					  Math.Abs(x.M32 - y.M32) < _epsilon &&
-					  Math.Abs(x.M33 - y.M33) < _epsilon &&
-					  Math.Abs(x.M34 - y.M34) < _epsilon &&
-					  Math.Abs(x.M41 - y.M41) < _epsilon &&
-					  Math.Abs(x.M42 - y.M42) < _epsilon &&
-					  Math.Abs(x.M43 - y.M43) < _epsilon &&
-					  Math.Abs(x.M44 - y.M44) < _epsilon;
+			return Math.Abs(x.m11 - y.m11) < _epsilon &&
+					  Math.Abs(x.m12 - y.m12) < _epsilon &&
+					  Math.Abs(x.m13 - y.m13) < _epsilon &&
+					  Math.Abs(x.m14 - y.m14) < _epsilon &&
+					  Math.Abs(x.m21 - y.m21) < _epsilon &&
+					  Math.Abs(x.m22 - y.m22) < _epsilon &&
+					  Math.Abs(x.m23 - y.m23) < _epsilon &&
+					  Math.Abs(x.m24 - y.m24) < _epsilon &&
+					  Math.Abs(x.m31 - y.m31) < _epsilon &&
+					  Math.Abs(x.m32 - y.m32) < _epsilon &&
+					  Math.Abs(x.m33 - y.m33) < _epsilon &&
+					  Math.Abs(x.m34 - y.m34) < _epsilon &&
+					  Math.Abs(x.m41 - y.m41) < _epsilon &&
+					  Math.Abs(x.m42 - y.m42) < _epsilon &&
+					  Math.Abs(x.m43 - y.m43) < _epsilon &&
+					  Math.Abs(x.m44 - y.m44) < _epsilon;
 		}
 
-		public int GetHashCode(Matrix obj)
+		public int GetHashCode(Matrix4x4 obj)
 		{
 			throw new NotImplementedException();
 		}
@@ -272,10 +272,10 @@ namespace MonoGame.Tests
 
 		public bool Equals(Plane x, Plane y)
 		{
-			return Math.Abs(x.Normal.x - y.Normal.x) < _epsilon &&
-					 Math.Abs(x.Normal.y - y.Normal.y) < _epsilon &&
-					 Math.Abs(x.Normal.z - y.Normal.z) < _epsilon &&
-					 Math.Abs(x.D - y.D) < _epsilon;
+			return Math.Abs(x.normal.x - y.normal.x) < _epsilon &&
+					 Math.Abs(x.normal.y - y.normal.y) < _epsilon &&
+					 Math.Abs(x.normal.z - y.normal.z) < _epsilon &&
+					 Math.Abs(x.distance - y.distance) < _epsilon;
 		}
 
 		public int GetHashCode(Plane obj)

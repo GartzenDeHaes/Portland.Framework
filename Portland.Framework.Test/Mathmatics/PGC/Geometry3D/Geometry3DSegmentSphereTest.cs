@@ -45,7 +45,7 @@ namespace ProceduralToolkit.Tests.Geometry3D
 		public void Distance_OnePoint()
 		{
 			var segment = new Segment3();
-			var sphere = new Sphere(Vector3.Zero, 2);
+			var sphere = new Sphere(Vector3.zero, 2);
 			foreach (var center in originPoints3)
 			{
 				sphere.Center = center;
@@ -144,7 +144,7 @@ namespace ProceduralToolkit.Tests.Geometry3D
 		public void ClosestPoints_OnePoint()
 		{
 			var segment = new Segment3();
-			var sphere = new Sphere(Vector3.Zero, 2);
+			var sphere = new Sphere(Vector3.zero, 2);
 			foreach (var center in originPoints3)
 			{
 				sphere.Center = center;
@@ -247,7 +247,7 @@ namespace ProceduralToolkit.Tests.Geometry3D
 		public void Intersect_OnePoint()
 		{
 			var segment = new Segment3();
-			var sphere = new Sphere(Vector3.Zero, 2);
+			var sphere = new Sphere(Vector3.zero, 2);
 			foreach (var center in originPoints3)
 			{
 				sphere.Center = center;

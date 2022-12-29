@@ -6,8 +6,9 @@ namespace Portland.Threading
 {
 	public sealed class ThreadServiceSlim : IThreadService
 	{
+#if !UNITY_5_3_OR_NEWER
 		private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-
+#endif
 		private bool _running = false;
 
 		private Action OnSignaled;
@@ -104,7 +105,11 @@ namespace Portland.Threading
 				}
 				catch (Exception ex)
 				{
+#if !UNITY_5_3_OR_NEWER
 					Log.Error(ex);
+#else
+					UnityEngine.Debug.LogException(ex);
+#endif
 				}
 			}
 

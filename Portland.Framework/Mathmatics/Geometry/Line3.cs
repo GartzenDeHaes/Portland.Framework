@@ -16,9 +16,9 @@ namespace Portland.Mathmatics.Geometry
         public Vector3 Origin;
         public Vector3 Direction;
 
-        public static Line3 xAxis => new Line3(Vector3.Zero, Vector3.Right);
-        public static Line3 yAxis => new Line3(Vector3.Zero, Vector3.Up);
-        public static Line3 zAxis => new Line3(Vector3.Zero, Vector3.Forward);
+        public static Line3 xAxis => new Line3(Vector3.zero, Vector3.right);
+        public static Line3 yAxis => new Line3(Vector3.zero, Vector3.up);
+        public static Line3 zAxis => new Line3(Vector3.zero, Vector3.forward);
 
         public Line3(Ray ray)
         {

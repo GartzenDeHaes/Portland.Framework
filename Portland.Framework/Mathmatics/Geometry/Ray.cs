@@ -31,10 +31,14 @@ SOFTWARE.
 
 using System;
 
-#if ! UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
 
 namespace Portland.Mathmatics.Geometry
 {
+#if ! UNITY_5_3_OR_NEWER
+
 	[Serializable]
 	public struct Ray : IEquatable<Ray>
 	{
@@ -176,14 +180,14 @@ namespace Portland.Mathmatics.Geometry
 
 		public void Intersects(in Plane plane, out float? result)
 		{
-			var den = Vector3.Dot(Direction, plane.Normal);
+			var den = Vector3.Dot(Direction, plane.normal);
 			if (MathF.Abs(den) < 0.00001f)
 			{
 				result = null;
 				return;
 			}
 
-			result = (-plane.D - Vector3.Dot(plane.Normal, Origin)) / den;
+			result = (-plane.distance - Vector3.Dot(plane.normal, Origin)) / den;
 
 			if (result < 0.0f)
 			{
@@ -258,6 +262,8 @@ namespace Portland.Mathmatics.Geometry
 			return Origin + Direction * distance;
 		}
 	}
+
+#endif
 
 	[Serializable]
 	public struct Ray2 : IEquatable<Ray2>
@@ -382,4 +388,3 @@ namespace Portland.Mathmatics.Geometry
 	}
 }
 
-#endif

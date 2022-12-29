@@ -21,7 +21,7 @@ namespace Portland.SceneGraph
 			//public int UpdateCount;
 			public int BBCount;
 
-			public BoundingBox Box = new BoundingBox(Vector3.Down, Vector3.Up);
+			public BoundingBox Box = new BoundingBox(Vector3.down, Vector3.up);
 
 			public override void OnAdded(IEntity entity)
 			{

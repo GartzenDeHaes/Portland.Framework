@@ -308,16 +308,16 @@ namespace Portland.Mathmatics
 		#region CreateFromRotationMatrix
 
 		/// <summary>
-		/// Creates a new <see cref="Quaternion"/> from the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Quaternion"/> from the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="matrix">The rotation matrix.</param>
 		/// <returns>A quaternion composed from the rotation part of the matrix.</returns>
-		public static Quaternion CreateFromRotationMatrix(in Matrix matrix)
+		public static Quaternion CreateFromRotationMatrix(in Matrix4x4 matrix)
 		{
 			Quaternion quaternion;
 			float sqrt;
 			float half;
-			float scale = matrix.M11 + matrix.M22 + matrix.M33;
+			float scale = matrix.m11 + matrix.m22 + matrix.m33;
 
 			if (scale > 0.0f)
 			{
@@ -325,57 +325,57 @@ namespace Portland.Mathmatics
 				quaternion.w = sqrt * 0.5f;
 				sqrt = 0.5f / sqrt;
 
-				quaternion.x = (matrix.M23 - matrix.M32) * sqrt;
-				quaternion.y = (matrix.M31 - matrix.M13) * sqrt;
-				quaternion.z = (matrix.M12 - matrix.M21) * sqrt;
+				quaternion.x = (matrix.m23 - matrix.m32) * sqrt;
+				quaternion.y = (matrix.m31 - matrix.m13) * sqrt;
+				quaternion.z = (matrix.m12 - matrix.m21) * sqrt;
 
 				return quaternion;
 			}
-			if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
+			if ((matrix.m11 >= matrix.m22) && (matrix.m11 >= matrix.m33))
 			{
-				sqrt = MathF.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.m11 - matrix.m22 - matrix.m33);
 				half = 0.5f / sqrt;
 
 				quaternion.x = 0.5f * sqrt;
-				quaternion.y = (matrix.M12 + matrix.M21) * half;
-				quaternion.z = (matrix.M13 + matrix.M31) * half;
-				quaternion.w = (matrix.M23 - matrix.M32) * half;
+				quaternion.y = (matrix.m12 + matrix.m21) * half;
+				quaternion.z = (matrix.m13 + matrix.m31) * half;
+				quaternion.w = (matrix.m23 - matrix.m32) * half;
 
 				return quaternion;
 			}
-			if (matrix.M22 > matrix.M33)
+			if (matrix.m22 > matrix.m33)
 			{
-				sqrt = MathF.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.m22 - matrix.m11 - matrix.m33);
 				half = 0.5f / sqrt;
 
-				quaternion.x = (matrix.M21 + matrix.M12) * half;
+				quaternion.x = (matrix.m21 + matrix.m12) * half;
 				quaternion.y = 0.5f * sqrt;
-				quaternion.z = (matrix.M32 + matrix.M23) * half;
-				quaternion.w = (matrix.M31 - matrix.M13) * half;
+				quaternion.z = (matrix.m32 + matrix.m23) * half;
+				quaternion.w = (matrix.m31 - matrix.m13) * half;
 
 				return quaternion;
 			}
-			sqrt = MathF.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+			sqrt = MathF.Sqrt(1.0f + matrix.m33 - matrix.m11 - matrix.m22);
 			half = 0.5f / sqrt;
 
-			quaternion.x = (matrix.M31 + matrix.M13) * half;
-			quaternion.y = (matrix.M32 + matrix.M23) * half;
+			quaternion.x = (matrix.m31 + matrix.m13) * half;
+			quaternion.y = (matrix.m32 + matrix.m23) * half;
 			quaternion.z = 0.5f * sqrt;
-			quaternion.w = (matrix.M12 - matrix.M21) * half;
+			quaternion.w = (matrix.m12 - matrix.m21) * half;
 
 			return quaternion;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Quaternion"/> from the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Quaternion"/> from the specified <see cref="Matrix4x4"/>.
 		/// </summary>
 		/// <param name="matrix">The rotation matrix.</param>
 		/// <param name="result">A quaternion composed from the rotation part of the matrix as an output parameter.</param>
-		public static void CreateFromRotationMatrix(in Matrix matrix, out Quaternion result)
+		public static void CreateFromRotationMatrix(in Matrix4x4 matrix, out Quaternion result)
 		{
 			float sqrt;
 			float half;
-			float scale = matrix.M11 + matrix.M22 + matrix.M33;
+			float scale = matrix.m11 + matrix.m22 + matrix.m33;
 
 			if (scale > 0.0f)
 			{
@@ -383,40 +383,40 @@ namespace Portland.Mathmatics
 				result.w = sqrt * 0.5f;
 				sqrt = 0.5f / sqrt;
 
-				result.x = (matrix.M23 - matrix.M32) * sqrt;
-				result.y = (matrix.M31 - matrix.M13) * sqrt;
-				result.z = (matrix.M12 - matrix.M21) * sqrt;
+				result.x = (matrix.m23 - matrix.m32) * sqrt;
+				result.y = (matrix.m31 - matrix.m13) * sqrt;
+				result.z = (matrix.m12 - matrix.m21) * sqrt;
 			}
 			else
-			if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
+			if ((matrix.m11 >= matrix.m22) && (matrix.m11 >= matrix.m33))
 			{
-				sqrt = MathF.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.m11 - matrix.m22 - matrix.m33);
 				half = 0.5f / sqrt;
 
 				result.x = 0.5f * sqrt;
-				result.y = (matrix.M12 + matrix.M21) * half;
-				result.z = (matrix.M13 + matrix.M31) * half;
-				result.w = (matrix.M23 - matrix.M32) * half;
+				result.y = (matrix.m12 + matrix.m21) * half;
+				result.z = (matrix.m13 + matrix.m31) * half;
+				result.w = (matrix.m23 - matrix.m32) * half;
 			}
-			else if (matrix.M22 > matrix.M33)
+			else if (matrix.m22 > matrix.m33)
 			{
-				sqrt = MathF.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.m22 - matrix.m11 - matrix.m33);
 				half = 0.5f / sqrt;
 
-				result.x = (matrix.M21 + matrix.M12) * half;
+				result.x = (matrix.m21 + matrix.m12) * half;
 				result.y = 0.5f * sqrt;
-				result.z = (matrix.M32 + matrix.M23) * half;
-				result.w = (matrix.M31 - matrix.M13) * half;
+				result.z = (matrix.m32 + matrix.m23) * half;
+				result.w = (matrix.m31 - matrix.m13) * half;
 			}
 			else
 			{
-				sqrt = MathF.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+				sqrt = MathF.Sqrt(1.0f + matrix.m33 - matrix.m11 - matrix.m22);
 				half = 0.5f / sqrt;
 
-				result.x = (matrix.M31 + matrix.M13) * half;
-				result.y = (matrix.M32 + matrix.M23) * half;
+				result.x = (matrix.m31 + matrix.m13) * half;
+				result.y = (matrix.m32 + matrix.m23) * half;
 				result.z = 0.5f * sqrt;
-				result.w = (matrix.M12 - matrix.M21) * half;
+				result.w = (matrix.m12 - matrix.m21) * half;
 			}
 		}
 

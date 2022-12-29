@@ -10,6 +10,10 @@ using System.Runtime.Serialization;
 using Portland.Mathmatics.Geometry;
 using Portland.Mathmatics;
 
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
+
 namespace Portland.Mathmatics.Geometry
 {
 	/// <summary>
@@ -41,16 +45,23 @@ namespace Portland.Mathmatics.Geometry
 		{
 			get
 			{
+#if UNITY_5_3_OR_NEWER
+				return string.Concat(
+					 "Center( ", this.Center.ToString(), " )  \r\n",
+					 "Radius( ", this.Radius.ToString(), " )"
+					 );
+#else
 				return string.Concat(
 					 "Center( ", this.Center.DebugDisplayString, " )  \r\n",
 					 "Radius( ", this.Radius.ToString(), " )"
 					 );
+#endif
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Constructors
+#region Constructors
 
 		/// <summary>
 		/// Constructs a bounding sphere with the specified center and radius.  
@@ -63,11 +74,11 @@ namespace Portland.Mathmatics.Geometry
 			this.Radius = radius;
 		}
 
-		#endregion
+#endregion
 
-		#region Public Methods
+#region Public Methods
 
-		#region Contains
+#region Contains
 
 		/// <summary>
 		/// Test if a bounding box is fully inside, outside, or just intersecting the sphere.
@@ -191,6 +202,19 @@ namespace Portland.Mathmatics.Geometry
 		public void Contains(in BoundingSphere sphere, out ContainmentType result)
 		{
 			float sqDistance;
+
+#if UNITY_5_3_OR_NEWER
+			sqDistance = Vector3.Distance(sphere.Center, Center);
+
+			if (sqDistance > (sphere.Radius + Radius))
+				result = ContainmentType.Disjoint;
+
+			else if (sqDistance <= (Radius - sphere.Radius))
+				result = ContainmentType.Contains;
+
+			else
+				result = ContainmentType.Intersects;
+#else
 			Vector3.DistanceSquared(sphere.Center, Center, out sqDistance);
 
 			if (sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius))
@@ -201,6 +225,7 @@ namespace Portland.Mathmatics.Geometry
 
 			else
 				result = ContainmentType.Intersects;
+#endif
 		}
 
 		/// <summary>
@@ -222,8 +247,21 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="result">The containment type as an output parameter.</param>
 		public void Contains(in Vector3 point, out ContainmentType result)
 		{
-			var sqRadius = Radius * Radius;
 			float sqDistance;
+
+#if UNITY_5_3_OR_NEWER
+			sqDistance = Vector3.Distance(point, Center);
+
+			if (sqDistance > Radius)
+				result = ContainmentType.Disjoint;
+
+			else if (sqDistance < Radius)
+				result = ContainmentType.Contains;
+
+			else
+				result = ContainmentType.Intersects;
+#else
+			var sqRadius = Radius * Radius;
 			Vector3.DistanceSquared(point, Center, out sqDistance);
 
 			if (sqDistance > sqRadius)
@@ -234,11 +272,12 @@ namespace Portland.Mathmatics.Geometry
 
 			else
 				result = ContainmentType.Intersects;
+#endif
 		}
 
-		#endregion
+#endregion
 
-		#region CreateFromBoundingBox
+#region CreateFromBoundingBox
 
 		/// <summary>
 		/// Creates the smallest <see cref="BoundingSphere"/> that can contain a specified <see cref="BoundingBox"/>.
@@ -270,7 +309,7 @@ namespace Portland.Mathmatics.Geometry
 			result = new BoundingSphere(center, radius);
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Creates the smallest <see cref="BoundingSphere"/> that can contain a specified <see cref="BoundingFrustum"/>.
@@ -324,10 +363,18 @@ namespace Portland.Mathmatics.Geometry
 			if (numPoints == 0)
 				throw new ArgumentException("You should have at least one point in points.");
 
+#if UNITY_5_3_OR_NEWER
+			var sqDistX = Vector3.Distance(maxx, minx);
+			sqDistX *= sqDistX;
+			var sqDistY = Vector3.Distance(maxy, miny);
+			sqDistY *= sqDistY;
+			var sqDistZ = Vector3.Distance(maxz, minz);
+			sqDistZ *= sqDistZ;
+#else
 			var sqDistX = Vector3.DistanceSquared(maxx, minx);
 			var sqDistY = Vector3.DistanceSquared(maxy, miny);
 			var sqDistZ = Vector3.DistanceSquared(maxz, minz);
-
+#endif
 			// Pick the pair of most distant points.
 			var min = minx;
 			var max = maxx;
@@ -353,7 +400,7 @@ namespace Portland.Mathmatics.Geometry
 			foreach (var pt in points)
 			{
 				Vector3 diff = (pt - center);
-				float sqDist = diff.SqrMagnitude;
+				float sqDist = diff.sqrMagnitude;
 				if (sqDist > sqRadius)
 				{
 					float distance = MathF.Sqrt(sqDist); // equal to diff.Length();
@@ -389,8 +436,8 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="result">The new <see cref="BoundingSphere"/> as an output parameter.</param>
 		public static void CreateMerged(in BoundingSphere original, in BoundingSphere additional, out BoundingSphere result)
 		{
-			Vector3 ocenterToaCenter = Vector3.Subtract(additional.Center, original.Center);
-			var distance = ocenterToaCenter.Magnitude;
+			Vector3 ocenterToaCenter = additional.Center - original.Center;
+			var distance = ocenterToaCenter.magnitude;
 			if (distance <= original.Radius + additional.Radius)//intersect
 			{
 				if (distance <= original.Radius - additional.Radius)//original contain additional
@@ -407,7 +454,7 @@ namespace Portland.Mathmatics.Geometry
 			//else find center of new sphere and radius
 			var leftRadius = MathF.Max(original.Radius - distance, additional.Radius);
 			var Rightradius = MathF.Max(original.Radius + distance, additional.Radius);
-			ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Magnitude)) * ocenterToaCenter);//oCenterToResultCenter
+			ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.magnitude)) * ocenterToaCenter);//oCenterToResultCenter
 
 			result = new BoundingSphere();
 			result.Center = original.Center + ocenterToaCenter;
@@ -446,7 +493,7 @@ namespace Portland.Mathmatics.Geometry
 			return this.Center.GetHashCode() + this.Radius.GetHashCode();
 		}
 
-		#region Intersects
+#region Intersects
 
 		/// <summary>
 		/// Gets whether or not a specified <see cref="BoundingBox"/> intersects with this sphere.
@@ -501,8 +548,12 @@ namespace Portland.Mathmatics.Geometry
 		public void Intersects(in BoundingSphere sphere, out bool result)
 		{
 			float sqDistance;
+#if UNITY_5_3_OR_NEWER
+			sqDistance = Vector3.Distance(sphere.Center, Center);
+			sqDistance *= sqDistance;
+#else
 			Vector3.DistanceSquared(sphere.Center, Center, out sqDistance);
-
+#endif
 			if (sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius))
 				result = false;
 			else
@@ -530,8 +581,8 @@ namespace Portland.Mathmatics.Geometry
 		{
 			float distance;
 			// TODO: we might want to inline this for performance reasons
-			Vector3.Dot(plane.Normal, this.Center, out distance);
-			distance += plane.D;
+			Vector3.Dot(plane.normal, this.Center, out distance);
+			distance += plane.distance;
 			if (distance > this.Radius)
 				result = PlaneIntersectionType.Front;
 			else if (distance < -this.Radius)
@@ -560,7 +611,7 @@ namespace Portland.Mathmatics.Geometry
 			ray.Intersects(this, out result);
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Returns a <see cref="String"/> representation of this <see cref="BoundingSphere"/> in the format:
@@ -572,33 +623,33 @@ namespace Portland.Mathmatics.Geometry
 			return "{Center:" + this.Center + " Radius:" + this.Radius + "}";
 		}
 
-		#region Transform
+#region Transform
 
 		/// <summary>
-		/// Creates a new <see cref="BoundingSphere"/> that contains a transformation of translation and scale from this sphere by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="BoundingSphere"/> that contains a transformation of translation and scale from this sphere by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <returns>Transformed <see cref="BoundingSphere"/>.</returns>
-		public BoundingSphere Transform(in Matrix matrix)
+		public BoundingSphere Transform(in Matrix4x4 matrix)
 		{
 			BoundingSphere sphere = new BoundingSphere();
 			sphere.Center = Vector3.Transform(this.Center, matrix);
-			sphere.Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), MathF.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))));
+			sphere.Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.m11 * matrix.m11) + (matrix.m12 * matrix.m12)) + (matrix.m13 * matrix.m13), MathF.Max(((matrix.m21 * matrix.m21) + (matrix.m22 * matrix.m22)) + (matrix.m23 * matrix.m23), ((matrix.m31 * matrix.m31) + (matrix.m32 * matrix.m32)) + (matrix.m33 * matrix.m33))));
 			return sphere;
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="BoundingSphere"/> that contains a transformation of translation and scale from this sphere by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="BoundingSphere"/> that contains a transformation of translation and scale from this sphere by the specified <see cref="Matrix4x4"/>.
 		/// </summary>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4x4"/>.</param>
 		/// <param name="result">Transformed <see cref="BoundingSphere"/> as an output parameter.</param>
-		public void Transform(ref Matrix matrix, out BoundingSphere result)
+		public void Transform(ref Matrix4x4 matrix, out BoundingSphere result)
 		{
 			result.Center = Vector3.Transform(this.Center, matrix);
-			result.Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), MathF.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))));
+			result.Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.m11 * matrix.m11) + (matrix.m12 * matrix.m12)) + (matrix.m13 * matrix.m13), MathF.Max(((matrix.m21 * matrix.m21) + (matrix.m22 * matrix.m22)) + (matrix.m23 * matrix.m23), ((matrix.m31 * matrix.m31) + (matrix.m32 * matrix.m32)) + (matrix.m33 * matrix.m33))));
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Deconstruction method for <see cref="BoundingSphere"/>.
@@ -611,9 +662,9 @@ namespace Portland.Mathmatics.Geometry
 			radius = Radius;
 		}
 
-		#endregion
+#endregion
 
-		#region Operators
+#region Operators
 
 		/// <summary>
 		/// Compares whether two <see cref="BoundingSphere"/> instances are equal.
@@ -637,6 +688,6 @@ namespace Portland.Mathmatics.Geometry
 			return !a.Equals(b);
 		}
 
-		#endregion
+#endregion
 	}
 }

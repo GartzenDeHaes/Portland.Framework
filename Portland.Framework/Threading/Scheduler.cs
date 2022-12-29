@@ -20,7 +20,9 @@ namespace Portland.Threading
 
 	public sealed class Scheduler : IScheduler
 	{
+#if !UNITY_5_3_OR_NEWER
 		static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+#endif
 
 		public class SchedulerWorkItem : ISchedulerWorkItemReadOnly
 		{
@@ -119,8 +121,9 @@ namespace Portland.Threading
 
 			EnqueueWorkItem(item);
 
+#if !UNITY_5_3_OR_NEWER
 			Log.Trace("Added one time job {0} running ever {1}ms.", jobName, runAfterThisManyMilliseconds);
-
+#endif
 			return item;
 		}
 
@@ -143,8 +146,9 @@ namespace Portland.Threading
 
 			EnqueueWorkItem(item);
 
+#if !UNITY_5_3_OR_NEWER
 			Log.Trace("Added repeating time job {0} running every {1}ms.", jobName, repeatAfterThisManyMilliseconds);
-
+#endif
 			return item;
 		}
 
@@ -168,7 +172,9 @@ namespace Portland.Threading
 
 				witem.IsScheduled = false;
 
+#if !UNITY_5_3_OR_NEWER
 				Log.Trace("Cancelled job {0}.", item.JobName);
+#endif
 			}
 		}
 
@@ -182,8 +188,9 @@ namespace Portland.Threading
 			witem.IntervalInMs = (int)(runIntervalInSeconds * 1000f);
 			_queue.Enqueue(witem, witem.NextRuntimeInSeconds());
 
+#if !UNITY_5_3_OR_NEWER
 			Log.Trace("Altered job {0} to run every {1}ms.", item.JobName, runIntervalInSeconds);
-
+#endif
 			_thread.SignalRunState();
 		}
 
@@ -196,9 +203,10 @@ namespace Portland.Threading
 
 			witem.IntervalInMs = runIntervalInMilliSeconds;
 			_queue.Enqueue(witem, witem.NextRuntimeInSeconds());
-			
-			Log.Trace("Altered job {0} to run every {1}ms.", item.JobName, runIntervalInMilliSeconds);
 
+#if !UNITY_5_3_OR_NEWER
+			Log.Trace("Altered job {0} to run every {1}ms.", item.JobName, runIntervalInMilliSeconds);
+#endif
 			_thread.SignalRunState();
 		}
 
@@ -229,7 +237,11 @@ namespace Portland.Threading
 
 					if (now - witem.NextRuntimeInSeconds() > 10f)
 					{
+#if !UNITY_5_3_OR_NEWER
 						Log.Warn($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
+#else
+						UnityEngine.Debug.LogWarning($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
+#endif
 					}
 
 					witem.IsRunning = true;

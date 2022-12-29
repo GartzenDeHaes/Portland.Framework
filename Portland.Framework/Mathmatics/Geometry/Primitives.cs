@@ -63,7 +63,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Mesh Hexahedron(float width, float length, float height, bool generateUV = true)
 		{
-			return Hexahedron(Vector3.Right * width, Vector3.Forward * length, Vector3.Up * height, generateUV);
+			return Hexahedron(Vector3.right * width, Vector3.forward * length, Vector3.up * height, generateUV);
 		}
 
 		/// <summary>
@@ -87,21 +87,21 @@ namespace Portland.Mathmatics.Geometry
 				Vector2 uv1 = new Vector2(0, 1);
 				Vector2 uv2 = new Vector2(1, 1);
 				Vector2 uv3 = new Vector2(1, 0);
-				draft.AddQuad(v100, v101, v001, v000, Vector3.Left, uv0, uv1, uv2, uv3)
-					 .AddQuad(v010, v011, v111, v110, Vector3.Right, uv0, uv1, uv2, uv3)
-					 .AddQuad(v010, v110, v100, v000, Vector3.Down, uv0, uv1, uv2, uv3)
-					 .AddQuad(v111, v011, v001, v101, Vector3.Up, uv0, uv1, uv2, uv3)
+				draft.AddQuad(v100, v101, v001, v000, Vector3.left, uv0, uv1, uv2, uv3)
+					 .AddQuad(v010, v011, v111, v110, Vector3.right, uv0, uv1, uv2, uv3)
+					 .AddQuad(v010, v110, v100, v000, Vector3.down, uv0, uv1, uv2, uv3)
+					 .AddQuad(v111, v011, v001, v101, Vector3.up, uv0, uv1, uv2, uv3)
 					 .AddQuad(v000, v001, v011, v010, Vector3.Backward, uv0, uv1, uv2, uv3)
-					 .AddQuad(v110, v111, v101, v100, Vector3.Forward, uv0, uv1, uv2, uv3);
+					 .AddQuad(v110, v111, v101, v100, Vector3.forward, uv0, uv1, uv2, uv3);
 			}
 			else
 			{
-				draft.AddQuad(v100, v101, v001, v000, Vector3.Left)
-					 .AddQuad(v010, v011, v111, v110, Vector3.Right)
-					 .AddQuad(v010, v110, v100, v000, Vector3.Down)
-					 .AddQuad(v111, v011, v001, v101, Vector3.Up)
+				draft.AddQuad(v100, v101, v001, v000, Vector3.left)
+					 .AddQuad(v010, v011, v111, v110, Vector3.right)
+					 .AddQuad(v010, v110, v100, v000, Vector3.down)
+					 .AddQuad(v111, v011, v001, v101, Vector3.up)
 					 .AddQuad(v000, v001, v011, v010, Vector3.Backward)
-					 .AddQuad(v110, v111, v101, v100, Vector3.Forward);
+					 .AddQuad(v110, v111, v101, v100, Vector3.forward);
 			}
 			return draft;
 		}
@@ -143,11 +143,11 @@ namespace Portland.Mathmatics.Geometry
 			}
 
 			var draft = new Mesh("Dodecahedron")
-				 .AddTriangleFan(upperCap, Vector3.Up)
+				 .AddTriangleFan(upperCap, Vector3.up)
 				 .AddFlatTriangleBand(upperRing, upperCap, false)
 				 .AddFlatTriangleBand(lowerRing, upperRing, false)
 				 .AddFlatTriangleBand(lowerCap, lowerRing, false)
-				 .AddTriangleFan(lowerCap, Vector3.Down, true);
+				 .AddTriangleFan(lowerCap, Vector3.down, true);
 			return draft;
 		}
 
@@ -236,7 +236,7 @@ namespace Portland.Mathmatics.Geometry
 				for (int x = 0; x <= xSegments; x++)
 				{
 					draft.Vertices.Add(new Vector3(x * xStep, 0f, z * zStep));
-					draft.Normals.Add(Vector3.Up);
+					draft.Normals.Add(Vector3.up);
 					if (generateUV)
 					{
 						draft.Uv.Add(new Vector2((float)x / xSegments, (float)z / zSegments));
@@ -277,7 +277,7 @@ namespace Portland.Mathmatics.Geometry
 				currentAngle += segmentAngle;
 			}
 
-			var draft = new Mesh().AddBaselessPyramid(Vector3.Up * height, ring, generateUV);
+			var draft = new Mesh().AddBaselessPyramid(Vector3.up * height, ring, generateUV);
 			if (generateUV)
 			{
 				var fanUV = new Vector2[segments];
@@ -289,11 +289,11 @@ namespace Portland.Mathmatics.Geometry
 					fanUV[i] = uv;
 					currentAngle += segmentAngle;
 				}
-				draft.AddTriangleFan(ring, Vector3.Down, fanUV, true);
+				draft.AddTriangleFan(ring, Vector3.down, fanUV, true);
 			}
 			else
 			{
-				draft.AddTriangleFan(ring, Vector3.Down, true);
+				draft.AddTriangleFan(ring, Vector3.down, true);
 			}
 			draft.Name = "Pyramid";
 			return draft;
@@ -315,8 +315,8 @@ namespace Portland.Mathmatics.Geometry
 			}
 
 			var draft = new Mesh { Name = "Bipyramid" }
-				 .AddBaselessPyramid(Vector3.Up * height / 2, ring, generateUV)
-				 .AddBaselessPyramid(Vector3.Down * height / 2, ring, generateUV, true);
+				 .AddBaselessPyramid(Vector3.up * height / 2, ring, generateUV)
+				 .AddBaselessPyramid(Vector3.down * height / 2, ring, generateUV, true);
 			return draft;
 		}
 
@@ -327,7 +327,7 @@ namespace Portland.Mathmatics.Geometry
 		{
 			float segmentAngle = 360f / segments;
 			float currentAngle = 0;
-			Vector3 halfHeightUp = Vector3.Up * height / 2;
+			Vector3 halfHeightUp = Vector3.up * height / 2;
 
 			var lowerRing = new List<Vector3>(segments);
 			var lowerDiskUV = new List<Vector2>();
@@ -354,13 +354,13 @@ namespace Portland.Mathmatics.Geometry
 
 			if (generateUV)
 			{
-				draft.AddTriangleFan(upperRing, Vector3.Up, upperDiskUV)
-					 .AddTriangleFan(lowerRing, Vector3.Down, lowerDiskUV, true);
+				draft.AddTriangleFan(upperRing, Vector3.up, upperDiskUV)
+					 .AddTriangleFan(lowerRing, Vector3.down, lowerDiskUV, true);
 			}
 			else
 			{
-				draft.AddTriangleFan(upperRing, Vector3.Up)
-					 .AddTriangleFan(lowerRing, Vector3.Down, true);
+				draft.AddTriangleFan(upperRing, Vector3.up)
+					 .AddTriangleFan(lowerRing, Vector3.down, true);
 			}
 			return draft;
 		}
@@ -372,7 +372,7 @@ namespace Portland.Mathmatics.Geometry
 		{
 			float segmentAngle = 360f / segments;
 			float currentAngle = 0;
-			Vector3 halfHeightUp = Vector3.Up * height / 2;
+			Vector3 halfHeightUp = Vector3.up * height / 2;
 
 			var draft = new Mesh { Name = "Cylinder" };
 			var lowerRing = new List<Vector3>(segments);
@@ -404,14 +404,14 @@ namespace Portland.Mathmatics.Geometry
 
 			if (generateUV)
 			{
-				draft.AddTriangleFan(lowerRing, Vector3.Down, lowerDiskUV, true);
-				draft.AddTriangleFan(upperRing, Vector3.Up, upperDiskUV);
+				draft.AddTriangleFan(lowerRing, Vector3.down, lowerDiskUV, true);
+				draft.AddTriangleFan(upperRing, Vector3.up, upperDiskUV);
 				draft.AddTriangleStrip(strip, stripNormals, stripUV);
 			}
 			else
 			{
-				draft.AddTriangleFan(lowerRing, Vector3.Down, true);
-				draft.AddTriangleFan(upperRing, Vector3.Up);
+				draft.AddTriangleFan(lowerRing, Vector3.down, true);
+				draft.AddTriangleFan(upperRing, Vector3.up);
 				draft.AddTriangleStrip(strip, stripNormals);
 			}
 			return draft;

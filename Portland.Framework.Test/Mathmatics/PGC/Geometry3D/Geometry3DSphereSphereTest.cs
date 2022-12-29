@@ -300,9 +300,9 @@ namespace ProceduralToolkit.Tests.Geometry3D
 		[Test]
 		public void Intersect_InsideCircle()
 		{
-			var sphereA = new Sphere(Vector3.Zero, MathHelper.Sqrt2f);
-			var sphereB = new Sphere(Vector3.Right, 1);
-			True_Intersect(sphereA, sphereB, new Circle3(Vector3.Right, Vector3.Right, 1));
+			var sphereA = new Sphere(Vector3.zero, MathHelper.Sqrt2f);
+			var sphereB = new Sphere(Vector3.right, 1);
+			True_Intersect(sphereA, sphereB, new Circle3(Vector3.right, Vector3.right, 1));
 		}
 
 		[Test]
@@ -333,9 +333,9 @@ namespace ProceduralToolkit.Tests.Geometry3D
 		[Test]
 		public void Intersect_OutsideCircle()
 		{
-			var sphereA = new Sphere(Vector3.Zero, 5);
-			var sphereB = new Sphere(Vector3.Right * 8, 5);
-			True_Intersect(sphereA, sphereB, new Circle3(Vector3.Right * 4, Vector3.Right, 3));
+			var sphereA = new Sphere(Vector3.zero, 5);
+			var sphereB = new Sphere(Vector3.right * 8, 5);
+			True_Intersect(sphereA, sphereB, new Circle3(Vector3.right * 4, Vector3.right, 3));
 		}
 
 		[Test]

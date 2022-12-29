@@ -105,7 +105,7 @@ namespace MonoGame.Tests.Framework
 		[Test]
 		public void CreateFromRotationMatrix()
 		{
-			var matrix = Matrix.CreateFromYawPitchRoll(0.15f, 1.18f, -0.22f);
+			var matrix = Matrix4x4.CreateFromYawPitchRoll(0.15f, 1.18f, -0.22f);
 			Quaternion expected = new Quaternion(0.5446088f, 0.1227905f, -0.1323988f, 0.8190203f);
 			Compare(expected, Quaternion.CreateFromRotationMatrix(matrix));
 

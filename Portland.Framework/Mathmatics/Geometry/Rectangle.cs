@@ -2,7 +2,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-#if !UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
 
 using System;
 using System.Runtime.Serialization;
@@ -540,5 +542,3 @@ namespace Portland.Mathmatics.Geometry
 		#endregion
 	}
 }
-
-#endif

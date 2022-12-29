@@ -590,9 +590,46 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="next">Next vertex</param>
 		public static float GetAngle(Vector2 previous, Vector2 current, Vector2 next)
 		{
-			Vector2 toPrevious = Vector2.Normalize((previous - current));
-			Vector2 toNext = Vector2.Normalize((next - current));
-			return Vector2.Angle360(toNext, toPrevious);
+			Vector2 toPrevious = (previous - current).normalized;
+			Vector2 toNext = (next - current).normalized;
+			return Angle360(toNext, toPrevious);
+		}
+
+		/// <summary>
+		/// Returns a perp dot product of vectors
+		/// </summary>
+		/// <remarks>
+		/// Hill, F. S. Jr. "The Pleasures of 'Perp Dot' Products."
+		/// Ch. II.5 in Graphics Gems IV (Ed. P. S. Heckbert). San Diego: Academic Press, pp. 138-148, 1994
+		/// </remarks>
+		public static float PerpDot(Vector2 a, Vector2 b)
+		{
+			return a.x * b.y - a.y * b.x;
+		}
+
+		/// <summary>
+		/// Returns a signed clockwise angle in degrees [-180, 180] between from and to
+		/// </summary>
+		/// <param name="from">The angle extends round from this vector</param>
+		/// <param name="to">The angle extends round to this vector</param>
+		public static float SignedAngle(Vector2 from, Vector2 to)
+		{
+			return (float)Math.Atan2(PerpDot(to, from), Vector2.Dot(to, from)) * MathHelper.Rad2Degf;
+		}
+
+		/// <summary>
+		/// Returns a clockwise angle in degrees [0, 360] between from and to
+		/// </summary>
+		/// <param name="from">The angle extends round from this vector</param>
+		/// <param name="to">The angle extends round to this vector</param>
+		public static float Angle360(Vector2 from, Vector2 to)
+		{
+			float angle = SignedAngle(from, to);
+			while (angle < 0)
+			{
+				angle += 360;
+			}
+			return angle;
 		}
 
 		/// <summary>
@@ -604,22 +641,35 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="degrees">Value of the angle in degrees. Always positive.</param>
 		public static Vector2 GetAngleBisector(Vector2 previous, Vector2 current, Vector2 next, out float degrees)
 		{
-			Vector2 toPrevious = Vector2.Normalize((previous - current));
-			Vector2 toNext = Vector2.Normalize((next - current));
+			Vector2 toPrevious = (previous - current).normalized;
+			Vector2 toNext = (next - current).normalized;
 
-			degrees = Vector2.Angle360(toNext, toPrevious);
+			degrees = Angle360(toNext, toPrevious);
 
 			//Debug.Assert.IsFalse(float.IsNaN(degrees));
 			
-			return toNext.RotateCW(degrees / 2);
+			return RotateCW(toNext, degrees / 2);
 		}
 
 		/// <summary>
-		/// Creates a new offset polygon from the input polygon. Assumes clockwise order of the polygon.
-		/// Does not handle intersections.
+		/// Returns a new vector rotated clockwise by the specified angle
 		/// </summary>
-		/// <param name="polygon">Vertices of the polygon in clockwise order.</param>
-		/// <param name="distance">Offset distance. Positive values offset outside, negative inside.</param>
+		public static Vector2 RotateCW(Vector2 v, float degrees)
+		{
+			float radians = degrees * MathHelper.Deg2Radf;
+			float sin = MathF.Sin(radians);
+			float cos = MathF.Cos(radians);
+			return new Vector2(
+				 v.x * cos + v.y * sin,
+				 v.y * cos - v.x * sin);
+		}     
+		
+		/// <summary>
+				/// Creates a new offset polygon from the input polygon. Assumes clockwise order of the polygon.
+				/// Does not handle intersections.
+				/// </summary>
+				/// <param name="polygon">Vertices of the polygon in clockwise order.</param>
+				/// <param name="distance">Offset distance. Positive values offset outside, negative inside.</param>
 		public static List<Vector2> OffsetPolygon(IList<Vector2> polygon, float distance)
 		{
 			var newPolygon = new List<Vector2>(polygon.Count);
@@ -926,7 +976,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector3 PointOnSphere(Vector3 center, float radius)
 		{
-			return center + Vector3.OnUnitSphere(MathHelper.RandomNextFloat(), MathHelper.RandomNextFloat()) * radius;
+			return center + OnUnitSphere(MathHelper.RandomNextFloat(), MathHelper.RandomNextFloat()) * radius;
 		}
 
 		/// <summary>
@@ -942,9 +992,30 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public static Vector3 PointInSphere(Vector3 center, float radius)
 		{
-			return center + Vector3.InsideUnitSphere() * radius;
+			return center + InsideUnitSphere() * radius;
 		}
 
+		/// <summary>
+		/// Convert two linearly distributed numbers between 0 and 1 to a point on a unit sphere (radius = 1)
+		/// </summary>
+		/// <param name="random1">Linearly distributed random number between 0 and 1</param>
+		/// <param name="random2">Linearly distributed random number between 0 and 1</param>
+		/// <returns>A cartesian point on the unit sphere</returns>
+		public static Vector3 OnUnitSphere(float random1, float random2)
+		{
+			var theta = random1 * 2 * MathF.PI;
+			var phi = MathF.Acos((2 * random2) - 1);
+
+			// Convert from spherical coordinates to Cartesian
+			var sinPhi = MathF.Sin(phi);
+
+			var x = sinPhi * MathF.Cos(theta);
+			var y = sinPhi * MathF.Sin(theta);
+			var z = MathF.Cos(phi);
+
+			return new Vector3(x, y, z);
+		}
+		
 		/// <summary>
 		/// Returns a random point inside a <paramref name="rect"/>
 		/// </summary>

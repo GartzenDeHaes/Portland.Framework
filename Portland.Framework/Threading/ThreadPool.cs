@@ -11,8 +11,9 @@ namespace Portland.Threading
 	/// </summary>
 	public sealed class SystemThreadPool : IThreadPool
 	{
+#if !UNITY_5_3_OR_NEWER
 		private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-
+#endif
 		public int TotalQueueLength { get { return 0; } }
 
 		public SystemThreadPool(int maxThreads, int maxIoThreads)
@@ -58,7 +59,11 @@ namespace Portland.Threading
 			}
 			catch (Exception ex)
 			{
+#if !UNITY_5_3_OR_NEWER
 				Log.Error(ex);
+#else
+				UnityEngine.Debug.LogException(ex);
+#endif
 			}
 		}
 
@@ -183,7 +188,7 @@ namespace Portland.Threading
 		void OnThreadWorkDone(ThreadWorker t)
 		{
 			Ready.Add(t);
-			
+
 			//Debug.Assert(Ready.Count <= MaxThreads);
 
 			//SignalRunState();
@@ -200,7 +205,8 @@ namespace Portland.Threading
 			return true;
 		}
 
-		/*protected override*/ void RunServiceOne()
+		/*protected override*/
+		void RunServiceOne()
 		{
 			//Debug.Assert(Ready.Count <= MaxThreads);
 

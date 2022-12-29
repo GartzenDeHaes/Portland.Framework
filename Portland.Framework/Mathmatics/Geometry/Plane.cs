@@ -6,6 +6,10 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
+
 namespace Portland.Mathmatics.Geometry
 {
 	internal class PlaneHelper
@@ -18,7 +22,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <returns>Greater than zero if on the positive side, less than zero if on the negative size, 0 otherwise</returns>
 		public static float ClassifyPoint(in Vector3 point, in Plane plane)
 		{
-			return point.x * plane.Normal.x + point.y * plane.Normal.y + point.z * plane.Normal.z + plane.D;
+			return point.x * plane.normal.x + point.y * plane.normal.y + point.z * plane.normal.z + plane.distance;
 		}
 
 		/// <summary>
@@ -30,8 +34,8 @@ namespace Portland.Mathmatics.Geometry
 		public static float PerpendicularDistance(in Vector3 point, in Plane plane)
 		{
 			// dist = (ax + by + cz + d) / sqrt(a*a + b*b + c*c)
-			return MathF.Abs((plane.Normal.x * point.x + plane.Normal.y * point.y + plane.Normal.z * point.z)
-											/ MathF.Sqrt(plane.Normal.x * plane.Normal.x + plane.Normal.y * plane.Normal.y + plane.Normal.z * plane.Normal.z));
+			return MathF.Abs((plane.normal.x * point.x + plane.normal.y * point.y + plane.normal.z * point.z)
+											/ MathF.Sqrt(plane.normal.x * plane.normal.x + plane.normal.y * plane.normal.y + plane.normal.z * plane.normal.z));
 		}
 	}
 
@@ -48,13 +52,13 @@ namespace Portland.Mathmatics.Geometry
 		/// The distance of the <see cref="Plane"/> to the origin.
 		/// </summary>
 		[DataMember]
-		public float D;
+		public float distance;
 
 		/// <summary>
 		/// The normal of the <see cref="Plane"/>.
 		/// </summary>
 		[DataMember]
-		public Vector3 Normal;
+		public Vector3 normal;
 
 		#endregion Public Fields
 
@@ -78,8 +82,8 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="d">The distance to the origin.</param>
 		public Plane(in Vector3 normal, float d)
 		{
-			Normal = normal;
-			D = d;
+			this.normal = normal;
+			distance = d;
 		}
 
 		/// <summary>
@@ -94,8 +98,8 @@ namespace Portland.Mathmatics.Geometry
 			Vector3 ac = c - a;
 
 			Vector3 cross = Vector3.Cross(ab, ac);
-			Vector3.Normalize(cross, out Normal);
-			D = -(Vector3.Dot(Normal, a));
+			Vector3.Normalize(cross, out normal);
+			distance = -(Vector3.Dot(normal, a));
 		}
 
 		/// <summary>
@@ -113,14 +117,14 @@ namespace Portland.Mathmatics.Geometry
 		}
 
 		/// <summary>
-		/// Create a <see cref="Plane"/> that contains the specified point and has the specified <see cref="Normal"/> vector.
+		/// Create a <see cref="Plane"/> that contains the specified point and has the specified <see cref="normal"/> vector.
 		/// </summary>
 		/// <param name="pointOnPlane">A point the created <see cref="Plane"/> should contain.</param>
 		/// <param name="normal">The normal of the plane.</param>
 		public Plane(in Vector3 pointOnPlane, in Vector3 normal)
 		{
-			Normal = normal;
-			D = -(
+			this.normal = normal;
+			distance = -(
 				 pointOnPlane.x * normal.x +
 				 pointOnPlane.y * normal.y +
 				 pointOnPlane.z * normal.z
@@ -128,7 +132,6 @@ namespace Portland.Mathmatics.Geometry
 		}
 
 		#endregion Constructors
-
 
 		#region Public Methods
 
@@ -139,7 +142,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <returns>The dot product of the specified <see cref="Vector4"/> and this <see cref="Plane"/>.</returns>
 		public double Dot(in Vector4 value)
 		{
-			return ((((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z)) + (this.D * value.w));
+			return ((((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z)) + (this.distance * value.w));
 		}
 
 		/// <summary>
@@ -151,42 +154,42 @@ namespace Portland.Mathmatics.Geometry
 		/// </param>
 		public void Dot(in Vector4 value, out double result)
 		{
-			result = (((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z)) + (this.D * value.w);
+			result = (((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z)) + (this.distance * value.w);
 		}
 
 		/// <summary>
 		/// Get the dot product of a <see cref="Vector3"/> with
-		/// the <see cref="Normal"/> vector of this <see cref="Plane"/>
-		/// plus the <see cref="D"/> value of this <see cref="Plane"/>.
+		/// the <see cref="normal"/> vector of this <see cref="Plane"/>
+		/// plus the <see cref="distance"/> value of this <see cref="Plane"/>.
 		/// </summary>
 		/// <param name="value">The <see cref="Vector3"/> to calculate the dot product with.</param>
 		/// <returns>
 		/// The dot product of the specified <see cref="Vector3"/> and the normal of this <see cref="Plane"/>
-		/// plus the <see cref="D"/> value of this <see cref="Plane"/>.
+		/// plus the <see cref="distance"/> value of this <see cref="Plane"/>.
 		/// </returns>
 		public double DotCoordinate(in Vector3 value)
 		{
-			return ((((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z)) + this.D);
+			return ((((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z)) + this.distance);
 		}
 
 		/// <summary>
 		/// Get the dot product of a <see cref="Vector3"/> with
-		/// the <see cref="Normal"/> vector of this <see cref="Plane"/>
-		/// plus the <see cref="D"/> value of this <see cref="Plane"/>.
+		/// the <see cref="normal"/> vector of this <see cref="Plane"/>
+		/// plus the <see cref="distance"/> value of this <see cref="Plane"/>.
 		/// </summary>
 		/// <param name="value">The <see cref="Vector3"/> to calculate the dot product with.</param>
 		/// <param name="result">
 		/// The dot product of the specified <see cref="Vector3"/> and the normal of this <see cref="Plane"/>
-		/// plus the <see cref="D"/> value of this <see cref="Plane"/>.
+		/// plus the <see cref="distance"/> value of this <see cref="Plane"/>.
 		/// </param>
 		public void DotCoordinate(in Vector3 value, out double result)
 		{
-			result = (((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z)) + this.D;
+			result = (((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z)) + this.distance;
 		}
 
 		/// <summary>
 		/// Get the dot product of a <see cref="Vector3"/> with
-		/// the <see cref="Normal"/> vector of this <see cref="Plane"/>.
+		/// the <see cref="normal"/> vector of this <see cref="Plane"/>.
 		/// </summary>
 		/// <param name="value">The <see cref="Vector3"/> to calculate the dot product with.</param>
 		/// <returns>
@@ -194,12 +197,12 @@ namespace Portland.Mathmatics.Geometry
 		/// </returns>
 		public double DotNormal(in Vector3 value)
 		{
-			return (((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z));
+			return (((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z));
 		}
 
 		/// <summary>
 		/// Get the dot product of a <see cref="Vector3"/> with
-		/// the <see cref="Normal"/> vector of this <see cref="Plane"/>.
+		/// the <see cref="normal"/> vector of this <see cref="Plane"/>.
 		/// </summary>
 		/// <param name="value">The <see cref="Vector3"/> to calculate the dot product with.</param>
 		/// <param name="result">
@@ -207,7 +210,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </param>
 		public void DotNormal(in Vector3 value, out double result)
 		{
-			result = ((this.Normal.x * value.x) + (this.Normal.y * value.y)) + (this.Normal.z * value.z);
+			result = ((this.normal.x * value.x) + (this.normal.y * value.y)) + (this.normal.z * value.z);
 		}
 
 		/// <summary>
@@ -216,7 +219,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="plane">The normalized plane to transform.</param>
 		/// <param name="matrix">The transformation matrix.</param>
 		/// <returns>The transformed plane.</returns>
-		public static Plane Transform(in Plane plane, in Matrix matrix)
+		public static Plane Transform(in Plane plane, in Matrix4x4 matrix)
 		{
 			Plane result;
 			Transform(plane, matrix, out result);
@@ -229,16 +232,16 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="plane">The normalized plane to transform.</param>
 		/// <param name="matrix">The transformation matrix.</param>
 		/// <param name="result">The transformed plane.</param>
-		public static void Transform(in Plane plane, in Matrix matrix, out Plane result)
+		public static void Transform(in Plane plane, in Matrix4x4 matrix, out Plane result)
 		{
 			// See "Transforming Normals" in http://www.glprogramming.com/red/appendixf.html
 			// for an explanation of how this works.
 
-			Matrix transformedMatrix;
-			Matrix.Invert(matrix, out transformedMatrix);
-			Matrix.Transpose(transformedMatrix, out transformedMatrix);
+			Matrix4x4 transformedMatrix;
+			Matrix4x4.Invert(matrix, out transformedMatrix);
+			Matrix4x4.Transpose(transformedMatrix, out transformedMatrix);
 
-			var vector = new Vector4(plane.Normal, plane.D);
+			var vector = new Vector4(plane.normal, plane.distance);
 
 			Vector4 transformedVector;
 			Vector4.Transform(vector, transformedMatrix, out transformedVector);
@@ -267,8 +270,8 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="result">The transformed plane.</param>
 		public static void Transform(in Plane plane, in Quaternion rotation, out Plane result)
 		{
-			Vector3.Transform(plane.Normal, rotation, out result.Normal);
-			result.D = plane.D;
+			Vector3.Transform(plane.normal, rotation, out result.normal);
+			result.distance = plane.distance;
 		}
 
 		/// <summary>
@@ -276,10 +279,10 @@ namespace Portland.Mathmatics.Geometry
 		/// </summary>
 		public void Normalize()
 		{
-			var length = Normal.Magnitude;
+			var length = normal.Magnitude;
 			var factor = 1f / length;
-			Vector3.Multiply(Normal, factor, out Normal);
-			D = D * factor;
+			Vector3.Multiply(normal, factor, out normal);
+			distance = distance * factor;
 		}
 
 		/// <summary>
@@ -301,10 +304,10 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="result">A normalized version of the specified <see cref="Plane"/>.</param>
 		public static void Normalize(in Plane value, out Plane result)
 		{
-			var length = value.Normal.Magnitude;
+			var length = value.normal.Magnitude;
 			var factor = 1f / length;
-			Vector3.Multiply(value.Normal, factor, out result.Normal);
-			result.D = value.D * factor;
+			Vector3.Multiply(value.normal, factor, out result.normal);
+			result.distance = value.distance * factor;
 		}
 
 		/// <summary>
@@ -352,7 +355,7 @@ namespace Portland.Mathmatics.Geometry
 		/// </returns>
 		public bool Equals(Plane other)
 		{
-			return ((Normal == other.Normal) && (D == other.D));
+			return ((normal == other.normal) && (distance == other.distance));
 		}
 
 		/// <summary>
@@ -361,7 +364,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <returns>A hash code for this <see cref="Plane"/>.</returns>
 		public override int GetHashCode()
 		{
-			return Normal.GetHashCode() ^ D.GetHashCode();
+			return normal.GetHashCode() ^ distance.GetHashCode();
 		}
 
 		/// <summary>
@@ -443,8 +446,8 @@ namespace Portland.Mathmatics.Geometry
 			get
 			{
 				return string.Concat(
-					 this.Normal.DebugDisplayString, "  ",
-					 this.D.ToString()
+					 this.normal.DebugDisplayString, "  ",
+					 this.distance.ToString()
 					 );
 			}
 		}
@@ -455,7 +458,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <returns>A <see cref="String"/> representation of this <see cref="Plane"/>.</returns>
 		public override string ToString()
 		{
-			return "{Normal:" + Normal + " D:" + D + "}";
+			return "{Normal:" + normal + " D:" + distance + "}";
 		}
 
 		/// <summary>
@@ -465,8 +468,8 @@ namespace Portland.Mathmatics.Geometry
 		/// <param name="d"></param>
 		public void Deconstruct(out Vector3 normal, out double d)
 		{
-			normal = Normal;
-			d = D;
+			normal = this.normal;
+			d = distance;
 		}
 
 		///// <summary>

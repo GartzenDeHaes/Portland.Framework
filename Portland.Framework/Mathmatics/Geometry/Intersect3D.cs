@@ -158,7 +158,7 @@ namespace Portland.Mathmatics.Geometry
 				intersection = closestPointA;
 				return true;
 			}
-			intersection = Vector3.Zero;
+			intersection = Vector3.zero;
 			return false;
 		}
 

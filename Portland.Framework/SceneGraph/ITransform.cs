@@ -23,8 +23,8 @@ namespace Portland.SceneGraph
 		Vector3 WorldPosition { get; }
 		Quaternion WorldRotation { get; }
 		Vector3 WorldScale { get; }
-		Matrix WorldTransform { get; }
-		Matrix LocalTransform { get; }
+		Matrix4x4 WorldTransform { get; }
+		Matrix4x4 LocalTransform { get; }
 
 		bool IsDirty { get; }
 		int TransformVersion { get; }
@@ -36,7 +36,7 @@ namespace Portland.SceneGraph
 		List<ITransform> Childern { get; }
 
 		void AddChildNode(ITransform node);
-		Matrix BuildMatrix();
+		Matrix4x4 BuildMatrix();
 		IEntity FindChildNodeWithTag(string tag, bool searchInChildren = true);
 		void ForceUpdate(bool recursive = true);
 		//BoundingBox CalcBoundingBox();
@@ -60,8 +60,8 @@ namespace Portland.SceneGraph
 		void RemoveAllChildren();
 		void Reset();
 
-		Matrix DoWorldTransformations();
-		Matrix DoLocalTransformations();
+		Matrix4x4 DoWorldTransformations();
+		Matrix4x4 DoLocalTransformations();
 		void UpdateTransformations();
 	}
 }

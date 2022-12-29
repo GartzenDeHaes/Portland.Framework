@@ -25,11 +25,11 @@ namespace Portland.Mathmatics.Geometry
       /// </summary>
       public float Volume => 4f / 3f * MathF.PI * Radius * Radius * Radius;
 
-      public static Sphere Unit => new Sphere(Vector3.Zero, 1);
+      public static Sphere Unit => new Sphere(Vector3.zero, 1);
 
       public Sphere(float radius)
       {
-         Center = Vector3.Zero;
+         Center = Vector3.zero;
          this.Radius = radius;
       }
 

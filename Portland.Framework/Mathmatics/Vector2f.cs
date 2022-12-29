@@ -36,7 +36,7 @@ namespace Portland.Mathmatics
 	[Serializable]
 	public struct Vector2 //: IEquatable<Vector2>
 	{
-		#region Private Fields
+		#region Static Fields
 
 		private static readonly Vector2 zeroVector = new Vector2(0f, 0f);
 		private static readonly Vector2 unitVector = new Vector2(1f, 1f);
@@ -275,6 +275,11 @@ namespace Portland.Mathmatics
 			get { return MathF.Sqrt((x * x) + (y * y)); }
 		}
 
+		public float magnitude
+		{
+			get { return Magnitude; }
+		}
+
 		public float SqrMagnitude
 		{
 			get { return (x * x) + (y * y); }
@@ -384,6 +389,14 @@ namespace Portland.Mathmatics
 			}
 		}
 
+		public Vector2 normalized
+		{
+			get
+			{
+				return Normalized;
+			}
+		}
+
 		public static Vector2 Normalize(Vector2 value)
 		{
 			var sqrt = MathF.Sqrt((value.x * value.x) + (value.y * value.y));
@@ -439,16 +452,16 @@ namespace Portland.Mathmatics
 			result.y = value1.y - value2.y;
 		}
 
-		public static Vector2 Transform(in Vector2 position, in Matrix matrix)
+		public static Vector2 Transform(in Vector2 position, in Matrix4x4 matrix)
 		{
 			Transform(position, matrix, out var ret);
 			return ret;
 		}
 
-		public static void Transform(in Vector2 position, in Matrix matrix, out Vector2 result)
+		public static void Transform(in Vector2 position, in Matrix4x4 matrix, out Vector2 result)
 		{
-			result = new Vector2((position.x * matrix.M11) + (position.y * matrix.M21) + matrix.M41,
-										(position.x * matrix.M12) + (position.y * matrix.M22) + matrix.M42);
+			result = new Vector2((position.x * matrix.m11) + (position.y * matrix.m21) + matrix.m41,
+										(position.x * matrix.m12) + (position.y * matrix.m22) + matrix.m42);
 		}
 
 		public static Vector2 Transform(in Vector2 position, in Quaternion quat)
@@ -469,7 +482,7 @@ namespace Portland.Mathmatics
 
 		public static void Transform(
 			Vector2[] sourceArray,
-			in Matrix matrix,
+			in Matrix4x4 matrix,
 			Vector2[] destinationArray)
 		{
 			Transform(sourceArray, 0, matrix, destinationArray, 0, sourceArray.Length);
@@ -478,7 +491,7 @@ namespace Portland.Mathmatics
 		public static void Transform(
 			Vector2[] sourceArray,
 			int sourceIndex,
-			in Matrix matrix,
+			in Matrix4x4 matrix,
 			Vector2[] destinationArray,
 			int destinationIndex,
 			int length)
@@ -487,22 +500,22 @@ namespace Portland.Mathmatics
 			{
 				var position = sourceArray[sourceIndex + x];
 				var destination = destinationArray[destinationIndex + x];
-				destination.x = (position.x * matrix.M11) + (position.y * matrix.M21) + matrix.M41;
-				destination.y = (position.x * matrix.M12) + (position.y * matrix.M22) + matrix.M42;
+				destination.x = (position.x * matrix.m11) + (position.y * matrix.m21) + matrix.m41;
+				destination.y = (position.x * matrix.m12) + (position.y * matrix.m22) + matrix.m42;
 				destinationArray[destinationIndex + x] = destination;
 			}
 		}
 
-		public static Vector2 TransformNormal(in Vector2 normal, in Matrix matrix)
+		public static Vector2 TransformNormal(in Vector2 normal, in Matrix4x4 matrix)
 		{
 			Vector2.TransformNormal(normal, matrix, out var ret);
 			return ret;
 		}
 
-		public static void TransformNormal(in Vector2 normal, in Matrix matrix, out Vector2 result)
+		public static void TransformNormal(in Vector2 normal, in Matrix4x4 matrix, out Vector2 result)
 		{
-			result = new Vector2((normal.x * matrix.M11) + (normal.y * matrix.M21),
-										(normal.x * matrix.M12) + (normal.y * matrix.M22));
+			result = new Vector2((normal.x * matrix.m11) + (normal.y * matrix.m21),
+										(normal.x * matrix.m12) + (normal.y * matrix.m22));
 		}
 
 		public override string ToString()

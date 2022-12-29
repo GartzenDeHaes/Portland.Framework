@@ -1287,11 +1287,11 @@ namespace Portland.Mathmatics
 		/// <param name="result">A <see cref="Matrixd"/> that can be used to flatten geometry onto the specified plane from the specified direction as an output parameter.</param>
 		public static void CreateShadow(ref Vector3d lightDirection, ref Plane plane, out Matrixd result)
 		{
-			double dot = (plane.Normal.x * lightDirection.X) + (plane.Normal.y * lightDirection.Y) + (plane.Normal.z * lightDirection.Z);
-			double x = -plane.Normal.x;
-			double y = -plane.Normal.y;
-			double z = -plane.Normal.z;
-			double d = -plane.D;
+			double dot = (plane.normal.x * lightDirection.X) + (plane.normal.y * lightDirection.Y) + (plane.normal.z * lightDirection.Z);
+			double x = -plane.normal.x;
+			double y = -plane.normal.y;
+			double z = -plane.normal.z;
+			double d = -plane.distance;
 
 			result.M11 = (double)((x * lightDirection.X) + dot);
 			result.M12 = (double)(x * lightDirection.Y);
@@ -1410,9 +1410,9 @@ namespace Portland.Mathmatics
 		{
 			Plane plane;
 			Plane.Normalize(value, out plane);
-			double x = (double)plane.Normal.x;
-			double y = (double)plane.Normal.y;
-			double z = (double)plane.Normal.z;
+			double x = (double)plane.normal.x;
+			double y = (double)plane.normal.y;
+			double z = (double)plane.normal.z;
 			double num3 = -2f * x;
 			double num2 = -2f * y;
 			double num = -2f * z;
@@ -1428,9 +1428,9 @@ namespace Portland.Mathmatics
 			result.M32 = num2 * z;
 			result.M33 = (num * z) + 1;
 			result.M34 = 0;
-			result.M41 = (double)(num3 * plane.D);
-			result.M42 = (double)(num2 * plane.D);
-			result.M43 = (double)(num * plane.D);
+			result.M41 = (double)(num3 * plane.distance);
+			result.M42 = (double)(num2 * plane.distance);
+			result.M43 = (double)(num * plane.distance);
 			result.M44 = 1;
 		}
 

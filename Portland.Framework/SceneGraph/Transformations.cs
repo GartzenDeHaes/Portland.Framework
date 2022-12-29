@@ -144,9 +144,9 @@ namespace Maximum.SceneGraph
 		/// </summary>
 		public Transformations()
 		{
-			Position = Vector3.Zero;
+			Position = Vector3.zero;
 			Rotation = Quaternion.Identity;
-			Scale = Vector3.One;
+			Scale = Vector3.one;
 		}
 
 		/// <summary>
@@ -175,7 +175,7 @@ namespace Maximum.SceneGraph
 		/// Build and return just the rotation matrix for this treansformations.
 		/// </summary>
 		/// <returns>Rotation matrix.</returns>
-		private Matrix BuildRotationMatrix()
+		private Matrix4x4 BuildRotationMatrix()
 		{
 			//// handle euler rotation
 			//if (RotationType == RotationType.Euler)
@@ -242,7 +242,7 @@ namespace Maximum.SceneGraph
 			//}
 
 			// convert to a matrix and return
-			return Matrix.CreateFromQuaternion(Rotation);
+			return Matrix4x4.CreateFromQuaternion(Rotation);
 			//}
 			//// should never happen.
 			//else
@@ -255,11 +255,11 @@ namespace Maximum.SceneGraph
 		/// Build and return a matrix from current transformations.
 		/// </summary>
 		/// <returns>Matrix with all transformations applied.</returns>
-		public Matrix BuildMatrix()
+		public Matrix4x4 BuildMatrix()
 		{
 			// create the matrix parts
-			Matrix pos = Matrix.CreateTranslation(Position * Scale);
-			Matrix rot = BuildRotationMatrix();
+			Matrix4x4 pos = Matrix4x4.CreateTranslation(Position * Scale);
+			Matrix4x4 rot = BuildRotationMatrix();
 			//Matrix scale = Matrix.CreateScale(Scale);
 
 			// build and return matrix based on order

@@ -35,14 +35,14 @@ namespace Portland.SceneGraph
 		/// <summary>
 		/// Local transformations matrix, eg the result of the current local transformations.
 		/// </summary>
-		Matrix _localTransform = Matrix.Identity;
-		public Matrix LocalTransform { get { return _localTransform; } }
+		Matrix4x4 _localTransform = Matrix4x4.Identity;
+		public Matrix4x4 LocalTransform { get { return _localTransform; } }
 
 		/// <summary>
 		/// World transformations matrix, eg the result of the local transformations multiplied with parent transformations.
 		/// </summary>
-		Matrix _worldTransform = Matrix.Identity;
-		public Matrix WorldTransform { get { return _worldTransform; } }
+		Matrix4x4 _worldTransform = Matrix4x4.Identity;
+		public Matrix4x4 WorldTransform { get { return _worldTransform; } }
 
 		public List<ITransform> Childern { get { return _childNodes; } }
 
@@ -346,7 +346,7 @@ namespace Portland.SceneGraph
 		/// <summary>
 		/// Return local transformations matrix (note: will recalculate if needed).
 		/// </summary>
-		public Matrix DoLocalTransformations()
+		public Matrix4x4 DoLocalTransformations()
 		{
 			UpdateTransformations();
 			return _localTransform;
@@ -355,7 +355,7 @@ namespace Portland.SceneGraph
 		/// <summary>
 		/// Return world transformations matrix (note: will recalculate if needed).
 		/// </summary>
-		public Matrix DoWorldTransformations()
+		public Matrix4x4 DoWorldTransformations()
 		{
 			UpdateTransformations(); 
 			return _worldTransform;
@@ -486,10 +486,10 @@ namespace Portland.SceneGraph
 			OnTransformationsSet();
 		}
 
-		public Matrix BuildMatrix()
+		public Matrix4x4 BuildMatrix()
 		{
-			Matrix pos = Matrix.CreateTranslation(Position * Scale);
-			Matrix rot = Matrix.CreateFromQuaternion(Rotation);
+			Matrix4x4 pos = Matrix4x4.CreateTranslation(Position * Scale);
+			Matrix4x4 rot = Matrix4x4.CreateFromQuaternion(Rotation);
 			return /*scale * */ rot * pos;
 		}
 
@@ -537,11 +537,11 @@ namespace Portland.SceneGraph
 			RemoveFromParent();
 			RemoveAllChildren();
 			_parent = null;
-			_position = Vector3.Zero;
+			_position = Vector3.zero;
 			_rotation = Quaternion.Identity;
-			_scale = Vector3.Zero;
-			_worldTransform = Matrix.Identity;
-			_localTransform = Matrix.Identity;
+			_scale = Vector3.zero;
+			_worldTransform = Matrix4x4.Identity;
+			_localTransform = Matrix4x4.Identity;
 			_isDirty = false;
 			TransformVersion = 0;
 			Entity = null;

@@ -18,7 +18,7 @@ namespace MonoGame.Tests.Framework
 			var plane = Plane.Normalize(new Plane(new Vector3(0, 1, 1), 2.5f));
 
 			// Our matrix.
-			var matrix = Matrix.CreateRotationX((float)MathHelper.PiOver2);
+			var matrix = Matrix4x4.CreateRotationX((float)MathHelper.PiOver2);
 
 			// Test transform.
 			var expectedResult = new Plane(new Vector3(0, -0.7071068f, 0.7071067f), 1.767767f);
@@ -33,7 +33,7 @@ namespace MonoGame.Tests.Framework
 			var originalPlane = plane;
 
 			// Our matrix.
-			var matrix = Matrix.CreateRotationX((float)MathHelper.PiOver2);
+			var matrix = Matrix4x4.CreateRotationX((float)MathHelper.PiOver2);
 			var originalMatrix = matrix;
 
 			// Test transform.
@@ -94,8 +94,8 @@ namespace MonoGame.Tests.Framework
 
 			plane.Deconstruct(out normal, out d);
 
-			Assert.AreEqual(normal, plane.Normal);
-			Assert.AreEqual(d, plane.D);
+			Assert.AreEqual(normal, plane.normal);
+			Assert.AreEqual(d, plane.distance);
 		}
 #endif
 	}
