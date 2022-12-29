@@ -6,19 +6,73 @@ using System.Text;
 
 using Portland.Text;
 
-namespace Portland.Collections
+namespace Portland.Text
 {
 	/// <summary>
 	/// A string table keyed with StringHelper.HashSimple32().
 	/// </summary>
-	public sealed class StringTable : ValueTable<string>
+	public sealed class StringTable
 	{
+		private Dictionary<int, int> _hashDict = new Dictionary<int, int>();
+		private List<string> _strs = new List<string>();
+
+		/// <summary>
+		/// Lookup item.
+		/// </summary>
+		/// <param name="key">Key returned by Add()</param>
+		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		string Get(int key)
+		{
+			return _strs[key];
+		}
+
+		/// <summary>
+		/// Add the item to the table.
+		/// </summary>
+		/// <param name="str">Item to add</param>
+		/// <param name="hashCode">Item hash code provided by the using class</param>
+		/// <returns>Item index to use with Get()</returns>
+		int Add(string str, int hashCode)
+		{
+			if (_hashDict.TryGetValue(hashCode, out int idx))
+			{
+				if (str.Equals(_strs[idx]))
+				{
+					return idx;
+				}
+
+				_strs.Add(str);
+				return _strs.Count - 1;
+			}
+
+			idx = _strs.Count;
+
+			_strs.Add(str);
+			_hashDict.TryAdd(hashCode, idx);
+
+			return idx;
+		}
+
+		/// <summary>
+		/// Returns the index for the hash, or -1.
+		/// </summary>
+		int IndexOf(int hashCode)
+		{
+			if (_hashDict.TryGetValue(hashCode, out int idx))
+			{
+				return idx;
+			}
+
+			return -1;
+		}
+
 		/// <summary>
 		/// Get or create the index for the string
 		/// </summary>
 		public StringInStrTab Get(string str)
 		{
-			int hash = StringHelper.HashSimple32(str);
+			int hash = StringHelper.HashMurmur32(str);
 			int key = IndexOf(hash);
 
 			if (key < 0)
@@ -68,7 +122,7 @@ namespace Portland.Collections
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public string GetValue(int key)
 		{
-			return base.Get(key);
+			return Get(key);
 		}
 
 		/// <summary>
@@ -120,3 +174,4 @@ namespace Portland.Collections
 		}
 	}
 }
+
