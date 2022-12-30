@@ -8,7 +8,7 @@ using Portland.Text;
 
 namespace Portland.AI.Semantics
 {
-	public class ObserverMatchRuleSet
+    public class ObserverMatchRuleSet
 	{
 		public string Observer;
 		public List<EventMatchRule> Rules = new List<EventMatchRule>();

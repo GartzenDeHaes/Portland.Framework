@@ -59,7 +59,7 @@ namespace Portland.AI
 
 		public override int GetHashCode()
 		{
-			return Bits.RawBits.GetHashCode();
+			return Bits.GetHashCode();
 		}
 
 		public void Reset()
@@ -89,28 +89,28 @@ namespace Portland.AI
 			switch (bitName)
 			{
 				case "RUN": ret = 0; break;
-				case "STAMINAEMPTY": ret = 1; break;
-				case "ALERTCLOCK": ret = 2; break;
-				case "ALERTUTILITY": ret = 3; break;
-				case "ALERTHEALTH": ret = 4; break;
-				case "ALERTSOUND": ret = 5; break;
-				case "ALERTSIGHT": ret = 6; break;
-				case "ENEMYNEAR": ret = 7; break;
-				case "ENEMYVISIBLE": ret = 8; break;
-				case "ENEMYINAIM": ret = 9; break;
-				case "INVHASRANGED": ret = 10; break;
-				case "INVHASMELEE": ret = 11; break;
-				case "INVHASSPACE": ret = 12; break;
-				case "EQUIPPEDITEM": ret = 13; break;
-				case "EQUIPPEDLOWAMMO": ret = 14; break;
-				case "EQUIPPEDRANGED": ret = 15; break;
-				case "NAVFAILED": ret = 16; break;
-				case "NAVARRIVED": ret = 17; break;
-				case "RESOURCEVISIBLE": ret = 18; break;
-				case "PICKUPVISIBLE": ret = 19; break;
-				case "ISGROUNDED": ret = 20; break;
-				case "NAVHASPATH": ret = 21; break;
-				case "ALLYNEAR": ret = 22; break;
+				case "STAMINA_EMPTY": ret = 1; break;
+				case "ALERT_CLOCK": ret = 2; break;
+				case "ALERT_UTILITY": ret = 3; break;
+				case "ALERT_HEALTH": ret = 4; break;
+				case "ALERT_SOUND": ret = 5; break;
+				case "ALERT_SIGHT": ret = 6; break;
+				case "ENEMY_NEAR": ret = 7; break;
+				case "ENEMY_VISIBLE": ret = 8; break;
+				case "ENEMY_IN_AIM": ret = 9; break;
+				case "INV_HAS_RANGED": ret = 10; break;
+				case "INV_HAS_MELEE": ret = 11; break;
+				case "INV_HAS_SPACE": ret = 12; break;
+				case "EQUIPPED_ITEM": ret = 13; break;
+				case "EQUIPPED_LOW_AMMO": ret = 14; break;
+				case "EQUIPPED_RANGED": ret = 15; break;
+				case "NAV_FAILED": ret = 16; break;
+				case "NAV_ARRIVED": ret = 17; break;
+				case "RESOURCE_VISIBLE": ret = 18; break;
+				case "PICKUP_VISIBLE": ret = 19; break;
+				case "IS_GROUNDED": ret = 20; break;
+				case "NAV_HAS_PATH": ret = 21; break;
+				case "ALLY_NEAR": ret = 22; break;
 			}
 
 			return ret;

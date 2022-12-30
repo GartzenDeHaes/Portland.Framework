@@ -72,11 +72,11 @@ namespace Portland
 			[FieldOffset(0)]
 			public Vector3h AsVector3;
 
-			[FieldOffset(0)]
-			public String3 AsString;
+			//[FieldOffset(0)]
+			//public String3 AsString;
 
 			[FieldOffset(0)]
-			public StringInStrTab AsStrInTab;
+			public StringTabRef AsStrInTab;
 
 			[FieldOffset(0)]
 			public BitSet64 AsBits;
@@ -132,28 +132,28 @@ namespace Portland
 			Set(i);
 		}
 
-		/// <summary>Constructor</summary>
-		public Variant8(String3 i)
-		{
-			_value = Zero._value;
-			Set(i);
-		}
+		///// <summary>Constructor</summary>
+		//public Variant8(String3 i)
+		//{
+		//	_value = Zero._value;
+		//	Set(i);
+		//}
 
 		/// <summary>Uses String8 if length of the string is less than eight.</summary>
 		public Variant8(string str)
 		{
 			_value = Zero._value;
 
-			if (str.Length > String3.MAX_LEN)
-			{
+			//if (str.Length > String3.MAX_LEN)
+			//{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = StrTab.Get(str);
-				_value.AsInt2 = (short)str[0];
-			}
-			else
-			{
-				Set(String3.From(str));
-			}
+				//_value.AsInt2 = (short)str[0];
+			//}
+			//else
+			//{
+			//	Set(String3.From(str));
+			//}
 		}
 
 		/// <summary>Constructor</summary>
@@ -161,16 +161,16 @@ namespace Portland
 		{
 			_value = Zero._value;
 
-			if (str.Length > String3.MAX_LEN)
-			{
+			//if (str.Length > String3.MAX_LEN)
+			//{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = StrTab.Get(str);
-				_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
-			}
-			else
-			{
-				Set(String3.From(str));
-			}
+				//_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
+			//}
+			//else
+			//{
+			//	Set(String3.From(str));
+			//}
 		}
 
 		/// <summary>Constructor</summary>
@@ -257,50 +257,51 @@ namespace Portland
 			_value.AsInt2 = b;
 		}
 
-		/// <summary>In-place update</summary>
-		public void Set(in String3 s)
-		{
-			_value.AsString = s;
-			_value.TypeIs = VariantType.StringIntern;
-		}
+		///// <summary>In-place update</summary>
+		//public void Set(in String3 s)
+		//{
+		//	_value.AsString = s;
+		//	_value.TypeIs = VariantType.StringIntern;
+		//}
 
 		/// <summary>In-place update</summary>
 		public void Set(in String8 s)
 		{
-			if (s.Length < String8.MAX_LEN)
-			{
-				_value.AsString = String3.From(s);
-				_value.TypeIs = VariantType.StringIntern;
-			}
-			else
-			{
+			//if (s.Length < String8.MAX_LEN)
+			//{
+			//	_value.AsString = String3.From(s);
+			//	_value.TypeIs = VariantType.StringIntern;
+			//}
+			//else
+			//{
 				Set(s.ToString());
-			}
+			//}
 		}
 
 		/// <summary>In-place update</summary>
 		public void Set(string s)
 		{
-			if (s.Length > String3.MAX_LEN)
-			{
+			//if (s.Length > String3.MAX_LEN)
+			//{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = StrTab.Get(s);
-				_value.AsInt2 = (short)s[0];
-			}
-			else
-			{
-				_value.TypeIs = VariantType.StringIntern;
-				_value.AsString = String3.From(s);
-			}
+				//_value.AsInt2 = (short)s[0];
+			//}
+			//else
+			//{
+			//	_value.TypeIs = VariantType.StringIntern;
+			//	_value.AsString = String3.From(s);
+			//}
 		}
 
-		/// <summary>In-place update</summary>
-		public void Set(char ch)
-		{
-			_value.TypeIs = VariantType.StringIntern;
-			_value.AsString.c0 = ch;
-			_value.AsString.c1 = '\0';
-		}
+		///// <summary>In-place update</summary>
+		//public void Set(char ch)
+		//{
+		//	_value.TypeIs = VariantType.String;
+		//	_value.AsStrInTab = StrTab.Get(ch.ToString())
+		//	_value.AsString.c0 = ch;
+		//	_value.AsString.c1 = '\0';
+		//}
 
 		/// <summary>In-place update</summary>
 		public void SetParse(string value)
@@ -334,9 +335,9 @@ namespace Portland
 				case VariantType.Float:
 					Set(0.0f);
 					break;
-				case VariantType.StringIntern:
-					Set(new String3());
-					break;
+				//case VariantType.StringIntern:
+				//	Set(new String3());
+				//	break;
 				case VariantType.Vec3:
 					Set(Vector3h.Zero);
 					break;
@@ -408,12 +409,12 @@ namespace Portland
 			get { return new Vector3i(_value.AsShort, _value.AsShort2, _value.AsShort3); }
 		}
 
-		/// <summary>No conversion or type checking</summary>
-		public String3 StringShort
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get { return _value.AsString; }
-		}
+		///// <summary>No conversion or type checking</summary>
+		//public String3 StringShort
+		//{
+		//	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//	get { return _value.AsString; }
+		//}
 
 		/// <summary>Returns 0 on failure</summary>
 		public int ToInt()
@@ -520,8 +521,8 @@ namespace Portland
 						return idx == 0 ? _value.AsInt : Int32.MinValue;
 					case VariantType.Float:
 						return idx == 0 ? (int)_value.AsFloat : Int32.MinValue;
-					case VariantType.StringIntern:
-						return _value.AsString[idx];
+					//case VariantType.StringIntern:
+					//	return _value.AsString[idx];
 					case VariantType.Vec3:
 						return idx == 0 ? (int)_value.AsVector3.X : idx == 1 ? (int)_value.AsVector3.Y : idx == 2 ? (int)_value.AsVector3.Z : Int32.MinValue;
 					case VariantType.Vec3i:
@@ -544,8 +545,8 @@ namespace Portland
 					case VariantType.Bool:
 					case VariantType.Float:
 						return 1;
-					case VariantType.StringIntern:
-						return _value.AsString.Length;
+					//case VariantType.StringIntern:
+					//	return _value.AsString.Length;
 					case VariantType.Vec3:
 					case VariantType.Vec3i:
 						return 3;
@@ -571,8 +572,8 @@ namespace Portland
 				case VariantType.Vec3:
 				case VariantType.Vec3i:
 					return false;
-				case VariantType.StringIntern:
-					return _value.AsString.Equals(s);
+				//case VariantType.StringIntern:
+				//	return _value.AsString.Equals(s);
 				case VariantType.String:
 					return _value.AsStrInTab == s;
 				default:
@@ -592,8 +593,8 @@ namespace Portland
 					return _value.AsInt.Equals(obj);
 				case VariantType.Float:
 					return _value.AsFloat.Equals(obj);
-				case VariantType.StringIntern:
-					return _value.AsString.Equals(obj);
+				//case VariantType.StringIntern:
+				//	return _value.AsString.Equals(obj);
 				case VariantType.Vec3:
 					return _value.AsVector3.Equals(obj);
 				case VariantType.Vec3i:
@@ -615,8 +616,8 @@ namespace Portland
 					return _value.AsInt.GetHashCode();
 				case VariantType.Float:
 					return _value.AsFloat.GetHashCode();
-				case VariantType.StringIntern:
-					return _value.AsString.GetHashCode();
+				//case VariantType.StringIntern:
+				//	return _value.AsString.GetHashCode();
 				case VariantType.Vec3:
 					return _value.AsVector3.GetHashCode();
 				case VariantType.String:
@@ -635,10 +636,10 @@ namespace Portland
 					return _value.AsInt.ToString();
 				case VariantType.Float:
 					return _value.AsFloat.ToString();
-				case VariantType.StringIntern:
-					_value.AsStrInTab = StrTab.Get(_value.AsString);
-					_value.TypeIs = VariantType.String;
-					return _value.AsStrInTab.ToString();
+				//case VariantType.StringIntern:
+				//	_value.AsStrInTab = StrTab.Get(_value.AsString);
+				//	_value.TypeIs = VariantType.String;
+				//	return _value.AsStrInTab.ToString();
 				case VariantType.Vec3:
 					return _value.AsVector3.ToString();
 				case VariantType.Vec3i:
@@ -879,14 +880,14 @@ namespace Portland
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Variant8 s1, String8 s)
 		{
-			return s1._value.AsString == s;
+			return s1._value.AsStrInTab.Equals(s);
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Variant8 s1, String8 s)
 		{
-			return s1._value.AsString != s;
+			return !s1._value.AsStrInTab.Equals(s);
 		}
 
 		/// <summary>==</summary>

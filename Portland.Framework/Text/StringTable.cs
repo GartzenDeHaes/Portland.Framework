@@ -70,7 +70,7 @@ namespace Portland.Text
 		/// <summary>
 		/// Get or create the index for the string
 		/// </summary>
-		public StringInStrTab Get(string str)
+		public StringTabRef Get(string str)
 		{
 			int hash = StringHelper.HashMurmur32(str);
 			int key = IndexOf(hash);
@@ -80,13 +80,13 @@ namespace Portland.Text
 				key = Add(str, hash);
 			}
 
-			return new StringInStrTab(key, str.Length);
+			return new StringTabRef(key, str.Length);
 		}
 
 		/// <summary>
 		/// Get or create the index for the string.  No alloc if the string is already in the table.
 		/// </summary>
-		public StringInStrTab Get(StringBuilder buf)
+		public StringTabRef Get(StringBuilder buf)
 		{
 			int hash = StringHelper.HashSimple32(buf);
 			int key = IndexOf(hash);
@@ -96,25 +96,25 @@ namespace Portland.Text
 				key = Add(buf.ToString(), hash);
 			}
 
-			return new StringInStrTab(key, buf.Length);
+			return new StringTabRef(key, buf.Length);
 		}
 
-		/// <summary>
-		/// Get or create the index for the string
-		/// </summary>
-		public StringInStrTab Get(String3 str3)
-		{
-			string str = str3;
-			int hash = StringHelper.HashSimple32(str);
-			int key = IndexOf(hash);
+		///// <summary>
+		///// Get or create the index for the string
+		///// </summary>
+		//public StringTabRef Get(String3 str3)
+		//{
+		//	string str = str3;
+		//	int hash = StringHelper.HashSimple32(str);
+		//	int key = IndexOf(hash);
 
-			if (key < 0)
-			{
-				key = Add(str, hash);
-			}
+		//	if (key < 0)
+		//	{
+		//		key = Add(str, hash);
+		//	}
 
-			return new StringInStrTab(key, str.Length);
-		}
+		//	return new StringTabRef(key, str.Length);
+		//}
 
 		/// <summary>
 		/// Get the string for the specified index.

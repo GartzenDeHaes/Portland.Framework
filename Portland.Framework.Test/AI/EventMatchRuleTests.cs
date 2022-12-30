@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Portland.AI
 {
-	[TestFixture]
+    [TestFixture]
 	public class EventMatchRuleTests
 	{
 		[Test]

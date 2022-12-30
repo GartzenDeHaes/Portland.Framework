@@ -48,11 +48,11 @@ namespace Portland
 		public void CStringTest()
 		{
 			Variant8 v1 = new Variant8("123");
-			Assert.AreEqual(VariantType.StringIntern, v1.TypeIs);
+			Assert.AreEqual(VariantType.String, v1.TypeIs);
 			Assert.IsTrue(v1 == "123");
 			Assert.IsTrue(v1.Equals("123"));
 			Assert.IsTrue(v1 != "1234");
-			Assert.AreEqual(VariantType.StringIntern, v1.TypeIs);
+			Assert.AreEqual(VariantType.String, v1.TypeIs);
 			Assert.IsTrue(v1.ToString() == "123"); // ToString puts it in the string table
 			Assert.AreEqual(3, v1.Length);
 			Assert.AreEqual(VariantType.String, v1.TypeIs);

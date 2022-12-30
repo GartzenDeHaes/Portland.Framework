@@ -96,6 +96,17 @@ namespace Portland.Collections
 			}
 		}
 
+		/// <summary>Returns the number of bits set</summary>
+		public int NumberOfBitsSet()
+		{
+			int count = 0;
+			for (int x = 0; x < 64; x++)
+			{
+				count += this.IsSet(x) ? 1 : 0;
+			}
+			return count;
+		}
+
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
@@ -260,11 +271,22 @@ namespace Portland.Collections
 			}
 		}
 
+		/// <summary>Returns the number of bits set</summary>
+		public int NumberOfBitsSet()
+		{
+			int count = 0;
+			for (int x = 0; x < 32; x++)
+			{
+				count += this.IsSet(x) ? 1 : 0;
+			}
+			return count;
+		}
+
 		/// <inheritdoc/>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
 		{
-			return RawBits.GetHashCode();
+			return (int)RawBits;
 		}
 
 		/// <inheritdoc/>
@@ -434,11 +456,22 @@ namespace Portland.Collections
 			}
 		}
 
+		/// <summary>Returns the number of bits set</summary>
+		public int NumberOfBitsSet()
+		{
+			int count = 0;
+			for (int x = 0; x < 16; x++)
+			{
+				count += this.IsSet(x) ? 1 : 0;
+			}
+			return count;
+		}
+
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
 		{
-			return RawBits.GetHashCode();
+			return RawBits;
 		}
 
 		/// <summary></summary>

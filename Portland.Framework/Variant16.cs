@@ -51,7 +51,7 @@ namespace Portland
 			public String8 AsString;
 
 			[FieldOffset(0)]
-			public StringInStrTab AsStrInTab;
+			public StringTabRef AsStrInTab;
 
 			[FieldOffset(0)]
 			public BitSet64 AsBits1;

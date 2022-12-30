@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Portland.Text;
 using Portland.Mathmatics;
+using System.Security.AccessControl;
 
 namespace Portland.AI.Utility
 {
@@ -134,6 +135,102 @@ namespace Portland.AI.Utility
 
 		#region Parsing
 
+		/// <summary>
+		/// Example XML:
+		/* <utility>
+		<properties>
+			<property name = 'hunger' type='float' global='false' min='0' max='100' start='0' startrand='false' changePerHour='10' />
+			<property name = 'money' type='float' global='false' min='0' max='500' start='100' startrand='false' changePerHour='0' />
+			<property name = 'rest' type='float' global='false' min='0' max='100' start='30' startrand='false' changePerHour='-3' />
+			<property name = 'hygiene' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-2' />
+			<property name = 'entertainment' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-5' />
+			<property name = 'supplies' type='float' global='false' min='0' max='100' start='100' startrand='false' changePerHour='-1' />
+			<property name = 'time' type='float' global='true' min='0' max='24' start='12' startrand='false' changePerHour='0' />
+			<property name = 'weekend' type='bool' global='true' startrand='false' />
+		</properties>
+		<objectives>
+			<objective name = 'eat_at_restaurant' time='2' priority='2' interruptible='false' cooldown='60'>
+				<consideration property = 'hunger' weight='1.2' func='inverse' />
+				<consideration property = 'money' weight='0.8' func='normal' />
+				<consideration property = 'time' weight='0.8' func='center' />
+			</objective>
+			<objective name = 'eat_at_home' time='2' priority='2' interruptible='false' cooldown='0'>
+				<consideration property = 'hunger' weight='1.2' func='inverse' />
+				<consideration property = 'money' weight='1.0' func='clamp_low' />
+				<consideration property = 'time' weight='1.0' func='clamp_hi_low' />
+			</objective>
+			<objective name = 'get_supplies' time='2' priority='3' interruptible='true' cooldown='0'>
+				<consideration property = 'supplies' weight='1.0' func='inverse' />
+			</objective>
+			<objective name = 'watch_movie' time='3' priority='3' interruptible='true' cooldown='0'>
+				<consideration property = 'entertainment' weight='1.0' func='inverse' />
+			</objective>
+			<objective name = 'sleep' time='6' priority='2' interruptible='false' cooldown='0'>
+				<consideration property = 'rest' weight='1.0' func='inverse' />
+				<consideration property = 'time' weight='1.2' func='clamp_hi_low' />
+			</objective>
+			<objective name = 'work' time='8' priority='1' interruptible='false' cooldown='12'>
+				<consideration property = 'time' weight='1.0' func='center' />
+				<consideration property = 'weekend' weight='1.0' func='inverse' />
+			</objective>
+			<objective name = 'work_at_home' time='4' priority='4' interruptible='false' cooldown='4'>
+				<consideration property = 'time' weight='1.0' func='center' />
+				<consideration property = 'weekend' weight='1.0' func='inverse' />
+			</objective>
+			<objective name = 'shower' time='2' priority='2' interruptible='true' cooldown='5'>
+				<consideration property = 'hygiene' weight='1.0' func='inverse' />
+			</objective>
+			<objective name = 'drink_coffee' time='4' priority='4' interruptible='true' cooldown='2'>
+				<consideration property = 'hunger' weight='0.8' func='inverse' />
+				<consideration property = 'rest' weight='1.0' func='inverse' />
+			</objective>
+		</objectives>
+		<agenttypes>
+			<agenttype
+				type = 'base'
+				logging='off'
+				history='10' 
+				sec_between_evals='0.5' 
+				movementSpeed='50' 
+			>
+				<objectives>
+					<eat_at_restaurant /><eat_at_home /><get_supplies /><watch_movie /><sleep /><shower /><drink_coffee />
+				</objectives>
+			</agenttype>
+			<agenttype type = 'worker' extends='base'>
+				<objectives>
+					<work />
+				</objectives>
+			</agenttype>
+		</agenttypes>
+		<agents>
+			<agent type = 'base' name='Ellis' />
+			<agent type = 'worker' name='Coach' />
+			<agent type = 'worker' name='Nick'>
+				<objective_overrides>
+					<objective_override name = 'sleep' >
+						< consideration property='time' weight='0.2' func='center' />
+					</objective_override>
+					<objective_override name = 'drink_coffee' >
+						< consideration property='rest' weight='0.6' />
+					</objective_override>	
+				</objective_overrides>
+			</agent>
+			<agent type = 'base' name='Rochelle'>
+				<objectives>
+					<work_at_home />
+				</objectives>
+				<objective_overrides>
+					<objective_override name = 'drink_coffee' >
+						< consideration property='rest' weight='0.6' />
+					</objective_override>	
+				</objective_overrides>
+			</agent>
+		</agents>
+		</utility>
+		*/
+		/// 
+		/// </summary>
 		public void ParseLoad(string xml)
 		{
 			XmlLex lex = new XmlLex(xml);
