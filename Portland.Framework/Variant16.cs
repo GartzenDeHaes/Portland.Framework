@@ -134,7 +134,7 @@ namespace Portland
 			{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = Variant8.StrTab.Get(str);
-				_value.AsInt2 = (short)str[0];
+				//_value.AsInt2 = (short)str[0];
 			}
 			else
 			{
@@ -151,7 +151,7 @@ namespace Portland
 			{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = Variant8.StrTab.Get(str);
-				_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
+				//_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
 			}
 			else
 			{
@@ -263,7 +263,7 @@ namespace Portland
 			{
 				_value.TypeIs = VariantType.String;
 				_value.AsStrInTab = Variant8.StrTab.Get(s);
-				_value.AsInt2 = s[0];
+				//_value.AsInt2 = s[0];
 			}
 			else
 			{
@@ -561,7 +561,7 @@ namespace Portland
 					case VariantType.Vec3i:
 						return idx == 0 ? (int)Vectori.X : idx == 1 ? (int)Vectori.Y : idx == 2 ? (int)Vectori.Z : Int32.MinValue;
 					case VariantType.String:
-						return idx == 0 ? (char)_value.AsInt2 : _value.AsStrInTab[idx];
+						return _value.AsStrInTab[idx];
 					default:
 						return Int32.MinValue;
 				}
