@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Portland.CheckedEvents
 {
-	public sealed class ObservableValue<T> : Marshallable
+	public sealed class ObservableValue<T> //: Marshallable
 	{
 		private Func<T, bool> _validator;
 		private Action<T> _listeners;
@@ -39,14 +39,14 @@ namespace Portland.CheckedEvents
 			if (wasSuccessful)
 			{
 				_value = value;
-				if (marshall || RequiresMarshalling())
-				{
-					SendToMarshaller(() => { _listeners?.Invoke(value); });
-				}
-				else
-				{
+				//if (marshall || RequiresMarshalling())
+				//{
+				//	SendToMarshaller(() => { _listeners?.Invoke(value); });
+				//}
+				//else
+				//{
 					_listeners?.Invoke(value);
-				}
+				//}
 			}
 		}
 

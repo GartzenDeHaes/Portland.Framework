@@ -4,6 +4,19 @@ using System.Text;
 
 namespace Portland.Text
 {
+	public sealed class ParseException : Exception
+	{
+		public ParseException(int line)
+		: base($"Lex exception on line {line}.")
+		{
+		}
+
+		public ParseException(string msg)
+		: base(msg)
+		{
+		}
+	}
+
 	/// <summary>
 	/// A simple lexar that handled ID's, quoted strings, ints, and CR/LF.
 	/// </summary>
@@ -20,6 +33,8 @@ namespace Portland.Text
 			STRING,
 			/// <summary></summary>
 			INTEGER,
+			/// <summary></summary>
+			FLOAT,
 			/// <summary></summary>
 			PUNCT,
 			/// <summary></summary>
@@ -46,6 +61,7 @@ namespace Portland.Text
 			ID,
 			STRING,
 			NUM,
+			FLOAT
 		}
 
 		enum CharClass
@@ -74,7 +90,37 @@ namespace Portland.Text
 		{
 			if (tt != TypeIs)
 			{
-				throw new Exception($"Expected {tt} on line {LineNum}");
+				throw new ParseException($"Expected {tt} on line {LineNum}");
+			}
+
+			return Next();
+		}
+
+		public bool Match(string lexum)
+		{
+			if (! StringHelper.AreEqual(Lexum, lexum))
+			{
+				throw new ParseException($"Expected '{lexum}' on line {LineNum}");
+			}
+
+			return Next();
+		}
+
+		public bool MatchIgnoreCase(string lexum)
+		{
+			if (!StringHelper.AreEqualNoCase(Lexum, lexum))
+			{
+				throw new ParseException($"Expected '{lexum}' on line {LineNum}");
+			}
+
+			return Next();
+		}
+
+		public bool MatchOptionalIgnoreCase(string lexum)
+		{
+			if (!StringHelper.AreEqualNoCase(Lexum, lexum))
+			{
+				return !IsEOF;
 			}
 
 			return Next();
@@ -166,7 +212,7 @@ namespace Portland.Text
 								TypeIs = TokenType.ID;
 								break;
 							default:
-								throw new Exception("Internal error in SimpleLex " + _text);
+								throw new ParseException("Internal error in SimpleLex " + _text);
 						}
 
 						break;
@@ -188,10 +234,28 @@ namespace Portland.Text
 							Lexum.Append(ch);
 							break;
 						}
+						else if (ch == '.')
+						{
+							Lexum.Append(ch);
+							state = State.FLOAT;
+							TypeIs = TokenType.FLOAT;
+							break;
+						}
 						else
 						{
 							_textPos--;
 							TypeIs = TokenType.INTEGER;
+							return true;
+						}
+					case State.FLOAT:
+						if ((CharClass)chcls == CharClass.NUM)
+						{
+							Lexum.Append(ch);
+							break;
+						}
+						else
+						{
+							_textPos--;
 							return true;
 						}
 					case State.STRING:

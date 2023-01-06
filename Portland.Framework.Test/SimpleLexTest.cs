@@ -119,5 +119,30 @@ namespace Portland.Text
 			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
 			Assert.IsTrue(lex.Lexum.ToString().Equals(";"));
 		}
+
+		[Test]
+		public void FloatTest()
+		{
+			SimpleLex lex = new SimpleLex("2.0");
+			Assert.AreEqual(true, lex.Next());
+
+			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.TypeIs);
+			Assert.IsTrue(lex.Lexum.ToString().Equals("2.0"));
+			Assert.AreEqual(false, lex.Next());
+		}
+
+		[Test]
+		public void FloatTest_Trailing_Dot()
+		{
+			SimpleLex lex = new SimpleLex("2.0.");
+			Assert.AreEqual(true, lex.Next());
+
+			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.TypeIs);
+			Assert.IsTrue(lex.Lexum.ToString().Equals("2.0"));
+			Assert.AreEqual(true, lex.Next());
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.IsTrue(lex.Lexum.ToString().Equals("."));
+			Assert.AreEqual(false, lex.Next());
+		}
 	}
 }

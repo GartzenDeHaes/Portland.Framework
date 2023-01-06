@@ -443,6 +443,25 @@ namespace Portland.Text
 		}
 
 		/// <summary>
+		/// No-alloc compare string and StringBuilder contents
+		/// </summary>
+		public static bool AreEqualNoCase(StringBuilder sb, string str)
+		{
+			if (sb.Length != str.Length)
+			{
+				return false;
+			}
+			for (int x = 0; x < str.Length; x++)
+			{
+				if (Char.ToUpper(str[x]) != Char.ToUpper(sb[x]))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
 		/// Calls ToString(), or return nbsp;
 		/// </summary>
 		public static string ToStringOrNbsp(object o)

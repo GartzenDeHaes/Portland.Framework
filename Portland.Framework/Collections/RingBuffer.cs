@@ -4,26 +4,29 @@ using System.Collections.Generic;
 
 namespace Portland.Collections
 {
-	public class RingBuffer<T> : IEnumerable<T>
+	public sealed class RingBuffer<T> : IEnumerable<T>
 	{
-		private readonly T[] _elements;
-		private int _start;
-		private int _end;
-		private int _count;
-		private readonly int _capacity;
+		readonly T[] _elements;
+		int _start;
+		int _end;
+		int _count;
+		readonly int _capacity;
+		readonly bool _errorOnOverflow;
 
-		public T this[int i] => _elements[(_start + i) % _capacity];
-
-		public RingBuffer(int count)
+		public RingBuffer(int count, bool errorOnOverflow = true)
 		{
 			_elements = new T[count];
 			_capacity = count;
+			_errorOnOverflow = errorOnOverflow;
 		}
 
 		public void Add(T element)
 		{
-			if (_count == _capacity)
-				throw new ArgumentException();
+			if (_errorOnOverflow && _count == _capacity)
+			{
+				throw new ArgumentException("Ring buffer full");
+			}
+
 			_elements[_end] = element;
 			_end = (_end + 1) % _capacity;
 			_count++;
@@ -36,22 +39,27 @@ namespace Portland.Collections
 			_count = 0;
 		}
 
+		public T this[int i] => _elements[(_start + i) % _capacity];
 		public int Count => _count;
 		public T First => _elements[_start];
 		public T Last => _elements[(_start + _count - 1) % _capacity];
 		public bool IsFull => _count == _capacity;
 
-		public void RemoveFromStart(int count)
+		public void RemoveFirst()
 		{
-			if (count > _capacity || count > _count)
-				throw new ArgumentException();
-			_start = (_start + count) % _capacity;
-			_count -= count;
+			if (_count == 0)
+			{
+				throw new ArgumentException("RingBuffer empty");
+			}
+
+			_start = (_start + 1) % _capacity;
+			_count -= 1;
 		}
 
 		public IEnumerator<T> GetEnumerator()
 		{
 			int counter = _start;
+
 			while (counter != _end)
 			{
 				yield return _elements[counter];

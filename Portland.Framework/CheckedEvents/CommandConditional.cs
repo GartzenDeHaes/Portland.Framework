@@ -2,7 +2,7 @@
 
 namespace Portland.CheckedEvents
 {
-	public sealed class CommandConditional : Marshallable
+	public sealed class CommandConditional //: Marshallable
 	{
 		private Func<bool> _tryer;
 		private Action _listeners;
@@ -36,14 +36,14 @@ namespace Portland.CheckedEvents
 			bool wasSuccessful = (_tryer == null || _tryer());
 			if (wasSuccessful)
 			{
-				if (RequiresMarshalling())
-				{
-					SendToMarshaller(() => { _listeners?.Invoke(); });
-				}
-				else
-				{
+				//if (RequiresMarshalling())
+				//{
+				//	SendToMarshaller(() => { _listeners?.Invoke(); });
+				//}
+				//else
+				//{
 					_listeners?.Invoke();
-				}
+				//}
 				return true;
 			}
 
@@ -51,7 +51,7 @@ namespace Portland.CheckedEvents
 		}
 	}
 
-	public class CommandConditional<T> : Marshallable
+	public class CommandConditional<T> //: Marshallable
 	{
 		private Func<T, bool> _tryer;
 		private Action<T> _listeners;
@@ -88,14 +88,14 @@ namespace Portland.CheckedEvents
 			bool wasSuccessful = (_tryer == null || _tryer(arg));
 			if (wasSuccessful)
 			{
-				if (RequiresMarshalling())
-				{
-					SendToMarshaller(() => { _listeners?.Invoke(arg); });
-				}
-				else
-				{
+				//if (RequiresMarshalling())
+				//{
+				//	SendToMarshaller(() => { _listeners?.Invoke(arg); });
+				//}
+				//else
+				//{
 					_listeners?.Invoke(arg);
-				}
+				//}
 				return true;
 			}
 

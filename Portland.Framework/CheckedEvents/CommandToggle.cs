@@ -8,7 +8,7 @@ using Portland.Mathmatics;
 
 namespace Portland.CheckedEvents
 {
-	public sealed class CommandToggle : Marshallable
+	public sealed class CommandToggle //: Marshallable
 	{
 		public bool Active { get; private set; }
 		public bool Debounce { get; set; }
@@ -98,14 +98,14 @@ namespace Portland.CheckedEvents
 
 			Active = true;
 
-			if (RequiresMarshalling())
-			{
-				SendToMarshaller(() => { _onStart?.Invoke(); });
-			}
-			else
-			{
+			//if (RequiresMarshalling())
+			//{
+			//	SendToMarshaller(() => { _onStart?.Invoke(); });
+			//}
+			//else
+			//{
 				_onStart?.Invoke();
-			}
+			//}
 
 #if UNITY_2019_1_OR_NEWER
 			StartTime = UnityEngine.Time.time;
@@ -130,14 +130,14 @@ namespace Portland.CheckedEvents
 
 				if (Active)
 				{
-					if (RequiresMarshalling())
-					{
-						SendToMarshaller(() => { _onStart?.Invoke(); });
-					}
-					else
-					{
+					//if (RequiresMarshalling())
+					//{
+					//	SendToMarshaller(() => { _onStart?.Invoke(); });
+					//}
+					//else
+					//{
 						_onStart?.Invoke();
-					}
+					//}
 
 #if UNITY_2019_1_OR_NEWER
 					StartTime = UnityEngine.Time.time;
@@ -150,14 +150,14 @@ namespace Portland.CheckedEvents
 			{
 				Active = true;
 
-				if (RequiresMarshalling())
-				{
-					SendToMarshaller(() => { _onStart?.Invoke(); });
-				}
-				else
-				{
+				//if (RequiresMarshalling())
+				//{
+				//	SendToMarshaller(() => { _onStart?.Invoke(); });
+				//}
+				//else
+				//{
 					_onStart?.Invoke();
-				}
+				//}
 
 #if UNITY_2019_1_OR_NEWER
 				StartTime = UnityEngine.Time.time;
@@ -183,14 +183,14 @@ namespace Portland.CheckedEvents
 			if (_stopTryers == null || CallStopApprovers())
 			{
 				Active = false;
-				if (RequiresMarshalling())
-				{
-					SendToMarshaller(() => { _onStop?.Invoke(); });
-				}
-				else
-				{
+				//if (RequiresMarshalling())
+				//{
+				//	SendToMarshaller(() => { _onStop?.Invoke(); });
+				//}
+				//else
+				//{
 					_onStop?.Invoke();
-				}
+				//}
 				return true;
 			}
 

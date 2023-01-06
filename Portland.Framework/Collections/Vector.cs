@@ -72,10 +72,11 @@ namespace Portland.Collections
 			return m_used++;
 		}
 
-		public void Add(T o)
+		public int Add(T o)
 		{
 			Extend();
 			m_data[m_used++] = o;
+			return m_used - 1;
 		}
 
 		public void Add(T[] ta)

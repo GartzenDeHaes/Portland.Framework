@@ -207,6 +207,28 @@ namespace Portland.Text
 			this[3] = len > 3 ? (str[3]) : '\0';
 		}
 
+		public static AsciiId4 ConstructStartsWith(string str)
+		{
+			int len = str.Length;
+			AsciiId4 a = new AsciiId4();
+			a[0] = len > 0 ? (str[0]) : '\0';
+			a[1] = len > 1 ? (str[1]) : '\0';
+			a[2] = len > 2 ? (str[2]) : '\0';
+			a[3] = len > 3 ? (str[3]) : '\0';
+			return a;
+		}
+
+		public static AsciiId4 ConstructStartsWith(StringBuilder str)
+		{
+			int len = str.Length;
+			AsciiId4 a = new AsciiId4();
+			a[0] = len > 0 ? (str[0]) : '\0';
+			a[1] = len > 1 ? (str[1]) : '\0';
+			a[2] = len > 2 ? (str[2]) : '\0';
+			a[3] = len > 3 ? (str[3]) : '\0';
+			return a;
+		}
+
 		/// <summary>Implicit String8 to string cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator string(AsciiId4 s) => s.ToString();
