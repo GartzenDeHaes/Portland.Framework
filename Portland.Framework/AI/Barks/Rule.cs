@@ -29,16 +29,21 @@ namespace Portland.AI.Barks
 		public List<AgentStateFilter> ActorFlags = new List<AgentStateFilter>();
 		public List<FactFilter> ActorFilters = new List<FactFilter>();
 
+		/// <summary></summary>
 		public float Probability = 1f;
+		public bool NoRetryIfProbablityFails;
+
 		public List<BarkCommand> Response = new List<BarkCommand>();
+
+		public int Priority;
 
 		public Rule()
 		{
 		}
 
-		public int Priority()
+		public void RecalcPriority()
 		{
-			return WorldFlagsSet.Bits.NumberOfBitsSet() +
+			Priority = WorldFlagsSet.Bits.NumberOfBitsSet() +
 				WorldFlagsClear.Bits.NumberOfBitsSet() +
 				//ActorFlagsSet.Bits.NumberOfBitsSet() +
 				//ActorFlagsClear.Bits.NumberOfBitsSet() +
@@ -50,6 +55,11 @@ namespace Portland.AI.Barks
 				WorldFilters.Count +
 				ActorFilters.Count +
 				(Probability < 1f ? 1 : 0);
+
+			//for (int i = 0; i < Response.Count; i++)
+			//{
+			//	Priority += Response[i].DefaultTexts?.Count ?? 0;
+			//}
 		}
 	}
 }

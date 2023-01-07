@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Portland.AI.Utility
 {
+	/// <summary>
+	/// The definition of a unity function.
+	/// TODO: class breaks transform
+	/// </summary>
 	public class Consideration
 	{
 		public enum TransformFunc

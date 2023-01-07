@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Portland.Collections;
 using Portland.Text;
 
 namespace Portland.AI.Barks
@@ -35,6 +36,7 @@ namespace Portland.AI.Barks
 				{
 					rule = When(lex);
 					Do(lex, rule);
+					rule.RecalcPriority();
 					rules.Add(rule);
 
 					LexMatch(lex, ".");
@@ -165,11 +167,20 @@ namespace Portland.AI.Barks
 					rule.Probability = Single.Parse(lex.Lexum.ToString()) / 100f;
 					LexMatch(lex, SimpleLex.TokenType.INTEGER);
 					LexMatch(lex, "%");
+
+					if (StringHelper.AreEqualNoCase(lex.Lexum, "NORETRY"))
+					{
+						LexMatch(lex, "NORETRY");
+						rule.NoRetryIfProbablityFails = true;
+					}
+
 					LexMatchOptionalIgnoreCase(lex, ",");
 					continue;
 				}
-				if (lex.TypeIs == SimpleLex.TokenType.ID && !StringHelper.AreEqualNoCase(lex.Lexum, "DO"))
+				if (StringHelper.AreEqualNoCase(lex.Lexum, "TEST"))
+				//	if (lex.TypeIs == SimpleLex.TokenType.ID && !StringHelper.AreEqualNoCase(lex.Lexum, "DO"))
 				{
+					LexMatch(lex, "TEST");
 					// variable_name OP value
 					// variable_name IS SET|UNSET
 					WhenExpr(lex, rule);
@@ -312,13 +323,13 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					if (!isNot)
+					if (isNot)
 					{
-						rule.ActorFlags.Add(new AgentStateFilter() { ActorName = charName, FlagName = flagName });
+						rule.ActorFlags.Add(new AgentStateFilter() { ActorName = charName, FlagName = flagName, Not = true });
 					}
 					else
 					{
-						rule.ActorFlags.Add(new AgentStateFilter() { ActorName = charName, FlagName = flagName, Not = true });
+						rule.ActorFlags.Add(new AgentStateFilter() { ActorName = charName, FlagName = flagName });
 					}
 				}
 			}
@@ -440,11 +451,6 @@ namespace Portland.AI.Barks
 
 			while (LexSkipWhitespace(lex) && lex.Lexum[0] != '.')
 			{
-				if (StringHelper.AreEqualNoCase(lex.Lexum, "SAY"))
-				{
-					DoSay(lex, rule);
-					continue;
-				}
 				if (StringHelper.AreEqualNoCase(lex.Lexum, "SET"))
 				{
 					DoSet(lex, rule);
@@ -453,6 +459,7 @@ namespace Portland.AI.Barks
 				if (StringHelper.AreEqualNoCase(lex.Lexum, "ADD"))
 				{
 					DoAdd(lex, rule);
+					continue;
 				}
 				if (StringHelper.AreEqualNoCase(lex.Lexum, "RAISE"))
 				{
@@ -464,9 +471,23 @@ namespace Portland.AI.Barks
 					DoReset(lex, rule);
 					continue;
 				}
+				if (StringHelper.AreEqualNoCase(lex.Lexum, "DONT"))
+				{
+					DoDont(lex, rule);
+					continue;
+				}
+				else
+				{
+					rule.ObserverName = Strings.Get(lex.Lexum);
+					LexMatch(lex, SimpleLex.TokenType.ID);
+
+					DoSay(lex, rule);
+
+					continue;
+				}
 				//if (lex.TypeIs == SimpleLex.TokenType.INTEGER)
 				//{
-					throw new ParseException($"Unexpected '{lex.Lexum.ToString()}' on line {lex.LineNum}");
+				//throw new ParseException($"Unexpected '{lex.Lexum.ToString()}' on line {lex.LineNum}");
 				//}
 			}
 		}
@@ -483,17 +504,26 @@ namespace Portland.AI.Barks
 
 		void DoSay(SimpleLex lex, Rule rule)
 		{
-			LexMatchIgnoreCase(lex, "SAY");
+			LexMatchIgnoreCase(lex, "SAYS");
 
 			BarkCommand cmd = new BarkCommand() {
 				CommandName = BarkCommand.CommandNameSay,
 				Arg1 = ScanName(lex),
-				Arg2 = lex.Lexum.ToString(),
 				Rule = rule
 			};
-			rule.Response.Add(cmd);
 
+			cmd.DefaultTexts = new Vector<string>();
+
+			cmd.DefaultTexts.Add(lex.Lexum.ToString());
 			LexMatch(lex, SimpleLex.TokenType.STRING);
+
+			while (StringHelper.AreEqualNoCase(lex.Lexum, "OR"))
+			{
+				LexMatchIgnoreCase(lex, "OR");
+
+				cmd.DefaultTexts.Add(lex.Lexum.ToString());
+				LexMatch(lex, SimpleLex.TokenType.STRING);
+			}
 
 			if (StringHelper.AreEqualNoCase(lex.Lexum, "DURATION"))
 			{
@@ -503,6 +533,8 @@ namespace Portland.AI.Barks
 			}
 
 			DoCheckForDelay(lex, cmd);
+
+			rule.Response.Add(cmd);
 
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
@@ -532,7 +564,18 @@ namespace Portland.AI.Barks
 
 			LexMatch(lex, "TO");
 
-			cmd.Arg2 = lex.Lexum.ToString();
+			if (lex.TypeIs == SimpleLex.TokenType.INTEGER)
+			{
+				cmd.Arg2 = Int32.Parse(lex.Lexum.ToString());
+			}
+			else if (lex.TypeIs == SimpleLex.TokenType.FLOAT)
+			{
+				cmd.Arg2 = Single.Parse(lex.Lexum.ToString());
+			}
+			else
+			{
+				cmd.Arg2 = lex.Lexum.ToString();
+			}
 			LexNext(lex);
 
 			DoCheckForDelay(lex, cmd);
@@ -602,6 +645,37 @@ namespace Portland.AI.Barks
 			BarkCommand cmd = new BarkCommand()
 			{
 				CommandName = BarkCommand.CommandNameResetRule,
+				Rule = rule
+			};
+
+			rule.Response.Add(cmd);
+
+			DoCheckForDelay(lex, cmd);
+
+			LexMatchOptionalIgnoreCase(lex, ",");
+		}
+
+		/// <summary>
+		/// DONT COACH SAYS ally_dying
+		/// </summary>
+		void DoDont(SimpleLex lex, Rule rule)
+		{
+			LexMatchIgnoreCase(lex, "DONT");
+
+			var actor = Strings.Get(lex.Lexum);
+			LexMatch(lex, SimpleLex.TokenType.ID);
+
+			var action = AsciiId4.ConstructStartsWith(lex.Lexum);
+			LexMatch(lex, SimpleLex.TokenType.ID);
+
+			var concept = ScanName(lex);
+
+			BarkCommand cmd = new BarkCommand()
+			{
+				CommandName = BarkCommand.CommandNameDontSay,
+				ActorName = actor,
+				Arg1 = actor,
+				Arg2 = action.ToInt(),
 				Rule = rule
 			};
 

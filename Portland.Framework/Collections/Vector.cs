@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
+using Portland.Mathmatics;
+
 namespace Portland.Collections
 {
 	[Serializable]
@@ -277,6 +279,11 @@ namespace Portland.Collections
 		public T[] Data()
 		{
 			return m_data;
+		}
+
+		public T RandomElement()
+		{
+			return ElementAt(MathHelper.RandomRange(0, Count));
 		}
 	}
 }

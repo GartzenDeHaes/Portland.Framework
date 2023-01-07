@@ -5,6 +5,9 @@ using Portland.Mathmatics;
 
 namespace Portland.AI.Utility
 {
+	/// <summary>
+	/// The current objective (goal) score for an Agent cref="UtilitySetInstance".
+	/// </summary>
 	public class ObjectiveInstance
 	{
 		public Objective Base;
@@ -30,7 +33,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public float Evaluate(Dictionary<string, PropertyInstance> props)
+		public float Evaluate(Dictionary<string, ConciderationProperty> props)
 		{
 			Score = 0f;
 
@@ -46,7 +49,7 @@ namespace Portland.AI.Utility
 
 		public void StartCooldown()
 		{
-			_cooldown = Base.CoolDown;
+			_cooldown = Base.Cooldown;
 		}
 	}
 }

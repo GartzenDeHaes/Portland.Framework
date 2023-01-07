@@ -181,7 +181,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_Is_Unset()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN barrels IS UNSET DO .");
+			var rules = parser.Deserialize("WHEN TEST barrels IS UNSET DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -195,7 +195,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_EqEq_Int()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN barrels == 1 DO .");
+			var rules = parser.Deserialize("WHEN TEST barrels == 1 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -210,7 +210,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_NotEq_Int()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN barrels != 1 DO .");
+			var rules = parser.Deserialize("WHEN TEST barrels != 1 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -225,7 +225,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_Lt_Float()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN barrels < 1.0 DO .");
+			var rules = parser.Deserialize("WHEN TEST barrels < 1.0 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -243,7 +243,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 	ACTION IS SEE,
 	OBJECT IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET,
+	TEST helicopter IS UNSET,
 	CHANCE 50%
 DO .
 ";
@@ -272,8 +272,8 @@ DO .
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
-DO SAY francis_hates_hotels ""I hate hotels"".
+	TEST helicopter IS UNSET
+DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"".
 ";
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(rule_text);
@@ -281,7 +281,11 @@ DO SAY francis_hates_hotels ""I hate hotels"".
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+
+			Assert.NotNull(cmd.DefaultTexts);
+			Assert.NotZero(cmd.DefaultTexts.Count);
+
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 		}
 
@@ -291,8 +295,8 @@ DO SAY francis_hates_hotels ""I hate hotels"".
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
-DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0.
+	TEST helicopter IS UNSET
+DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0.
 ";
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(rule_text);
@@ -300,7 +304,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0.
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 			Assert.That(cmd.Duration, Is.EqualTo(10f));
 		}
@@ -311,8 +316,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0.
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
-DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
+	TEST helicopter IS UNSET
+DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
 ";
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(rule_text);
@@ -320,7 +325,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 			Assert.That(cmd.Duration, Is.EqualTo(10f));
 			Assert.That(cmd.DelayTime, Is.EqualTo(30f));
@@ -332,8 +338,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
-DO SAY francis_hates_hotels ""I hate hotels"" DELAY 30.0.
+	TEST helicopter IS UNSET
+DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 ";
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(rule_text);
@@ -341,7 +347,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 			Assert.That(cmd.Duration, Is.EqualTo(5f));
 			Assert.That(cmd.DelayTime, Is.EqualTo(30f));
@@ -353,8 +360,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
-DO SAY francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
+	TEST helicopter IS UNSET
+DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
 ";
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(rule_text);
@@ -362,7 +369,8 @@ DO SAY francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 			Assert.That(cmd.DelayTime, Is.EqualTo(22f));
 		}
@@ -374,7 +382,7 @@ DO SAY francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
 WHEN
 	ACTION IS hello,
 DO 
-	SET francis_hates TO 1
+	SET francis_hates_things TO 1
 .
 ";
 			var parser = new BarkSerializer();
@@ -382,7 +390,27 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSetVar, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates"));
+			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_things"));
+			var arg2 = cmd.Arg2.ToString();
+			Assert.That(arg2, Is.EqualTo("1"));
+		}
+
+		[Test]
+		public void Parse_Do_Add()
+		{
+			string rule_text = @"
+WHEN
+	ACTION IS hello
+DO 
+	ADD 1 TO francis_hates_things
+.
+";
+			var parser = new BarkSerializer();
+			var rules = parser.Deserialize(rule_text);
+
+			var cmd = rules[0].Response[0];
+			Assert.AreEqual(BarkCommand.CommandNameAdd, cmd.CommandName);
+			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_things"));
 			var arg2 = cmd.Arg2.ToString();
 			Assert.That(arg2, Is.EqualTo("1"));
 		}
@@ -475,9 +503,9 @@ DO
 			string rule_text = @"WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
-	helicopter IS UNSET
+	TEST helicopter IS UNSET
 DO 
-	SAY francis_hates_hotels ""I hate hotels"",
+	FRANCIS SAYS francis_hates_hotels ""I hate hotels"",
 	SET francis_hates TO 1,
 	RESET DELAY 300
 .
@@ -488,7 +516,7 @@ DO
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
 			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
-			var arg2 = cmd.Arg2.ToString();
+			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 		}
 	}

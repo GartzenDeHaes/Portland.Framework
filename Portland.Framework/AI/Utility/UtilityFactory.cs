@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Portland.Text;
 using Portland.Mathmatics;
 using System.Security.AccessControl;
+using System.Xml.Linq;
 
 namespace Portland.AI.Utility
 {
@@ -20,9 +21,9 @@ namespace Portland.AI.Utility
 			SATURDAY = 6
 		};
 
-		private Dictionary<string, PropertyInstance> _globalProperties = new Dictionary<string, PropertyInstance>();
+		private Dictionary<string, ConciderationProperty> _globalProperties = new Dictionary<string, ConciderationProperty>();
 
-		private Dictionary<string, ConsiderationProperty> _properties = new Dictionary<string, ConsiderationProperty>();
+		private Dictionary<string, ConsiderationPropertyDef> _properties = new Dictionary<string, ConsiderationPropertyDef>();
 		private Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
 		private Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
 		private Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
@@ -36,7 +37,7 @@ namespace Portland.AI.Utility
 		{
 			_timeOfDay = hour0to23xxxx;
 
-			if (_globalProperties.TryGetValue("time", out PropertyInstance time))
+			if (_globalProperties.TryGetValue("time", out ConciderationProperty time))
 			{
 				time.Set(_timeOfDay);
 			}
@@ -56,11 +57,11 @@ namespace Portland.AI.Utility
 				_day = (_day + 1) % 7;
 			}
 
-			if (_globalProperties.TryGetValue("time", out PropertyInstance time))
+			if (_globalProperties.TryGetValue("time", out ConciderationProperty time))
 			{
 				time.Set(_timeOfDay);
 			}
-			if (_globalProperties.TryGetValue("weekend", out PropertyInstance weekend))
+			if (_globalProperties.TryGetValue("weekend", out ConciderationProperty weekend))
 			{
 				weekend.Set((float)_day);
 			}
@@ -71,14 +72,14 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public PropertyInstance GetGlobalProperty(string name)
+		public ConciderationProperty GetGlobalProperty(string name)
 		{
 			return _globalProperties[name];
 		}
 
-		public UtilitySetInstance CreateInstance(string name, Int32Guid id)
+		public UtilitySetInstance CreateAgentInstance(string agentTypeName, Int32Guid id)
 		{
-			var agent = _agentsByName[name];
+			var agent = _agentsByName[agentTypeName];
 			var inst = new UtilitySetInstance(id, agent);
 			_agentInstances.Add(inst.Id, inst);
 
@@ -96,6 +97,7 @@ namespace Portland.AI.Utility
 		{
 			if (agent.AgentType != null)
 			{
+				// Base type properties.  Definitions in this type can override these later on.
 				CreateProperyInstances(inst, agent.AgentType);
 			}
 
@@ -107,13 +109,13 @@ namespace Portland.AI.Utility
 					{
 						continue;
 					}
-					if (_globalProperties.TryGetValue(c.PropertyName, out PropertyInstance prop))
+					if (_globalProperties.TryGetValue(c.PropertyName, out ConciderationProperty prop))
 					{
 						inst.Properties.Add(c.PropertyName, prop);
 					}
-					else if (_properties.TryGetValue(c.PropertyName, out ConsiderationProperty cprop))
+					else if (_properties.TryGetValue(c.PropertyName, out ConsiderationPropertyDef cprop))
 					{
-						inst.Properties.Add(c.PropertyName, new PropertyInstance(cprop));
+						inst.Properties.Add(c.PropertyName, new ConciderationProperty(cprop));
 					}
 					else
 					{
@@ -131,6 +133,123 @@ namespace Portland.AI.Utility
 			_agentsByType.Clear();
 			_agentsByName.Clear();
 			_agentInstances.Clear();
+		}
+
+		#region CREATE PROPERTY DEFINITIONS
+
+		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, string name)
+		{
+			var prop = new ConsiderationPropertyDef() { Name = name, GlobalValue = isGlobal };
+			_properties.Add(prop.Name, prop);
+
+			if (prop.GlobalValue && !_globalProperties.ContainsKey(name))
+			{
+				_globalProperties.Add(name, new ConciderationProperty(prop));
+			}
+
+			return new ConsiderationPropDefBuilder { Definition = prop };
+		}
+
+		/// <summary>
+		/// 0 to 100 decreasing, such as satiation, health, hydration, sleepyness
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Descreasing(bool isGlobal, string name)
+		{
+			return CreatePropertyDef(isGlobal, name)
+				.Min(0f)
+				.Max(100f)
+				.ChangePerSecond((20f / 60f) / 60f)
+				.StartValue(100f)
+				.TypeName("float") // doesn't seem to be used
+			;
+		}
+
+		/// <summary>
+		/// 0 to 100 increasing, such as hunger, thirst, tiredness
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Increasing(bool isGlobal, string name)
+		{
+			return CreatePropertyDef_0to100_Descreasing(isGlobal, name)
+				.ChangePerSecond(-(20f / 60f) / 60f)
+				.StartValue(0)
+			;
+		}
+
+		/// <summary>
+		/// 0+ such as money, gold, XP
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_Positive_Unbounded(bool isGlobal, string name)
+		{
+			return CreatePropertyDef(isGlobal, name)
+				.Min(0f)
+				.ChangePerSecond(0f)
+				.StartValue(0)
+				.TypeName("float")
+			;
+		}
+
+		/// <summary>
+		/// 24 hour clock, so 0000 to 2399. First two digits are hour, second two are 1/100 hour (0.6 minutes)
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Military(bool isGlobal, string name)
+		{
+			return CreatePropertyDef(isGlobal, name)
+				.Min(0f)
+				.Max(2399)
+				.ChangePerSecond(0.6f / 60f)
+				.StartValue(0800)
+				.TypeName("float")
+			;
+		}
+
+		/// <summary>
+		/// 0 to 23 increasing
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_HourOfDay(bool isGlobal, string name)
+		{
+			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
+				.Min(0)
+				.Max(23)
+				.ChangePerSecond((1f / 60f) / 60f)
+				.StartValue(8)
+			;
+		}
+
+		#endregion
+
+		public ObjectiveBuilder CreateObjective(string name)
+		{
+			var objective = new Objective() { Name = name, Priority = 99, Interruptible = true, Cooldown = 120f };
+			_objectives.Add(objective.Name, objective);
+
+			return new ObjectiveBuilder { Factory = this, Goal = objective };
+		}
+
+		public ConsiderationBuilder CreateConsideration(string objectiveName, string propertyName)
+		{
+			var objective = _objectives[objectiveName];
+			var propDef = _properties[propertyName];
+
+			var cons = new Consideration() { PropertyName = propertyName };
+			objective.Considerations.Add(propertyName, cons);
+
+			return new ConsiderationBuilder { Consideration = cons };
+		}
+
+		public AgentTypeBuilder CreateAgentType(string agentTypeName)
+		{
+			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName };
+			_agentsByType.Add(agentTypeName, agent);
+
+			return new AgentTypeBuilder { AgentType = agent, Objectives = _objectives };
+		}
+
+		public AgentBuilder CreateAgent(string agentTypeName, string agentName)
+		{
+			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName, Name = agentName, AgentType = _agentsByType[agentTypeName] };
+			_agentsByName.Add(agentName, agent);
+
+			return new AgentBuilder { Agent = agent, Objectives = _objectives };
 		}
 
 		#region Parsing
@@ -290,7 +409,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var global = lex.MatchProperty("global");
 
-			var prop = new ConsiderationProperty() { Name = name, TypeName = typ, ExernalValue = Boolean.Parse(global) };
+			var prop = new ConsiderationPropertyDef() { Name = name, TypeName = typ, GlobalValue = Boolean.Parse(global) };
 			_properties.Add(prop.Name, prop);
 
 			while (lex.Token != XmlLex.XmlLexToken.TAG_END)
@@ -324,9 +443,9 @@ namespace Portland.AI.Utility
 				}
 			}
 
-			if (prop.ExernalValue && !_globalProperties.ContainsKey(name))
+			if (prop.GlobalValue && !_globalProperties.ContainsKey(name))
 			{
-				_globalProperties.Add(name, new PropertyInstance(prop));
+				_globalProperties.Add(name, new ConciderationProperty(prop));
 			}
 		}
 
@@ -338,7 +457,7 @@ namespace Portland.AI.Utility
 			var interruptible = lex.MatchProperty("interruptible");
 			var cooldown = lex.MatchProperty("cooldown");
 
-			var objective = new Objective() { Name = name, Duration = Single.Parse(time), Priority = Int16.Parse(priority), Interruptible = Boolean.Parse(interruptible), CoolDown = Single.Parse(cooldown) };
+			var objective = new Objective() { Name = name, Duration = Single.Parse(time), Priority = Int32.Parse(priority), Interruptible = Boolean.Parse(interruptible), Cooldown = Single.Parse(cooldown) };
 			_objectives.Add(objective.Name, objective);
 
 			lex.MatchTagClose();
@@ -362,7 +481,7 @@ namespace Portland.AI.Utility
 		{
 			var typ = lex.MatchProperty("type");
 
-			var agent = new UtilitySetClass() { TypeName = typ };
+			var agent = new UtilitySetClass() { AgentTypeName = typ };
 			_agentsByType.Add(typ, agent);
 
 			if (lex.Lexum.IsEqualTo("extends"))
@@ -425,7 +544,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var name = lex.MatchProperty("name");
 
-			var agent = new UtilitySetClass() { TypeName = typ, Name = name, AgentType = _agentsByType[typ] };
+			var agent = new UtilitySetClass() { AgentTypeName = typ, Name = name, AgentType = _agentsByType[typ] };
 			_agentsByName.Add(name, agent);
 
 			if (lex.Token == XmlLex.XmlLexToken.TAG_END)

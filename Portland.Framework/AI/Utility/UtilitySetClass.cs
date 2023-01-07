@@ -12,10 +12,12 @@ namespace Portland.AI.Utility
 	{
 		public UtilitySetClass AgentType;
 
-		public string TypeName;
+		public string AgentTypeName;
 		public string Extends;
 		public string Name;
+		/// <summary>Not used, ???</summary>
 		public bool Logging;
+		/// <summary>Not used, ???</summary>
 		public short HistorySize;
 		public float SecBetweenEvals;
 		public float MovementSpeed;

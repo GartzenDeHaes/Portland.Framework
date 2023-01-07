@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Portland.CheckedEvents;
 using Portland.Collections;
 using Portland.Mathmatics;
+using Portland.Text;
 
 namespace Portland.AI.Barks
 {
@@ -47,8 +48,8 @@ namespace Portland.AI.Barks
 			if (cmd.CommandName == BarkCommand.CommandNameSay)
 			{
 				// Arg1 is text key and Arg2 is the default text
-				DoSay.Send(cmd.Arg1, cmd.Arg2);
-				
+				DoSay.Send(cmd.Arg1, cmd.DefaultTexts.RandomElement());
+
 				//OnConceptChanged.Send(cmd.Arg1);
 
 				if (cmd.Duration > 0f)
@@ -70,7 +71,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					SetVars(_world.Actors[cmd.ActorName].Facts, cmd);
+					SetVars(_world.GetActor(cmd.ActorName).Facts, cmd);
 				}
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameResetRule)
@@ -85,6 +86,10 @@ namespace Portland.AI.Barks
 			{
 				TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, DirectObject = cmd.Arg1, Agent = cmd.Rule.ObserverName });
 			}
+			else if (cmd.CommandName == BarkCommand.CommandNameDontSay)
+			{
+				DisableRule(cmd.ActorName, new AsciiId4(cmd.Arg2.ToInt()), cmd.Arg1);
+			}
 			else if (cmd.CommandName == BarkCommand.CommandNameAdd)
 			{
 				if (cmd.ActorName.Index == 0)
@@ -94,7 +99,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					AddToVar(_world.Actors[cmd.ActorName].Facts, cmd);
+					AddToVar(_world.GetActor(cmd.ActorName).Facts, cmd);
 				}
 			}
 			else
@@ -139,7 +144,7 @@ namespace Portland.AI.Barks
 
 			BarkSerializer parser = new BarkSerializer(strings);
 			var rulelist = parser.Deserialize(ruleText);
-			_rules = rulelist.OrderByDescending(r => r.Priority()).ToArray();
+			_rules = rulelist.OrderByDescending(r => r.Priority).ToArray();
 		}
 
 		void Execute(Rule rule)
@@ -196,9 +201,10 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.ActorFlags.Count; i++)
 				{
 					var flagf = rule.ActorFlags[i];
-					var actor = _world.Actors[flagf.ActorName];
+					var actor = _world.GetActor(flagf.ActorName);
 					var flagName = _strings.GetString(flagf.FlagName);
-					if (actor.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName)) != flagf.Not)
+					bool isSet = actor.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName));
+					if (!isSet != flagf.Not)
 					{
 						docont = true;
 						break;
@@ -212,7 +218,7 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.WorldFilters.Count; i++)
 				{
 					var filter = rule.WorldFilters[i];
-					if (! filter.IsMatch(_world.Facts))
+					if (!filter.IsMatch(_world.Facts))
 					{
 						docont = true;
 						break;
@@ -226,7 +232,7 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.ActorFilters.Count; i++)
 				{
 					var filter = rule.ActorFilters[i];
-					var actor = _world.Actors[filter.ActorName];
+					var actor = _world.GetActor(filter.ActorName);
 
 					if (!filter.IsMatch(actor.Facts))
 					{
@@ -241,8 +247,12 @@ namespace Portland.AI.Barks
 
 				if (rule.Probability < 1.0f)
 				{
-					if (_random.NextFloat(1.0f) > rule.Probability)
+					if (_random.NextFloat(0.99998f) > rule.Probability)
 					{
+						if (rule.NoRetryIfProbablityFails)
+						{
+							rule.HasRun = true;
+						}
 						continue;
 					}
 				}
@@ -254,6 +264,20 @@ namespace Portland.AI.Barks
 			}
 
 			return false;
+		}
+
+		void DisableRule(TextTableToken actorId, AsciiId4 action, TextTableToken directObject)
+		{
+			Rule rule = null;
+
+			for (int x = 0; x < _rules.Length; x++)
+			{
+				rule = _rules[x];
+				if (!rule.HasRun && rule.ActorName == actorId && rule.Action == action && rule.ObjectName == directObject)
+				{
+					rule.HasRun = true;
+				}
+			}
 		}
 	}
 }

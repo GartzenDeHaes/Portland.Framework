@@ -13,95 +13,16 @@ namespace Portland.AI.Barks
 	[TestFixture]
 	public class BarkEngineTest
 	{
-		class RndMax : IRandom
-		{
-			public int Next()
-			{
-				return Int32.MaxValue;
-			}
-
-			public int Next(int maxExclusive)
-			{
-				return maxExclusive - 1;
-			}
-
-			public bool NextBool()
-			{
-				return true;
-			}
-
-			public byte NextByte()
-			{
-				return 255;
-			}
-
-			public byte[] NextBytes(int count)
-			{
-				throw new NotImplementedException();
-			}
-
-			public double NextDouble()
-			{
-				return Double.MaxValue;
-			}
-
-			public double NextDouble(double maxInclusive)
-			{
-				return maxInclusive;
-			}
-
-			public double NextDouble(double minInclusive, double maxInclusive)
-			{
-				return maxInclusive;
-			}
-
-			public float NextFloat()
-			{
-				return Single.MaxValue;
-			}
-
-			public float NextFloat(float maxInclusive)
-			{
-				return maxInclusive;
-			}
-
-			public uint NextUInt()
-			{
-				return UInt32.MaxValue;
-			}
-
-			public uint NextUInt(uint maxExclusive)
-			{
-				return maxExclusive - 1;
-			}
-
-			public float Range(float minInclusive, float maxInclusive)
-			{
-				return maxInclusive;
-			}
-
-			public int Range(int minInclusive, int maxExclusive)
-			{
-				return maxExclusive - 1;
-			}
-
-			public uint Range(uint minInclusive, uint maxExclusive)
-			{
-				return maxExclusive - 1;
-			}
-		}
-
 		[Test]
 		public void WhenConceptIsBarrel_DoSayBarrel()
 		{
 			const string DemoRuleText_BasicRule = @"
 WHEN ACTION IS SEE, OBJECT IS barrel 
-DO SAY thats_a_barrel ""COACH: That's a barrel"".";
+DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
-			World world = new World();
-			world.Clock = new Clock(DateTime.Now, 1440);
 			TextTable strings = new TextTable();
-			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), DemoRuleText_BasicRule);
+			World world = new World(new Clock(DateTime.Now, 1440), strings);
+			RuleEngine eng = new RuleEngine(world, strings, new RndMin(), DemoRuleText_BasicRule);
 
 			string saidText = String.Empty;
 			eng.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
@@ -123,7 +44,82 @@ DO SAY thats_a_barrel ""COACH: That's a barrel"".";
 			Assert.That(eng.DelayingCount, Is.EqualTo(0));
 		}
 
-		const string BarkScript = @"
+		[Test]
+		public void TwoBotsAndBarrels()
+		{
+			const string barkScript = @"
+WHEN 
+	ACTION IS SEE,
+	OBJECT IS barrel,
+	TEST barrels IS UNSET
+DO
+	XBOT SAYS saw_barrel_01 ""XBOT: That's a barrel."" DURATION 3,
+	SET barrels TO 1
+.
+WHEN 
+	ACTION IS SEE,
+	OBJECT IS barrel,
+	TEST barrels == 1
+DO
+	XBOT SAYS saw_barrel_02 ""XBOT: Another barrel."" DURATION 3,
+	ADD 1 TO barrels
+.
+WHEN 
+	ACTION IS SEE,
+	OBJECT IS barrel,
+	TEST barrels == 2
+DO
+	XBOT SAYS saw_barrel_03 ""XBOT: This is the third barrel."" DURATION 3,
+	ADD 1 TO barrels
+.
+";
+			TextTable strings = new TextTable();
+			World world = new World(new Clock(DateTime.Now, 1440), strings);
+			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), barkScript);
+
+			world.CreateActor("bot", "XBOT");
+			world.CreateActor("bot", "YBOT");
+
+			TextTableToken lastDoSayId = default(TextTableToken);
+			string lastDoSayText = String.Empty;
+
+			eng.DoSay.Listeners += (id, defaulText) => { lastDoSayId = id; lastDoSayText = defaulText; };
+
+			var sentence = new ThematicEvent
+			{
+				DirectObject = strings.Get("random_text")
+			};
+			Assert.False(eng.TryMatch(sentence));
+
+			sentence = new ThematicEvent
+			{
+				Action = ThematicEvent.ActionSee,
+				DirectObject = strings.Get("barrel"),
+				Agent = strings.Get("XBOT")
+			};
+			Assert.True(eng.TryMatch(sentence));
+			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_01"));
+			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			world.Clock.Update(5f);
+			eng.Update();
+
+			Assert.True(eng.TryMatch(sentence));
+			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_02"));
+			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			world.Clock.Update(5f);
+			eng.Update();
+
+			Assert.True(eng.TryMatch(sentence));
+			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_03"));
+			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			world.Clock.Update(5f);
+			eng.Update();
+		}
+
+		[Test]
+		public void I_Hate_Hotels_Test()
+		{
+			const string barkScript = @"
 ALIAS FLAG CHARACTER_01_ALIVE AS BILL_ALIVE.
 ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
 ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
@@ -131,18 +127,15 @@ ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
 
 WHEN 
 	OBJECT IS scene_01:start,
-	OBSERVER IS LOUIS
 DO
-	SAY the_apc_is_dead ""Louis: Guys, I think the APC is toast."" DURATION 3
+	LOUIS SAYS the_apc_is_dead ""Louis: Guys, I think the APC is toast."" DURATION 3
 .
 WHEN
 	ACTION IS SAY,
 	OBJECT IS the_apc_is_dead,
-	AGENT IS LOUIS,
-	OBSERVER IS BILL,
 	FLAG BILL_ALIVE
 DO 
-	SAY cp_quest_statement ""Bill: Get it together people. The CEDA command post is on the top floor, maybe we can find out where they went."" DURATION 5
+	BILL SAYS cp_quest_statement ""Bill: Get it together people. The CEDA command post is on the top floor, maybe we can find out where they went."" DURATION 5
 .
 WHEN
 	ACTION IS SEE,
@@ -155,46 +148,37 @@ DO
 WHEN
 	ACTION IS SEE,
 	OBJECT IS ceda_trailer,
-	OBSERVER IS ZOEY,
 	FLAG ZOEY_ALIVE,
-	ZOEY.ceda_trailers_seen == 1
+	TEST ZOEY.ceda_trailers_seen == 1
 DO
-	SAY couldnt_hold_out ""Zoey: Guess they couldn't hold out."" DURATION 3
+	ZOEY SAYS couldnt_hold_out ""Zoey: Guess they couldn't hold out."" DURATION 3
 .
 WHEN
 	ACTION IS SEE,
 	OBJECT IS hotel_lobby,
-	OBSERVER IS FRANCIS,
 	FLAG FRANCIS_ALIVE
 DO
-	SAY i_hate_hotels ""Francis: I hate hotels"" DURATION 3
+	FRANCIS SAYS i_hate_hotels ""Francis: I hate hotels"" DURATION 3
 .
 WHEN
 	ACTION IS SAY,
 	OBJECT IS i_hate_hotels,
-	OBSERVER IS ZOEY,
 	FLAGS ARE ZOEY_ALIVE FRANCIS_ALIVE
 DO
-	SAY what_dont_you_hate ""Zoey: What don't you hate?"" DURATION 3
+	ZOEY SAYS what_dont_you_hate ""Zoey: What don't you hate?"" DURATION 3
 .
 WHEN
 	ACTION IS SAY,
 	OBJECT IS what_dont_you_hate,
-	OBSERVER IS FRANCIS,
 	FLAGS ARE ZOEY_ALIVE FRANCIS_ALIVE
 DO
-	SAY there_is_one_thing ""Francis: Well, there is one thing."" DURATION 3
+	FRANCIS SAYS there_is_one_thing ""Francis: Well, there is one thing."" DURATION 3
 .
 
 ";
-
-		[Test]
-		public void I_Hate_Hotels_Test()
-		{
-			World world = new World();
-			world.Clock = new Clock(DateTime.Now, 1440);
 			TextTable strings = new TextTable();
-			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), BarkScript);
+			World world = new World(new Clock(DateTime.Now, 1440), strings);
+			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), barkScript);
 
 			world.Flags.Daylight = true;
 			world.Flags.IsCharacter01Alive = true;
@@ -202,25 +186,10 @@ DO
 			world.Flags.IsCharacter03Alive = true;
 			world.Flags.IsCharacter04Alive = true;
 
-			world.Actors.Add(strings.Get("BILL"), new Actor
-			{
-				Class = strings.Get("human"),
-				Name = strings.Get("BILL")
-			});
-			world.Actors.Add(strings.Get("FRANCIS"), new Actor
-			{
-				Class = strings.Get("human"),
-				Name = strings.Get("FRANCIS")
-			});
-			world.Actors.Add(strings.Get("LOUIS"), new Actor
-			{
-				Class = strings.Get("human"),
-				Name = strings.Get("LOUIS")
-			});
-			world.Actors.Add(strings.Get("ZOEY"), new Actor { 
-				Class = strings.Get("human"), 
-				Name = strings.Get("ZOEY")
-			});
+			world.CreateActor("human", "BILL");
+			world.CreateActor("human", "FRANCIS");
+			world.CreateActor("human", "LOUIS");
+			world.CreateActor("human", "ZOEY");
 
 			TextTableToken lastDoSayId = default(TextTableToken);
 			string lastDoSayText = String.Empty;
@@ -277,7 +246,7 @@ DO
 			};
 			Assert.True(eng.TryMatch(sentence));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.Actors[strings.Get("ZOEY")].Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
+			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(5f);
 			eng.Update();
@@ -285,7 +254,7 @@ DO
 
 			Assert.True(eng.TryMatch(sentence));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.Actors[strings.Get("ZOEY")].Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
+			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
 			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("couldnt_hold_out"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));
@@ -328,6 +297,97 @@ DO
 			world.Clock.Update(5f);
 			eng.Update();
 			Assert.That(eng.DelayingCount, Is.Zero);
+		}
+
+		[Test]
+		public void NickDyingTest()
+		{
+			const string barkScript = @"
+ALIAS FLAG CHARACTER_01_ALIVE AS COACH_ALIVE.
+ALIAS FLAG CHARACTER_02_ALIVE AS ELLIS_ALIVE.
+ALIAS FLAG CHARACTER_03_ALIVE AS NICK_ALIVE.
+ALIAS FLAG CHARACTER_01_ALIVE AS ROCHELLE_ALIVE.
+
+WHEN 
+	ACTION IS IDLE,
+	FLAGS ARE NICK.ALERT_HEALTH !IS_CHARACTER_SPEAKING,
+	CHANCE 10% NORETRY
+DO
+	NICK SAYS ally_dying ""NICK: Not dead yet, but not exactly healthy.""
+		OR ""NICK: I really screwed the pouch back there.""
+		OR ""NICK: I gotta take better care of myself.""
+		OR ""NICK: If I go, you guys are gonna miss me.""
+		OR ""NICK: I'm not dying in the middle of nowhere.""
+		DURATION 3
+.
+WHEN 
+	ACTION IS SAY,
+	AGENT IS NICK,
+	OBJECT IS ally_dying,
+	FLAGS ARE COACH_ALIVE NICK_ALIVE,
+	CHANCE 5%
+DO
+	COACH SAYS coach_coaches_nick_dying ""COACH: Hey Nick, at least you dressed for a funeral."" DURATION 3,
+.
+WHEN 
+	ACTION IS SAY,
+	AGENT IS ELLIS,
+	OBJECT IS ally_dying,
+	FLAGS aRE COACH_ALIVE ELLIS_ALIVE,
+	CHANCE 5%
+DO
+	COACH SAYS coach_coaches_ally_dying ""COACH: Come on Ellis, you got it in ya."" 
+		OR ""COACH: Come on yougin' If I can do it, you can do it.""
+		DURATION 3
+.
+WHEN 
+	ACTION IS SAY,
+	OBJECT IS ally_dying,
+	FLAGS ARE COACH_ALIVE ELLIS_ALIVE NICK_ALIVE ROCHELLE_ALIVE,
+	CHANCE 5%
+DO
+	COACH SAYS coach_coaches_ally_dying ""COACH: Come on now, put it behind you, you good, you good."" 
+		OR ""COACH: Come on now, put it all out there.""
+		OR ""COACH: That's it, stay focused.""
+		OR ""COACH: Keep it up, com on, keep it up. Kkep itup. You're gonna make it.""
+		OR ""COACH: They put a hurtin on ya but ain't no thing.""
+		DURATION 3
+.
+";
+			TextTable strings = new TextTable();
+			World world = new World(new Clock(DateTime.Now, 1440), strings);
+			RuleEngine eng = new RuleEngine(world, strings, new RndMin(), barkScript);
+
+			world.Flags.IsCharacter01Alive = true;
+			world.Flags.IsCharacter02Alive = true;
+			world.Flags.IsCharacter03Alive = true;
+			world.Flags.IsCharacter04Alive = true;
+
+			world.CreateActor("human", "COACH");
+			world.CreateActor("human", "ELLIS");
+			world.CreateActor("human", "NICK");
+			world.CreateActor("human", "ROCHELLE");
+
+			TextTableToken lastDoSayId = default(TextTableToken);
+			string lastDoSayText = String.Empty;
+
+			eng.DoSay.Listeners += (id, defaulText) => { lastDoSayId = id; lastDoSayText = defaulText; };
+
+			var sentence = new ThematicEvent
+			{
+				Action = ThematicEvent.ActionIdle
+			};
+			Assert.False(eng.TryMatch(sentence));
+
+			world.GetActor("NICK").Flags.AlertHealth = true;
+
+			Assert.True(eng.TryMatch(sentence));
+			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("ally_dying"));
+
+			world.Clock.Update(5f);
+			eng.Update();
+
+			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("coach_coaches_nick_dying"));
 		}
 	}
 }

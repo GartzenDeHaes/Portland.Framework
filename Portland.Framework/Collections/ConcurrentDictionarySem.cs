@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-using NetStack.Buffers;
-
 namespace Portland.Collections
 {
 	/// <summary>
@@ -152,10 +150,8 @@ namespace Portland.Collections
 			return keys;
 		}
 
-		public K[] Keys(ArrayPool<K> pool)
+		public K[] Keys(K[] keys)
 		{
-			K[] keys = pool.Rent(Count);
-
 			_lock.Wait();
 			try
 			{

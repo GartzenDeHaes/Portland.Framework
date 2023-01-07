@@ -96,7 +96,7 @@ namespace Portland
 		static Variant8()
 		{
 			StrTab = new StringTable();
-			StrTab.Get(String.Empty);		// index 0 will be empty string
+			StrTab.Get(String.Empty);     // index 0 will be empty string
 			Zero = new Variant8();
 		}
 
@@ -146,9 +146,9 @@ namespace Portland
 
 			//if (str.Length > String3.MAX_LEN)
 			//{
-				_value.TypeIs = VariantType.String;
-				_value.AsStrInTab = StrTab.Get(str);
-				//_value.AsInt2 = (short)str[0];
+			_value.TypeIs = VariantType.String;
+			_value.AsStrInTab = StrTab.Get(str);
+			//_value.AsInt2 = (short)str[0];
 			//}
 			//else
 			//{
@@ -163,9 +163,9 @@ namespace Portland
 
 			//if (str.Length > String3.MAX_LEN)
 			//{
-				_value.TypeIs = VariantType.String;
-				_value.AsStrInTab = StrTab.Get(str);
-				//_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
+			_value.TypeIs = VariantType.String;
+			_value.AsStrInTab = StrTab.Get(str);
+			//_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
 			//}
 			//else
 			//{
@@ -178,7 +178,7 @@ namespace Portland
 		{
 			_value = Zero._value;
 			// high order byte reserved for type data
-			_value.AsBits.RawBits = (~(0xFFUL<<56)) & bits;
+			_value.AsBits.RawBits = (~(0xFFUL << 56)) & bits;
 		}
 
 		/// <summary>The data is 12 bytes long, so we can store 2 ints there</summary>
@@ -186,7 +186,7 @@ namespace Portland
 		{
 			_value = Zero._value;
 			Set(a, b);
-		}	
+		}
 
 		/// <summary>floats too</summary>
 		public Variant8(int a, Half b)
@@ -274,7 +274,7 @@ namespace Portland
 			//}
 			//else
 			//{
-				Set(s.ToString());
+			Set(s.ToString());
 			//}
 		}
 
@@ -283,9 +283,9 @@ namespace Portland
 		{
 			//if (s.Length > String3.MAX_LEN)
 			//{
-				_value.TypeIs = VariantType.String;
-				_value.AsStrInTab = StrTab.Get(s);
-				//_value.AsInt2 = (short)s[0];
+			_value.TypeIs = VariantType.String;
+			_value.AsStrInTab = StrTab.Get(s);
+			//_value.AsInt2 = (short)s[0];
 			//}
 			//else
 			//{
@@ -342,7 +342,7 @@ namespace Portland
 					Set(Vector3h.Zero);
 					break;
 				case VariantType.Vec3i:
-					Set(new Vector3i(0,0,0));
+					Set(new Vector3i(0, 0, 0));
 					break;
 				case VariantType.String:
 					Set(String.Empty);
@@ -368,10 +368,10 @@ namespace Portland
 		}
 
 		/// <summary>No conversion or type checking</summary>
-		public int Int 
+		public int Int
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get { return _value.AsInt; } 
+			get { return _value.AsInt; }
 		}
 
 		/// <summary>No conversion or type checking</summary>
@@ -437,7 +437,7 @@ namespace Portland
 			{
 				return (int)f;
 			}
-			
+
 			return 0;
 		}
 
@@ -479,7 +479,7 @@ namespace Portland
 				return Vectori;
 			}
 
-			return new Vector3i(0,0,0);
+			return new Vector3i(0, 0, 0);
 		}
 
 		/// <summary>Returns false on failure</summary>
@@ -556,6 +556,24 @@ namespace Portland
 						return 0;
 				}
 			}
+		}
+
+		public bool Equals(in Variant8 v2)
+		{
+			if (_value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return ToFloat() == v2.ToFloat();
+			}
+			if (_value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || _value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return ToInt() == v2.ToInt();
+			}
+			if (_value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
+			{
+				return ToVector3d() == v2.ToVector3d();
+			}
+
+			return Equals(v2.ToString());
 		}
 
 		/// <summary></summary>
@@ -767,7 +785,7 @@ namespace Portland
 			}
 			if (value.Length == 4 && (value[0] == 't' || value[0] == 'T'))
 			{
-				if 
+				if
 				(
 					(value[1] == 'r' || value[1] == 'R') &&
 					(value[2] == 'u' || value[2] == 'U') &&
@@ -852,14 +870,15 @@ namespace Portland
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Variant8 s1, in Variant8 s2)
 		{
-			return s1._value.AsBits == s2._value.AsBits;
+			return (s1._value.AsBits == s2._value.AsBits)
+			|| s1.Equals(s2);
 		}
 
 		/// <summary>!=</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Variant8 s1, in Variant8 s2)
 		{
-			return s1._value.AsBits != s2._value.AsBits;
+			return !s1.Equals(s2);
 		}
 
 		/// <summary>==</summary>

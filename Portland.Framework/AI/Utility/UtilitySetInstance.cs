@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Portland.CheckedEvents;
+using Portland.ComponentModel;
 using Portland.Mathmatics;
 
 namespace Portland.AI.Utility
 {
-	public class UtilitySetInstance
+    public class UtilitySetInstance
 	{
 		private Int32Guid _id;
 		private UtilitySetClass _agent;
 
 		// seperate consideration property from property value
-		public Dictionary<string, PropertyInstance> Properties = new Dictionary<string, PropertyInstance>();
+		public Dictionary<string, ConciderationProperty> Properties = new Dictionary<string, ConciderationProperty>();
 		public readonly ObjectiveInstance[] Objectives;
 
 		//public List<string> ObjectiveHistory = new List<string>();

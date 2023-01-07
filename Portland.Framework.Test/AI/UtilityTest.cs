@@ -13,16 +13,16 @@ namespace Portland.AI
 		[Test]
 		public void APropInstTest()
 		{
-			var def = new ConsiderationProperty() { Name="test", ChangePerSec=1, Min=0, Max=100, Start=0, ExernalValue=false, StartRand=false, TypeName="float" };
-			var pi = new PropertyInstance(def);
+			var def = new ConsiderationPropertyDef() { Name="test", ChangePerSec=1, Min=0, Max=100, Start=0, GlobalValue=false, StartRand=false, TypeName="float" };
+			var pi = new ConciderationProperty(def);
 
-			Assert.AreEqual(0f, pi.Amt.Value);
+			Assert.AreEqual(0f, pi.Amt.Value.ToFloat());
 
 			pi.Update(1f);
-			MathHelper.Approximately(1f, pi.Amt.Value);
+			MathHelper.Approximately(1f, pi.Amt.Value.ToFloat());
 
 			pi.Update(101f);
-			MathHelper.Approximately(100f, pi.Amt.Value);
+			MathHelper.Approximately(100f, pi.Amt.Value.ToFloat());
 		}
 
 		string _xml = @"
@@ -131,7 +131,7 @@ namespace Portland.AI
 			UtilityFactory factory = new UtilityFactory();
 			factory.ParseLoad(_xml);
 
-			var agent = factory.CreateInstance("Ellis", new Int32Guid());
+			var agent = factory.CreateAgentInstance("Ellis", new Int32Guid());
 			Assert.AreEqual(7, agent.Properties.Count);
 
 			factory.SetTimeOfDay(23f);

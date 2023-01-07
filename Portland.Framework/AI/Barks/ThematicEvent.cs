@@ -12,6 +12,7 @@ namespace Portland.AI.Barks
 	{
 		public static AsciiId4 ActionSee = "SEE";
 		public static AsciiId4 ActionSay = "SAY";
+		public static AsciiId4 ActionIdle = "IDLE";
 
 		public TextTableToken Agent;
 		public AsciiId4 Action;

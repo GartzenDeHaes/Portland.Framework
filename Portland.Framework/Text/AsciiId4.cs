@@ -189,8 +189,9 @@ namespace Portland.Text
 		}
 
 		/// <summary>
-		/// constructor
+		/// Create a 4 ASCII char string
 		/// </summary>
+		///<exception cref = "ArgumentException" >If str is longer than 4</exception>
 		public AsciiId4(string str)
 		{
 			Bits.RawBits = Empty.Bits.RawBits;
@@ -205,6 +206,16 @@ namespace Portland.Text
 			this[1] = len > 1 ? (str[1]) : '\0';
 			this[2] = len > 2 ? (str[2]) : '\0';
 			this[3] = len > 3 ? (str[3]) : '\0';
+		}
+
+		public AsciiId4(int rawAsciiBits)
+		{
+			Bits.RawBits = (uint)rawAsciiBits;
+		}
+
+		public int ToInt()
+		{
+			return (int)Bits.RawBits;
 		}
 
 		public static AsciiId4 ConstructStartsWith(string str)
