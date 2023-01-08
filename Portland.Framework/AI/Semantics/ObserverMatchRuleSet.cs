@@ -28,7 +28,7 @@ namespace Portland.AI.Semantics
 			Rules.AddRange(rules.Rules);
 		}
 
-		public EventMatchRule Match(WorldState wstate, Agent agent, SemanticEvent agentDid)
+		public EventMatchRule Match(WorldState wstate, SemanticAgent agent, SemanticEvent agentDid)
 		{
 			EventMatchRule rule;
 			EventMatchRule ret = null;

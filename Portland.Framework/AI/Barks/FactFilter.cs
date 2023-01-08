@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.ComponentModel;
 using Portland.Text;
 
 namespace Portland.AI.Barks
@@ -28,7 +29,7 @@ namespace Portland.AI.Barks
 		public ComparisionOp Op;
 		public Variant8 Value;
 
-		public bool IsMatch(Dictionary<TextTableToken, Variant8> facts)
+		public bool IsMatch(Dictionary<TextTableToken, ObservableValue<Variant8>> facts)
 		{
 			bool ret = false;
 
@@ -37,22 +38,22 @@ namespace Portland.AI.Barks
 				switch (Op)
 				{
 					case ComparisionOp.Equals:
-						ret = Value == fvalue;
+						ret = Value == fvalue.Value;
 						break;
 					case ComparisionOp.NotEquals:
-						ret = Value != fvalue;
+						ret = Value != fvalue.Value;
 						break;
 					case ComparisionOp.GreaterThan:
-						ret = Value > fvalue;
+						ret = Value > fvalue.Value;
 						break;
 					case ComparisionOp.GreaterThenEquals:
-						ret = Value >= fvalue;
+						ret = Value >= fvalue.Value;
 						break;
 					case ComparisionOp.LessThan:
-						ret = Value < fvalue;
+						ret = Value < fvalue.Value;
 						break;
 					case ComparisionOp.LessThanOrEquals:
-						ret = Value <= fvalue;
+						ret = Value <= fvalue.Value;
 						break;
 					case ComparisionOp.Exists:
 						ret = true;

@@ -23,7 +23,7 @@ namespace Portland.AI.Barks
 		public void Parse_When_Do_Period()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN DO .");
+			var rules = parser.Deserialize("RULE one WHEN DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 		}
@@ -43,7 +43,7 @@ namespace Portland.AI.Barks
 		public void Parse_Verb_Object_Only()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN ACTION IS SEE, OBJECT IS barrel DO .");
+			var rules = parser.Deserialize("RULE see:barrel WHEN ACTION IS SEE, OBJECT IS barrel DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].Action.ToString(), Is.EqualTo("SEE"));
@@ -76,7 +76,7 @@ namespace Portland.AI.Barks
 		public void Parse_Flag_Only()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN FLAG IS DAYLIGHT DO .");
+			var rules = parser.Deserialize("RULE see:barrel_a WHEN FLAG IS DAYLIGHT DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.True);
@@ -95,7 +95,7 @@ namespace Portland.AI.Barks
 		public void Parse_Not_Flag_Only()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN FLAG IS !DAYLIGHT DO .");
+			var rules = parser.Deserialize("RULE test WHEN FLAG IS !DAYLIGHT DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.False);
@@ -109,7 +109,7 @@ namespace Portland.AI.Barks
 		public void Parse_Char_Dot_Flag()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN FLAG IS COACH.ALLY_NEAR DO .");
+			var rules = parser.Deserialize("RULE test WHEN FLAG IS COACH.ALLY_NEAR DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
@@ -124,7 +124,7 @@ namespace Portland.AI.Barks
 		public void Parse_Char_Dot_Not_Flag()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN FLAG IS !COACH.ALLY_NEAR DO .");
+			var rules = parser.Deserialize("RULE test WHEN FLAG IS !COACH.ALLY_NEAR DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
@@ -139,7 +139,7 @@ namespace Portland.AI.Barks
 		public void Parse_Flags_Are()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN FLAGS ARE COACH.ALLY_NEAR DAYLIGHT DO .");
+			var rules = parser.Deserialize("RULE test WHEN FLAGS ARE COACH.ALLY_NEAR DAYLIGHT DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
@@ -159,7 +159,7 @@ namespace Portland.AI.Barks
 		{
 			const string ruleText = @"ALIAS FLAG DAYLIGHT AS DLT.
 ALIAS FLAG ALLY_NEAR AS HAS_FRIENDS.
-WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
+RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 
 			var parser = new BarkSerializer();
 			var rules = parser.Deserialize(ruleText);
@@ -181,7 +181,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_Is_Unset()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN TEST barrels IS UNSET DO .");
+			var rules = parser.Deserialize("RULE test WHEN TEST barrels IS UNSET DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -195,7 +195,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_EqEq_Int()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN TEST barrels == 1 DO .");
+			var rules = parser.Deserialize("RULE test WHEN TEST barrels == 1 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -210,7 +210,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_NotEq_Int()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN TEST barrels != 1 DO .");
+			var rules = parser.Deserialize("RULE test WHEN TEST barrels != 1 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -225,7 +225,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		public void Parse_Barrels_Lt_Float()
 		{
 			var parser = new BarkSerializer();
-			var rules = parser.Deserialize("WHEN TEST barrels < 1.0 DO .");
+			var rules = parser.Deserialize("RULE test WHEN TEST barrels < 1.0 DO .");
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
@@ -239,7 +239,7 @@ WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 		[Test]
 		public void Parse_When_OneOfEachCase()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS SEE,
 	OBJECT IS hello,
 	FLAGS ARE DAYLIGHT,
@@ -269,7 +269,7 @@ DO .
 		[Test]
 		public void Parse_Do_Say()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET
@@ -292,7 +292,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"".
 		[Test]
 		public void Parse_Do_Say_Duration()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET
@@ -313,7 +313,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0.
 		[Test]
 		public void Parse_Do_Say_Duration_Delay()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET
@@ -335,7 +335,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
 		[Test]
 		public void Parse_Do_Say_Delay()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET
@@ -357,7 +357,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 		[Test]
 		public void Parse_Do_Say_Wait()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET
@@ -379,7 +379,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
 		public void Parse_Do_Set()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello,
 DO 
 	SET francis_hates_things TO 1
@@ -399,7 +399,7 @@ DO
 		public void Parse_Do_Add()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello
 DO 
 	ADD 1 TO francis_hates_things
@@ -419,7 +419,7 @@ DO
 		public void Parse_Do_Set_Actor()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello,
 DO 
 	SET intro TO ""false"", 
@@ -447,7 +447,7 @@ DO
 		public void Parse_Do_Wait()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello
 DO 
 	RESET DELAY 8.2
@@ -465,7 +465,7 @@ DO
 		public void Parse_Do_Raise()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello
 DO 
 	RAISE coach:i_saw_a_barrel
@@ -483,7 +483,7 @@ DO
 		public void Parse_Do_Reset()
 		{
 			string rule_text = @"
-WHEN
+RULE testing WHEN
 	ACTION IS hello
 DO 
 	RESET DELAY 20.2
@@ -500,7 +500,7 @@ DO
 		[Test]
 		public void Parse_WhenDo()
 		{
-			string rule_text = @"WHEN
+			string rule_text = @"RULE testing WHEN
 	ACTION IS hello,
 	FLAGS ARE DAYLIGHT,
 	TEST helicopter IS UNSET

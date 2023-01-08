@@ -16,13 +16,13 @@ namespace Portland.AI.Barks
 		[Test]
 		public void WhenConceptIsBarrel_DoSayBarrel()
 		{
-			const string DemoRuleText_BasicRule = @"
+			const string DemoRuleText_BasicRule = @"RULE testing 
 WHEN ACTION IS SEE, OBJECT IS barrel 
 DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			RuleEngine eng = new RuleEngine(world, strings, new RndMin(), DemoRuleText_BasicRule);
+			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMin(), DemoRuleText_BasicRule);
 
 			string saidText = String.Empty;
 			eng.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
@@ -48,42 +48,42 @@ DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 		public void TwoBotsAndBarrels()
 		{
 			const string barkScript = @"
-WHEN 
+RULE saw_barrel_01 WHEN 
 	ACTION IS SEE,
 	OBJECT IS barrel,
 	TEST barrels IS UNSET
 DO
-	XBOT SAYS saw_barrel_01 ""XBOT: That's a barrel."" DURATION 3,
+	XBOT SAYS saw_barrel ""XBOT: That's a barrel."" DURATION 3,
 	SET barrels TO 1
 .
-WHEN 
+RULE saw_barrel_02 WHEN 
 	ACTION IS SEE,
 	OBJECT IS barrel,
 	TEST barrels == 1
 DO
-	XBOT SAYS saw_barrel_02 ""XBOT: Another barrel."" DURATION 3,
+	XBOT SAYS saw_barrel ""XBOT: Another barrel."" DURATION 3,
 	ADD 1 TO barrels
 .
-WHEN 
+RULE saw_barrel_03 WHEN 
 	ACTION IS SEE,
 	OBJECT IS barrel,
 	TEST barrels == 2
 DO
-	XBOT SAYS saw_barrel_03 ""XBOT: This is the third barrel."" DURATION 3,
+	XBOT SAYS saw_barrel ""XBOT: This is the third barrel."" DURATION 3,
 	ADD 1 TO barrels
 .
 ";
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), barkScript);
+			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMax(), barkScript);
 
 			world.CreateActor("bot", "XBOT");
 			world.CreateActor("bot", "YBOT");
 
-			TextTableToken lastDoSayId = default(TextTableToken);
+			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			eng.DoSay.Listeners += (id, defaulText) => { lastDoSayId = id; lastDoSayText = defaulText; };
+			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
@@ -98,19 +98,19 @@ DO
 				Agent = strings.Get("XBOT")
 			};
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_01"));
+			Assert.That(ruleId, Is.EqualTo("saw_barrel_01"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
 
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_02"));
+			Assert.That(ruleId, Is.EqualTo("saw_barrel_02"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
 
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("saw_barrel_03"));
+			Assert.That(ruleId, Is.EqualTo("saw_barrel_03"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
@@ -125,19 +125,19 @@ ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
 ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
 ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
 
-WHEN 
+RULE louis:were_walking WHEN 
 	OBJECT IS scene_01:start,
 DO
-	LOUIS SAYS the_apc_is_dead ""Louis: Guys, I think the APC is toast."" DURATION 3
+	LOUIS SAYS apc_dead ""Louis: Guys, I think the APC is toast."" DURATION 3
 .
-WHEN
+RULE bill:goto_command_post WHEN
 	ACTION IS SAY,
-	OBJECT IS the_apc_is_dead,
+	OBJECT IS apc_dead,
 	FLAG BILL_ALIVE
 DO 
-	BILL SAYS cp_quest_statement ""Bill: Get it together people. The CEDA command post is on the top floor, maybe we can find out where they went."" DURATION 5
+	BILL SAYS cp_quest ""Bill: Get it together people. The CEDA command post is on the top floor, maybe we can find out where they went."" DURATION 5
 .
-WHEN
+RULE zoey:sees_ceda_trailer WHEN
 	ACTION IS SEE,
 	OBJECT IS ceda_trailer,
 	OBSERVER IS ZOEY
@@ -145,40 +145,40 @@ DO
 	ADD 1 TO ZOEY.ceda_trailers_seen,
 	RESET DELAY 2
 .
-WHEN
+RULE zoey:couldnt_holdout WHEN
 	ACTION IS SEE,
 	OBJECT IS ceda_trailer,
 	FLAG ZOEY_ALIVE,
 	TEST ZOEY.ceda_trailers_seen == 1
 DO
-	ZOEY SAYS couldnt_hold_out ""Zoey: Guess they couldn't hold out."" DURATION 3
+	ZOEY SAYS ceda_overrun ""Zoey: Guess they couldn't hold out."" DURATION 3
 .
-WHEN
+RULE francis:hates_hotels WHEN
 	ACTION IS SEE,
 	OBJECT IS hotel_lobby,
 	FLAG FRANCIS_ALIVE
 DO
 	FRANCIS SAYS i_hate_hotels ""Francis: I hate hotels"" DURATION 3
 .
-WHEN
+RULE zoey:what_dont_you_hate WHEN
 	ACTION IS SAY,
 	OBJECT IS i_hate_hotels,
 	FLAGS ARE ZOEY_ALIVE FRANCIS_ALIVE
 DO
 	ZOEY SAYS what_dont_you_hate ""Zoey: What don't you hate?"" DURATION 3
 .
-WHEN
+RULE francis:there_is_one_thing WHEN
+	AGENT IS ZOEY,
 	ACTION IS SAY,
 	OBJECT IS what_dont_you_hate,
 	FLAGS ARE ZOEY_ALIVE FRANCIS_ALIVE
 DO
 	FRANCIS SAYS there_is_one_thing ""Francis: Well, there is one thing."" DURATION 3
 .
-
 ";
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			RuleEngine eng = new RuleEngine(world, strings, new RndMax(), barkScript);
+			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMax(), barkScript);
 
 			world.Flags.Daylight = true;
 			world.Flags.IsCharacter01Alive = true;
@@ -191,11 +191,11 @@ DO
 			world.CreateActor("human", "LOUIS");
 			world.CreateActor("human", "ZOEY");
 
-			TextTableToken lastDoSayId = default(TextTableToken);
+			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 			//TextTableToken lastConceptEvent = default(TextTableToken);
 
-			eng.DoSay.Listeners += (id, defaulText) => { lastDoSayId = id; lastDoSayText = defaulText; };
+			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 			//eng.OnConceptChanged.Listeners += (id) => { lastConceptEvent = id; };
 
 			/* EXT. CEDA BARRICADE - SUNSET.
@@ -218,7 +218,7 @@ DO
 				DirectObject = strings.Get("scene_01:start") 
 			};
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("the_apc_is_dead"));
+			Assert.That(ruleId, Is.EqualTo("louis:were_walking"));
 			Assert.That(lastDoSayText, Is.EqualTo("Louis: Guys, I think the APC is toast."));    
 
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
@@ -227,7 +227,7 @@ DO
 			world.Clock.Update(5f);
 			eng.Update();
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("cp_quest_statement"));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("cp_quest_statement"));
+			Assert.That(ruleId, Is.EqualTo("bill:goto_command_post"));
 			Assert.True(lastDoSayText.StartsWith("Bill: Get it together"));
 
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
@@ -246,7 +246,7 @@ DO
 			};
 			Assert.True(eng.TryMatch(sentence));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
+			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(5f);
 			eng.Update();
@@ -254,9 +254,9 @@ DO
 
 			Assert.True(eng.TryMatch(sentence));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].ToInt(), Is.EqualTo(1));
+			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("couldnt_hold_out"));
+			Assert.That(ruleId, Is.EqualTo("zoey:couldnt_holdout"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));
 
 			world.Clock.Update(5f);
@@ -280,19 +280,19 @@ DO
 				DirectObject = strings.Get("hotel_lobby")
 			};
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("i_hate_hotels"));
+			Assert.That(ruleId, Is.EqualTo("francis:hates_hotels"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("what_dont_you_hate"));
+			Assert.That(ruleId, Is.EqualTo("zoey:what_dont_you_hate"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("there_is_one_thing"));
+			Assert.That(ruleId, Is.EqualTo("francis:there_is_one_thing"));
 			Assert.That(eng.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
 			eng.Update();
@@ -308,7 +308,7 @@ ALIAS FLAG CHARACTER_02_ALIVE AS ELLIS_ALIVE.
 ALIAS FLAG CHARACTER_03_ALIVE AS NICK_ALIVE.
 ALIAS FLAG CHARACTER_01_ALIVE AS ROCHELLE_ALIVE.
 
-WHEN 
+RULE nick:im_dying WHEN 
 	ACTION IS IDLE,
 	FLAGS ARE NICK.ALERT_HEALTH !IS_CHARACTER_SPEAKING,
 	CHANCE 10% NORETRY
@@ -320,33 +320,33 @@ DO
 		OR ""NICK: I'm not dying in the middle of nowhere.""
 		DURATION 3
 .
-WHEN 
+RULE coach:nick_dying WHEN 
 	ACTION IS SAY,
 	AGENT IS NICK,
 	OBJECT IS ally_dying,
 	FLAGS ARE COACH_ALIVE NICK_ALIVE,
 	CHANCE 5%
 DO
-	COACH SAYS coach_coaches_nick_dying ""COACH: Hey Nick, at least you dressed for a funeral."" DURATION 3,
+	COACH SAYS nick_dying ""COACH: Hey Nick, at least you dressed for a funeral."" DURATION 3,
 .
-WHEN 
+RULE coach:ellis_dying WHEN 
 	ACTION IS SAY,
 	AGENT IS ELLIS,
 	OBJECT IS ally_dying,
-	FLAGS aRE COACH_ALIVE ELLIS_ALIVE,
+	FLAGS ARE COACH_ALIVE ELLIS_ALIVE,
 	CHANCE 5%
 DO
-	COACH SAYS coach_coaches_ally_dying ""COACH: Come on Ellis, you got it in ya."" 
+	COACH SAYS ally_dying ""COACH: Come on Ellis, you got it in ya."" 
 		OR ""COACH: Come on yougin' If I can do it, you can do it.""
 		DURATION 3
 .
-WHEN 
+RULE coach:someone_dying WHEN 
 	ACTION IS SAY,
 	OBJECT IS ally_dying,
 	FLAGS ARE COACH_ALIVE ELLIS_ALIVE NICK_ALIVE ROCHELLE_ALIVE,
 	CHANCE 5%
 DO
-	COACH SAYS coach_coaches_ally_dying ""COACH: Come on now, put it behind you, you good, you good."" 
+	COACH SAYS ally_dying ""COACH: Come on now, put it behind you, you good, you good."" 
 		OR ""COACH: Come on now, put it all out there.""
 		OR ""COACH: That's it, stay focused.""
 		OR ""COACH: Keep it up, com on, keep it up. Kkep itup. You're gonna make it.""
@@ -356,7 +356,7 @@ DO
 ";
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			RuleEngine eng = new RuleEngine(world, strings, new RndMin(), barkScript);
+			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMin(), barkScript);
 
 			world.Flags.IsCharacter01Alive = true;
 			world.Flags.IsCharacter02Alive = true;
@@ -368,10 +368,10 @@ DO
 			world.CreateActor("human", "NICK");
 			world.CreateActor("human", "ROCHELLE");
 
-			TextTableToken lastDoSayId = default(TextTableToken);
+			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			eng.DoSay.Listeners += (id, defaulText) => { lastDoSayId = id; lastDoSayText = defaulText; };
+			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
@@ -382,12 +382,15 @@ DO
 			world.GetActor("NICK").Flags.AlertHealth = true;
 
 			Assert.True(eng.TryMatch(sentence));
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("ally_dying"));
+			Assert.That(ruleId, Is.EqualTo("nick:im_dying"));
 
 			world.Clock.Update(5f);
 			eng.Update();
+			Assert.That(ruleId, Is.EqualTo("coach:nick_dying"));
 
-			Assert.That(strings.GetString(lastDoSayId), Is.EqualTo("coach_coaches_nick_dying"));
+			world.Clock.Update(10f);
+			eng.Update();
+			Assert.False(eng.TryMatch(sentence));
 		}
 	}
 }

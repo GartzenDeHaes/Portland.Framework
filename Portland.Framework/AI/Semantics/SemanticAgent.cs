@@ -7,7 +7,7 @@ using Portland.AI.Utility;
 
 namespace Portland.AI.Semantics
 {
-	public class Agent
+	public class SemanticAgent
     {
         public SemanticTag AgentTag;
         public string Faction;
@@ -18,12 +18,12 @@ namespace Portland.AI.Semantics
         public string Goal;
         public string UtilityObjective;
 
-        public Agent()
+        public SemanticAgent()
         {
             //Utility.CurrentObjective.AddListener(OnUtilityObjectiveChanged);
         }
 
-        public Agent(string cls, string name)
+        public SemanticAgent(string cls, string name)
         {
             AgentTag = new SemanticTag(cls, name);
             _barkRules = new ObserverMatchRuleSet(name);

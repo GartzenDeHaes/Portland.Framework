@@ -10,7 +10,7 @@ namespace Portland.AI.Utility
 {
     public class UtilitySetInstance
 	{
-		private Int32Guid _id;
+		private string _name;
 		private UtilitySetClass _agent;
 
 		// seperate consideration property from property value
@@ -25,9 +25,9 @@ namespace Portland.AI.Utility
 		private bool _isTiming = false;
 		public float _actionTimer = 0.0f;
 
-		public Int32Guid Id
+		public string Name
 		{
-			get { return _id; }
+			get { return _name; }
 		}
 
 		public ObservableValue<string> CurrentObjective
@@ -35,9 +35,9 @@ namespace Portland.AI.Utility
 			get; private set;
 		}
 
-		public UtilitySetInstance(Int32Guid id, UtilitySetClass agent)
+		public UtilitySetInstance(string name, UtilitySetClass agent)
 		{
-			_id = id;
+			_name = name;
 			_agent = agent;
 
 			CurrentObjective = new ObservableValue<string>("objective");

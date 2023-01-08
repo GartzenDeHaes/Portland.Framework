@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Portland.AI.Barks
 {
-	public class BarkEvent
+    public class BarkEvent
 	{
-		public Actor Agent;
+		public Agent Agent;
 		public TextTableToken Concept;
 	}
 }

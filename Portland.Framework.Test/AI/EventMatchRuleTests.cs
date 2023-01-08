@@ -63,22 +63,22 @@ namespace Portland.AI
 			EventMatchRuleSet rset = new EventMatchRuleSet();
 			rset.LoadCsv(SemanticEventTest.TestCSV);
 
-			Agent ellis = new Agent("human", "ellis");
+			SemanticAgent ellis = new SemanticAgent("human", "ellis");
 			var barkRules = rset.GetRulesForObserver(ellis.AgentTag.Name);
 			Assert.AreEqual(2, barkRules.Rules.Count);
 			ellis.AddBarkRules(barkRules);
 
-			Agent rochelle = new Agent("human", "rochelle");
+			SemanticAgent rochelle = new SemanticAgent("human", "rochelle");
 			barkRules = rset.GetRulesForObserver(rochelle.AgentTag.Name);
 			Assert.AreEqual(3, barkRules.Rules.Count);
 			rochelle.AddBarkRules(barkRules);
 
-			Agent coach = new Agent("human", "coach");
+			SemanticAgent coach = new SemanticAgent("human", "coach");
 			barkRules = rset.GetRulesForObserver(coach.AgentTag.Name);
 			Assert.AreEqual(1, barkRules.Rules.Count);
 			coach.AddBarkRules(barkRules);
 
-			Agent nick = new Agent("human", "nick");
+			SemanticAgent nick = new SemanticAgent("human", "nick");
 			barkRules = rset.GetRulesForObserver(nick.AgentTag.Name);
 			Assert.AreEqual(1, barkRules.Rules.Count);
 			nick.AddBarkRules(barkRules);

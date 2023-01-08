@@ -22,13 +22,13 @@ namespace Portland.AI.Barks
 			Strings = textTable;
 		}
 
-		public List<Rule> Deserialize(string text)
+		public List<BarkRule> Deserialize(string text)
 		{
-			List<Rule> rules = new List<Rule>();
+			List<BarkRule> rules = new List<BarkRule>();
 
 			using (SimpleLex lex = new SimpleLex(text))
 			{
-				Rule rule;
+				BarkRule rule;
 
 				LexNext(lex);
 
@@ -114,16 +114,19 @@ namespace Portland.AI.Barks
 			return !lex.IsEOF;
 		}
 
-		Rule When(SimpleLex lex)
+		BarkRule When(SimpleLex lex)
 		{
 			while (StringHelper.AreEqualNoCase(lex.Lexum, "ALIAS"))
 			{
 				Alias(lex);
 			}
 
-			LexMatchIgnoreCase(lex, "WHEN");
+			BarkRule rule = new BarkRule();
 
-			Rule rule = new Rule();
+			LexMatchIgnoreCase(lex, "RULE");
+			rule.RuleKey = Strings.GetString(ScanName(lex));
+
+			LexMatchIgnoreCase(lex, "WHEN");
 
 			while (!StringHelper.AreEqualNoCase(lex.Lexum, "DO") && lex.Lexum[0] != '.')
 			{
@@ -223,7 +226,7 @@ namespace Portland.AI.Barks
 		/// <summary>
 		/// The action of the event triggering this rule.
 		/// </summary>
-		void WhenVerb(SimpleLex lex, Rule rule)
+		void WhenVerb(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "ACTION");
 			LexMatchOptionalIgnoreCase(lex, "IS");
@@ -235,7 +238,7 @@ namespace Portland.AI.Barks
 		/// <summary>
 		/// The actor initiating the ACTION event (optional)
 		/// </summary>
-		void WhenAgent(SimpleLex lex, Rule rule)
+		void WhenAgent(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "AGENT");
 			LexMatchIgnoreCase(lex, "IS");
@@ -247,7 +250,7 @@ namespace Portland.AI.Barks
 		/// <summary>
 		/// The actor who will speak the response of this rule.
 		/// </summary>
-		void WhenObserver(SimpleLex lex, Rule rule)
+		void WhenObserver(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "OBSERVER");
 			LexMatchIgnoreCase(lex, "IS");
@@ -256,7 +259,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void WhenObject(SimpleLex lex, Rule rule)
+		void WhenObject(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "OBJECT");
 			LexMatchOptionalIgnoreCase(lex, "IS");
@@ -265,21 +268,21 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void WhenFlagList(SimpleLex lex, Rule rule)
+		void WhenFlagList(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "FLAG");
 			LexMatchOptionalIgnoreCase(lex, "IS");
 			WhenFlagListMore(lex, rule);
 		}
 
-		void WhenFlagsList(SimpleLex lex, Rule rule)
+		void WhenFlagsList(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "FLAGS");
 			LexMatchOptionalIgnoreCase(lex, "ARE");
 			WhenFlagListMore(lex, rule);
 		}
 
-		void WhenFlagListMore(SimpleLex lex, Rule rule)
+		void WhenFlagListMore(SimpleLex lex, BarkRule rule)
 		{
 			while (!lex.IsEOF && lex.Lexum[0] != ',' && !StringHelper.AreEqualNoCase(lex.Lexum, "DO"))
 			{
@@ -337,7 +340,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void WhenExpr(SimpleLex lex, Rule rule)
+		void WhenExpr(SimpleLex lex, BarkRule rule)
 		{
 			TextTableToken id = Strings.Get(lex.Lexum);
 			LexMatch(lex, SimpleLex.TokenType.ID);
@@ -445,7 +448,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void Do(SimpleLex lex, Rule rule)
+		void Do(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "DO");
 
@@ -502,7 +505,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void DoSay(SimpleLex lex, Rule rule)
+		void DoSay(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "SAYS");
 
@@ -539,7 +542,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void DoSet(SimpleLex lex, Rule rule)
+		void DoSet(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "SET");
 
@@ -583,7 +586,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void DoAdd(SimpleLex lex, Rule rule)
+		void DoAdd(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "ADD");
 
@@ -620,7 +623,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void DoRaise(SimpleLex lex, Rule rule)
+		void DoRaise(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "RAISE");
 
@@ -638,7 +641,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		void DoReset(SimpleLex lex, Rule rule)
+		void DoReset(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "RESET");
 
@@ -658,7 +661,7 @@ namespace Portland.AI.Barks
 		/// <summary>
 		/// DONT COACH SAYS ally_dying
 		/// </summary>
-		void DoDont(SimpleLex lex, Rule rule)
+		void DoDont(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "DONT");
 

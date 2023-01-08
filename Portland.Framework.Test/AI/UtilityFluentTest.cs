@@ -48,9 +48,11 @@ namespace Portland.AI.Utility
 				.AddObjective("eat")
 				.AddObjective("idle");
 
-			factory.CreateAgent("player", "human");
+			factory.CreateAgent("human", "player");
 
-			//factory.CreateInstance();
+			var utilitiySet = factory.CreateAgentInstance("player", "ROCHELLE");
+
+
 		}
 	}
 }

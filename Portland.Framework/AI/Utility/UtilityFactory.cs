@@ -28,16 +28,17 @@ namespace Portland.AI.Utility
 		private Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
 		private Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
 
-		private Dictionary<Int32Guid, UtilitySetInstance> _agentInstances = new Dictionary<Int32Guid, UtilitySetInstance>();
+		private Dictionary<string, UtilitySetInstance> _agentInstances = new Dictionary<string, UtilitySetInstance>();
 
+		// I think the handling of time here is wrong, need to switch to IClock
 		private float _timeOfDay;
 		private int _day = (int)DayOfWeek.WEDNESDAY;
 
-		public void SetTimeOfDay(float hour0to23xxxx)
+		public void SetTimeOfDay(float hour0to23xxxx, string globalTimePropName)
 		{
 			_timeOfDay = hour0to23xxxx;
 
-			if (_globalProperties.TryGetValue("time", out ConciderationProperty time))
+			if (_globalProperties.TryGetValue(globalTimePropName, out ConciderationProperty time))
 			{
 				time.Set(_timeOfDay);
 			}
@@ -49,6 +50,7 @@ namespace Portland.AI.Utility
 
 		public void TickAgents(float timeDeltaInSeconds)
 		{
+			// I think the handling of time here is wrong, need to switch to IClock
 			_timeOfDay += (timeDeltaInSeconds / 60f) / 60f;
 
 			if (_timeOfDay >= 24.0f)
@@ -77,20 +79,20 @@ namespace Portland.AI.Utility
 			return _globalProperties[name];
 		}
 
-		public UtilitySetInstance CreateAgentInstance(string agentTypeName, Int32Guid id)
+		public UtilitySetInstance CreateAgentInstance(string agentTypeName, string name)
 		{
 			var agent = _agentsByName[agentTypeName];
-			var inst = new UtilitySetInstance(id, agent);
-			_agentInstances.Add(inst.Id, inst);
+			var inst = new UtilitySetInstance(name, agent);
+			_agentInstances.Add(inst.Name, inst);
 
 			CreateProperyInstances(inst, agent);
 
 			return inst;
 		}
 
-		public void DestroyInstance(Int32Guid id)
+		public void DestroyInstance(string name)
 		{
-			_agentInstances.Remove(id);
+			_agentInstances.Remove(name);
 		}
 
 		private void CreateProperyInstances(UtilitySetInstance inst, UtilitySetClass agent)

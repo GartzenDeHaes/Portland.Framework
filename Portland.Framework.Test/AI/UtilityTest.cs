@@ -5,7 +5,7 @@ using NUnit.Framework;
 using Portland.AI.Utility;
 using Portland.Mathmatics;
 
-namespace Portland.AI
+namespace Portland.AI.Utility
 {
 	[TestFixture]
 	public class UtilityTest
@@ -131,10 +131,10 @@ namespace Portland.AI
 			UtilityFactory factory = new UtilityFactory();
 			factory.ParseLoad(_xml);
 
-			var agent = factory.CreateAgentInstance("Ellis", new Int32Guid());
+			var agent = factory.CreateAgentInstance("Ellis", "ELLIS");
 			Assert.AreEqual(7, agent.Properties.Count);
 
-			factory.SetTimeOfDay(23f);
+			factory.SetTimeOfDay(23f, "time");
 
 			factory.TickAgents(0f);
 			Assert.IsTrue(MathHelper.Approximately(0f, agent.Properties["hunger"].Amt.Value));

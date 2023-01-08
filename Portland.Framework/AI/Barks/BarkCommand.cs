@@ -28,7 +28,7 @@ namespace Portland.AI.Barks
 		public Variant8 Arg2;
 		public float Duration = 5f;
 
-		public Rule Rule;
+		public BarkRule Rule;
 		public Vector<string> DefaultTexts;
 	}
 }

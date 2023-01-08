@@ -16,7 +16,7 @@ namespace Portland.AI.Utility
 
 		public ConsiderationPropDefBuilder Min(float min)
 		{
-			Debug.Assert(min <= Definition.Min);
+			Debug.Assert(min <= Definition.Max);
 
 			Definition.Min = min;
 			return this;
@@ -24,7 +24,7 @@ namespace Portland.AI.Utility
 
 		public ConsiderationPropDefBuilder Max(float max)
 		{
-			Debug.Assert(max >= Definition.Max);
+			Debug.Assert(max >= Definition.Min);
 
 			Definition.Max = max;
 			return this;
@@ -182,7 +182,7 @@ namespace Portland.AI.Utility
 
 		public AgentTypeBuilder AddObjective(string name)
 		{
-			AgentType.AgentType.Objectives.Add(Objectives[name]);
+			AgentType.Objectives.Add(Objectives[name]);
 			return this;
 		}
 	}

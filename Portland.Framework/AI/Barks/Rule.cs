@@ -8,7 +8,7 @@ using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class Rule
+	public sealed class BarkRule
 	{
 		public bool HasRun;
 
@@ -37,7 +37,9 @@ namespace Portland.AI.Barks
 
 		public int Priority;
 
-		public Rule()
+		public string RuleKey;
+
+		public BarkRule()
 		{
 		}
 

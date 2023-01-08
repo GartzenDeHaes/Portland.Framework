@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 
 using Portland.CheckedEvents;
 using Portland.Collections;
+using Portland.ComponentModel;
 using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class RuleEngine
+	public sealed class BarkRuleEngine
 	{
-		readonly Rule[] _rules;
+		readonly BarkRule[] _rules;
 		readonly World _world;
 		readonly TextTable _strings;
 		readonly IRandom _random;
@@ -22,8 +23,8 @@ namespace Portland.AI.Barks
 		//RingBuffer<BarkCommand> _runcmds = new RingBuffer<BarkCommand>(16);
 		List<BarkCommand> _cmdsDelaying = new List<BarkCommand>();
 
-		public Command<TextTableToken, string> DoSay = new Command<TextTableToken, string>();
-		//public Notify<TextTableToken> OnConceptChanged = new Notify<TextTableToken>();
+		public Command<string, string> DoSay = new Command<string, string>();
+		public ObservableValue<TextTableToken> CurrentConcept = new ObservableValue<TextTableToken>();
 		public Notify<TextTableToken> OnEventRaised = new Notify<TextTableToken>();
 
 		public void Update()
@@ -48,7 +49,7 @@ namespace Portland.AI.Barks
 			if (cmd.CommandName == BarkCommand.CommandNameSay)
 			{
 				// Arg1 is text key and Arg2 is the default text
-				DoSay.Send(cmd.Arg1, cmd.DefaultTexts.RandomElement());
+				DoSay.Send(cmd.Rule.RuleKey, cmd.DefaultTexts.RandomElement());
 
 				//OnConceptChanged.Send(cmd.Arg1);
 
@@ -108,27 +109,27 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(Dictionary<TextTableToken, Variant8> facts, BarkCommand cmd)
+		void SetVars(Dictionary<TextTableToken, ObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, cmd.Arg2);
+				facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
 			}
 			else
 			{
-				facts[cmd.Arg1] = cmd.Arg2;
+				facts[cmd.Arg1].Value = cmd.Arg2;
 			}
 		}
 
-		void AddToVar(Dictionary<TextTableToken, Variant8> facts, BarkCommand cmd)
+		void AddToVar(Dictionary<TextTableToken, ObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, cmd.Arg2);
+				facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
 			}
 			else
 			{
-				facts[cmd.Arg1] = facts[cmd.Arg1] + cmd.Arg2;
+				facts[cmd.Arg1].Value = facts[cmd.Arg1].Value + cmd.Arg2;
 			}
 		}
 
@@ -136,7 +137,7 @@ namespace Portland.AI.Barks
 
 		public int DelayingCount { get { return _cmdsDelaying.Count; } }
 
-		public RuleEngine(World world, TextTable strings, IRandom rand, string ruleText)
+		public BarkRuleEngine(World world, TextTable strings, IRandom rand, string ruleText)
 		{
 			_world = world;
 			_strings = strings;
@@ -147,10 +148,12 @@ namespace Portland.AI.Barks
 			_rules = rulelist.OrderByDescending(r => r.Priority).ToArray();
 		}
 
-		void Execute(Rule rule)
+		void Execute(BarkRule rule)
 		{
 			rule.HasRun = true;
 			BarkCommand cmd;
+
+			CurrentConcept.Value = rule.ObjectName;
 
 			for (int i = 0; i < rule.Response.Count; i++)
 			{
@@ -170,7 +173,7 @@ namespace Portland.AI.Barks
 
 		public bool TryMatch(ThematicEvent happened)
 		{
-			Rule rule = null;
+			BarkRule rule = null;
 			bool docont = false;
 
 			for (int x = 0; x < _rules.Length; x++)
@@ -268,7 +271,7 @@ namespace Portland.AI.Barks
 
 		void DisableRule(TextTableToken actorId, AsciiId4 action, TextTableToken directObject)
 		{
-			Rule rule = null;
+			BarkRule rule = null;
 
 			for (int x = 0; x < _rules.Length; x++)
 			{
