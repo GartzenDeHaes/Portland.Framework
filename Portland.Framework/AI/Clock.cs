@@ -7,7 +7,7 @@ namespace Portland.AI
 	/// short day/night cycle.
 	/// </summary>
 	[Serializable]
-	public class Clock : IClock
+	public sealed class Clock : IClock
 	{
 		private DateTime _startDtm;
 		/// <summary>1440 for real time</summary>
@@ -23,10 +23,10 @@ namespace Portland.AI
 		private float _updateAcc;
 		private bool _lastIsNightime;
 
-		public DateTime Now { get; protected set; }
-		public bool IsNightTime { get; protected set; }
-		public bool IsWeekend { get; protected set; }
-		public float SecondsPerHour { get; protected set; }
+		public DateTime Now { get; private set; }
+		public bool IsNightTime { get; private set; }
+		public bool IsWeekend { get; private set; }
+		public float SecondsPerHour { get; private set; }
 
 		public TimeSpan TimeElapsed
 		{
@@ -67,6 +67,15 @@ namespace Portland.AI
 			SecondsPerHour = 60f * 60f * (_minutesPerDay / 1440f);
 
 			Update(0);
+		}
+
+		/// <summary>
+		/// A scalable clock allowing for a short/long simulated time.
+		/// </summary>
+		/// <param name="minutesPerDay">1440 for realtime.</param>
+		public Clock(float minutesPerDay)
+		: this(DateTime.Now, minutesPerDay)
+		{
 		}
 
 		public void Update(float elapsedTimeInSeconds)

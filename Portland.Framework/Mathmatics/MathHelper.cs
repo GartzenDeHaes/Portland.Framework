@@ -398,7 +398,7 @@ namespace Portland.Mathmatics
 		// Clamps a value between a minimum float and maximum float value.
 		public static float Clamp(float value, float min, float max)
 		{
-			if (value < min)
+			if (value < min || Single.IsNaN(value))
 				value = min;
 			else if (value > max)
 				value = max;

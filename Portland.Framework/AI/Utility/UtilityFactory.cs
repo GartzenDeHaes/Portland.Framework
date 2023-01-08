@@ -10,68 +10,33 @@ namespace Portland.AI.Utility
 {
 	public class UtilityFactory
 	{
-		public enum DayOfWeek
+		IClock _clock;
+		float _clockLastUpdate;
+		Dictionary<string, ConciderationProperty> _globalProperties = new Dictionary<string, ConciderationProperty>();
+
+		Dictionary<string, ConsiderationPropertyDef> _properties = new Dictionary<string, ConsiderationPropertyDef>();
+		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
+		Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
+		Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
+
+		Dictionary<string, UtilitySetInstance> _instances = new Dictionary<string, UtilitySetInstance>();
+
+		public UtilityFactory(IClock clock)
 		{
-			SUNDAY = 0,
-			MONDAY = 1,
-			TUESDAY = 2,
-			WEDNESDAY = 3,
-			THURSDAY = 4,
-			FRIDAY = 5,
-			SATURDAY = 6
-		};
-
-		private Dictionary<string, ConciderationProperty> _globalProperties = new Dictionary<string, ConciderationProperty>();
-
-		private Dictionary<string, ConsiderationPropertyDef> _properties = new Dictionary<string, ConsiderationPropertyDef>();
-		private Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
-		private Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
-		private Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
-
-		private Dictionary<string, UtilitySetInstance> _agentInstances = new Dictionary<string, UtilitySetInstance>();
-
-		// I think the handling of time here is wrong, need to switch to IClock
-		private float _timeOfDay;
-		private int _day = (int)DayOfWeek.WEDNESDAY;
-
-		public void SetTimeOfDay(float hour0to23xxxx, string globalTimePropName)
-		{
-			_timeOfDay = hour0to23xxxx;
-
-			if (_globalProperties.TryGetValue(globalTimePropName, out ConciderationProperty time))
-			{
-				time.Set(_timeOfDay);
-			}
+			_clock = clock;
+			_clockLastUpdate = clock.Time;
 		}
 
-		public UtilityFactory()
+		public void TickAgents()
 		{
-		}
+			float deltaTime = _clock.Time - _clockLastUpdate;
 
-		public void TickAgents(float timeDeltaInSeconds)
-		{
-			// I think the handling of time here is wrong, need to switch to IClock
-			_timeOfDay += (timeDeltaInSeconds / 60f) / 60f;
-
-			if (_timeOfDay >= 24.0f)
+			foreach (var agent in _instances.Values)
 			{
-				_timeOfDay %= 24f;
-				_day = (_day + 1) % 7;
+				agent.Update(deltaTime);
 			}
 
-			if (_globalProperties.TryGetValue("time", out ConciderationProperty time))
-			{
-				time.Set(_timeOfDay);
-			}
-			if (_globalProperties.TryGetValue("weekend", out ConciderationProperty weekend))
-			{
-				weekend.Set((float)_day);
-			}
-
-			foreach (var agent in _agentInstances.Values)
-			{
-				agent.Update(timeDeltaInSeconds);
-			}
+			_clockLastUpdate = _clock.Time;
 		}
 
 		public ConciderationProperty GetGlobalProperty(string name)
@@ -83,7 +48,7 @@ namespace Portland.AI.Utility
 		{
 			var agent = _agentsByName[agentTypeName];
 			var inst = new UtilitySetInstance(name, agent);
-			_agentInstances.Add(inst.Name, inst);
+			_instances.Add(inst.Name, inst);
 
 			CreateProperyInstances(inst, agent);
 
@@ -92,7 +57,7 @@ namespace Portland.AI.Utility
 
 		public void DestroyInstance(string name)
 		{
-			_agentInstances.Remove(name);
+			_instances.Remove(name);
 		}
 
 		private void CreateProperyInstances(UtilitySetInstance inst, UtilitySetClass agent)
@@ -134,22 +99,22 @@ namespace Portland.AI.Utility
 			_objectives.Clear();
 			_agentsByType.Clear();
 			_agentsByName.Clear();
-			_agentInstances.Clear();
+			_instances.Clear();
 		}
 
 		#region CREATE PROPERTY DEFINITIONS
 
 		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, string name)
 		{
-			var prop = new ConsiderationPropertyDef() { Name = name, GlobalValue = isGlobal };
+			var prop = new ConsiderationPropertyDef() { Name = name, IsGlobalValue = isGlobal };
 			_properties.Add(prop.Name, prop);
 
-			if (prop.GlobalValue && !_globalProperties.ContainsKey(name))
+			if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
 			{
 				_globalProperties.Add(name, new ConciderationProperty(prop));
 			}
 
-			return new ConsiderationPropDefBuilder { Definition = prop };
+			return new ConsiderationPropDefBuilder { Definition = prop, GlobalProperties = _globalProperties };
 		}
 
 		/// <summary>
@@ -214,6 +179,19 @@ namespace Portland.AI.Utility
 				.Max(23)
 				.ChangePerSecond((1f / 60f) / 60f)
 				.StartValue(8)
+			;
+		}
+
+		/// <summary>
+		/// 0 to 1 increasing
+		/// </summary>
+		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Normalized(bool isGlobal, string name)
+		{
+			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
+				.Min(0)
+				.Max(1)
+				.ChangePerSecond((1f * _clock.SecondsPerHour / 1440f) / 1440f)
+				.StartValue(0.5f)
 			;
 		}
 
@@ -411,7 +389,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var global = lex.MatchProperty("global");
 
-			var prop = new ConsiderationPropertyDef() { Name = name, TypeName = typ, GlobalValue = Boolean.Parse(global) };
+			var prop = new ConsiderationPropertyDef() { Name = name, TypeName = typ, IsGlobalValue = Boolean.Parse(global) };
 			_properties.Add(prop.Name, prop);
 
 			while (lex.Token != XmlLex.XmlLexToken.TAG_END)
@@ -445,7 +423,7 @@ namespace Portland.AI.Utility
 				}
 			}
 
-			if (prop.GlobalValue && !_globalProperties.ContainsKey(name))
+			if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
 			{
 				_globalProperties.Add(name, new ConciderationProperty(prop));
 			}

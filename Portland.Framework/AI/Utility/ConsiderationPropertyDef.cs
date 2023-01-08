@@ -16,7 +16,7 @@ namespace Portland.AI.Utility
 		public string Name = String.Empty;
 		public string TypeName = String.Empty;
 		/// <summary>True if this value is shared among to all utility collections.</summary>
-		public bool GlobalValue = false;
+		public bool IsGlobalValue = false;
 
 		/// <summary>Minumum value inclusive.</summary>
 		public float Min = Single.MinValue;

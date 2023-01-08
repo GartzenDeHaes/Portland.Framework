@@ -22,14 +22,14 @@ namespace Portland.AI.Barks
 		public void Update(float deltaTimeInSeconds)
 		{
 			Clock.Update(deltaTimeInSeconds);
-			UtilitySystem.TickAgents(deltaTimeInSeconds);
+			UtilitySystem.TickAgents();
 		}
 
 		public World(IClock clock, TextTable strings)
 		{
 			Clock = clock;
 			Strings = strings;
-			UtilitySystem = new UtilityFactory();
+			UtilitySystem = new UtilityFactory(clock);
 		}
 
 		public void CreateActor(string className, string actorName)

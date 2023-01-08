@@ -18,7 +18,8 @@ namespace Portland.AI.Utility
 			Inverse,
 			Center,
 			ClampLow,
-			ClampHiLow
+			ClampHiLow,
+			ClampCenter
 		}
 
 		public string PropertyName = String.Empty;
@@ -55,10 +56,13 @@ namespace Portland.AI.Utility
 					val = (1f - normalizedVal);
 					break;
 				case TransformFunc.ClampLow:
-					val = normalizedVal < 0.8f ? 0f : 1f;
+					val = normalizedVal < 0.201f ? 1f : 0f;
 					break;
 				case TransformFunc.ClampHiLow:
-					val = (normalizedVal > 0.8f ? 1f : (normalizedVal < 0.2f ? 1f : 0f));
+					val = (normalizedVal > 0.7999f ? 1f : (normalizedVal < 0.201f ? 1f : 0f));
+					break;
+				case TransformFunc.ClampCenter:
+					val = normalizedVal < 0.8001f && normalizedVal > 0.199999f ? 1f : 0f;
 					break;
 				default:
 					// Center

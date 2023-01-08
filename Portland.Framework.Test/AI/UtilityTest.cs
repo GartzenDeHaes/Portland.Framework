@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace Portland.AI.Utility
 		[Test]
 		public void APropInstTest()
 		{
-			var def = new ConsiderationPropertyDef() { Name="test", ChangePerSec=1, Min=0, Max=100, Start=0, GlobalValue=false, StartRand=false, TypeName="float" };
+			var def = new ConsiderationPropertyDef() { Name="test", ChangePerSec=1, Min=0, Max=100, Start=0, IsGlobalValue=false, StartRand=false, TypeName="float" };
 			var pi = new ConciderationProperty(def);
 
 			Assert.AreEqual(0f, pi.Amt.Value.ToFloat());
@@ -30,33 +31,36 @@ namespace Portland.AI.Utility
 <properties>
 	<property name = 'hunger' type='float' global='false' min='0' max='100' start='0' startrand='false' changePerHour='10' />
 	<property name = 'money' type='float' global='false' min='0' max='500' start='100' startrand='false' changePerHour='0' />
-	<property name = 'rest' type='float' global='false' min='0' max='100' start='30' startrand='false' changePerHour='-3' />
+	<property name = 'rest' type='float' global='false' min='0' max='100' start='20' startrand='false' changePerHour='-8' />
 	<property name = 'hygiene' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-2' />
 	<property name = 'entertainment' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-5' />
 	<property name = 'supplies' type='float' global='false' min='0' max='100' start='100' startrand='false' changePerHour='-1' />
-	<property name = 'time' type='float' global='true' min='0' max='24' start='12' startrand='false' changePerHour='0' />
-	<property name = 'weekend' type='bool' global='true' startrand='false' />
+	<property name = 'time' type='float' global='true' min='0' max='1' start='0.5' startrand='false' changePerHour='0.00069444444' />
+	<property name = 'weekend' type='bool' global='true' min='0' max='1' startrand='false' />
+	<property name = 'daylight' type='bool' global='true' min='0' max='1' start='0' startrand='false' />
 </properties>
 <objectives>
-	<objective name = 'eat_at_restaurant' time='2' priority='2' interruptible='false' cooldown='60'>
+	<objective name = 'eat_at_restaurant' time='2' priority='3' interruptible='false' cooldown='60'>
 		<consideration property = 'hunger' weight='1.2' func='inverse' />
 		<consideration property = 'money' weight='0.8' func='normal' />
 		<consideration property = 'time' weight='0.8' func='center' />
 	</objective>
-	<objective name = 'eat_at_home' time='2' priority='2' interruptible='false' cooldown='0'>
+	<objective name = 'eat_at_home' time='2' priority='3' interruptible='false' cooldown='0'>
 		<consideration property = 'hunger' weight='1.2' func='inverse' />
-		<consideration property = 'money' weight='1.0' func='clamp_low' />
-		<consideration property = 'time' weight='1.0' func='clamp_hi_low' />
+		<consideration property = 'money' weight='1.0' func='normal' />
+		<consideration property = 'time' weight='0.8' func='clamp_hi_low' />
 	</objective>
 	<objective name = 'get_supplies' time='2' priority='3' interruptible='true' cooldown='0'>
 		<consideration property = 'supplies' weight='1.0' func='inverse' />
 	</objective>
 	<objective name = 'watch_movie' time='3' priority='3' interruptible='true' cooldown='0'>
 		<consideration property = 'entertainment' weight='1.0' func='inverse' />
+		<consideration property = 'time' weight='0.8' func='clamp_hi_low' />
+		<consideration property = 'weekend' weight='1.0' func='normal' />
 	</objective>
-	<objective name = 'sleep' time='6' priority='2' interruptible='false' cooldown='0'>
-		<consideration property = 'rest' weight='1.0' func='inverse' />
-		<consideration property = 'time' weight='1.2' func='clamp_hi_low' />
+	<objective name = 'sleep' time='6' priority='2' interruptible='false' cooldown='3'>
+		<consideration property = 'rest' weight='1.0' func='clamp_low' />
+		<consideration property = 'daylight' weight='1.0' func='inverse' />
 	</objective>
 	<objective name = 'work' time='8' priority='1' interruptible='false' cooldown='12'>
 		<consideration property = 'time' weight='1.0' func='center' />
@@ -69,9 +73,11 @@ namespace Portland.AI.Utility
 	<objective name = 'shower' time='2' priority='2' interruptible='true' cooldown='5'>
 		<consideration property = 'hygiene' weight='1.0' func='inverse' />
 	</objective>
-	<objective name = 'drink_coffee' time='4' priority='4' interruptible='true' cooldown='2'>
+	<objective name = 'drink_coffee' time='4' priority='5' interruptible='true' cooldown='2'>
 		<consideration property = 'hunger' weight='0.8' func='inverse' />
 		<consideration property = 'rest' weight='1.0' func='inverse' />
+		<consideration property = 'time' weight='0.5' func='center' />
+		<consideration property = 'entertainment' weight='1.0' func='inverse' />
 	</objective>
 </objectives>
 <agenttypes>
@@ -97,9 +103,6 @@ namespace Portland.AI.Utility
 	<agent type = 'worker' name='Coach' />
 	<agent type = 'worker' name='Nick'>
 		<objective_overrides>
-			<objective_override name = 'sleep' >
-				<consideration property='time' weight='0.2' func='center' />
-			</objective_override>
 			<objective_override name = 'drink_coffee' >
 				<consideration property='rest' weight='0.6' />
 			</objective_override>	
@@ -109,11 +112,6 @@ namespace Portland.AI.Utility
 		<objectives>
 			<work_at_home />
 		</objectives>
-		<objective_overrides>
-			<objective_override name = 'drink_coffee' >
-				<consideration property='rest' weight='0.6' />
-			</objective_override>	
-		</objective_overrides>
 	</agent>
 </agents>
 </utility>
@@ -121,29 +119,33 @@ namespace Portland.AI.Utility
 		[Test]
 		public void BParseTest()
 		{
-			UtilityFactory factory = new UtilityFactory();
+			var clock = new Clock(DateTime.Now, 1440);
+			UtilityFactory factory = new UtilityFactory(clock);
 			factory.ParseLoad(_xml);
 		}
 
 		[Test]
 		public void CCreateTest()
 		{
-			UtilityFactory factory = new UtilityFactory();
+			var clock = new Clock(new DateTime(2000, 1, 1, 23, 0, 0), 1440);
+			UtilityFactory factory = new UtilityFactory(clock);
 			factory.ParseLoad(_xml);
 
 			var agent = factory.CreateAgentInstance("Ellis", "ELLIS");
-			Assert.AreEqual(7, agent.Properties.Count);
+			Assert.NotZero(agent.Properties.Count);
 
-			factory.SetTimeOfDay(23f, "time");
+			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
+			factory.GetGlobalProperty("weekend").Set(0f);
+			factory.TickAgents();
 
-			factory.TickAgents(0f);
 			Assert.IsTrue(MathHelper.Approximately(0f, agent.Properties["hunger"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(0.0f, agent.Properties["hunger"].Normalized));
 			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["money"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["supplies"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(50f, agent.Properties["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(30f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(23f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(20f, agent.Properties["rest"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.9583333f, agent.Properties["time"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(50f, agent.Properties["hygiene"].Amt.Value));
 
 			foreach (var objective in agent.Objectives)
@@ -153,87 +155,102 @@ namespace Portland.AI.Utility
 					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(0.733333349f, objective.Score)); break;
 					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.575555563f, objective.Score)); break;
 					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
-					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.5f, objective.Score)); break;
-					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.950000048f, objective.Score)); break;
+					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.43333f, objective.Score)); break;
+					case "sleep": Assert.IsTrue(MathHelper.Approximately(1f, objective.Score)); break;
 					case "work": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "shower": Assert.IsTrue(MathHelper.Approximately(0.5f, objective.Score)); break;
-					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.75f, objective.Score)); break;
+					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.58229f, objective.Score)); break;
 				}
 			}
 			Assert.AreEqual("sleep", (string)agent.CurrentObjective.Value);
 
-			factory.TickAgents(60 * 60 * 6);
+			clock.Update(60 * 60 * 9f);
+			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
 			agent.Properties["rest"].AddToValue(90f);
+			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
+			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(60f, agent.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.6f, agent.Properties["hunger"].Normalized));
+			agent.Properties["rest"].AddToValue(90f);
+			factory.TickAgents();
+
+			Assert.IsTrue(MathHelper.Approximately(90f, agent.Properties["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.9f, agent.Properties["hunger"].Normalized));
 			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(94f, agent.Properties["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.94f, agent.Properties["supplies"].Normalized));
-			Assert.IsTrue(MathHelper.Approximately(20f, agent.Properties["entertainment"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(91f, agent.Properties["supplies"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.91f, agent.Properties["supplies"].Normalized));
+			Assert.IsTrue(MathHelper.Approximately(5f, agent.Properties["entertainment"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(5f, agent.Properties["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(38f, agent.Properties["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.33958f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(32f, agent.Properties["hygiene"].Amt.Value));
 
 			foreach (var objective in agent.Objectives)
 			{
 				switch (objective.Base.Name)
 				{
-					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.16f, objective.Score)); break;
-					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.291111141f, objective.Score)); break;
-					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.0600000024f, objective.Score)); break;
-					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.8f, objective.Score)); break;
-					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.44f, objective.Score)); break;
+					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.10666f, objective.Score)); break;
+					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.13611f, objective.Score)); break;
+					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.089999f, objective.Score)); break;
+					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.31666f, objective.Score)); break;
+					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "work": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
-					case "shower": Assert.IsTrue(MathHelper.Approximately(0.62f, objective.Score)); break;
-					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.6f, objective.Score)); break;
+					case "shower": Assert.IsTrue(MathHelper.Approximately(0.68f, objective.Score)); break;
+					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.27755f, objective.Score)); break;
 				}
 			}
+			Assert.AreEqual("shower", (string)agent.CurrentObjective.Value);
+
+			agent.Properties["hygiene"].AddToValue(90f);
+			agent.Properties["supplies"].AddToValue(-1f);
+			//agent.Properties["entertainment"].AddToValue(90f);
+			//agent.Properties["money"].AddToValue(-40f);
+
+			clock.Update(60 * 60 * 1);
+			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
+			factory.TickAgents();
+
+			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["money"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(89f, agent.Properties["supplies"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0f, agent.Properties["entertainment"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(92f, agent.Properties["rest"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.37569f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(98f, agent.Properties["hygiene"].Amt.Value));
 			Assert.AreEqual("watch_movie", (string)agent.CurrentObjective.Value);
 
 			agent.Properties["entertainment"].AddToValue(90f);
 			agent.Properties["money"].AddToValue(-40f);
+			//agent.Properties["hygiene"].AddToValue(90f);
+			//agent.Properties["supplies"].AddToValue(-1f);
 
-			factory.TickAgents(60 * 60 * 1);
+			clock.Update(60 * 60 * 1);
+			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
+			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(70f, agent.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.70f, agent.Properties["hunger"].Normalized));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["hunger"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(60f, agent.Properties["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(93f, agent.Properties["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(95f, agent.Properties["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(97f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(6f, agent.Properties["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(36f, agent.Properties["hygiene"].Amt.Value));
-			Assert.AreEqual("shower", (string)agent.CurrentObjective.Value);
-
-			factory.TickAgents(60 * 60 * 1);
-
-			agent.Properties["hygiene"].AddToValue(90f);
-			agent.Properties["supplies"].AddToValue(-1f);
-
-			Assert.IsTrue(MathHelper.Approximately(80f, agent.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(60f, agent.Properties["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(91f, agent.Properties["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(90f, agent.Properties["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(94f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(7f, agent.Properties["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(88f, agent.Properties["supplies"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(85f, agent.Properties["entertainment"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(84f, agent.Properties["rest"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.41736388f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(96f, agent.Properties["hygiene"].Amt.Value));
 
 			foreach (var objective in agent.Objectives)
 			{
 				switch (objective.Base.Name)
 				{
-					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.08f, objective.Score)); break;
-					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.167555556f, objective.Score)); break;
-					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.07999998f, objective.Score)); break;
-					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.100000024f, objective.Score)); break;
-					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.0300000012f, objective.Score)); break;
+					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.04f, objective.Score)); break;
+					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.05403, objective.Score)); break;
+					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.12f, objective.Score)); break;
+					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.04999f, objective.Score)); break;
+					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "work": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
-					case "shower": Assert.IsTrue(MathHelper.Approximately(0.659999967f, objective.Score)); break;
-					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.11f, objective.Score)); break;
+					case "shower": Assert.IsTrue(MathHelper.Approximately(0.04f, objective.Score)); break;
+					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.0878f, objective.Score)); break;
 				}
 			}
-			Assert.AreEqual("shower", (string)agent.CurrentObjective.Value);
+			Assert.AreEqual("get_supplies", (string)agent.CurrentObjective.Value);
 		}
 	}
 }

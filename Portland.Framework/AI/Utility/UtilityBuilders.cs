@@ -7,6 +7,7 @@ namespace Portland.AI.Utility
 	public struct ConsiderationPropDefBuilder
 	{
 		public ConsiderationPropertyDef Definition;
+		public Dictionary<string, ConciderationProperty> GlobalProperties;
 
 		public ConsiderationPropDefBuilder TypeName(string typename)
 		{
@@ -33,8 +34,13 @@ namespace Portland.AI.Utility
 		public ConsiderationPropDefBuilder StartValue(float value)
 		{
 			Debug.Assert(value >= Definition.Min && value <= Definition.Max);
-
 			Definition.Start = value;
+
+			if (Definition.IsGlobalValue)
+			{
+				GlobalProperties[Definition.Name].Set(value);
+			}
+
 			return this;
 		}
 
