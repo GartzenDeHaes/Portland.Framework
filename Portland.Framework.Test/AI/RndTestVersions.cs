@@ -4,7 +4,7 @@ using Portland.Mathmatics;
 
 namespace Portland.AI.Barks
 {
-	public class RndMax : IRandom
+	public class RandMax : IRandom
 	{
 		public int Next()
 		{
@@ -82,7 +82,7 @@ namespace Portland.AI.Barks
 		}
 	}
 
-	public class RndMin : IRandom
+	public class RandMin : IRandom
 	{
 		public int Next()
 		{

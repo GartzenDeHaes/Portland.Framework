@@ -14,9 +14,13 @@ namespace Portland.AI.Barks
 		public static AsciiId4 ActionSay = "SAY";
 		public static AsciiId4 ActionIdle = "IDLE";
 
+		/// <summary>Actor performing the action</summary>
 		public TextTableToken Agent;
+		/// <summary>Verb</summary>
 		public AsciiId4 Action;
-		public TextTableToken DirectObject;
+		/// <summary>Direct object</summary>
+		public TextTableToken Concept;
+		/// <summary>Indirect object</summary>
 		public TextTableToken Instrument;
 	}
 }

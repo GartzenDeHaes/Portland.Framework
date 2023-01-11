@@ -44,9 +44,17 @@ namespace Portland.ComponentModel
 		/// <summary>
 		/// Registers a method that will validate changes
 		/// </summary>
-		public void SetValidator(Func<T, bool> validator)
+		public void AddValidator(Func<T, bool> validator)
 		{
-			_validator = validator;
+			_validator += validator;
+		}
+
+		/// <summary>
+		/// Registers a method that will validate changes
+		/// </summary>
+		public void RemoveValidator(Func<T, bool> validator)
+		{
+			_validator -= validator;
 		}
 
 		/// <summary>

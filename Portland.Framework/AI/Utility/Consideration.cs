@@ -19,7 +19,8 @@ namespace Portland.AI.Utility
 			Center,
 			ClampLow,
 			ClampHiLow,
-			ClampCenter
+			ClampCenter,
+			ClampHi,
 		}
 
 		public string PropertyName = String.Empty;
@@ -57,6 +58,9 @@ namespace Portland.AI.Utility
 					break;
 				case TransformFunc.ClampLow:
 					val = normalizedVal < 0.201f ? 1f : 0f;
+					break;
+				case TransformFunc.ClampHi:
+					val = normalizedVal > 0.791f ? 1f : 0f;
 					break;
 				case TransformFunc.ClampHiLow:
 					val = (normalizedVal > 0.7999f ? 1f : (normalizedVal < 0.201f ? 1f : 0f));

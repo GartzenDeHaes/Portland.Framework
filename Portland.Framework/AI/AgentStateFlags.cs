@@ -11,9 +11,9 @@ namespace Portland.AI
 		public BitSet32 Bits;
 
 		public bool Run { get { return Bits.IsSet(0); } set { Bits.SetTest(0, value); } }
-		public bool StaminaEmpty { get { return Bits.IsSet(1); } set { Bits.SetTest(1, value); } }
-		public bool AlertClock { get { return Bits.IsSet(2); } set { Bits.SetTest(2, value); } }
-		public bool AlertUtility { get { return Bits.IsSet(3); } set { Bits.SetTest(3, value); } }
+		public bool AlertStamina { get { return Bits.IsSet(1); } set { Bits.SetTest(1, value); } }
+		public bool AlertThrist { get { return Bits.IsSet(2); } set { Bits.SetTest(2, value); } }
+		public bool AlertHunger { get { return Bits.IsSet(3); } set { Bits.SetTest(3, value); } }
 		public bool AlertHealth { get { return Bits.IsSet(4); } set { Bits.SetTest(4, value); } }
 		public bool AlertSound { get { return Bits.IsSet(5); } set { Bits.SetTest(5, value); } }
 		public bool AlertSight { get { return Bits.IsSet(6); } set { Bits.SetTest(6, value); } }
@@ -34,8 +34,10 @@ namespace Portland.AI
 		public bool NavHasPath { get { return Bits.IsSet(21); } set { Bits.SetTest(21, value); } }
 		public bool AllyNear { get { return Bits.IsSet(22); } set { Bits.SetTest(22, value); } }
 		public bool AiReplanReq { get { return Bits.IsSet(23); } set { Bits.SetTest(23, value); } }
+		public bool IsDead { get { return Bits.IsSet(24); } set { Bits.SetTest(24, value); } }
+		public bool AlertSleep { get { return Bits.IsSet(25); } set { Bits.SetTest(25, value); } }
 
-		public bool HasInterruptCondition { get { return AlertHealth || AlertUtility || AlertSound || AlertSight || EnemyNear || EnemyInAim || EnemyVisible || AiReplanReq; } }
+		public bool HasInterruptCondition { get { return AlertHealth || AlertSound || AlertSight || EnemyNear || EnemyInAim || EnemyVisible || AiReplanReq || IsDead; } }
 
 		public override string ToString()
 		{
@@ -89,9 +91,9 @@ namespace Portland.AI
 			switch (bitName)
 			{
 				case "RUN": ret = 0; break;
-				case "STAMINA_EMPTY": ret = 1; break;
-				case "ALERT_CLOCK": ret = 2; break;
-				case "ALERT_UTILITY": ret = 3; break;
+				case "ALERT_STAMINA": ret = 1; break;
+				case "ALERT_THIRST": ret = 2; break;
+				case "ALERT_HUNGER": ret = 3; break;
 				case "ALERT_HEALTH": ret = 4; break;
 				case "ALERT_SOUND": ret = 5; break;
 				case "ALERT_SIGHT": ret = 6; break;
@@ -111,6 +113,10 @@ namespace Portland.AI
 				case "IS_GROUNDED": ret = 20; break;
 				case "NAV_HAS_PATH": ret = 21; break;
 				case "ALLY_NEAR": ret = 22; break;
+				case "REPLAN_NEEDED": ret = 23; break;
+				case "IS_DEAD": ret = 24; break;
+				case "ALERT_SLEEP": ret = 25; break;
+				default: ret = -1; break;
 			}
 
 			return ret;

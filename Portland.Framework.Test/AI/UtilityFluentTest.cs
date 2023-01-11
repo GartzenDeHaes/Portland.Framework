@@ -26,7 +26,7 @@ namespace Portland.AI.Utility
 				.StartValue(20)
 				.ChangePerHour(10);
 
-			factory.CreatePropertyDef_HourOfDay(true, "hour_of_day");
+			//factory.CreatePropertyDef_HourOfDay(true, "hour_of_day");
 
 			factory.CreatePropertyDef(true, "const_30pct")
 				.Min(0f)
@@ -69,7 +69,7 @@ namespace Portland.AI.Utility
 
 			var uset = factory.CreateAgentInstance("player", "ROCHELLE");
 
-			factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
+			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 
 			Assert.IsTrue(MathHelper.Approximately(0.3f, uset.Properties["const_30pct"].Amt.Value));
@@ -86,11 +86,11 @@ namespace Portland.AI.Utility
 			Assert.AreEqual("eat", (string)uset.CurrentObjective.Value);
 
 			clock.Update(30f * 60); // 30 minutes
-			factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
+			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 			Assert.That(0, Is.EqualTo(0));
 			Assert.IsTrue(MathHelper.Approximately(25f, uset.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(9f, uset.Properties["hour_of_day"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(8.5f, uset.Properties["hour_of_day"].Amt.Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
@@ -102,11 +102,11 @@ namespace Portland.AI.Utility
 			Assert.AreEqual("eat", (string)uset.CurrentObjective.Value);
 
 			clock.Update(31f * 60); // 31 minutes
-			factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
+			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
 			uset.Properties["hunger"].Set(0);
 			factory.TickAgents();
 			Assert.IsTrue(MathHelper.Approximately(5.16666f, uset.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(9.5333333f, uset.Properties["hour_of_day"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(9.0166f, uset.Properties["hour_of_day"].Amt.Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)

@@ -30,7 +30,7 @@ namespace Portland.AI.Utility
 			get { return _name; }
 		}
 
-		public ObservableValue<string> CurrentObjective
+		public ObservableValue<Variant8> CurrentObjective
 		{
 			get; private set;
 		}
@@ -40,7 +40,7 @@ namespace Portland.AI.Utility
 			_name = name;
 			_agent = agent;
 
-			CurrentObjective = new ObservableValue<string>("objective");
+			CurrentObjective = new ObservableValue<Variant8>("objective");
 			CurrentObjective.Set(String.Empty);
 
 			Objectives = _agent.CreateObjectives();

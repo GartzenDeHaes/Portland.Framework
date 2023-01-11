@@ -9,29 +9,29 @@ namespace Portland.AI.Utility
 	/// </summary>
 	public class ConciderationProperty
 	{
-		private ConsiderationPropertyDef _propertyDef;
-		public ObservableValue<Variant8> Amt;
+		public readonly ConsiderationPropertyDef PropertyDef;
+		public readonly ObservableValue<Variant8> Amt;
 
 		public float Normalized
 		{
 			get
 			{
-				return (Amt.Value - _propertyDef.Min) / (_propertyDef.Max - _propertyDef.Min);
+				return (Amt.Value - PropertyDef.Min) / (PropertyDef.Max - PropertyDef.Min);
 			}
 		}
 
 		public ConciderationProperty(ConsiderationPropertyDef propertyDef)
 		{
-			_propertyDef = propertyDef;
+			PropertyDef = propertyDef;
 			Amt = new ObservableValue<Variant8>();
 
-			if (_propertyDef.StartRand)
+			if (PropertyDef.StartRand)
 			{
-				Amt.Set(MathHelper.RandomRange(_propertyDef.Min, _propertyDef.Max));
+				Amt.Set(MathHelper.RandomRange(PropertyDef.Min, PropertyDef.Max));
 			}
 			else
 			{
-				Amt.Set(_propertyDef.Start);
+				Amt.Set(PropertyDef.Start);
 			}
 		}
 
@@ -42,16 +42,16 @@ namespace Portland.AI.Utility
 
 		public void Set(float val)
 		{
-			val = val > _propertyDef.Max ? _propertyDef.Max : val;
-			val = val < _propertyDef.Min ? _propertyDef.Min : val;
+			val = val > PropertyDef.Max ? PropertyDef.Max : val;
+			val = val < PropertyDef.Min ? PropertyDef.Min : val;
 			Amt.Set(val);
 		}
 
 		public void Update(float timeDelta)
 		{
-			if (_propertyDef.ChangePerSec != 0f)
+			if (PropertyDef.ChangePerSec != 0f)
 			{
-				Set(Amt.Value + timeDelta * _propertyDef.ChangePerSec);
+				Set(Amt.Value + timeDelta * PropertyDef.ChangePerSec);
 			}
 		}
 	}

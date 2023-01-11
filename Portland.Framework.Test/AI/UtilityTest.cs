@@ -26,6 +26,7 @@ namespace Portland.AI.Utility
 			MathHelper.Approximately(100f, pi.Amt.Value.ToFloat());
 		}
 
+		// 	<property name = 'time' type='float' global='true' min='0' max='1' start='0.5' startrand='false' changePerHour='0.00069444444' />
 		string _xml = @"
 <utility>
 <properties>
@@ -35,7 +36,6 @@ namespace Portland.AI.Utility
 	<property name = 'hygiene' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-2' />
 	<property name = 'entertainment' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-5' />
 	<property name = 'supplies' type='float' global='false' min='0' max='100' start='100' startrand='false' changePerHour='-1' />
-	<property name = 'time' type='float' global='true' min='0' max='1' start='0.5' startrand='false' changePerHour='0.00069444444' />
 	<property name = 'weekend' type='bool' global='true' min='0' max='1' startrand='false' />
 	<property name = 'daylight' type='bool' global='true' min='0' max='1' start='0' startrand='false' />
 </properties>
@@ -134,7 +134,7 @@ namespace Portland.AI.Utility
 			var agent = factory.CreateAgentInstance("Ellis", "ELLIS");
 			Assert.NotZero(agent.Properties.Count);
 
-			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			//factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.GetGlobalProperty("weekend").Set(0f);
 			factory.TickAgents();
@@ -165,7 +165,7 @@ namespace Portland.AI.Utility
 			Assert.AreEqual("sleep", (string)agent.CurrentObjective.Value);
 
 			clock.Update(60 * 60 * 9f);
-			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			//factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
 			agent.Properties["rest"].AddToValue(90f);
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.TickAgents();
@@ -180,7 +180,8 @@ namespace Portland.AI.Utility
 			Assert.IsTrue(MathHelper.Approximately(0.91f, agent.Properties["supplies"].Normalized));
 			Assert.IsTrue(MathHelper.Approximately(5f, agent.Properties["entertainment"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(100f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.33958f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.333333f, factory.GetGlobalProperty("time").Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.333333f, agent.Properties["time"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(32f, agent.Properties["hygiene"].Amt.Value));
 
 			foreach (var objective in agent.Objectives)
@@ -188,13 +189,13 @@ namespace Portland.AI.Utility
 				switch (objective.Base.Name)
 				{
 					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.10666f, objective.Score)); break;
-					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.13611f, objective.Score)); break;
+					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.13777f, objective.Score)); break;
 					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.089999f, objective.Score)); break;
 					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.31666f, objective.Score)); break;
 					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "work": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "shower": Assert.IsTrue(MathHelper.Approximately(0.68f, objective.Score)); break;
-					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.27755f, objective.Score)); break;
+					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.27833f, objective.Score)); break;
 				}
 			}
 			Assert.AreEqual("shower", (string)agent.CurrentObjective.Value);
@@ -205,7 +206,7 @@ namespace Portland.AI.Utility
 			//agent.Properties["money"].AddToValue(-40f);
 
 			clock.Update(60 * 60 * 1);
-			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			//factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.TickAgents();
 
@@ -214,7 +215,8 @@ namespace Portland.AI.Utility
 			Assert.IsTrue(MathHelper.Approximately(89f, agent.Properties["supplies"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(0f, agent.Properties["entertainment"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(92f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.37569f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.375f, factory.GetGlobalProperty("time").Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.375f, agent.Properties["time"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(98f, agent.Properties["hygiene"].Amt.Value));
 			Assert.AreEqual("watch_movie", (string)agent.CurrentObjective.Value);
 
@@ -224,7 +226,7 @@ namespace Portland.AI.Utility
 			//agent.Properties["supplies"].AddToValue(-1f);
 
 			clock.Update(60 * 60 * 1);
-			factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
+			//factory.GetGlobalProperty("time").Set(clock.TimeOfDayNormalized01);
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.TickAgents();
 
@@ -233,7 +235,7 @@ namespace Portland.AI.Utility
 			Assert.IsTrue(MathHelper.Approximately(88f, agent.Properties["supplies"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(85f, agent.Properties["entertainment"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(84f, agent.Properties["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.41736388f, agent.Properties["time"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.41666f, agent.Properties["time"].Amt.Value));
 			Assert.IsTrue(MathHelper.Approximately(96f, agent.Properties["hygiene"].Amt.Value));
 
 			foreach (var objective in agent.Objectives)
@@ -241,16 +243,16 @@ namespace Portland.AI.Utility
 				switch (objective.Base.Name)
 				{
 					case "eat_at_home": Assert.IsTrue(MathHelper.Approximately(objective.Score = 0.04f, objective.Score)); break;
-					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.05403, objective.Score)); break;
+					case "eat_at_restaurant": Assert.IsTrue(MathHelper.Approximately(0.05422, objective.Score)); break;
 					case "get_supplies": Assert.IsTrue(MathHelper.Approximately(0.12f, objective.Score)); break;
 					case "watch_movie": Assert.IsTrue(MathHelper.Approximately(0.04999f, objective.Score)); break;
 					case "sleep": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "work": Assert.IsTrue(MathHelper.Approximately(0.0f, objective.Score)); break;
 					case "shower": Assert.IsTrue(MathHelper.Approximately(0.04f, objective.Score)); break;
-					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.0878f, objective.Score)); break;
+					case "drink_coffee": Assert.IsTrue(MathHelper.Approximately(0.08791f, objective.Score)); break;
 				}
 			}
-			Assert.AreEqual("get_supplies", (string)agent.CurrentObjective.Value);
+			Assert.That((string)agent.CurrentObjective.Value, Is.EqualTo("get_supplies"));
 		}
 	}
 }

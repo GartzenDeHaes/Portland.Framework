@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Portland.Text;
-using Portland.Mathmatics;
-using System.Security.AccessControl;
-using System.Xml.Linq;
 
 namespace Portland.AI.Utility
 {
-	public class UtilityFactory
+	public sealed class UtilityFactory
 	{
 		IClock _clock;
 		float _clockLastUpdate;
@@ -21,15 +20,12 @@ namespace Portland.AI.Utility
 
 		Dictionary<string, UtilitySetInstance> _instances = new Dictionary<string, UtilitySetInstance>();
 
-		public UtilityFactory(IClock clock)
-		{
-			_clock = clock;
-			_clockLastUpdate = clock.Time;
-		}
-
 		public void TickAgents()
 		{
 			float deltaTime = _clock.Time - _clockLastUpdate;
+
+			GetGlobalProperty("time").Set(_clock.TimeOfDayNormalized01);
+			GetGlobalProperty("hour_of_day").Set(_clock.TimeOfDayNormalized01 * 24);
 
 			foreach (var agent in _instances.Values)
 			{
@@ -39,9 +35,35 @@ namespace Portland.AI.Utility
 			_clockLastUpdate = _clock.Time;
 		}
 
+		public UtilityFactory(IClock clock)
+		{
+			_clock = clock;
+			_clockLastUpdate = clock.Time;
+
+			CreatePropertyDef_Time_Normalized(true, "time");
+			GetGlobalProperty("time").Set(_clock.TimeOfDayNormalized01);
+
+			CreatePropertyDef_HourOfDay(true, "hour_of_day");
+		}
+
 		public ConciderationProperty GetGlobalProperty(string name)
 		{
 			return _globalProperties[name];
+		}
+
+		public bool HasGlobalPropertyDefinition(string propName)
+		{
+			return _globalProperties.ContainsKey(propName);
+		}
+
+		public bool HasPropertyDefinition(string propName)
+		{
+			return _properties.ContainsKey(propName);
+		}
+
+		public bool HasObjective(string objectiveName)
+		{
+			return _objectives.ContainsKey(objectiveName);
 		}
 
 		public UtilitySetInstance CreateAgentInstance(string agentTypeName, string name)
@@ -125,7 +147,7 @@ namespace Portland.AI.Utility
 			return CreatePropertyDef(isGlobal, name)
 				.Min(0f)
 				.Max(100f)
-				.ChangePerSecond((20f / 60f) / 60f)
+				.ChangePerSecond(-(20f / 60f) / 60f)
 				.StartValue(100f)
 				.TypeName("float") // doesn't seem to be used
 			;
@@ -137,8 +159,9 @@ namespace Portland.AI.Utility
 		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Increasing(bool isGlobal, string name)
 		{
 			return CreatePropertyDef_0to100_Descreasing(isGlobal, name)
-				.ChangePerSecond(-(20f / 60f) / 60f)
+				.ChangePerSecond((20f / 60f) / 60f)
 				.StartValue(0)
+				.TypeName("float")
 			;
 		}
 
@@ -177,7 +200,8 @@ namespace Portland.AI.Utility
 			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
 				.Min(0)
 				.Max(23)
-				.ChangePerSecond((1f / 60f) / 60f)
+				//.ChangePerSecond((1f / 60f) / 60f)
+				.ChangePerSecond(0f)
 				.StartValue(8)
 			;
 		}
@@ -190,7 +214,8 @@ namespace Portland.AI.Utility
 			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
 				.Min(0)
 				.Max(1)
-				.ChangePerSecond((1f * _clock.SecondsPerHour / 1440f) / 1440f)
+				//.ChangePerSecond((1f * _clock.SecondsPerHour / 1440f) / 1440f)
+				.ChangePerSecond(0f)
 				.StartValue(0.5f)
 			;
 		}
@@ -222,6 +247,14 @@ namespace Portland.AI.Utility
 			_agentsByType.Add(agentTypeName, agent);
 
 			return new AgentTypeBuilder { AgentType = agent, Objectives = _objectives };
+		}
+
+		public LivingBuilder CreateCompositeBuilderLiving(string agentTypeName)
+		{
+			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName };
+			_agentsByType.Add(agentTypeName, agent);
+
+			return new LivingBuilder { UtilitySystem = this, AgentTypeName = agentTypeName };
 		}
 
 		public AgentBuilder CreateAgent(string agentTypeName, string agentName)
@@ -491,7 +524,7 @@ namespace Portland.AI.Utility
 				lex.MatchTagClose("agenttype");
 				return;
 			}
-			
+
 			lex.MatchTagClose();
 
 			// overrides
@@ -616,6 +649,477 @@ namespace Portland.AI.Utility
 				lex.MatchTagClose("objective_override");
 			}
 		}
+
+		public IEnumerator<string> GetGlobalConsiderationNameEnumerator()
+		{
+			return _globalProperties.Keys.GetEnumerator();
+		}
+
+		#endregion
+
+		#region BUILDERS
+
+		public struct ConsiderationPropDefBuilder
+		{
+			internal ConsiderationPropertyDef Definition;
+			internal Dictionary<string, ConciderationProperty> GlobalProperties;
+
+			public ConsiderationPropDefBuilder TypeName(string typename)
+			{
+				Definition.TypeName = typename;
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder Min(float min)
+			{
+				Debug.Assert(min <= Definition.Max);
+
+				Definition.Min = min;
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder Max(float max)
+			{
+				Debug.Assert(max >= Definition.Min);
+
+				Definition.Max = max;
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder StartValue(float value)
+			{
+				Debug.Assert(value >= Definition.Min && value <= Definition.Max);
+				Definition.Start = value;
+
+				if (Definition.IsGlobalValue)
+				{
+					GlobalProperties[Definition.Name].Set(value);
+				}
+
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder StartWithRandomValue(bool randOnStart)
+			{
+				Debug.Assert(Definition.Start == 0f);
+
+				Definition.StartRand = randOnStart;
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder ChangePerSecond(float delta)
+			{
+				Definition.ChangePerSec = delta;
+				return this;
+			}
+
+			public ConsiderationPropDefBuilder ChangePerHour(float delta)
+			{
+				Definition.ChangePerSec = (delta / 60f) / 60f;
+				return this;
+			}
+		}
+
+		public struct ObjectiveBuilder
+		{
+			internal Objective Goal;
+			internal UtilityFactory Factory;
+
+			public ObjectiveBuilder Duration(float inSeconds)
+			{
+				Debug.Assert(inSeconds >= 0f);
+
+				Goal.Duration = inSeconds;
+				return this;
+			}
+
+			public ObjectiveBuilder DurationInHours(float hours)
+			{
+				Debug.Assert(hours >= 0f);
+
+				Goal.Duration = (hours / 60f) / 60f;
+				return this;
+			}
+
+			public ObjectiveBuilder Priority(int priority0to99)
+			{
+				Debug.Assert(priority0to99 >= 0);
+
+				Goal.Priority = priority0to99;
+				return this;
+			}
+
+			public ObjectiveBuilder Interuptable(bool canBePreempted)
+			{
+				Goal.Interruptible = canBePreempted;
+				return this;
+			}
+
+			public ObjectiveBuilder Cooldown(float seconds)
+			{
+				Debug.Assert(seconds >= 0f);
+
+				Goal.Cooldown = seconds;
+				return this;
+			}
+
+			public ObjectiveBuilder CooldownInHours(float hours)
+			{
+				Debug.Assert(hours >= 0f);
+
+				Goal.Cooldown = (hours / 60f) / 60f;
+				return this;
+			}
+		}
+
+		public struct ConsiderationBuilder
+		{
+			internal Consideration Consideration;
+
+			public ConsiderationBuilder Weight(float value)
+			{
+				Consideration.Weight = value;
+				return this;
+			}
+
+			public ConsiderationBuilder Transform(Consideration.TransformFunc func)
+			{
+				Consideration.DataTransFn = func;
+				return this;
+			}
+
+			/// <summary>
+			/// normal		Normalized value, no transform
+			/// inverse		Invert value, f.e. convert hunger to satiation
+			/// center		Re-range to [-0.5, 0.5] (time in work objective)
+			/// clamp_hi_low	Force hi and low values to max (time -> night)
+			/// clamp_low		Less than 0.8 clamped to 1.0
+			/// </summary>
+			public ConsiderationBuilder Transform(string transformFuncName)
+			{
+				Consideration.ParseTransformFunc(transformFuncName);
+				return this;
+			}
+		}
+
+		public struct AgentTypeBuilder
+		{
+			internal UtilitySetClass AgentType;
+			internal Dictionary<string, Objective> Objectives;
+
+			public AgentTypeBuilder Extends(string agentTypeName)
+			{
+				AgentType.Extends = agentTypeName;
+				return this;
+			}
+
+			public AgentTypeBuilder Logging(bool on)
+			{
+				AgentType.Logging = on;
+				return this;
+			}
+
+			public AgentTypeBuilder HistorySize(short size)
+			{
+				AgentType.HistorySize = size;
+				return this;
+			}
+
+			public AgentTypeBuilder SecondsBetweenEvals(float seconds)
+			{
+				Debug.Assert(seconds >= 0f);
+
+				AgentType.SecBetweenEvals = seconds;
+				return this;
+			}
+
+			public AgentTypeBuilder MovementSpeed(float mps)
+			{
+				Debug.Assert(mps >= 0f);
+
+				AgentType.MovementSpeed = mps;
+				return this;
+			}
+
+			public AgentTypeBuilder AddObjective(string name)
+			{
+				AgentType.Objectives.Add(Objectives[name]);
+				return this;
+			}
+		}
+
+		public struct AgentBuilder
+		{
+			internal UtilitySetClass Agent;
+			internal Dictionary<string, Objective> Objectives;
+
+			public AgentBuilder AddObjective(string name)
+			{
+				Agent.Objectives.Add(Objectives[name]);
+				return this;
+			}
+
+			public AgentBuilder AddCommonObjectives()
+			{
+				AddObjective("idle");
+				AddObjective("eat");
+				AddObjective("hydrate");
+				AddObjective("heal");
+				AddObjective("rest");
+				AddObjective("sleep");
+
+				return this;
+			}
+		}
+
+		/// <summary>
+		/// Creates properties, considerations, and objectives typically used for agents (players, NPC's).
+		/// All properties are either ranged 0-100 or are normalized.
+		/// </summary>
+		public struct LivingBuilder
+		{
+			internal UtilityFactory UtilitySystem;
+			internal string AgentTypeName;
+
+			void CreatePropIfNotExists(string name, bool isGlobal, float min, float max, float start, float changePerSec)
+			{
+				if (isGlobal && UtilitySystem.HasGlobalPropertyDefinition(name))
+				{
+					return;
+				}
+				
+				if (!UtilitySystem.HasPropertyDefinition(name))
+				{
+					UtilitySystem.CreatePropertyDef(isGlobal, name)
+						.Min(min)
+						.Max(max)
+						.StartValue(start)
+						.ChangePerSecond(changePerSec);
+				}
+			}
+
+			private void EnsureProp_Const30pct()
+			{
+				CreatePropIfNotExists("const_30pct", true, 0, 1, 0.3f, 0f);
+			}
+
+			/// <summary>
+			/// Adds hunger.  0 is max fullness and 100 is dying.
+			/// </summary>
+			/// <returns></returns>
+			LivingBuilder AddPropertyDefinitionHunger_0to100(float changePerHour = 10f, float startValue = 0f)
+			{
+				Debug.Assert(changePerHour >= 0f);
+
+				CreatePropIfNotExists("hunger", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
+
+				return this;
+			}
+
+			/// <summary>
+			/// Adds thirst.  0 is full hydration and 100 is parched.
+			/// </summary>
+			/// <returns></returns>
+			LivingBuilder AddPropertyDefinitionThirst_0to100(float changePerHour = 10f, float startValue = 0f)
+			{
+				Debug.Assert(changePerHour >= 0f);
+
+				CreatePropIfNotExists("thirst", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
+
+				return this;
+			}
+
+			/// <summary>
+			/// Adds health.  100 is max health and 0 is dying.
+			/// </summary>
+			/// <returns></returns>
+			LivingBuilder AddPropertyDefinitionHealth_0to100(float changePerHour = 1f, float startValue = 100f)
+			{
+				CreatePropIfNotExists("health", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
+
+				return this;
+			}
+
+			/// <summary>
+			/// Adds stamina.  100 is rested and 0 is can't move.
+			/// </summary>
+			/// <returns></returns>
+			LivingBuilder AddPropertyDefinitionStamina_0to100(float changePerSecond = 1f, float startValue = 100f)
+			{
+				CreatePropIfNotExists("stamina", false, 0, 100, startValue, changePerSecond);
+
+				return this;
+			}
+
+			/// <summary>
+			/// Adds sleepiness. 0 is rested and 100 is faint/sleep.
+			/// </summary>
+			/// <returns></returns>
+			LivingBuilder AddPropertyDefinitionSleepiness_0to100(float changePerHour = 8f, float startValue = 0f)
+			{
+				CreatePropIfNotExists("sleepiness", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
+
+				return this;
+			}
+
+			/// <summary>
+			/// The agent will go into an interruptable idle objective when all considerations
+			/// score below 0.3.
+			/// </summary>
+			/// <returns></returns>
+			public LivingBuilder AddObjectiveIdleAt30pct()
+			{
+				Debug.Assert(!UtilitySystem.HasObjective("idle"));
+
+				EnsureProp_Const30pct();
+
+				UtilitySystem.CreateObjective("idle")
+					.Duration(10)
+					.Interuptable(true)
+					.Cooldown(0)
+					.Priority(0);
+
+				UtilitySystem.CreateConsideration("idle", "const_30pct")
+					.Weight(1f)
+					.Transform(Consideration.TransformFunc.Normal);
+
+				return this;
+			}
+
+			/// <summary>
+			/// Triggers when hunger is high and hour of day is [0.2, 0.8].
+			/// </summary>
+			public LivingBuilder AddObjective_Eat()
+			{
+				AddPropertyDefinitionHunger_0to100();
+
+				if (!UtilitySystem.HasObjective("eat"))
+				{
+					UtilitySystem.CreateObjective("eat")
+						.DurationInHours(0.5f)
+						.Interuptable(true)
+						.CooldownInHours(1)
+						.Priority(10);
+
+					UtilitySystem.CreateConsideration("eat", "hunger")
+						.Weight(1f)
+						.Transform(Consideration.TransformFunc.Normal);
+
+					// center activates towards the middle of the range
+					UtilitySystem.CreateConsideration("eat", "hour_of_day")
+						.Weight(0.4f)
+						.Transform(Consideration.TransformFunc.ClampCenter);
+				}
+
+				return this;
+			}
+
+			/// <summary>
+			/// Triggers when thirst is high.
+			/// </summary>
+			public LivingBuilder AddObjective_Hydrate()
+			{
+				AddPropertyDefinitionThirst_0to100();
+
+				if (!UtilitySystem.HasObjective("hydrate"))
+				{
+					UtilitySystem.CreateObjective("hydrate")
+						.DurationInHours(0.01f)
+						.Interuptable(true)
+						.CooldownInHours(0.5f)
+						.Priority(2);
+
+					UtilitySystem.CreateConsideration("hydrate", "thirst")
+						.Weight(1f)
+						.Transform(Consideration.TransformFunc.ClampHi);
+				}
+
+				return this;
+			}
+
+			/// <summary>
+			/// Triggers when health is low.
+			/// </summary>
+			public LivingBuilder AddObjective_Heal()
+			{
+				AddPropertyDefinitionHealth_0to100();
+
+				if (!UtilitySystem.HasObjective("heal"))
+				{
+					UtilitySystem.CreateObjective("heal")
+						.DurationInHours(0.25f)
+						.Interuptable(true)
+						.CooldownInHours(0.15f)
+						.Priority(3);
+
+					// inverse converts hunger into satiety
+					UtilitySystem.CreateConsideration("heal", "health")
+						.Weight(1f)
+						.Transform(Consideration.TransformFunc.ClampLow);
+				}
+
+				return this;
+			}
+
+			/// <summary>
+			/// Triggers when stamina is low (from running, for example)
+			/// </summary>
+			public LivingBuilder AddObjective_Rest()
+			{
+				AddPropertyDefinitionStamina_0to100();
+
+				if (!UtilitySystem.HasObjective("rest"))
+				{
+					UtilitySystem.CreateObjective("rest")
+						.DurationInHours(0.01f)
+						.Interuptable(true)
+						.CooldownInHours(0.01f)
+						.Priority(2);
+
+					// inverse converts hunger into satiety
+					UtilitySystem.CreateConsideration("rest", "stamina")
+						.Weight(1f)
+						.Transform(Consideration.TransformFunc.ClampLow);
+				}
+
+				return this;
+			}
+
+			/// <summary>
+			/// Triggers when sleepiness is high.
+			/// </summary>
+			public LivingBuilder AddObjective_Sleep()
+			{
+				AddPropertyDefinitionSleepiness_0to100();
+
+				if (!UtilitySystem.HasObjective("sleep"))
+				{
+					UtilitySystem.CreateObjective("sleep")
+						.DurationInHours(7f)
+						.Interuptable(true)
+						.CooldownInHours(10f)
+						.Priority(8);
+
+					// inverse converts hunger into satiety
+					UtilitySystem.CreateConsideration("sleep", "sleepiness")
+						.Weight(1f)
+						.Transform(Consideration.TransformFunc.ClampHi);
+				}
+
+				return this;
+			}
+
+			public void AddAllObjectives()
+			{
+				AddObjectiveIdleAt30pct();
+				AddObjective_Eat();
+				AddObjective_Heal();
+				AddObjective_Hydrate();
+				AddObjective_Rest();
+				AddObjective_Sleep();
+			}
+		}
+
 		#endregion
 	}
 }

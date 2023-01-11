@@ -21,27 +21,27 @@ WHEN ACTION IS SEE, OBJECT IS barrel
 DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
 			TextTable strings = new TextTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMin(), DemoRuleText_BasicRule);
+			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
+			world.BarkEngine.ParseLoad(DemoRuleText_BasicRule);
 
 			string saidText = String.Empty;
-			eng.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
+			world.BarkEngine.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
 			//TextTableToken textId = new TextTableToken();
 			//eng.OnConceptChanged.Listeners += (textid) => { textId = textid; };
 
-			var sentence = new ThematicEvent { Action = ThematicEvent.ActionSee, DirectObject = strings.Get("barrel") };
-			var found = eng.TryMatch(sentence);
+			var sentence = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = strings.Get("barrel") };
+			var found = world.BarkEngine.TryMatch(sentence);
 			Assert.IsTrue(found);
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Assert.That(saidText, Is.EqualTo("COACH: That's a barrel"));
-			
+
 			//Assert.That(textId.Index, Is.Not.Zero);
 
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 			//Assert.That(textId.Index, Is.Not.Zero);
 
-			Assert.That(eng.DelayingCount, Is.EqualTo(0));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(0));
 		}
 
 		[Test]
@@ -74,8 +74,11 @@ DO
 .
 ";
 			TextTable strings = new TextTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMax(), barkScript);
+			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
+			world.BarkEngine.ParseLoad(barkScript);
+
+			world.UtilitySystem.CreateAgentType("base");
+			world.UtilitySystem.CreateAgent("base", "bot");
 
 			world.CreateActor("bot", "XBOT");
 			world.CreateActor("bot", "YBOT");
@@ -83,37 +86,37 @@ DO
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
-				DirectObject = strings.Get("random_text")
+				Concept = strings.Get("random_text")
 			};
-			Assert.False(eng.TryMatch(sentence));
+			Assert.False(world.BarkEngine.TryMatch(sentence));
 
 			sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionSee,
-				DirectObject = strings.Get("barrel"),
+				Concept = strings.Get("barrel"),
 				Agent = strings.Get("XBOT")
 			};
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_01"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_02"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_03"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 		}
 
 		[Test]
@@ -177,8 +180,7 @@ DO
 .
 ";
 			TextTable strings = new TextTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMax(), barkScript);
+			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 
 			world.Flags.Daylight = true;
 			world.Flags.IsCharacter01Alive = true;
@@ -186,16 +188,21 @@ DO
 			world.Flags.IsCharacter03Alive = true;
 			world.Flags.IsCharacter04Alive = true;
 
+			world.UtilitySystem.CreateCompositeBuilderLiving("living").AddAllObjectives();
+			world.UtilitySystem.CreateAgent("living", "human");
+
 			world.CreateActor("human", "BILL");
 			world.CreateActor("human", "FRANCIS");
 			world.CreateActor("human", "LOUIS");
 			world.CreateActor("human", "ZOEY");
 
+			world.BarkEngine.ParseLoad(barkScript);
+
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 			//TextTableToken lastConceptEvent = default(TextTableToken);
 
-			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 			//eng.OnConceptChanged.Listeners += (id) => { lastConceptEvent = id; };
 
 			/* EXT. CEDA BARRICADE - SUNSET.
@@ -214,54 +221,56 @@ DO
 					Get it together people. The CEDA command post is on the 
 					top floor.  Maybe we can find out where they went.
 			*/
-			var sentence = new ThematicEvent { 
-				DirectObject = strings.Get("scene_01:start") 
+			var sentence = new ThematicEvent
+			{
+				Concept = strings.Get("scene_01:start")
 			};
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("louis:were_walking"));
-			Assert.That(lastDoSayText, Is.EqualTo("Louis: Guys, I think the APC is toast."));    
+			Assert.That(lastDoSayText, Is.EqualTo("Louis: Guys, I think the APC is toast."));
 
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("the_apc_is_dead"));
 
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("cp_quest_statement"));
 			Assert.That(ruleId, Is.EqualTo("bill:goto_command_post"));
 			Assert.True(lastDoSayText.StartsWith("Bill: Get it together"));
 
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.Zero);
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.Zero);
 
 			/* EXT. CEDA INTAKE - SUNSET
 			 
 							ZOEY
 					Looks like they couldn't hold out.
 			 */
-			sentence = new ThematicEvent {
+			sentence = new ThematicEvent
+			{
 				Action = ThematicEvent.ActionSee,
-				DirectObject = strings.Get("ceda_trailer")
+				Concept = strings.Get("ceda_trailer")
 			};
-			Assert.True(eng.TryMatch(sentence));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.Zero);
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.Zero);
 
-			Assert.True(eng.TryMatch(sentence));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
 			Assert.That(ruleId, Is.EqualTo("zoey:couldnt_holdout"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));
 
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.Zero);
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.Zero);
 
 			/* EXT. VANNAH LOBBY - SUNSET
 			
@@ -277,26 +286,26 @@ DO
 			sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionSee,
-				DirectObject = strings.Get("hotel_lobby")
+				Concept = strings.Get("hotel_lobby")
 			};
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("francis:hates_hotels"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 
 			Assert.That(ruleId, Is.EqualTo("zoey:what_dont_you_hate"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 
 			Assert.That(ruleId, Is.EqualTo("francis:there_is_one_thing"));
-			Assert.That(eng.DelayingCount, Is.EqualTo(1));
+			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			world.Clock.Update(5f);
-			eng.Update();
-			Assert.That(eng.DelayingCount, Is.Zero);
+			world.BarkEngine.Update();
+			Assert.That(world.BarkEngine.DelayingCount, Is.Zero);
 		}
 
 		[Test]
@@ -355,13 +364,16 @@ DO
 .
 ";
 			TextTable strings = new TextTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings);
-			BarkRuleEngine eng = new BarkRuleEngine(world, strings, new RndMin(), barkScript);
+			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
+			world.BarkEngine.ParseLoad(barkScript);
 
 			world.Flags.IsCharacter01Alive = true;
 			world.Flags.IsCharacter02Alive = true;
 			world.Flags.IsCharacter03Alive = true;
 			world.Flags.IsCharacter04Alive = true;
+
+			world.UtilitySystem.CreateCompositeBuilderLiving("living").AddAllObjectives();
+			world.UtilitySystem.CreateAgent("living", "human");
 
 			world.CreateActor("human", "COACH");
 			world.CreateActor("human", "ELLIS");
@@ -371,26 +383,26 @@ DO
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			eng.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionIdle
 			};
-			Assert.False(eng.TryMatch(sentence));
+			Assert.False(world.BarkEngine.TryMatch(sentence));
 
 			world.GetActor("NICK").Flags.AlertHealth = true;
 
-			Assert.True(eng.TryMatch(sentence));
+			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("nick:im_dying"));
 
 			world.Clock.Update(5f);
-			eng.Update();
+			world.BarkEngine.Update();
 			Assert.That(ruleId, Is.EqualTo("coach:nick_dying"));
 
 			world.Clock.Update(10f);
-			eng.Update();
-			Assert.False(eng.TryMatch(sentence));
+			world.BarkEngine.Update();
+			Assert.False(world.BarkEngine.TryMatch(sentence));
 		}
 	}
 }

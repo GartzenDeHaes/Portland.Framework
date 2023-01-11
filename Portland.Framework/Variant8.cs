@@ -1079,6 +1079,66 @@ namespace Portland
 			throw new InvalidCastException(v1.TypeIs + " or " + v2.TypeIs + " not numeric");
 		}
 
+		/// <summary>lt</summary>
+		public static bool operator <(in Variant8 v1, in Variant8 v2)
+		{
+			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return v1.ToFloat() < v2.ToFloat();
+			}
+			if (v1._value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || v1._value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return v1.ToInt() < v2.ToInt();
+			}
+
+			return false;
+		}
+
+		/// <summary>gt</summary>
+		public static bool operator >(in Variant8 v1, in Variant8 v2)
+		{
+			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return v1.ToFloat() > v2.ToFloat();
+			}
+			if (v1._value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || v1._value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return v1.ToInt() > v2.ToInt();
+			}
+
+			return false;
+		}
+
+		/// <summary>lteq</summary>
+		public static bool operator <=(in Variant8 v1, in Variant8 v2)
+		{
+			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return v1.ToFloat() <= v2.ToFloat();
+			}
+			if (v1._value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || v1._value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return v1.ToInt() <= v2.ToInt();
+			}
+
+			return false;
+		}
+
+		/// <summary>gteq</summary>
+		public static bool operator >=(in Variant8 v1, in Variant8 v2)
+		{
+			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return v1.ToFloat() >= v2.ToFloat();
+			}
+			if (v1._value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || v1._value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return v1.ToInt() >= v2.ToInt();
+			}
+
+			return false;
+		}
+
 		/// <summary>Implicit Variant to string cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator string(in Variant8 v) => v.ToString();
