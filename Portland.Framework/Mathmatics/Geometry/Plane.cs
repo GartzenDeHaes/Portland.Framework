@@ -39,6 +39,7 @@ namespace Portland.Mathmatics.Geometry
 		}
 	}
 
+#if !UNITY_5_3_OR_NEWER
 	/// <summary>
 	/// A plane in 3d space, represented by its normal away from the origin and its distance from the origin, D.
 	/// </summary>
@@ -495,5 +496,6 @@ namespace Portland.Mathmatics.Geometry
 
 		#endregion
 	}
+#endif
 }
 

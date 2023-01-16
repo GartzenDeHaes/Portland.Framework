@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using Portland.Mathmatics.Geometry;
-
 namespace Portland.Collections
 {
 	internal sealed class ListNode<T>

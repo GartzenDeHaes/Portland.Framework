@@ -112,7 +112,7 @@ namespace Portland.AI
 			var factTok = Strings.Get(factPropName);
 			var flagBit = AgentStateFlags.BitNameToNum(flagName);
 
-			var addTo = (Agent a) =>
+			Action<Agent> addTo = (Agent a) =>
 			{
 				if (a.Facts.TryGetValue(factTok, out var obValue))
 				{
@@ -131,7 +131,7 @@ namespace Portland.AI
 			var factTok = Strings.Get(factPropName);
 			var flagBit = AgentStateFlags.BitNameToNum(flagName);
 
-			var addTo = (Agent a) =>
+			Action<Agent> addTo = (Agent a) =>
 			{
 				if (a.Facts.TryGetValue(factTok, out var obValue))
 				{

@@ -12,17 +12,23 @@ namespace Portland.AI.Barks
 {
 	public sealed class BarkRuleEngine
 	{
-		BarkRule[] _rules;
 		readonly World _world;
 		readonly TextTable _strings;
 		readonly IRandom _random;
+		RulePack _rules;
 
 		//RingBuffer<BarkCommand> _runcmds = new RingBuffer<BarkCommand>(16);
 		List<BarkCommand> _cmdsDelaying = new List<BarkCommand>();
 
-		public Command<string, string> DoSay = new Command<string, string>();
+		public Command<BarkRule, string> OnSay = new Command<BarkRule, string>();
 		public ObservableValue<TextTableToken> CurrentConcept = new ObservableValue<TextTableToken>();
 		public Notify<TextTableToken> OnEventRaised = new Notify<TextTableToken>();
+
+		public void SetRules(RulePack ruleSet)
+		{
+			_rules = ruleSet;
+			_rules.CreationOfRulesComplete();
+		}
 
 		public void Update()
 		{
@@ -46,7 +52,7 @@ namespace Portland.AI.Barks
 			if (cmd.CommandName == BarkCommand.CommandNameSay)
 			{
 				// Arg1 is text key and Arg2 is the default text
-				DoSay.Send(cmd.Rule.RuleKey, cmd.DefaultTexts.RandomElement());
+				OnSay.Send(cmd.Rule, cmd.DefaultTexts.RandomElement());
 
 				//OnConceptChanged.Send(cmd.Arg1);
 
@@ -86,7 +92,7 @@ namespace Portland.AI.Barks
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameDontSay)
 			{
-				DisableRule(cmd.ActorName, new AsciiId4(cmd.Arg2.ToInt()), cmd.Arg1);
+				_rules.DisableRule(cmd.ActorName, new AsciiId4(cmd.Arg2.ToInt()), cmd.Arg1);
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameAdd)
 			{
@@ -130,8 +136,6 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		public int RuleCount { get { return _rules.Length; } }
-
 		public int DelayingCount { get { return _cmdsDelaying.Count; } }
 
 		public BarkRuleEngine(World world, TextTable strings, IRandom rand)
@@ -139,8 +143,6 @@ namespace Portland.AI.Barks
 			_world = world;
 			_strings = strings;
 			_random = rand;
-
-			_rules = new BarkRule[0];
 		}
 
 		void Execute(BarkRule rule)
@@ -171,9 +173,10 @@ namespace Portland.AI.Barks
 			BarkRule rule = null;
 			bool docont = false;
 
-			for (int x = 0; x < _rules.Length; x++)
+			for (int x = 0; x < _rules.Rules.Length; x++)
 			{
-				rule = _rules[x];
+				rule = _rules.Rules[x];
+
 				if (rule.HasRun || rule.Action != happened.Action || rule.ObjectName != happened.Concept)
 				{
 					continue;
@@ -262,45 +265,6 @@ namespace Portland.AI.Barks
 			}
 
 			return false;
-		}
-
-		void DisableRule(TextTableToken actorId, AsciiId4 action, TextTableToken directObject)
-		{
-			BarkRule rule = null;
-
-			for (int x = 0; x < _rules.Length; x++)
-			{
-				rule = _rules[x];
-				if (!rule.HasRun && rule.ActorName == actorId && rule.Action == action && rule.ObjectName == directObject)
-				{
-					rule.HasRun = true;
-				}
-			}
-		}
-
-		public void ParseLoad(string ruleText)
-		{
-			BarkSerializer parser = new BarkSerializer(_strings);
-			var rulelist = parser.Deserialize(ruleText);
-
-			rulelist.AddRange(_rules);
-
-			_rules = rulelist.OrderByDescending(r => r.Priority).ToArray();
-		}
-
-		public BarkRule.RuleWhenBuilder CreateRule(string ruleKey)
-		{
-			var rule = new BarkRule { RuleKey = ruleKey };
-			var rules = _rules.ToList();
-			rules.Add(rule);
-			_rules = rules.ToArray();
-
-			return new BarkRule.RuleWhenBuilder() { Rule = rule, Strings = _strings };
-		}
-
-		public void CreationOfRulesComplete()
-		{
-			_rules = _rules.OrderByDescending(r => r.Priority).ToArray();
 		}
 	}
 }

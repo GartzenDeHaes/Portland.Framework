@@ -84,10 +84,10 @@ namespace Portland.AI.Utility
 
 		private void CreateProperyInstances(UtilitySetInstance inst, UtilitySetClass agent)
 		{
-			if (agent.AgentType != null)
+			if (agent.BaseType != null)
 			{
 				// Base type properties.  Definitions in this type can override these later on.
-				CreateProperyInstances(inst, agent.AgentType);
+				CreateProperyInstances(inst, agent.BaseType);
 			}
 
 			for (int o = 0; o < agent.Objectives.Count; o++)
@@ -243,23 +243,23 @@ namespace Portland.AI.Utility
 
 		public AgentTypeBuilder CreateAgentType(string agentTypeName)
 		{
-			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName };
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName };
 			_agentsByType.Add(agentTypeName, agent);
 
 			return new AgentTypeBuilder { AgentType = agent, Objectives = _objectives };
 		}
 
-		public LivingBuilder CreateCompositeBuilderLiving(string agentTypeName)
+		public ObjectiveSetBuilder CreateObjectiveSetBuilder(string agentTypeName)
 		{
-			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName };
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName };
 			_agentsByType.Add(agentTypeName, agent);
 
-			return new LivingBuilder { UtilitySystem = this, AgentTypeName = agentTypeName };
+			return new ObjectiveSetBuilder { UtilitySystem = this, ObjectiveSetName = agentTypeName };
 		}
 
-		public AgentBuilder CreateAgent(string agentTypeName, string agentName)
+		public AgentBuilder CreateAgent(string objectiveSetName, string agentName)
 		{
-			var agent = new UtilitySetClass() { AgentTypeName = agentTypeName, Name = agentName, AgentType = _agentsByType[agentTypeName] };
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = objectiveSetName, AgentName = agentName, BaseType = _agentsByType[objectiveSetName] };
 			_agentsByName.Add(agentName, agent);
 
 			return new AgentBuilder { Agent = agent, Objectives = _objectives };
@@ -494,12 +494,12 @@ namespace Portland.AI.Utility
 		{
 			var typ = lex.MatchProperty("type");
 
-			var agent = new UtilitySetClass() { AgentTypeName = typ };
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ };
 			_agentsByType.Add(typ, agent);
 
 			if (lex.Lexum.IsEqualTo("extends"))
 			{
-				agent.Extends = lex.MatchProperty("extends");
+				/*agent.Extends =*/ lex.MatchProperty("extends");
 			}
 
 			if (lex.Lexum.IsEqualTo("logging"))
@@ -557,7 +557,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var name = lex.MatchProperty("name");
 
-			var agent = new UtilitySetClass() { AgentTypeName = typ, Name = name, AgentType = _agentsByType[typ] };
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ, AgentName = name, BaseType = _agentsByType[typ] };
 			_agentsByName.Add(name, agent);
 
 			if (lex.Token == XmlLex.XmlLexToken.TAG_END)
@@ -807,11 +807,11 @@ namespace Portland.AI.Utility
 			internal UtilitySetClass AgentType;
 			internal Dictionary<string, Objective> Objectives;
 
-			public AgentTypeBuilder Extends(string agentTypeName)
-			{
-				AgentType.Extends = agentTypeName;
-				return this;
-			}
+			//public AgentTypeBuilder Extends(string agentTypeName)
+			//{
+			//	AgentType.Extends = agentTypeName;
+			//	return this;
+			//}
 
 			public AgentTypeBuilder Logging(bool on)
 			{
@@ -876,10 +876,10 @@ namespace Portland.AI.Utility
 		/// Creates properties, considerations, and objectives typically used for agents (players, NPC's).
 		/// All properties are either ranged 0-100 or are normalized.
 		/// </summary>
-		public struct LivingBuilder
+		public struct ObjectiveSetBuilder
 		{
 			internal UtilityFactory UtilitySystem;
-			internal string AgentTypeName;
+			internal string ObjectiveSetName;
 
 			void CreatePropIfNotExists(string name, bool isGlobal, float min, float max, float start, float changePerSec)
 			{
@@ -907,7 +907,7 @@ namespace Portland.AI.Utility
 			/// Adds hunger.  0 is max fullness and 100 is dying.
 			/// </summary>
 			/// <returns></returns>
-			LivingBuilder AddPropertyDefinitionHunger_0to100(float changePerHour = 10f, float startValue = 0f)
+			ObjectiveSetBuilder AddPropertyDefinitionHunger_0to100(float changePerHour = 10f, float startValue = 0f)
 			{
 				Debug.Assert(changePerHour >= 0f);
 
@@ -920,7 +920,7 @@ namespace Portland.AI.Utility
 			/// Adds thirst.  0 is full hydration and 100 is parched.
 			/// </summary>
 			/// <returns></returns>
-			LivingBuilder AddPropertyDefinitionThirst_0to100(float changePerHour = 10f, float startValue = 0f)
+			ObjectiveSetBuilder AddPropertyDefinitionThirst_0to100(float changePerHour = 10f, float startValue = 0f)
 			{
 				Debug.Assert(changePerHour >= 0f);
 
@@ -933,7 +933,7 @@ namespace Portland.AI.Utility
 			/// Adds health.  100 is max health and 0 is dying.
 			/// </summary>
 			/// <returns></returns>
-			LivingBuilder AddPropertyDefinitionHealth_0to100(float changePerHour = 1f, float startValue = 100f)
+			ObjectiveSetBuilder AddPropertyDefinitionHealth_0to100(float changePerHour = 1f, float startValue = 100f)
 			{
 				CreatePropIfNotExists("health", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
 
@@ -944,7 +944,7 @@ namespace Portland.AI.Utility
 			/// Adds stamina.  100 is rested and 0 is can't move.
 			/// </summary>
 			/// <returns></returns>
-			LivingBuilder AddPropertyDefinitionStamina_0to100(float changePerSecond = 1f, float startValue = 100f)
+			ObjectiveSetBuilder AddPropertyDefinitionStamina_0to100(float changePerSecond = 1f, float startValue = 100f)
 			{
 				CreatePropIfNotExists("stamina", false, 0, 100, startValue, changePerSecond);
 
@@ -955,7 +955,7 @@ namespace Portland.AI.Utility
 			/// Adds sleepiness. 0 is rested and 100 is faint/sleep.
 			/// </summary>
 			/// <returns></returns>
-			LivingBuilder AddPropertyDefinitionSleepiness_0to100(float changePerHour = 8f, float startValue = 0f)
+			ObjectiveSetBuilder AddPropertyDefinitionSleepiness_0to100(float changePerHour = 8f, float startValue = 0f)
 			{
 				CreatePropIfNotExists("sleepiness", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
 
@@ -967,7 +967,7 @@ namespace Portland.AI.Utility
 			/// score below 0.3.
 			/// </summary>
 			/// <returns></returns>
-			public LivingBuilder AddObjectiveIdleAt30pct()
+			public ObjectiveSetBuilder AddObjectiveIdleAt30pct()
 			{
 				Debug.Assert(!UtilitySystem.HasObjective("idle"));
 
@@ -989,7 +989,7 @@ namespace Portland.AI.Utility
 			/// <summary>
 			/// Triggers when hunger is high and hour of day is [0.2, 0.8].
 			/// </summary>
-			public LivingBuilder AddObjective_Eat()
+			public ObjectiveSetBuilder AddObjective_Eat()
 			{
 				AddPropertyDefinitionHunger_0to100();
 
@@ -1017,7 +1017,7 @@ namespace Portland.AI.Utility
 			/// <summary>
 			/// Triggers when thirst is high.
 			/// </summary>
-			public LivingBuilder AddObjective_Hydrate()
+			public ObjectiveSetBuilder AddObjective_Hydrate()
 			{
 				AddPropertyDefinitionThirst_0to100();
 
@@ -1040,7 +1040,7 @@ namespace Portland.AI.Utility
 			/// <summary>
 			/// Triggers when health is low.
 			/// </summary>
-			public LivingBuilder AddObjective_Heal()
+			public ObjectiveSetBuilder AddObjective_Heal()
 			{
 				AddPropertyDefinitionHealth_0to100();
 
@@ -1064,7 +1064,7 @@ namespace Portland.AI.Utility
 			/// <summary>
 			/// Triggers when stamina is low (from running, for example)
 			/// </summary>
-			public LivingBuilder AddObjective_Rest()
+			public ObjectiveSetBuilder AddObjective_Rest()
 			{
 				AddPropertyDefinitionStamina_0to100();
 
@@ -1088,7 +1088,7 @@ namespace Portland.AI.Utility
 			/// <summary>
 			/// Triggers when sleepiness is high.
 			/// </summary>
-			public LivingBuilder AddObjective_Sleep()
+			public ObjectiveSetBuilder AddObjective_Sleep()
 			{
 				AddPropertyDefinitionSleepiness_0to100();
 

@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
-using Portland.AI.Utility;
-
 namespace Portland.AI.Barks
 {
 	[TestFixture]
@@ -19,7 +17,7 @@ namespace Portland.AI.Barks
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 
-			world.UtilitySystem.CreateCompositeBuilderLiving("living")
+			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddAllObjectives();
 
 			world.UtilitySystem.CreateAgent("living", "human");
@@ -27,18 +25,20 @@ namespace Portland.AI.Barks
 			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
 			world.DefineStandardUtilityAlerts();
 
-			world.BarkEngine.CreateRule("testing")
+			RulePack rulePack = new RulePack();
+
+			rulePack.CreateRule(world.Strings, "testing")
 				.WhenActionIs("SEE")
 				.WhenConceptIs("barrel")
 				.Do()
 				.Say("COACH", "say:thats_a_barrel", 3f, "COACH: That's a barrel.");
 
-			world.BarkEngine.CreationOfRulesComplete();
+			world.BarkEngine.SetRules(rulePack);
 
 			world.CreateActor("human", "COACH");
 
 			string saidText = String.Empty;
-			world.BarkEngine.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
+			world.BarkEngine.OnSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
 
 			var tevent = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = strings.Get("barrel") };
 			var found = world.BarkEngine.TryMatch(tevent);
@@ -59,9 +59,9 @@ namespace Portland.AI.Barks
 			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), strings, new RandMin());
 
 			string saidConcept = String.Empty;
-			world.BarkEngine.DoSay.Listeners += (textid, defaultText) => { saidConcept = textid; };
+			world.BarkEngine.OnSay.Listeners += (rule, defaultText) => { saidConcept = rule.RuleKey; };
 
-			world.UtilitySystem.CreateCompositeBuilderLiving("living")
+			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddAllObjectives();
 
 			world.UtilitySystem.CreateAgent("living", "human")
@@ -70,13 +70,15 @@ namespace Portland.AI.Barks
 			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
 			world.DefineStandardUtilityAlerts();
 
-			world.BarkEngine.CreateRule("coach:hello")
+			RulePack rulePack = new RulePack();
+
+			rulePack.CreateRule(world.Strings, "coach:hello")
 				.WhenConceptIs("hello")
 				.WhenProbabilityCheckIs(0.2f, true)
 				.Do()
 				.Say("COACH", "coach:hello", 3, "Hey! Come back! Come back! Ahh, he ain't comin' back.");
 
-			world.BarkEngine.CreateRule("coach:say:dying")
+			rulePack.CreateRule(world.Strings, "coach:say:dying")
 				.WhenActionIs("IDLE")
 				.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
 				.WhenProbabilityCheckIs(0.2f, true)
@@ -84,7 +86,7 @@ namespace Portland.AI.Barks
 				.Do()
 				.Say("COACH", "SAY", 3, "I can walk this off.");
 
-			world.BarkEngine.CreateRule("coach:say:hungry")
+			rulePack.CreateRule(world.Strings, "coach:say:hungry")
 				.WhenActionIs("IDLE")
 				.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
 				.WhenProbabilityCheckIs(0.2f, true)
@@ -92,7 +94,7 @@ namespace Portland.AI.Barks
 				.Do()
 				.Say("COACH", "SAY", 3, "I find a Burger Tank in this place, I'm gonna be a one-man cheeseburger apocalypse.");
 
-			world.BarkEngine.CreationOfRulesComplete();
+			world.BarkEngine.SetRules(rulePack);
 
 			world.CreateActor("human", "COACH");
 			world.DefineActorAsCharacter0X("COACH", 1);

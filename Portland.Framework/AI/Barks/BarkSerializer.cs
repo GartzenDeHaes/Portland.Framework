@@ -149,6 +149,11 @@ namespace Portland.AI.Barks
 					WhenAgent(lex, rule);
 					continue;
 				}
+				if (StringHelper.AreEqualNoCase(lex.Lexum, "CONCEPT"))
+				{
+					WhenConcept(lex, rule);
+					continue;
+				}
 				if (StringHelper.AreEqualNoCase(lex.Lexum, "OBJECT"))
 				{
 					WhenObject(lex, rule);
@@ -259,11 +264,18 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
+		void WhenConcept(SimpleLex lex, BarkRule rule)
+		{
+			LexMatchIgnoreCase(lex, "CONCEPT");
+			LexMatchOptionalIgnoreCase(lex, "IS");
+			rule.ObjectName = ScanName(lex);
+			LexMatchOptionalIgnoreCase(lex, ",");
+		}
+
 		void WhenObject(SimpleLex lex, BarkRule rule)
 		{
 			LexMatchIgnoreCase(lex, "OBJECT");
 			LexMatchOptionalIgnoreCase(lex, "IS");
-
 			rule.ObjectName = ScanName(lex);
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}

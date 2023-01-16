@@ -20,7 +20,7 @@ namespace Portland.AI.Barks
 			return Index == stok.Index;
 		}
 
-		public override bool Equals([NotNullWhen(true)] object obj)
+		public override bool Equals(object obj)
 		{
 			if (obj is TextTableToken stok)
 			{

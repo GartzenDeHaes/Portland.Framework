@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
+#if !UNITY_2017_1_OR_NEWER
 namespace Portland
 {
 	public sealed class Time : ITime
@@ -114,3 +115,4 @@ namespace Portland
 		}
 	}
 }
+#endif

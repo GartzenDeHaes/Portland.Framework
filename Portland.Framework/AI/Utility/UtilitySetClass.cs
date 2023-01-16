@@ -10,11 +10,11 @@ namespace Portland.AI.Utility
 {
 	public class UtilitySetClass
 	{
-		public UtilitySetClass AgentType;
+		public UtilitySetClass BaseType;
 
-		public string AgentTypeName;
-		public string Extends;
-		public string Name;
+		public string BaseObjectiveSetName;
+		//public string Extends;
+		public string AgentName;
 		/// <summary>Not used, ???</summary>
 		public bool Logging;
 		/// <summary>Not used, ???</summary>
@@ -52,9 +52,9 @@ namespace Portland.AI.Utility
 				}
 			}
 
-			if (AgentType != null)
+			if (BaseType != null)
 			{
-				AgentType.CreateObjectives_Inner(insts);
+				BaseType.CreateObjectives_Inner(insts);
 			}
 		}
 	}

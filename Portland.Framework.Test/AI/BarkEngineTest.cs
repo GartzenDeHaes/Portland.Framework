@@ -22,10 +22,13 @@ DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
-			world.BarkEngine.ParseLoad(DemoRuleText_BasicRule);
+
+			RulePack rulePack = new RulePack();
+			rulePack.Parse(strings, DemoRuleText_BasicRule);
+			world.BarkEngine.SetRules(rulePack);
 
 			string saidText = String.Empty;
-			world.BarkEngine.DoSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
+			world.BarkEngine.OnSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
 			//TextTableToken textId = new TextTableToken();
 			//eng.OnConceptChanged.Listeners += (textid) => { textId = textid; };
 
@@ -75,7 +78,9 @@ DO
 ";
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
-			world.BarkEngine.ParseLoad(barkScript);
+			RulePack rulePack = new RulePack();
+			rulePack.Parse(strings, barkScript);
+			world.BarkEngine.SetRules(rulePack);
 
 			world.UtilitySystem.CreateAgentType("base");
 			world.UtilitySystem.CreateAgent("base", "bot");
@@ -86,7 +91,7 @@ DO
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.OnSay.Listeners += (rule, defaulText) => { ruleId = rule.RuleKey; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
@@ -188,7 +193,7 @@ DO
 			world.Flags.IsCharacter03Alive = true;
 			world.Flags.IsCharacter04Alive = true;
 
-			world.UtilitySystem.CreateCompositeBuilderLiving("living").AddAllObjectives();
+			world.UtilitySystem.CreateObjectiveSetBuilder("living").AddAllObjectives();
 			world.UtilitySystem.CreateAgent("living", "human");
 
 			world.CreateActor("human", "BILL");
@@ -196,13 +201,15 @@ DO
 			world.CreateActor("human", "LOUIS");
 			world.CreateActor("human", "ZOEY");
 
-			world.BarkEngine.ParseLoad(barkScript);
+			RulePack rulePack = new RulePack();
+			rulePack.Parse(strings, barkScript);
+			world.BarkEngine.SetRules(rulePack);
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 			//TextTableToken lastConceptEvent = default(TextTableToken);
 
-			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.OnSay.Listeners += (rule, defaulText) => { ruleId = rule.RuleKey; lastDoSayText = defaulText; };
 			//eng.OnConceptChanged.Listeners += (id) => { lastConceptEvent = id; };
 
 			/* EXT. CEDA BARRICADE - SUNSET.
@@ -365,14 +372,16 @@ DO
 ";
 			TextTable strings = new TextTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
-			world.BarkEngine.ParseLoad(barkScript);
+			RulePack rulePack = new RulePack();
+			rulePack.Parse(strings, barkScript);
+			world.BarkEngine.SetRules(rulePack);
 
 			world.Flags.IsCharacter01Alive = true;
 			world.Flags.IsCharacter02Alive = true;
 			world.Flags.IsCharacter03Alive = true;
 			world.Flags.IsCharacter04Alive = true;
 
-			world.UtilitySystem.CreateCompositeBuilderLiving("living").AddAllObjectives();
+			world.UtilitySystem.CreateObjectiveSetBuilder("living").AddAllObjectives();
 			world.UtilitySystem.CreateAgent("living", "human");
 
 			world.CreateActor("human", "COACH");
@@ -383,7 +392,7 @@ DO
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
 
-			world.BarkEngine.DoSay.Listeners += (id, defaulText) => { ruleId = id; lastDoSayText = defaulText; };
+			world.BarkEngine.OnSay.Listeners += (rule, defaulText) => { ruleId = rule.RuleKey; lastDoSayText = defaulText; };
 
 			var sentence = new ThematicEvent
 			{
