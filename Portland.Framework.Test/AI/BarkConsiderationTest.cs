@@ -38,7 +38,7 @@ namespace Portland.AI.Barks
 			world.CreateActor("human", "COACH");
 
 			string saidText = String.Empty;
-			world.BarkEngine.OnSay.Listeners += (textid, defaultText) => { saidText = defaultText; };
+			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidText = cmd.DefaultTexts.RandomElement(); };
 
 			var tevent = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = strings.Get("barrel") };
 			var found = world.BarkEngine.TryMatch(tevent);
@@ -59,7 +59,7 @@ namespace Portland.AI.Barks
 			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), strings, new RandMin());
 
 			string saidConcept = String.Empty;
-			world.BarkEngine.OnSay.Listeners += (rule, defaultText) => { saidConcept = rule.RuleKey; };
+			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidConcept = rule.RuleKey; };
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddAllObjectives();

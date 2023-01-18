@@ -492,7 +492,7 @@ namespace Portland.Text
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool LikeOrNullOrEmpty(string pattern, string text)
 		{
-			return null == text || text.Length == 0 || Like(pattern, text);
+			return null == text || text.Length == 0 || Like(text, pattern);
 		}
 
 		public static bool AreBothNullOrEqual(string str, string str2)

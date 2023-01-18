@@ -20,7 +20,7 @@ namespace Portland.AI.Barks
 		//RingBuffer<BarkCommand> _runcmds = new RingBuffer<BarkCommand>(16);
 		List<BarkCommand> _cmdsDelaying = new List<BarkCommand>();
 
-		public Command<BarkRule, string> OnSay = new Command<BarkRule, string>();
+		public Command<BarkCommand, BarkRule> OnSay = new Command<BarkCommand, BarkRule>();
 		public ObservableValue<TextTableToken> CurrentConcept = new ObservableValue<TextTableToken>();
 		public Notify<TextTableToken> OnEventRaised = new Notify<TextTableToken>();
 
@@ -38,7 +38,7 @@ namespace Portland.AI.Barks
 			{
 				cmd = _cmdsDelaying[i];
 
-				if (cmd.DelayRemainingToRun < _world.Clock.Time)
+				if (cmd.DelayRemainingToRun < _world.Clock.RealTime)
 				{
 					_cmdsDelaying.Remove(cmd);
 
@@ -51,14 +51,13 @@ namespace Portland.AI.Barks
 		{
 			if (cmd.CommandName == BarkCommand.CommandNameSay)
 			{
-				// Arg1 is text key and Arg2 is the default text
-				OnSay.Send(cmd.Rule, cmd.DefaultTexts.RandomElement());
+				OnSay.Send(cmd, cmd.Rule);
 
 				//OnConceptChanged.Send(cmd.Arg1);
 
 				if (cmd.Duration > 0f)
 				{
-					_cmdsDelaying.Add(new BarkCommand() { CommandName = BarkCommand.CommandConcept, Arg1 = cmd.Arg1, Rule = cmd.Rule });
+					_cmdsDelaying.Add(new BarkCommand() { CommandName = BarkCommand.CommandConcept, Arg1 = cmd.Arg1, Rule = cmd.Rule, DelayRemainingToRun = _world.Clock.RealTime + cmd.Duration + cmd.DelayTime });
 				}
 				else
 				{

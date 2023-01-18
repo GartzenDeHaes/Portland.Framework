@@ -144,6 +144,11 @@ namespace Portland.AI.Barks
 					WhenObserver(lex, rule);
 					continue;
 				}
+				if (StringHelper.AreEqualNoCase(lex.Lexum, "ACTOR"))
+				{
+					WhenActor(lex, rule);
+					continue;
+				}
 				if (StringHelper.AreEqualNoCase(lex.Lexum, "AGENT"))
 				{
 					WhenAgent(lex, rule);
@@ -236,6 +241,18 @@ namespace Portland.AI.Barks
 			LexMatchIgnoreCase(lex, "ACTION");
 			LexMatchOptionalIgnoreCase(lex, "IS");
 			rule.Action = AsciiId4.ConstructStartsWith(lex.Lexum); // ScanName(lex);
+			LexNext(lex);
+			LexMatchOptionalIgnoreCase(lex, ",");
+		}
+
+		/// <summary>
+		/// The actor initiating the ACTION event (optional)
+		/// </summary>
+		void WhenActor(SimpleLex lex, BarkRule rule)
+		{
+			LexMatchIgnoreCase(lex, "ACTOR");
+			LexMatchIgnoreCase(lex, "IS");
+			rule.ActorName = Strings.Get(lex.Lexum);
 			LexNext(lex);
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
@@ -524,7 +541,9 @@ namespace Portland.AI.Barks
 			BarkCommand cmd = new BarkCommand() {
 				CommandName = BarkCommand.CommandNameSay,
 				Arg1 = ScanName(lex),
-				Rule = rule
+				Rule = rule,
+				Duration = 2.5f,
+				DelayTime = 1.2f,
 			};
 
 			cmd.DefaultTexts = new Vector<string>();

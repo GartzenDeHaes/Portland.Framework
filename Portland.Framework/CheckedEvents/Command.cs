@@ -25,6 +25,11 @@ namespace Portland.CheckedEvents
 		//{
 		//	Listeners?.Invoke();
 		//}
+
+		public void Clear()
+		{
+			Listeners = null;
+		}
 	}
 
 	public class Command<T> //: Marshallable

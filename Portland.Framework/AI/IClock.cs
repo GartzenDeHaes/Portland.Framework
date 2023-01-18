@@ -10,6 +10,7 @@ namespace Portland.AI
 		float SecondsPerHour { get; }
 		TimeSpan TimeElapsed { get; }
 		float Time { get; }
+		float RealTime { get; }
 		float TimeOfDayNormalized01 { get; }
 
 		event Action OnNightfall;

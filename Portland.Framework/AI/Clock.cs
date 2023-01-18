@@ -12,7 +12,6 @@ namespace Portland.AI
 		private DateTime _startDtm;
 		/// <summary>1440 for real time</summary>
 		private float _minutesPerDay = 30;
-		private float _updateFreqInSeconds = 5f;
 		private int _hourNightStarts = 19;
 		private int _hourNightEnds = 6;
 
@@ -34,6 +33,8 @@ namespace Portland.AI
 		}
 
 		public float Time { get { return _updateAcc * _ratio; } }
+
+		public float RealTime { get { return _updateAcc; } }
 
 		public float TimeOfDayNormalized01
 		{
@@ -82,30 +83,27 @@ namespace Portland.AI
 		{
 			_updateAcc += elapsedTimeInSeconds;
 
-			if (_updateAcc >= _lastUpdate + _updateFreqInSeconds)
+			_lastUpdate = _updateAcc;
+
+			Now = InGameTime;
+
+			if (_lastHour != Now.Hour)
 			{
-				_lastUpdate = _updateAcc;
+				_lastHour = Now.Hour;
+				IsNightTime = (_lastHour >= _hourNightStarts) || !(_lastHour >= _hourNightEnds);
+				IsWeekend = Now.DayOfWeek == DayOfWeek.Saturday || Now.DayOfWeek == DayOfWeek.Sunday;
 
-				Now = InGameTime;
-
-				if (_lastHour != Now.Hour)
+				if (IsNightTime != _lastIsNightime)
 				{
-					_lastHour = Now.Hour;
-					IsNightTime = (_lastHour >= _hourNightStarts) || !(_lastHour >= _hourNightEnds);
-					IsWeekend = Now.DayOfWeek == DayOfWeek.Saturday || Now.DayOfWeek == DayOfWeek.Sunday;
-
-					if (IsNightTime != _lastIsNightime)
+					if (IsNightTime)
 					{
-						if (IsNightTime)
-						{
-							OnNightfall?.Invoke();
-						}
-						else
-						{
-							OnDaybreak?.Invoke();
-						}
-						_lastIsNightime = IsNightTime;
+						OnNightfall?.Invoke();
 					}
+					else
+					{
+						OnDaybreak?.Invoke();
+					}
+					_lastIsNightime = IsNightTime;
 				}
 			}
 		}
