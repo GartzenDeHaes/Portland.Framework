@@ -15,7 +15,7 @@ namespace Portland.AI.Barks
 		public static AsciiId4 ActionIdle = "IDLE";
 
 		/// <summary>Actor performing the action</summary>
-		public TextTableToken Agent;
+		public TextTableToken Actor;
 		/// <summary>Verb</summary>
 		public AsciiId4 Action;
 		/// <summary>Direct object</summary>

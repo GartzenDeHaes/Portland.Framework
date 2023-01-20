@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
+using NLog.LayoutRenderers.Wrappers;
+
 using Portland.CheckedEvents;
 using Portland.ComponentModel;
 using Portland.Mathmatics;
@@ -62,7 +64,7 @@ namespace Portland.AI.Barks
 				else
 				{
 					// arg1 is the object
-					TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Agent = cmd.Rule.ObserverName });
+					TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Actor = cmd.Rule.ObserverName });
 				}
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameSetVar)
@@ -74,7 +76,14 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					SetVars(_world.GetActor(cmd.ActorName).Facts, cmd);
+					if (_world.TryGetActor(cmd.ActorName, out var actor))
+					{
+						SetVars(actor.Facts, cmd);
+					}
+					else
+					{
+						throw new Exception($"Actor '{_strings.GetString(cmd.ActorName)}' not found.");
+					}
 				}
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameResetRule)
@@ -87,7 +96,7 @@ namespace Portland.AI.Barks
 			}
 			else if (cmd.CommandName == BarkCommand.CommandConcept)
 			{
-				TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Agent = cmd.Rule.ObserverName });
+				TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Actor = cmd.Rule.ObserverName });
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameDontSay)
 			{
@@ -102,7 +111,14 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					AddToVar(_world.GetActor(cmd.ActorName).Facts, cmd);
+					if (_world.TryGetActor(cmd.ActorName, out var actor))
+					{
+						AddToVar(actor.Facts, cmd);
+					}
+					else
+					{
+						throw new Exception($"Actor '{_strings.GetString(cmd.ActorName)}' not found.");
+					}
 				}
 			}
 			else
@@ -190,7 +206,7 @@ namespace Portland.AI.Barks
 					continue;
 				}
 
-				if (rule.ActorName.Index != 0 && rule.ActorName != happened.Agent)
+				if (rule.ActorName.Index != 0 && rule.ActorName != happened.Actor)
 				{
 					continue;
 				}
@@ -201,7 +217,13 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.ActorFlags.Count; i++)
 				{
 					var flagf = rule.ActorFlags[i];
-					var actor = _world.GetActor(flagf.ActorName);
+
+					Agent actor;
+					if (!_world.TryGetActor(flagf.ActorName, out actor))
+					{
+						throw new Exception($"Actor '{_strings.GetString(flagf.ActorName)}' not found");
+					}
+					
 					var flagName = _strings.GetString(flagf.FlagName);
 					bool isSet = actor.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName));
 					if (!isSet != flagf.Not)
@@ -232,7 +254,11 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.ActorFilters.Count; i++)
 				{
 					var filter = rule.ActorFilters[i];
-					var actor = _world.GetActor(filter.ActorName);
+					Agent actor;
+					if (!_world.TryGetActor(filter.ActorName, out actor))
+					{
+						throw new Exception($"Actor '{_strings.GetString(filter.ActorName)}' not found");
+					}
 
 					if (!filter.IsMatch(actor.Facts))
 					{

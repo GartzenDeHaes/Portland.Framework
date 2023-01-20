@@ -80,14 +80,14 @@ namespace Portland.AI
 			}
 		}
 
-		public Agent GetActor(TextTableToken name)
+		public bool TryGetActor(TextTableToken name, out Agent actor)
 		{
-			return _actors[name];
+			return _actors.TryGetValue(name, out actor);
 		}
 
-		public Agent GetActor(string name)
+		public bool TryGetActor(string name, out Agent actor)
 		{
-			return _actors[Strings.Get(name)];
+			return _actors.TryGetValue(Strings.Get(name), out actor);
 		}
 
 		/// <summary>

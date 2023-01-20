@@ -99,7 +99,8 @@ namespace Portland.AI.Barks
 			world.CreateActor("human", "COACH");
 			world.DefineActorAsCharacter0X("COACH", 1);
 
-			var coach = world.GetActor("COACH");
+			Agent coach;
+			Assert.True(world.TryGetActor("COACH", out coach));
 
 			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
 			Assert.That((string)coach.Facts[strings.Get("utility_objective")].Value, Is.EqualTo(String.Empty));

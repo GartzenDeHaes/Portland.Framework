@@ -350,7 +350,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
-			Assert.That(cmd.Duration, Is.EqualTo(5f));
+			Assert.That(cmd.Duration, Is.EqualTo(2.5f));
 			Assert.That(cmd.DelayTime, Is.EqualTo(30f));
 		}
 

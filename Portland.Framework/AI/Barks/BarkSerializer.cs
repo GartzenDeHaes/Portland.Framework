@@ -543,7 +543,7 @@ namespace Portland.AI.Barks
 				Arg1 = ScanName(lex),
 				Rule = rule,
 				Duration = 2.5f,
-				DelayTime = 1.2f,
+				DelayTime = 0,
 			};
 
 			cmd.DefaultTexts = new Vector<string>();

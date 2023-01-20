@@ -103,7 +103,7 @@ DO
 			{
 				Action = ThematicEvent.ActionSee,
 				Concept = strings.Get("barrel"),
-				Agent = strings.Get("XBOT")
+				Actor = strings.Get("XBOT")
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_01"));
@@ -262,7 +262,9 @@ DO
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
+			Agent zoey;
+			Assert.True(world.TryGetActor("ZOEY", out zoey));
+			Assert.That(zoey.Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(6f);
 			world.BarkEngine.Update();
@@ -270,7 +272,7 @@ DO
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
-			Assert.That(world.GetActor("ZOEY").Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
+			Assert.That(zoey.Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
 			Assert.That(ruleId, Is.EqualTo("zoey:couldnt_holdout"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));
@@ -400,7 +402,9 @@ DO
 			};
 			Assert.False(world.BarkEngine.TryMatch(sentence));
 
-			world.GetActor("NICK").Flags.AlertHealth = true;
+			Agent nick;
+			Assert.True(world.TryGetActor("NICK", out nick));
+			nick.Flags.AlertHealth = true;
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("nick:im_dying"));
