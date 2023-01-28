@@ -6,13 +6,14 @@ using System.Linq;
 using NLog.LayoutRenderers.Wrappers;
 
 using Portland.CheckedEvents;
+using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class BarkRuleEngine
+    public sealed class BarkRuleEngine
 	{
 		readonly World _world;
 		readonly TextTable _strings;

@@ -1,11 +1,11 @@
 ﻿using System.Data;
 using System.Linq;
-
+using Portland.Collections;
 using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public class RulePack
+    public class RulePack
 	{
 		public BarkRule[] Rules;
 

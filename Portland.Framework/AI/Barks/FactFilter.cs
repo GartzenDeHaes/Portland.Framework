@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public enum ComparisionOp
+    public enum ComparisionOp
 	{
 		Equals,
 		NotEquals,

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Portland.AI.Barks;
 using Portland.AI.Utility;
+using Portland.Collections;
 using Portland.ComponentModel;
 
 namespace Portland.AI

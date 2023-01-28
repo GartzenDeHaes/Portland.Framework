@@ -7,7 +7,7 @@ using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class BarkSerializer
+    public sealed class BarkSerializer
 	{
 		public TextTable Strings;
 		public Dictionary<TextTableToken, TextTableToken> FlagAliases = new Dictionary<TextTableToken, TextTableToken>();

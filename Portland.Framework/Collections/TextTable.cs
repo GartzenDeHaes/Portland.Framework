@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-using Portland.Collections;
 using Portland.Text;
 
-namespace Portland.AI.Barks
+namespace Portland.Collections
 {
 	public sealed class TextTable
 	{
@@ -23,7 +17,7 @@ namespace Portland.AI.Barks
 		public TextTable()
 		{
 			// Index zero is empty string
-			_strings.Add(new StringHolder { Lexum = String.Empty, MurmurHashCode = StringHelper.HashMurmur32(String.Empty) });
+			_strings.Add(new StringHolder { Lexum = string.Empty, MurmurHashCode = StringHelper.HashMurmur32(string.Empty) });
 		}
 
 		public bool TryGet(string lexum, out TextTableToken ret)

@@ -6,7 +6,7 @@ using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class BarkRule
+    public sealed class BarkRule
 	{
 		public bool HasRun;
 

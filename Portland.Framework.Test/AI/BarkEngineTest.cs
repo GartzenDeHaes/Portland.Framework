@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
-
+using Portland.Collections;
 using Portland.Mathmatics;
 
 namespace Portland.AI.Barks
 {
-	[TestFixture]
+    [TestFixture]
 	public class BarkEngineTest
 	{
 		[Test]

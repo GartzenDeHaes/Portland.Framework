@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 using Portland.AI.Barks;
 using Portland.AI.Utility;
+using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Mathmatics;
 
 namespace Portland.AI
 {
-	public sealed class World
+    public sealed class World
 	{
 		public readonly IClock Clock;
 		public WorldStateFlags Flags;

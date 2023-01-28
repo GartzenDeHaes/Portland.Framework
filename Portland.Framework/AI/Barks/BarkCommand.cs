@@ -9,7 +9,7 @@ using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public sealed class BarkCommand
+    public sealed class BarkCommand
 	{
 		public static AsciiId4 CommandNameSay = "SAY";
 		/// <summary>Disable a rule</summary>

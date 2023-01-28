@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Portland.Collections;
 using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-	public struct ThematicEvent
+    public struct ThematicEvent
 	{
 		public static AsciiId4 ActionSee = "SEE";
 		public static AsciiId4 ActionSay = "SAY";

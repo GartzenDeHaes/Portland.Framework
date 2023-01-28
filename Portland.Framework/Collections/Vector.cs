@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 using Portland.Mathmatics;
@@ -8,7 +10,7 @@ using Portland.Mathmatics;
 namespace Portland.Collections
 {
 	[Serializable]
-	public sealed class Vector<T> : IIndexed<T>
+	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>
 	{
 		T[] m_data;
 		int m_used;
@@ -30,15 +32,11 @@ namespace Portland.Collections
 			m_data = new T[size];
 		}
 
-		//IEnumerator<T> IEnumerable<T>.GetEnumerator()
-		//{
-		//	return new VectorEnumerator<T>(m_data, m_used);
-		//}
-
-		//IEnumerator IEnumerable.GetEnumerator()
-		//{
-		//	return new VectorEnumerator<T>(m_data, m_used);
-		//}
+		public Vector(IEnumerable<T> values)
+		{
+			m_data = values.ToArray();
+			m_used = m_data.Length;
+		}
 
 		public T Pop()
 		{
@@ -284,6 +282,47 @@ namespace Portland.Collections
 		public T RandomElement()
 		{
 			return ElementAt(MathHelper.RandomRange(0, Count));
+		}
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return new VectorEnumerator(m_data, m_used);
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return new VectorEnumerator(m_data, m_used);
+		}
+
+		class VectorEnumerator : IEnumerator<T>
+		{
+			T[] m_data;
+			readonly int m_len;
+			int m_pos;
+			public T Current { get { return m_pos >= m_len ? default(T) : m_data[m_pos]; } }
+			object IEnumerator.Current { get { return m_pos >= m_len ? default(T) : m_data[m_pos]; } }
+
+			public VectorEnumerator(T[] data, int len)
+			{
+				m_data = data;
+				m_len = len;
+				m_pos = 0;
+			}
+
+			public bool MoveNext()
+			{
+				return ++m_pos < m_len;
+			}
+
+			public void Dispose()
+			{
+				m_data = null;
+			}
+
+			public void Reset()
+			{
+				m_pos = 0;
+			}
 		}
 	}
 }
