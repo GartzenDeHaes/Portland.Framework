@@ -24,7 +24,7 @@ namespace Portland.RPG
 
 		public ItemPropertySetting[] Properties;
 
-		public StatEffect[] StatEffects;
+		public Effect[] StatEffects;
 		public PropertyEffect[] PropertyEffects;
 
 		public ItemRecipe Recipe;
@@ -141,7 +141,7 @@ namespace Portland.RPG
 		ItemFactory _factory;
 		//List<AsciiId4> _stats = new List<AsciiId4>();
 		List<ItemPropertySetting> _props = new List<ItemPropertySetting>();
-		List<StatEffect> _statEffs = new List<StatEffect>();
+		List<Effect> _statEffs = new List<Effect>();
 		List<PropertyEffect> _propEffs = new List<PropertyEffect>();
 
 		public ItemDefinitionBuilder(ItemFactory factory, string category, in String8 itemId)
@@ -280,7 +280,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddStatEffect(in StatEffect statEffect)
+		public ItemDefinitionBuilder AddStatEffect(in Effect statEffect)
 		{
 			_statEffs.Add(statEffect);
 			return this;
@@ -321,7 +321,7 @@ namespace Portland.RPG
 			Name = String.Empty,
 			Description = String.Empty,
 			Properties = new ItemPropertySetting[0],
-			StatEffects = new StatEffect[0],
+			StatEffects = new Effect[0],
 			PropertyEffects = new PropertyEffect[0],
 			Recipe = new ItemRecipe()
 		};

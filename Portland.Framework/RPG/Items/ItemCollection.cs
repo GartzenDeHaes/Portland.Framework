@@ -23,6 +23,7 @@ namespace Portland.RPG
 			set 
 			{
 				var item = value.Clone(index);
+				value.SetStackCount(0);
 
 				item.OnPropertyChanged = _items[index].OnPropertyChanged;
 				item.OnStackCountChanged = _items[index].OnStackCountChanged;

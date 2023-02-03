@@ -37,6 +37,16 @@ namespace Portland.RPG
 			OnStackCountChanged?.Invoke(_stackCount);
 		}
 
+		public void SetStackCount(int count)
+		{
+			_stackCount = Math.Clamp(count, 0, Definition.MaxStackSize);
+
+			// items with per-item properties should only have counts of zero or one
+			Debug.Assert(Properties.Length == 0 || _stackCount == 0 || _stackCount == 1);
+
+			OnStackCountChanged?.Invoke(_stackCount);
+		}
+
 		bool TryFindProperty(in String8 propId, out int i)
 		{
 			for (i = 0; i < Properties.Length; i++)

@@ -1,17 +1,18 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Linq;
+
 using Portland.Collections;
-using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-    public class RulePack
+	public class RulePack
 	{
 		public BarkRule[] Rules;
 
 		public RulePack()
 		{
-			Rules = new BarkRule[0];
+			Rules = Array.Empty<BarkRule>();
 		}
 
 		public void DisableRule(TextTableToken actorId, AsciiId4 action, TextTableToken directObject)

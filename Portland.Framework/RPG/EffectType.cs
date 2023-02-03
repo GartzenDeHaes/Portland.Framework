@@ -6,10 +6,15 @@ using System.Threading.Tasks;
 
 namespace Portland.RPG
 {
-	public struct StatEffect
+	public enum EffectType
 	{
-		public int Value;
-		public EffectValueType ValueType;
-		public Requirement[] Requirements;
+		Unknown = 0,
+		Stat,
+		Property,
+		Skill,
+		Item,
+		FactionReputation,
+		AttackModifer,
+		DefenseModifer
 	}
 }

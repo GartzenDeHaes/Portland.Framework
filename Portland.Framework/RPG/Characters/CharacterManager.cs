@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Portland.RPG
 {
-	public enum EffectValueType
+	public class CharacterManager
 	{
-		Unknown = 0,
-		Amount = 1,
-		Percentage = 2,
+		Dictionary<AsciiId4, Effect> _effectsById= new Dictionary<AsciiId4, Effect>();
 	}
 }

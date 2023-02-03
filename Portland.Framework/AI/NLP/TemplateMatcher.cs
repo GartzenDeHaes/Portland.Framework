@@ -243,7 +243,7 @@ namespace Portland.AI.NLP
 			}
 			else
 			{
-				mitem.SymbolFilters = new string[0];
+				mitem.SymbolFilters = Array.Empty<string>();
 			}
 
 			using (SimpleLex lex = new SimpleLex(clsspec))

@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Portland.Text;
+using Portland.Mathmatics;
 
 namespace Portland.RPG
 {
-	public struct StatDefinition
+	public class StatDefinition
 	{
 		public AsciiId4 StatId;
+		public String8 StatCatetgory;
 		public int Minimum;
 		public int Maximum;
 		public int Default;
-		public string Name;
+		public DiceTerm Probability;
+		public string DisplayName;
 	}
 }

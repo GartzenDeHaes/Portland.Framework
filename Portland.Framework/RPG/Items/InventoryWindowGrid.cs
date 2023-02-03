@@ -77,8 +77,13 @@ namespace Portland.RPG
 		/// <summary>
 		/// Merge an item with an existing stack, or put in an empty slot
 		/// </summary>
-		public int MoveOrMergeItem(ItemStack item, InventoryWindowGrid fromArea, int fromItemIndex)
+		public int MoveOrMergeItem(ItemStack item)
 		{
+			if (! IsAcceptableItem(item))
+			{
+				return -1;
+			}
+
 			int emptyIndex = -1;
 
 			var maximumStackSize = item.Definition.MaxStackSize;
@@ -108,7 +113,7 @@ namespace Portland.RPG
 
 					current.ChangeStackCount(item.StackCount);
 
-					fromArea.ClearSlot(fromItemIndex);
+					item.SetStackCount(0);
 
 					return i;
 				}
@@ -117,8 +122,7 @@ namespace Portland.RPG
 			if (emptyIndex != -1)
 			{
 				this[emptyIndex] = item;
-
-				fromArea.ClearSlot(fromItemIndex);
+				item.SetStackCount(0);
 			}
 
 			return emptyIndex;

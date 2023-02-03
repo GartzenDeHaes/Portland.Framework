@@ -83,25 +83,29 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public void DefineStat(string name, AsciiId4 id, int min, int max)
+		public void DefineStat(string name, AsciiId4 id, int min, int max, DiceTerm propability)
 		{
-			_statDefinitions.Add(new StatDefinition { 
-				StatId = id, 
-				Minimum = min, 
-				Maximum = max,
-				Name = name,
-				Default = (max - min) / 2 + min
-			});
+			DefineStat(name, id, min, max, -1, propability);
 		}
 
+		public void DefineStat(string name, AsciiId4 id, int min, int max)
+		{
+			DefineStat(name, id, min, max, (max - min) / 2 + min, new DiceTerm(0, 0, 0));
+		}
 		public void DefineStat(string name, AsciiId4 id, int min, int max, int defaultValue)
+		{
+			DefineStat(name, id, min, max, defaultValue, new DiceTerm(0, 0, 0));
+		}
+
+		public void DefineStat(string name, AsciiId4 id, int min, int max, int defaultValue, DiceTerm probability)
 		{
 			_statDefinitions.Add(new StatDefinition { 
 				StatId = id, 
 				Minimum = min, 
 				Maximum = max, 
-				Name = name, 
-				Default = defaultValue 
+				DisplayName = name, 
+				Default = defaultValue,
+				Probability = probability
 			});
 		}
 

@@ -81,5 +81,53 @@ namespace Portland.RPG
 			Assert.That(areas[2][0].StackCount, Is.EqualTo(0));
 			Assert.That(areas[3][5].StackCount, Is.EqualTo(1));
 		}
+
+		[Test]
+		public void ChestTest()
+		{
+			ItemFactory items = new ItemFactory();
+			items.DefineCategory("Resource");
+
+			items.DefineItem("Resource", "Stick")
+				.Description("Wooden stick")
+				.Weight(1f)
+				.MaxStackCapacity(64)
+				.Build();
+
+			items.DefineItem("Resource", "Stone")
+				.Description("Small stone")
+				.Weight(1f)
+				.MaxStackCapacity(64)
+				.Build();
+
+			ItemCollection main = new ItemCollection("inventory", 7);
+			ItemCollection chest = new ItemCollection("chest", 3);
+
+			main[6] = items.CreateItem(0, "Stick");
+
+			InventoryWindowGrid[] areas = {
+				new InventoryWindowGrid(1, 1, main, 1, "hotbar", 3, 1, false, new ItemRequirement[0]),
+				new InventoryWindowGrid(10, 4, main, 4, "main", 3, 1, false, new ItemRequirement[0]),
+				new InventoryWindowGrid(20, 0, chest, 0, "chest", 3, 1, false, new ItemRequirement[0]),
+			};
+
+			InventoryWindow window = new InventoryWindow("main", 1, 1, areas);
+
+			Assert.True(chest[0].IsEmpty());
+			areas[2][0] = items.CreateItem(0, "Stone");
+			Assert.False(chest[0].IsEmpty());
+
+			Assert.True(main[1].IsEmpty());
+			window.MoveOrMergeItem(areas[2], 0);
+			Assert.True(chest[0].IsEmpty());
+			Assert.False(main[1].IsEmpty());
+			Assert.False(areas[0][0].IsEmpty());
+
+			areas[2][1] = areas[0][0];
+			Assert.True(areas[0][0].IsEmpty());
+			Assert.False(areas[2][1].IsEmpty());
+			Assert.True(main[1].IsEmpty());
+			Assert.False(chest[1].IsEmpty());
+		}
 	}
 }

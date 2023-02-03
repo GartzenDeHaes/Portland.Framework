@@ -65,6 +65,35 @@ namespace Portland.RPG
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		public void MoveOrMergeItem(InventoryWindowGrid fromArea, int fromItemIndex)
+		{
+			for (int i = 0; i < _windowAreas.Length; i++)
+			{
+				if (_windowAreas[i] == fromArea)
+				{
+					continue;
+				}
+				if (TryMoveOrMerge(fromArea[fromItemIndex], _windowAreas[i]))
+				{
+					return;
+				}
+			}
+		}
+
+		bool TryMoveOrMerge(ItemStack item, InventoryWindowGrid area)
+		{
+			if (area.IsReadOnly)
+			{
+				return false;
+			}
+
+			area.MoveOrMergeItem(item);
+			return item.StackCount == 0;
+		}
+
 		public InventoryWindow(string title, int windowTypeId, int windowInstanceId, InventoryWindowGrid[] sections)
 		{
 			WindowTypeId = windowTypeId;
