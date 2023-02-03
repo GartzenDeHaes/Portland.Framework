@@ -75,5 +75,25 @@ namespace Portland.Collections
 
 			Assert.Catch<ArgumentException>(() => buf.Add(100));
 		}
+
+		[Test]
+		public void OverwriteModeTest()
+		{
+			RingBuffer<int> buf = new RingBuffer<int>(2, false);
+			buf.Add(99);
+			buf.Add(100);
+
+			Assert.True(buf.IsFull);
+			Assert.That(buf.Count, Is.EqualTo(2));
+			Assert.That(buf.First, Is.EqualTo(99));
+			Assert.That(buf.Last, Is.EqualTo(100));
+
+			buf.Add(7);
+
+			Assert.True(buf.IsFull);
+			Assert.That(buf.Count, Is.EqualTo(2));
+			Assert.That(buf.First, Is.EqualTo(7));
+			Assert.That(buf.Last, Is.EqualTo(100));
+		}
 	}
 }

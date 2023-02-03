@@ -140,6 +140,11 @@ namespace Portland.Collections
 			return m_data[at];
 		}
 
+		public ref T ElementAtRef(int at)
+		{
+			return ref m_data[at];
+		}
+
 		public T this[int idx]
 		{
 			get { return ElementAt(idx); }
@@ -190,6 +195,30 @@ namespace Portland.Collections
 			return false;
 		}
 
+		public void RemoveAt(int at)
+		{
+			int i;
+			for (i = at; (i < (m_used - 1)); i++)
+			{
+				m_data[i] = m_data[i + 1];
+			}
+			m_used--;
+		}
+
+		public void RemoveWhen(Func<T, bool> test)
+		{
+			int i = 0;
+			while (i < m_used)
+			{
+				if (test(m_data[i]))
+				{
+					RemoveAt(i);
+					continue;
+				}
+				i++;
+			}
+		}
+
 		public bool Contains(T item)
 		{
 			return IndexOf(item) >= 0;
@@ -206,16 +235,6 @@ namespace Portland.Collections
 				}
 			}
 			return -1;
-		}
-
-		public void RemoveAt(int at)
-		{
-			int i;
-			for (i = at; (i < (m_used - 1)); i++)
-			{
-				m_data[i] = m_data[i + 1];
-			}
-			m_used--;
 		}
 
 		public void Insert(int at, T o)

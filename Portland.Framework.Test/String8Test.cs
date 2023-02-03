@@ -25,6 +25,20 @@ namespace Portland.Text
 		}
 
 		[Test]
+		public void LengthTest()
+		{
+			Assert.That(String8.From("").Length, Is.EqualTo(0));
+			Assert.That(String8.From("a").Length, Is.EqualTo(1));
+			Assert.That(String8.From("ab").Length, Is.EqualTo(2));
+			Assert.That(String8.From("abc").Length, Is.EqualTo(3));
+			Assert.That(String8.From("abcd").Length, Is.EqualTo(4));
+			Assert.That(String8.From("abcde").Length, Is.EqualTo(5));
+			Assert.That(String8.From("abcdef").Length, Is.EqualTo(6));
+			Assert.That(String8.From("abcdefg").Length, Is.EqualTo(7));
+			Assert.That(String8.From("abcdefgh").Length, Is.EqualTo(8));
+		}
+
+		[Test]
 		public void SingleChar()
 		{
 			String8 s = String8.From("a");

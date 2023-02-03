@@ -161,15 +161,21 @@ namespace TinyJson
 				for (int i = 0; i < fieldInfos.Length; i++)
 				{
 					if (fieldInfos[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
+					{
 						continue;
+					}
 
 					object value = fieldInfos[i].GetValue(item);
 					if (value != null)
 					{
 						if (isFirst)
+						{
 							isFirst = false;
+						}
 						else
+						{
 							stringBuilder.Append(',');
+						}
 						stringBuilder.Append('\"');
 						stringBuilder.Append(GetMemberName(fieldInfos[i]));
 						stringBuilder.Append("\":");

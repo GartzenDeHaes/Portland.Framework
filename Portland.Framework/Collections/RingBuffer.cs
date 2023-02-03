@@ -22,14 +22,20 @@ namespace Portland.Collections
 
 		public void Add(T element)
 		{
-			if (_errorOnOverflow && _count == _capacity)
+			if (_count == _capacity)
 			{
-				throw new ArgumentException("Ring buffer full");
+				if (_errorOnOverflow)
+				{
+					throw new ArgumentException("Ring buffer full");
+				}
+			}
+			else
+			{
+				_count++;
 			}
 
 			_elements[_end] = element;
 			_end = (_end + 1) % _capacity;
-			_count++;
 		}
 
 		public void FastClear()
