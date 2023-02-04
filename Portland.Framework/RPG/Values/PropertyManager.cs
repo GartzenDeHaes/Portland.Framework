@@ -23,11 +23,14 @@ namespace Portland.RPG
 			for (int i = 0; i < _definitions.Count; i++)
 			{
 				changePerSecond = _definitions[i].ChangePerSecond;
-				values = _values[i];
-
-				for (int j = 0; j < values.Count; j++)
+				if (changePerSecond != 0f)
 				{
-					values[i] += deltaTimeInSeconds * changePerSecond;
+					values = _values[i];
+
+					for (int j = 0; j < values.Count; j++)
+					{
+						values[i] += deltaTimeInSeconds * changePerSecond;
+					}
 				}
 			}
 		}

@@ -66,7 +66,7 @@ namespace NetStack.Buffers {
 			if (minimumLength < 0)
 				throw new ArgumentOutOfRangeException("minimumLength");
 			else if (minimumLength == 0)
-				return s_emptyArray ?? (s_emptyArray = new T[0]);
+				return s_emptyArray ?? (s_emptyArray = Array.Empty<T>());
 
 			#if NETSTACK_BUFFERS_LOG
 				var log = ArrayPoolEventSource.EventLog;

@@ -19,7 +19,7 @@ namespace Portland.AI
 		public WorldStateFlags Flags;
 		public readonly UtilityFactory UtilitySystem;
 		public BarkRuleEngine BarkEngine;
-		public Dictionary<TextTableToken, ObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, ObservableValue<Variant8>>();
+		public Dictionary<TextTableToken, IObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, IObservableValue<Variant8>>();
 		Dictionary<TextTableToken, Agent> _actors = new Dictionary<TextTableToken, Agent>();
 		public readonly TextTable Strings;
 

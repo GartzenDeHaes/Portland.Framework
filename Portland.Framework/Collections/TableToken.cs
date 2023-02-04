@@ -13,7 +13,6 @@ namespace Portland.Collections
     {
         public int Index;
         public int HashCode;
-        //public AsciiId4 StartsWith;
 
         public bool Equals(in TextTableToken stok)
         {

@@ -2,7 +2,7 @@
 
 namespace Portland.ComponentModel
 {
-	public sealed class ObservableValue<T>
+	public sealed class ObservableValue<T> : IObservableValue<T>
 	{
 		private Func<T, bool> _validator;
 		private Action<T> _listeners;

@@ -128,7 +128,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(Dictionary<TextTableToken, ObservableValue<Variant8>> facts, BarkCommand cmd)
+		void SetVars(Dictionary<TextTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -140,7 +140,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void AddToVar(Dictionary<TextTableToken, ObservableValue<Variant8>> facts, BarkCommand cmd)
+		void AddToVar(Dictionary<TextTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{

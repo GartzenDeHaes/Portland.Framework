@@ -24,8 +24,7 @@ namespace Portland.RPG
 
 		public ItemPropertySetting[] Properties;
 
-		public Effect[] StatEffects;
-		public PropertyEffect[] PropertyEffects;
+		public Effect[] Effects;
 
 		public ItemRecipe Recipe;
 		public ResourceDescription LocalizedName;
@@ -141,8 +140,7 @@ namespace Portland.RPG
 		ItemFactory _factory;
 		//List<AsciiId4> _stats = new List<AsciiId4>();
 		List<ItemPropertySetting> _props = new List<ItemPropertySetting>();
-		List<Effect> _statEffs = new List<Effect>();
-		List<PropertyEffect> _propEffs = new List<PropertyEffect>();
+		List<Effect> _effects = new List<Effect>();
 
 		public ItemDefinitionBuilder(ItemFactory factory, string category, in String8 itemId)
 		{
@@ -280,15 +278,9 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddStatEffect(in Effect statEffect)
+		public ItemDefinitionBuilder AddEffect(in Effect effect)
 		{
-			_statEffs.Add(statEffect);
-			return this;
-		}
-
-		public ItemDefinitionBuilder AddPropertyEffect(in PropertyEffect propEffect)
-		{
-			_propEffs.Add(propEffect);
+			_effects.Add(effect);
 			return this;
 		}
 
@@ -296,8 +288,7 @@ namespace Portland.RPG
 		{
 			//_itemdef.StatIds = _stats.ToArray();
 			_itemdef.Properties = _props.ToArray();
-			_itemdef.StatEffects = _statEffs.ToArray();
-			_itemdef.PropertyEffects = _propEffs.ToArray();
+			_itemdef.Effects = _effects.ToArray();
 
 			_factory.AddItemDefinition(_itemdef);
 
@@ -308,10 +299,8 @@ namespace Portland.RPG
 			//_stats = null;
 			_props.Clear();
 			_props = null;
-			_statEffs.Clear();
-			_statEffs = null;
-			_propEffs.Clear();
-			_propEffs = null;
+			_effects.Clear();
+			_effects = null;
 		}
 
 		public static readonly ItemDefinition Empty = new ItemDefinition
@@ -320,9 +309,8 @@ namespace Portland.RPG
 			Category = String.Empty,
 			Name = String.Empty,
 			Description = String.Empty,
-			Properties = new ItemPropertySetting[0],
-			StatEffects = new Effect[0],
-			PropertyEffects = new PropertyEffect[0],
+			Properties = Array.Empty<ItemPropertySetting>(),
+			Effects = Array.Empty<Effect>(),
 			Recipe = new ItemRecipe()
 		};
 	}

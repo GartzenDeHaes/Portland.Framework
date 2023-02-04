@@ -38,7 +38,7 @@ namespace Portland.SceneGraph
 		//public T AddComponent<T>() where T : IMonoBehaviour
 		//{
 		//	Type myType = typeof(T);
-		//	Type[] types = new Type[0];
+		//	Type[] types = Array.Empty<Type>();
 
 		//	ConstructorInfo constructorInfoObj = myType.GetConstructor
 		//	(

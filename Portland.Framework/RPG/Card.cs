@@ -19,7 +19,6 @@ namespace Portland.RPG
 	public class Card
 	{
 		public CardType CardType;
-		public Effect[] StatEffects;
-		public PropertyEffect[] PropertyEffects;
+		public Effect[] Effects;
 	}
 }

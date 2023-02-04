@@ -29,7 +29,7 @@ namespace Portland.AI.Barks
 		public ComparisionOp Op;
 		public Variant8 Value;
 
-		public bool IsMatch(Dictionary<TextTableToken, ObservableValue<Variant8>> facts)
+		public bool IsMatch(Dictionary<TextTableToken, IObservableValue<Variant8>> facts)
 		{
 			bool ret = false;
 

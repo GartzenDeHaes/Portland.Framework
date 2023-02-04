@@ -16,6 +16,6 @@ namespace Portland.AI
         public TextTableToken Class;
         //public TextTableToken Location;
         public UtilitySetInstance UtilitySet;
-        public Dictionary<TextTableToken, ObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, ObservableValue<Variant8>>();
+        public Dictionary<TextTableToken, IObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, IObservableValue<Variant8>>();
     }
 }

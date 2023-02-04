@@ -10,7 +10,7 @@ using Portland.Text;
 
 namespace Portland.RPG
 {
-	public class StatFactory
+	public sealed class StatFactory
 	{
 		Vector<StatDefinition> _statDefinitions = new Vector<StatDefinition>();
 		Vector<StatDefinitionSet> _statDefinitionSets = new Vector<StatDefinitionSet>();

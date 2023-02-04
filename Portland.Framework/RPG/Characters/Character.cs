@@ -11,12 +11,15 @@ namespace Portland.RPG
 	[Serializable]
 	public class Character
 	{
-		public StatSet Stats;
-		public StatSet Skills;
-		public PropertySet Properties;
+		public StatSet StatsAndSkils;
+		public PropertySetKeys Properties;
 		public ItemCollection Inventory;
+		// derived stats (AP, AC, HP
+		// blackboard
+		// achivements
+		// active/completed quests (challenges) https://fallout.fandom.com/wiki/Fallout:_New_Vegas_challenges
 
-		public Vector<AsciiId4> PassiveEffects = new Vector<AsciiId4>();
+		public Vector<int> PassiveEffects = new Vector<int>();
 		public Vector<ActiveEffect> ActiveEffects = new Vector<ActiveEffect>();
 	}
 }

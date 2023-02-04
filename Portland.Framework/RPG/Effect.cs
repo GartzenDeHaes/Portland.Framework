@@ -9,24 +9,37 @@ namespace Portland.RPG
 	public enum EffectValueType
 	{
 		Unknown = 0,
-		Amount = 1,
-		Percentage = 2,
+		AmountDelta = 1,
+		AmmountAbs = 2,
+		Percentage = 3,
+	}
+
+	public enum EffectType
+	{
+		Unknown = 0,
+		Stat,
+		Property,
+		Skill,
+		Item,
+		FactionReputation,
+		AttackModifer,
+		DefenseModifer
 	}
 
 	public class Effect
 	{
-		public AsciiId4 EffectId;
-		public string Name;
+		public int EffectId;
 		public EffectType AppliesTo;
 		public Variant8 Value;
 		public float Duration;
 		public EffectValueType IsNumOrPct;
+		public string EffectName;
 		public Requirement[] Requirements;
 	}
 
 	public struct ActiveEffect
 	{
-		public AsciiId4 EffectId;
+		public int EffectId;
 		public float RemainingDuration;
 	}
 }
