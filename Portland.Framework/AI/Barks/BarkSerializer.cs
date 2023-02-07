@@ -9,15 +9,15 @@ namespace Portland.AI.Barks
 {
     public sealed class BarkSerializer
 	{
-		public TextTable Strings;
-		public Dictionary<TextTableToken, TextTableToken> FlagAliases = new Dictionary<TextTableToken, TextTableToken>();
+		public StringTable Strings;
+		public Dictionary<StringTableToken, StringTableToken> FlagAliases = new Dictionary<StringTableToken, StringTableToken>();
 
 		public BarkSerializer()
 		{
-			Strings = new TextTable();
+			Strings = new StringTable();
 		}
 
-		public BarkSerializer(TextTable textTable)
+		public BarkSerializer(StringTable textTable)
 		{
 			Strings = textTable;
 		}
@@ -324,8 +324,8 @@ namespace Portland.AI.Barks
 					isNot = true;
 				}
 
-				TextTableToken charName = new TextTableToken();
-				TextTableToken flagName = Strings.Get(lex.Lexum);
+				StringTableToken charName = new StringTableToken();
+				StringTableToken flagName = Strings.Get(lex.Lexum);
 				LexMatch(lex, SimpleLex.TokenType.ID);
 
 				if (lex.Lexum[0] == '.')
@@ -371,7 +371,7 @@ namespace Portland.AI.Barks
 
 		void WhenExpr(SimpleLex lex, BarkRule rule)
 		{
-			TextTableToken id = Strings.Get(lex.Lexum);
+			StringTableToken id = Strings.Get(lex.Lexum);
 			LexMatch(lex, SimpleLex.TokenType.ID);
 
 			var filter = new FactFilter();
@@ -720,7 +720,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		TextTableToken ScanName(SimpleLex lex)
+		StringTableToken ScanName(SimpleLex lex)
 		{
 			StringBuilder buf = new StringBuilder();
 			buf.Append(lex.Lexum);

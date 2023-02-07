@@ -10,6 +10,6 @@ namespace Portland.AI.Barks
     public class BarkEvent
 	{
 		public Agent Agent;
-		public TextTableToken Concept;
+		public StringTableToken Concept;
 	}
 }

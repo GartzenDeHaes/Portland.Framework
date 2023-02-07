@@ -9,8 +9,8 @@ namespace Portland.AI.Barks
 {
     public struct AgentStateFilter
 	{
-		public TextTableToken ActorName;
+		public StringTableToken ActorName;
 		public bool Not;
-		public TextTableToken FlagName;
+		public StringTableToken FlagName;
 	}
 }

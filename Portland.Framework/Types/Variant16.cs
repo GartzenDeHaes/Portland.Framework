@@ -52,7 +52,7 @@ namespace Portland
 			public String8 AsString;
 
 			[FieldOffset(0)]
-			public StringTabRef AsStrInTab;
+			public StringTableToken AsStrInTab;
 
 			[FieldOffset(0)]
 			public BitSet64 AsBits1;
@@ -562,7 +562,7 @@ namespace Portland
 					case VariantType.Vec3i:
 						return idx == 0 ? (int)Vectori.X : idx == 1 ? (int)Vectori.Y : idx == 2 ? (int)Vectori.Z : Int32.MinValue;
 					case VariantType.String:
-						return _value.AsStrInTab[idx];
+						return Variant8.StrTab.GetString(_value.AsStrInTab)[idx];
 					default:
 						return Int32.MinValue;
 				}
@@ -612,7 +612,7 @@ namespace Portland
 				case VariantType.StringIntern:
 					return _value.AsString.Equals(s);
 				case VariantType.String:
-					return _value.AsStrInTab == s;
+					return s.Length == _value.AsStrInTab.Length && Variant8.StrTab.Get(s) == _value.AsStrInTab;
 				default:
 					return false;
 			}
@@ -682,7 +682,7 @@ namespace Portland
 				case VariantType.StringIntern:
 					_value.AsStrInTab = Variant8.StrTab.Get(_value.AsString);
 					_value.TypeIs = VariantType.String;
-					return _value.AsStrInTab.ToString();
+					return Variant8.StrTab.GetString(_value.AsStrInTab);
 				case VariantType.Vec3:
 					return _value.AsVector3.ToString();
 				case VariantType.Vec3i:
@@ -690,7 +690,7 @@ namespace Portland
 				case VariantType.Bool:
 					return _value.AsInt != 0 ? "true" : "false";
 				case VariantType.String:
-					return _value.AsStrInTab.ToString();
+					return Variant8.StrTab.GetString(_value.AsStrInTab);
 				default:
 					return String.Empty;
 			}

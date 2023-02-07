@@ -15,7 +15,7 @@ namespace Portland.AI.Barks
 		[Test]
 		public void FullSetupBaseTest()
 		{
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
@@ -56,7 +56,7 @@ namespace Portland.AI.Barks
 		[Test]
 		public void HealthAlertTest()
 		{
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), strings, new RandMin());
 
 			string saidConcept = String.Empty;

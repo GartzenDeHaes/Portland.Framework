@@ -150,8 +150,8 @@ namespace Portland.Mathmatics
 
 			for (int x = 0; x < buf.Length; x++)
 			{
-				cvt.intValue = (uint)Rnd.Next();
-				buf[x] = cvt.floatValue;
+				cvt.IntValue = Rnd.Next();
+				buf[x] = cvt.FloatValue;
 			}
 		}
 

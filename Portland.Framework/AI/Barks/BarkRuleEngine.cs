@@ -16,7 +16,7 @@ namespace Portland.AI.Barks
     public sealed class BarkRuleEngine
 	{
 		readonly World _world;
-		readonly TextTable _strings;
+		readonly StringTable _strings;
 		readonly IRandom _random;
 		RulePack _rules;
 
@@ -24,8 +24,8 @@ namespace Portland.AI.Barks
 		List<BarkCommand> _cmdsDelaying = new List<BarkCommand>();
 
 		public Command<BarkCommand, BarkRule> OnSay = new Command<BarkCommand, BarkRule>();
-		public ObservableValue<TextTableToken> CurrentConcept = new ObservableValue<TextTableToken>();
-		public Notify<TextTableToken> OnEventRaised = new Notify<TextTableToken>();
+		public ObservableValue<StringTableToken> CurrentConcept = new ObservableValue<StringTableToken>();
+		public Notify<StringTableToken> OnEventRaised = new Notify<StringTableToken>();
 
 		public void SetRules(RulePack ruleSet)
 		{
@@ -128,7 +128,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(Dictionary<TextTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
+		void SetVars(Dictionary<StringTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -140,7 +140,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void AddToVar(Dictionary<TextTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
+		void AddToVar(Dictionary<StringTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -154,7 +154,7 @@ namespace Portland.AI.Barks
 
 		public int DelayingCount { get { return _cmdsDelaying.Count; } }
 
-		public BarkRuleEngine(World world, TextTable strings, IRandom rand)
+		public BarkRuleEngine(World world, StringTable strings, IRandom rand)
 		{
 			_world = world;
 			_strings = strings;

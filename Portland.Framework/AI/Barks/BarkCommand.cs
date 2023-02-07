@@ -23,8 +23,8 @@ namespace Portland.AI.Barks
 		public float DelayTime;
 		public float DelayRemainingToRun;
 		public AsciiId4 CommandName;
-		public TextTableToken ActorName;
-		public TextTableToken Arg1;
+		public StringTableToken ActorName;
+		public StringTableToken Arg1;
 		public Variant8 Arg2;
 		public float Duration = 5f;
 

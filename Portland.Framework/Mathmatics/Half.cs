@@ -46,17 +46,17 @@ namespace Portland.Mathmatics
 		private static uint asuint(float f)
 		{
 			IntFloat ivf;
-			ivf.intValue = 0U;
-			ivf.floatValue = f;
-			return ivf.intValue;
+			ivf.UIntValue = 0U;
+			ivf.FloatValue = f;
+			return ivf.UIntValue;
 		}
 
 		private static float asfloat(uint i)
 		{
 			IntFloat ivf;
-			ivf.floatValue = 0.0f;
-			ivf.intValue = i;
-			return ivf.floatValue;
+			ivf.FloatValue = 0.0f;
+			ivf.UIntValue = i;
+			return ivf.FloatValue;
 		}
 
 		/// <summary>Returns the floating point representation of a half-precision floating point value.</summary>

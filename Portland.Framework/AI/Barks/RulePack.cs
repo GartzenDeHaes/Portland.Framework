@@ -15,7 +15,7 @@ namespace Portland.AI.Barks
 			Rules = Array.Empty<BarkRule>();
 		}
 
-		public void DisableRule(TextTableToken actorId, AsciiId4 action, TextTableToken directObject)
+		public void DisableRule(StringTableToken actorId, AsciiId4 action, StringTableToken directObject)
 		{
 			BarkRule rule = null;
 
@@ -29,7 +29,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		public void Parse(TextTable strings, string ruleText)
+		public void Parse(StringTable strings, string ruleText)
 		{
 			BarkSerializer parser = new BarkSerializer(strings);
 			var rulelist = parser.Deserialize(ruleText);
@@ -38,7 +38,7 @@ namespace Portland.AI.Barks
 			Rules = rulelist.OrderByDescending(r => r.Priority).ToArray();
 		}
 
-		public BarkRule.RuleWhenBuilder CreateRule(TextTable strings, string ruleKey)
+		public BarkRule.RuleWhenBuilder CreateRule(StringTable strings, string ruleKey)
 		{
 			var rule = new BarkRule { RuleKey = ruleKey };
 			var rules = Rules.ToList();

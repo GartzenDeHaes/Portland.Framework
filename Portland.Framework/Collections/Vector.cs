@@ -50,11 +50,17 @@ namespace Portland.Collections
 			}
 		}
 
+		/// <summary>
+		/// Bottom of stack, first element in list
+		/// </summary>
 		public T Head()
 		{
 			return m_data[0];
 		}
 
+		/// <summary>
+		/// Top of stack, last element in list
+		/// </summary>
 		public T Tail()
 		{
 			return m_data[m_used - 1];

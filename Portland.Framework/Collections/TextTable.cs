@@ -1,36 +1,97 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+using Portland.Mathmatics.Geometry;
 using Portland.Text;
 
 namespace Portland.Collections
 {
-	public sealed class TextTable
+	public struct StringTableToken
 	{
-		public struct StringHolder
+		public short Index;
+		public short Length;
+
+		public bool Equals(in StringTableToken stok)
 		{
-			public string Lexum;
-			public int MurmurHashCode;
+			return Index == stok.Index;
 		}
 
-		Vector<StringHolder> _strings = new Vector<StringHolder>(64);
+		public override bool Equals(object obj)
+		{
+			if (obj is StringTableToken stok)
+			{
+				return Index == stok.Index;
+			}
+			return false;
+		}
 
-		public TextTable()
+		public override int GetHashCode()
+		{
+			return Length << 16 | (int)Index;
+		}
+
+		public override string ToString()
+		{
+			//return $"{StartsWith}({Index})";
+			return $"({Index})";
+		}
+
+		public static bool operator ==(in StringTableToken a, in StringTableToken b)
+		{
+			return a.Index == b.Index;// && a.HashCode == b.HashCode;
+		}
+
+		public static bool operator !=(in StringTableToken a, in StringTableToken b)
+		{
+			return a.Index != b.Index;// && a.HashCode != b.HashCode;
+		}
+	}
+
+	public sealed class StringTable
+	{
+		Dictionary<int, int> _hashIndex = new Dictionary<int, int>();
+		Vector<string> _strings = new Vector<string>(64);
+
+		public StringTable()
 		{
 			// Index zero is empty string
-			_strings.Add(new StringHolder { Lexum = string.Empty, MurmurHashCode = StringHelper.HashMurmur32(string.Empty) });
+			_hashIndex.Add(StringHelper.HashMurmur32(String.Empty), 0);
+			_strings.Add(String.Empty);
 		}
 
-		public bool TryGet(string lexum, out TextTableToken ret)
+		public bool TryGet(string lexum, out StringTableToken ret)
 		{
-			ret = new TextTableToken();
+			ret = new StringTableToken();
+			int index;
 
-			for (int x = 0; x < _strings.Count; x++)
+			if (TryHash(lexum, out index) || ScanForString(lexum, out index))
 			{
-				if (_strings[x].Lexum.Equals(lexum))
+				ret.Index = (short)index;
+				ret.Length = (short)lexum.Length;
+				return true;
+			}
+
+			return false;
+		}
+
+		bool TryHash(string lexum, out int index)
+		{
+			int hash = StringHelper.HashMurmur32(lexum);
+			if (_hashIndex.TryGetValue(hash, out index))
+			{
+				return _strings[index].Equals(lexum);
+			}
+
+			return false;
+		}
+
+		bool ScanForString(string lexum, out int index)
+		{
+			for (index = 0; index < _strings.Count; index++)
+			{
+				if (_strings[index].Equals(lexum))
 				{
-					ret.Index = x;
-					ret.HashCode = _strings[x].MurmurHashCode;
-					//ret.StartsWith = AsciiId4.ConstructStartsWith(lexum);
 					return true;
 				}
 			}
@@ -38,9 +99,9 @@ namespace Portland.Collections
 			return false;
 		}
 
-		public TextTableToken Get(string lexum)
+		public StringTableToken Get(string lexum)
 		{
-			if (TryGet(lexum, out TextTableToken ret))
+			if (TryGet(lexum, out StringTableToken ret))
 			{
 				return ret;
 			}
@@ -48,27 +109,33 @@ namespace Portland.Collections
 			return Add(lexum);
 		}
 
-		public TextTableToken Get(int index)
+		public StringTableToken Get(short index)
 		{
-			return new TextTableToken { Index = index, HashCode = _strings[index].MurmurHashCode/*, StartsWith = AsciiId4.ConstructStartsWith(_strings[index].Lexum)*/ };
+			return new StringTableToken { Index = index, Length = (short)_strings[index].Length };
 		}
 
-		public string GetString(in TextTableToken token)
+		public string GetString(in StringTableToken token)
 		{
-			return _strings[token.Index].Lexum;
+			return _strings[token.Index];
 		}
 
-		public bool TryGet(StringBuilder buf, out TextTableToken ret)
+		bool TryHash(StringBuilder lexum, out int index)
 		{
-			ret = new TextTableToken();
-
-			for (int x = 0; x < _strings.Count; x++)
+			int hash = StringHelper.HashMurmur32(lexum);
+			if (_hashIndex.TryGetValue(hash, out index))
 			{
-				if (StringHelper.AreEqual(buf, _strings[x].Lexum))
+				return lexum.Equals(_strings[index]);
+			}
+
+			return false;
+		}
+
+		bool ScanForString(StringBuilder lexum, out int index)
+		{
+			for (index = 0; index < _strings.Count; index++)
+			{
+				if (_strings[index].Equals(lexum))
 				{
-					ret.Index = x;
-					ret.HashCode = _strings[x].MurmurHashCode;
-					//ret.StartsWith = AsciiId4.ConstructStartsWith(buf);
 					return true;
 				}
 			}
@@ -76,9 +143,24 @@ namespace Portland.Collections
 			return false;
 		}
 
-		public TextTableToken Get(StringBuilder buf)
+		public bool TryGet(StringBuilder buf, out StringTableToken ret)
 		{
-			if (TryGet(buf, out TextTableToken ret))
+			ret = new StringTableToken();
+			int index;
+
+			if (TryHash(buf, out index) || ScanForString(buf, out index))
+			{
+				ret.Index = (short)index;
+				ret.Length = (short)buf.Length;
+				return true;
+			}
+
+			return false;
+		}
+
+		public StringTableToken Get(StringBuilder buf)
+		{
+			if (TryGet(buf, out StringTableToken ret))
 			{
 				return ret;
 			}
@@ -86,41 +168,37 @@ namespace Portland.Collections
 			return Add(buf.ToString());
 		}
 
-		TextTableToken Add(string lexum)
+		public string GetString(StringBuilder buf)
 		{
-			var holder = new StringHolder { Lexum = lexum, MurmurHashCode = StringHelper.HashMurmur32(lexum) };
-			return new TextTableToken()
+			if (TryGet(buf, out StringTableToken ret))
 			{
-				Index = _strings.Add(holder),
-				HashCode = holder.MurmurHashCode,
-				//StartsWith = AsciiId4.ConstructStartsWith(lexum)
+				return GetString(ret);
+			}
+
+			return GetString(Add(buf.ToString()));
+		}
+
+		StringTableToken Add(string lexum)
+		{
+			var tok = new StringTableToken()
+			{
+				Index = (short)_strings.Add(lexum),
+				Length = (short)lexum.Length,
 			};
+
+			_hashIndex.TryAdd(StringHelper.HashMurmur32(lexum), tok.Index);
+
+			return tok;
 		}
 
 		public bool Contains(string lexum)
 		{
-			for (int x = 0; x < _strings.Count; x++)
-			{
-				if (_strings[x].Lexum.Equals(lexum))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return TryHash(lexum, out int _) || ScanForString(lexum, out int _);
 		}
 
 		public bool Contains(StringBuilder buf)
 		{
-			for (int x = 0; x < _strings.Count; x++)
-			{
-				if (StringHelper.AreEqual(buf, _strings[x].Lexum))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return TryHash(buf, out int _) || ScanForString(buf, out int _);
 		}
 	}
 }

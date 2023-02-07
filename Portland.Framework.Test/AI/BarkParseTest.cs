@@ -155,6 +155,18 @@ namespace Portland.AI.Barks
 		}
 
 		[Test]
+		public void Parse_Flags_Alias_Regression01()
+		{
+			const string ruleText = @"ALIAS FLAG DAYLIGHT AS DLT.
+RULE test WHEN FLAGS ARE DLT DO .";
+
+			var parser = new BarkSerializer();
+			var rules = parser.Deserialize(ruleText);
+			Assert.That(rules, Is.Not.Null);
+			Assert.That(rules.Count, Is.EqualTo(1));
+		}
+
+		[Test]
 		public void Parse_Flags_Alias()
 		{
 			const string ruleText = @"ALIAS FLAG DAYLIGHT AS DLT.

@@ -10,12 +10,12 @@ namespace Portland.AI.Barks
 	{
 		public bool HasRun;
 
-		public TextTableToken ActorName;
+		public StringTableToken ActorName;
 		public AsciiId4 Action;
-		public TextTableToken ObjectName;
-		public TextTableToken InstrumentName;
+		public StringTableToken ObjectName;
+		public StringTableToken InstrumentName;
 
-		public TextTableToken ObserverName;
+		public StringTableToken ObserverName;
 
 		public WorldStateFlags WorldFlagsSet;
 		public WorldStateFlags WorldFlagsClear;
@@ -65,7 +65,7 @@ namespace Portland.AI.Barks
 		public struct RuleWhenBuilder
 		{
 			internal BarkRule Rule;
-			internal TextTable Strings;
+			internal StringTable Strings;
 
 			/// <summary>
 			/// The agent causing the event AGENT SAYS TEXT_KEY
@@ -190,7 +190,7 @@ namespace Portland.AI.Barks
 		public struct RuleDoBuilder
 		{
 			internal BarkRule Rule;
-			internal TextTable Strings;
+			internal StringTable Strings;
 
 			public RuleDoBuilder Say(string speakerName, string conceptOrObject, float duration = 3f, params string[] defaultText)
 			{

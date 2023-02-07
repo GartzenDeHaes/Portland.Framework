@@ -14,10 +14,10 @@ namespace Portland.RPG
 		StatFactory _stats;
 		PropertyManager _props;
 		Dictionary<int, Effect> _effectsById = new Dictionary<int, Effect>();
-		Dictionary<TextTableToken, Effect[]> _effectGroupByName = new Dictionary<TextTableToken, Effect[]>();
-		TextTable _strings;
+		Dictionary<StringTableToken, Effect[]> _effectGroupByName = new Dictionary<StringTableToken, Effect[]>();
+		StringTable _strings;
 
-		public CharacterManager(TextTable strings, StatFactory stats, PropertyManager props)
+		public CharacterManager(StringTable strings, StatFactory stats, PropertyManager props)
 		{
 			_strings = strings;
 			_stats = stats;

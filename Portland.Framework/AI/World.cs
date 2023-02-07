@@ -19,12 +19,12 @@ namespace Portland.AI
 		public WorldStateFlags Flags;
 		public readonly UtilityFactory UtilitySystem;
 		public BarkRuleEngine BarkEngine;
-		public Dictionary<TextTableToken, IObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, IObservableValue<Variant8>>();
-		Dictionary<TextTableToken, Agent> _actors = new Dictionary<TextTableToken, Agent>();
-		public readonly TextTable Strings;
+		public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
+		Dictionary<StringTableToken, Agent> _actors = new Dictionary<StringTableToken, Agent>();
+		public readonly StringTable Strings;
 
 		List<Action<Agent>> _alertsToAddToActor = new List<Action<Agent>>();
-		TextTableToken _actorUtilityObjectiveFactName;
+		StringTableToken _actorUtilityObjectiveFactName;
 
 		public void Update(float deltaTimeInSeconds)
 		{
@@ -34,7 +34,7 @@ namespace Portland.AI
 			BarkEngine.Update();
 		}
 
-		public World(IClock clock, TextTable strings, IRandom rnd)
+		public World(IClock clock, StringTable strings, IRandom rnd)
 		{
 			Clock = clock;
 			Strings = strings;
@@ -81,7 +81,7 @@ namespace Portland.AI
 			}
 		}
 
-		public bool TryGetActor(TextTableToken name, out Agent actor)
+		public bool TryGetActor(StringTableToken name, out Agent actor)
 		{
 			return _actors.TryGetValue(name, out actor);
 		}

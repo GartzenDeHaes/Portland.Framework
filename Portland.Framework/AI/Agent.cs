@@ -12,10 +12,10 @@ namespace Portland.AI
     public sealed class Agent
     {
         public AgentStateFlags Flags;
-        public TextTableToken Name;
-        public TextTableToken Class;
+        public StringTableToken Name;
+        public StringTableToken Class;
         //public TextTableToken Location;
         public UtilitySetInstance UtilitySet;
-        public Dictionary<TextTableToken, IObservableValue<Variant8>> Facts = new Dictionary<TextTableToken, IObservableValue<Variant8>>();
+        public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
     }
 }

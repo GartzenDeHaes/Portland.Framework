@@ -20,7 +20,7 @@ namespace Portland.AI.Barks
 WHEN ACTION IS SEE, OBJECT IS barrel 
 DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
 
 			RulePack rulePack = new RulePack();
@@ -76,7 +76,7 @@ DO
 	ADD 1 TO barrels
 .
 ";
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(strings, barkScript);
@@ -184,7 +184,7 @@ DO
 	FRANCIS SAYS there_is_one_thing ""Francis: Well, there is one thing."" DURATION 3
 .
 ";
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 
 			world.Flags.Daylight = true;
@@ -372,7 +372,7 @@ DO
 		DURATION 3
 .
 ";
-			TextTable strings = new TextTable();
+			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(strings, barkScript);
