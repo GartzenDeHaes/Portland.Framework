@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.RPG
@@ -13,6 +14,7 @@ namespace Portland.RPG
 		public short Index;
 		public short DefinitonIndex;
 		public AsciiId4 PropertyId;
+		public DiceTerm Probability;
 	}
 
 	public struct PropertySetKeys

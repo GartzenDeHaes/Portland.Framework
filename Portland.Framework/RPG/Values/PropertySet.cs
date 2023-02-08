@@ -49,6 +49,16 @@ namespace Portland.RPG
 			return false;
 		}
 
+		public bool TrySetValue(in AsciiId4 id, float value)
+		{
+			if (FindKey(id, out int index))
+			{
+				this[index] = value;
+				return true;
+			}
+			return false;
+		}
+
 		public void ModifyValueAt(int index, float delta)
 		{
 			_manager.ModifyPropertyValue(_keys.Properties[index], delta);

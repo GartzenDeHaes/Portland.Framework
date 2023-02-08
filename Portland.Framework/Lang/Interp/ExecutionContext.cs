@@ -24,6 +24,8 @@ namespace Portland.Interp
 			get; private set;
 		}
 
+		public string LastError;
+
 		// TODO: convert built-ins to static or a table
 		//private readonly Dictionary<string, IFunction> _functs = new Dictionary<string, IFunction>(/*StringComparer.InvariantCultureIgnoreCase*/); //< 10% performance hit to ignore case
 
@@ -44,6 +46,7 @@ namespace Portland.Interp
 
 		public void SetError(string message)
 		{
+			LastError = message;
 			HasError = true;
 			OnLog?.Invoke(LogMessageSeverity.Error, message);
 		}

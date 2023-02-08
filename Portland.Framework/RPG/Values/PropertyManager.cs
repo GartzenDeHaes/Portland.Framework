@@ -156,14 +156,14 @@ namespace Portland.RPG
 			return new PropertySet(CreateSetKeysInstance(setId), this);
 		}
 
-		public PropertyManager(int numPropDefs = 8)
+		public PropertyManager(int numPropDefs = 16)
 		{
 			_definitions = new Vector<PropertyDefinition>(numPropDefs);
 			_values = new Vector<float>[numPropDefs];
 
 			for (int i = 0; i < numPropDefs; i++)
 			{
-				_values[i] = new Vector<float>();
+				_values[i] = new Vector<float>(16);
 			}
 		}
 	}

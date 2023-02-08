@@ -36,7 +36,7 @@ namespace Portland.RPG
 			var prog = new BasicProgram();
 			prog.GetFunctionBuilder()
 			.AddAllBuiltin()
-			.Add("STAT", (ExecutionContext ctx) => {
+			.Add("STAT", 1, (ExecutionContext ctx) => {
 				var name = ctx.Context["a"];
 				if (Stats.TryGetValue(name.ToString(), out float value))
 				{
@@ -44,7 +44,15 @@ namespace Portland.RPG
 				}
 				else
 				{
-					ctx.SetError($"{"GETSTAT"}('{name}')");
+					ctx.SetError($"{"STAT"}('{name}'): '{name}' NOT FOUND");
+					ctx.Context.Set(0f);
+				}
+			})
+			.Add("STAT", 2, (ExecutionContext ctx) => {
+				var name = ctx.Context["a"];
+				if (! Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
+				{
+					ctx.SetError($"{"STAT"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
 					ctx.Context.Set(0f);
 				}
 			});

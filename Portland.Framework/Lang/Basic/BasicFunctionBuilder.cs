@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Xml.Linq;
 
 using Portland.Interp;
 using Portland.Mathmatics;
@@ -61,11 +61,33 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder Add(string name, Action<ExecutionContext> callback)
+		public BasicNativeFunctionBuilder Add(string name, int argCount, Action<ExecutionContext> callback)
 		{
-			InternalAdd(name, 1, new FuncStub
+			string[] argnames;
+
+			if (argCount == 0)
 			{
-				ArgNames = ArgNamesA,
+				argnames = Array.Empty<string>();
+			}
+			else if (argCount == 1)
+			{
+				argnames = ArgNamesA;
+			}
+			else if (argCount == 2)
+			{
+				argnames = ArgNamesAB;
+			}
+			else
+			{
+				argnames = new string[argCount];
+				for (int i = 0; i < argCount; i++)
+				{
+					argnames[i] = ((char)((int)'a' + i)).ToString();
+				}
+			}
+			InternalAdd(name, argCount, new FuncStub
+			{
+				ArgNames = argnames,
 				Fn = callback
 			});
 			return this;
@@ -73,7 +95,7 @@ namespace Portland.Basic
 
 		public BasicNativeFunctionBuilder AddWithNumericArgCheck(string name, Func<Variant, Variant> callback)
 		{
-			Add(name, (ctx) => {
+			Add(name, 1, (ctx) => {
 				var num = ctx.Context["a"];
 				if (num.IsNumeric())
 				{
@@ -103,6 +125,7 @@ namespace Portland.Basic
 			AddAbs();
 			AddAtan();
 			AddCos();
+			AddError();
 			AddExp();
 			AddHas();
 			AddInt();
@@ -141,6 +164,29 @@ namespace Portland.Basic
 			if (!HasFunction("COS", 1))
 			{
 				AddWithNumericArgCheck("COS", (num) => MathF.Cos(num));
+			}
+			return this;
+		}
+
+		public BasicNativeFunctionBuilder AddError()
+		{
+			if (!HasFunction("ERROR", 0))
+			{
+				Add("ERROR", 0, (ExecutionContext ctx) =>
+				{
+					var name = ctx.Context["a"];
+					ctx.Context.Set(ctx.LastError);
+				});
+			}
+
+			if (!HasFunction("ERROR", 1))
+			{
+				Add("ERROR", 1, (ExecutionContext ctx) =>
+				{
+					var msg = ctx.Context["a"];
+					ctx.SetError(msg);
+					ctx.Context.Set(msg);
+				});
 			}
 			return this;
 		}
