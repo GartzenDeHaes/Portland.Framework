@@ -11,16 +11,14 @@ namespace Portland.RPG
 {
 	public sealed class CharacterManager
 	{
-		StatFactory _stats;
 		PropertyManager _props;
-		Dictionary<int, Effect> _effectsById = new Dictionary<int, Effect>();
-		Dictionary<StringTableToken, Effect[]> _effectGroupByName = new Dictionary<StringTableToken, Effect[]>();
+		Dictionary<String8, Effect> _effectsById = new Dictionary<String8, Effect>();
+		Dictionary<String8, EffectGroup> _effectGroupByName = new Dictionary<String8, EffectGroup>();
 		StringTable _strings;
 
-		public CharacterManager(StringTable strings, StatFactory stats, PropertyManager props)
+		public CharacterManager(StringTable strings, PropertyManager props)
 		{
 			_strings = strings;
-			_stats = stats;
 			_props = props;
 		}
 
@@ -30,42 +28,55 @@ namespace Portland.RPG
 			return null;
 		}
 
-		public void DefineEffect(string name, EffectType appliesTo, in Variant8 value, float duration, EffectValueType isNumOrPct, Requirement[] requirements)
+		#region Effects
+
+		public bool HasEffect(string name)
 		{
-			int id = StringHelper.HashMurmur32(name);
+			//int id = StringHelper.HashMurmur32(name);
+			var id = String8.FromTruncate(name);
+
+			return _effectsById.ContainsKey(id);
+		}
+
+		public void DefineEffect(string name, AsciiId4 appliesToPropId, in Variant8 value, float duration, EffectValueType isNumOrPct, PropertyRequirement[] requirements)
+		{
+			//int id = StringHelper.HashMurmur32(name);
+			var id = String8.FromTruncate(name);
 
 			_effectsById.Add
 			(
 				id,
-				new Effect { EffectId = id, EffectName = name, AppliesTo = appliesTo, Value = value, Duration = duration, IsNumOrPct = isNumOrPct, Requirements = requirements }
+				new Effect { EffectId = id, EffectName = name, PropertyId = appliesToPropId, Value = value, Duration = duration, IsNumOrPct = isNumOrPct, Requirements = requirements }
 			);
 		}
 
-		public void DefineEffect(string name, EffectType appliesTo, in Variant8 value, EffectValueType isNumOrPct, Requirement[] requirements)
+		public void DefineEffect(string name, AsciiId4 appliesToPropId, in Variant8 value, EffectValueType isNumOrPct, PropertyRequirement[] requirements)
 		{
-			DefineEffect(name, appliesTo, value, 0f, isNumOrPct, requirements);
+			DefineEffect(name, appliesToPropId, value, 0f, isNumOrPct, requirements);
 		}
 
-		public void DefineEffect(string name, EffectType appliesTo, in Variant8 value, EffectValueType isNumOrPct)
+		public void DefineEffect(string name, AsciiId4 appliesToPropId, in Variant8 value, EffectValueType isNumOrPct)
 		{
-			DefineEffect(name, appliesTo, value, 0f, isNumOrPct, Array.Empty<Requirement>());
+			DefineEffect(name, appliesToPropId, value, 0f, isNumOrPct, Array.Empty<PropertyRequirement>());
 		}
 
-		public void DefineEffect(string name, EffectType appliesTo, in Variant8 value, float duration, EffectValueType isNumOrPct)
+		public void DefineEffect(string name, AsciiId4 appliesToPropId, in Variant8 value, float duration, EffectValueType isNumOrPct)
 		{
-			DefineEffect(name, appliesTo, value, duration, isNumOrPct, Array.Empty<Requirement>());
+			DefineEffect(name, appliesToPropId, value, duration, isNumOrPct, Array.Empty<PropertyRequirement>());
 		}
 
-		public void DefineEffectGroup(string groupName, string[] effectNames)
+		public void DefineEffectGroup(in String8 groupName, String8[] effectNames, PropertyRequirement[] requirements)
 		{
 			List<Effect> effects = new List<Effect>(effectNames.Length);
 
 			for (int i = 0; i < effectNames.Length; i++)
 			{
-				effects.Add(_effectsById[StringHelper.HashMurmur32(effectNames[i])]);
+				effects.Add(_effectsById[effectNames[i]]);
 			}
 
-			_effectGroupByName.Add(_strings.Get(groupName), effects.ToArray());
+			_effectGroupByName.Add(groupName, new EffectGroup { EffectGroupId = groupName, Effects = effects.ToArray(), Requirements = requirements });
 		}
+
+		#endregion
 	}
 }

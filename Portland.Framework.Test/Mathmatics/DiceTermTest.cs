@@ -35,6 +35,8 @@ namespace Portland.Mathmatics
 			Assert.That(dieterm.Sides, Is.EqualTo(6));
 			Assert.That(dieterm.PlusConst, Is.EqualTo(0));
 			Assert.That(dieterm.Roll(MathHelper.Rnd), Is.InRange(1, 6));
+			Assert.That(dieterm.Minimum, Is.EqualTo(1));
+			Assert.That(dieterm.Maximum, Is.EqualTo(6));
 		}
 
 		[Test]
@@ -45,6 +47,8 @@ namespace Portland.Mathmatics
 			Assert.That(dieterm.Sides, Is.EqualTo(6));
 			Assert.That(dieterm.PlusConst, Is.EqualTo(0));
 			Assert.That(dieterm.Roll(MathHelper.Rnd), Is.InRange(3, 18));
+			Assert.That(dieterm.Minimum, Is.EqualTo(3));
+			Assert.That(dieterm.Maximum, Is.EqualTo(18));
 		}
 
 		[Test]
@@ -55,6 +59,8 @@ namespace Portland.Mathmatics
 			Assert.That(dieterm.Sides, Is.EqualTo(6));
 			Assert.That(dieterm.PlusConst, Is.EqualTo(2));
 			Assert.That(dieterm.Roll(MathHelper.Rnd), Is.InRange(5, 20));
+			Assert.That(dieterm.Minimum, Is.EqualTo(5));
+			Assert.That(dieterm.Maximum, Is.EqualTo(20));
 		}
 
 		[Test]
@@ -65,6 +71,8 @@ namespace Portland.Mathmatics
 			Assert.That(dieterm.Sides, Is.EqualTo(6));
 			Assert.That(dieterm.PlusConst, Is.EqualTo(-2));
 			Assert.That(dieterm.Roll(MathHelper.Rnd), Is.InRange(1, 16));
+			Assert.That(dieterm.Minimum, Is.EqualTo(1));
+			Assert.That(dieterm.Maximum, Is.EqualTo(16));
 		}
 	}
 }

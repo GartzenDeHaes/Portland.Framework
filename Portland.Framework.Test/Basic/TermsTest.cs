@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Portland.CodeDom;
+using Portland.Interp;
 
 namespace Portland.Basic
 {
@@ -132,13 +133,18 @@ namespace Portland.Basic
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			ExecutionContext ctx = bas.CreateDefaultContext();
+
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
 			bas.Parse("LET A = TRUE : PRINT A\n");
-			bas.Execute();
+			bas.Execute(ctx);
 
 			Assert.That(printOut.ToString(), Is.EqualTo("TRUE"));
+
+			var a = ctx.FindVariable("A");
+			Assert.True(a);
 		}
 
 		[Test]

@@ -119,6 +119,14 @@ namespace Portland.Basic
 			}
 		}
 
+		public void AppendInput(StringBuilder text)
+		{
+			lock (_text)
+			{
+				_text.Append(text);
+			}
+		}
+
 		private char NextCh()
 		{
 			if (_textPos >= _text.Length)

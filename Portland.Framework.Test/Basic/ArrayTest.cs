@@ -50,6 +50,7 @@ PRINT LEN(A)
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddLen();
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
@@ -70,6 +71,7 @@ PRINT LEN(B)
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddLen();
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
@@ -93,6 +95,7 @@ PRINT LEN(A) : PRINT LEN(B)
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddLen();
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
@@ -116,6 +119,8 @@ PRINT HAS(A, 1) : PRINT HAS(A, 3) : PRINT HAS(A, 'bob')
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddHas();
+
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 

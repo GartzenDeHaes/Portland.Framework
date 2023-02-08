@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
+using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.RPG
@@ -32,9 +34,16 @@ namespace Portland.RPG
 		public float Maximum;
 		public PropertyChangeSemantic ChangeSemantic;
 		public float DefaultValue;
-
+		public DiceTerm Probability;
+		public bool DefaultValueRandom;
 		public AsciiId4 PropertyId;
+		public String8 Category;
 		public string LongName;
+
+		public float DefaultValueForInitialization
+		{
+			get { return DefaultValueRandom ? Probability.Roll(MathHelper.Rnd) : DefaultValue; }
+		}
 
 		public float DefaultDefaultValue
 		{
@@ -62,7 +71,7 @@ namespace Portland.RPG
 			Property.Maximum = 100;
 			Property.ChangePerSecond = 0.01f;
 			Property.DefaultValue = Property.DefaultDefaultValue;
-
+			Property.Probability = DiceTerm.Parse("1d100");
 			return this;
 		}
 
@@ -74,6 +83,7 @@ namespace Portland.RPG
 			Property.Maximum = 100;
 			Property.ChangePerSecond = 0.01f;
 			Property.DefaultValue = Property.DefaultDefaultValue;
+			Property.Probability = DiceTerm.Parse("1d100");
 
 			return this;
 		}
@@ -89,6 +99,10 @@ namespace Portland.RPG
 			{
 				Property.DefaultValue = min;
 			}
+			if (Property.Minimum > Property.Probability.Minimum && Property.Maximum < Int16.MaxValue)
+			{
+				Property.Probability = new DiceTerm(1, (short)(Property.Maximum - Property.Minimum), 0);
+			}
 			return this;
 		}
 
@@ -103,6 +117,10 @@ namespace Portland.RPG
 			{
 				Property.DefaultValue = max;
 			}
+			if (Property.Maximum > Property.Probability.Maximum && Property.Maximum < Int16.MaxValue)
+			{
+				Property.Probability = new DiceTerm(1, (short)(Property.Maximum - Property.Minimum), 0);
+			}
 			return this;
 		}
 
@@ -111,6 +129,19 @@ namespace Portland.RPG
 			Debug.Assert(val >= Property.Minimum && val <= Property.Maximum);
 
 			Property.DefaultValue = val;
+
+			return this;
+		}
+
+		public PropertyDefinitionBuilder SetProbability(in String8 diceSpec)
+		{
+			Property.Probability = DiceTerm.Parse(diceSpec);
+			return this;
+		}
+
+		public PropertyDefinitionBuilder SetRandomizeDefault(bool randomizeOnInit)
+		{
+			Property.DefaultValueRandom = randomizeOnInit;
 
 			return this;
 		}

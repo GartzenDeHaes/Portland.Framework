@@ -7,7 +7,7 @@ using Portland.Collections;
 
 namespace Portland.Interp
 {
-	public sealed class ExecutionContext
+	public sealed class ExecutionContext : IDisposable
 	{
 		private readonly Vector<Variant> _ctxStk = new Vector<Variant>();
 
@@ -25,13 +25,13 @@ namespace Portland.Interp
 		}
 
 		// TODO: convert built-ins to static or a table
-		private readonly Dictionary<string, IFunction> _functs = new Dictionary<string, IFunction>();
+		//private readonly Dictionary<string, IFunction> _functs = new Dictionary<string, IFunction>(/*StringComparer.InvariantCultureIgnoreCase*/); //< 10% performance hit to ignore case
 
 		// Application specific commands. (built-ins are handled by the parser).
 		private readonly ICommandRunner _cmds;
 
 		// TODO: subs need to be persistant, change CodeDocument object or copy from it.
-		private Dictionary<string, IFunction> _progSubs;
+		private Dictionary<SubSig, IFunction> _progSubs;
 
 		public ExecutionContext
 		(
@@ -40,11 +40,6 @@ namespace Portland.Interp
 		{
 			_cmds = cmds;
 			_ctxStk.Add(String.Empty);
-		}
-
-		public BasicNativeFunctionBuilder GetFunctionBuilder()
-		{
-			return new BasicNativeFunctionBuilder { InternalAdd = (name, fn) => _functs.Add(name, fn) };
 		}
 
 		public void SetError(string message)
@@ -58,8 +53,9 @@ namespace Portland.Interp
 			HasError = false;
 		}
 
-		public void ReadyRun(Dictionary<string, IFunction> subs)
+		public void ReadyRun(Dictionary<SubSig, IFunction> subs)
 		{
+			ClearError();
 			_progSubs = subs;
 		}
 
@@ -68,19 +64,19 @@ namespace Portland.Interp
 			_progSubs = null;
 		}
 
-		public IFunction GetSub(string name)
+		public IFunction GetSub(string name, int argCount)
 		{
-			if (_functs.TryGetValue(name, out var fn))
-			{
-				return fn;
-			}
+			//if (_functs.TryGetValue(name, out var fn))
+			//{
+			//	return fn;
+			//}
 
-			if (_progSubs == null)
-			{
-				return null;
-			}
+			//if (_progSubs == null)
+			//{
+			//	return null;
+			//}
 
-			return _progSubs[name];
+			return _progSubs[new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount }];
 		}
 
 		public void PushContex()
@@ -171,6 +167,15 @@ namespace Portland.Interp
 		public void WriteLine(string str)
 		{
 			OnPrint?.Invoke(str);
+		}
+
+		public void Dispose()
+		{
+			_ctxStk.Clear();
+			OnPrint = null;
+			OnLog = null;
+			//_functs.Clear();
+			_progSubs = null;
 		}
 	}
 }

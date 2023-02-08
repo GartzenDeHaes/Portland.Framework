@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Portland.Collections;
 
 namespace Portland.Mathmatics
 {
 	public struct DiceTerm
 	{
 		public sbyte Rolls;
-		public sbyte Sides;
+		public short Sides;
 		public sbyte PlusConst;
 
-		public DiceTerm(sbyte rolls, sbyte sides, sbyte constterm)
+		public int Minimum
+		{
+			get { return Rolls + PlusConst; }
+		}
+
+		public int Maximum
+		{
+			get { return Rolls * Sides + PlusConst; }
+		}
+
+		public DiceTerm(sbyte rolls, short sides, sbyte constterm)
 		{
 			Rolls = rolls;
 			Sides = sides;
@@ -38,7 +42,7 @@ namespace Portland.Mathmatics
 			return dice.Roll(rnd);
 		}
 
-		static sbyte ScanInt(in String8 expression, ref int pos)
+		static short ScanInt(in String8 expression, ref int pos)
 		{
 			int tens = 1;
 			int ret = 0;
@@ -49,7 +53,7 @@ namespace Portland.Mathmatics
 				tens *= 10;
 			}
 
-			return (sbyte)ret;
+			return (short)ret;
 		}
 
 		public static DiceTerm Parse(in String8 expression)
@@ -61,7 +65,7 @@ namespace Portland.Mathmatics
 			{
 				if (Char.IsDigit(expression[pos]))
 				{
-					dice.Rolls = ScanInt(expression, ref pos);
+					dice.Rolls = (sbyte)ScanInt(expression, ref pos);
 				}
 
 				if (pos < expression.Length)
@@ -77,7 +81,7 @@ namespace Portland.Mathmatics
 							if (expression[pos] == '+')
 							{
 								pos++;
-								dice.PlusConst= ScanInt(expression, ref pos);
+								dice.PlusConst= (sbyte)ScanInt(expression, ref pos);
 							}
 							else if (expression[pos] == '-')
 							{

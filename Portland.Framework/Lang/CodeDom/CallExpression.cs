@@ -29,7 +29,7 @@ namespace Portland.CodeDom
 		{
 			Debug.Assert(Left == null && Right == null);
 
-			var sub = ctx.GetSub(_subName);
+			var sub = ctx.GetSub(_subName, Args.Count);
 
 			if (sub == null)
 			{

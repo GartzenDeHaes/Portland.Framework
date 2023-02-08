@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 
 using Portland.CodeDom;
 using Portland.CodeDom.Operators;
@@ -11,8 +12,6 @@ namespace Portland.Basic
 	public sealed class BasicProgram : CodeDocument
 	{
 		private readonly BasicLex _lex = new BasicLex();
-
-		public readonly ExecutionContext Context;
 
 		public Action<ExecutionContext, string, Variant> OnCommand;
 		public Action<string> OnPrint;
@@ -28,9 +27,17 @@ namespace Portland.Basic
 			}
 		}
 
+		public BasicProgram()
+		{
+			_lex.TreatCrAsWs = false;
+		}
+
 		public void Execute()
 		{
-			base.Execute(Context);
+			using (var context = CreateDefaultContext())
+			{
+				base.Execute(context);
+			} 
 		}
 
 		void OnRun(ExecutionContext ctx, string name, Variant args)
@@ -38,16 +45,14 @@ namespace Portland.Basic
 			OnCommand?.Invoke(ctx, name, args);
 		}
 
-		public BasicProgram()
+		public ExecutionContext CreateDefaultContext()
 		{
-			_lex.TreatCrAsWs = false;
-			
-			Context = new ExecutionContext(new CommandRunner { OnCommand = (ctx, name, args) => { OnRun(ctx, name, args); } });
-			Context.GetFunctionBuilder()
-				.AddAllBuiltin();
+			var context = new ExecutionContext(new CommandRunner { OnCommand = (ctx, name, args) => { OnRun(ctx, name, args); } });
 
-			Context.OnPrint += (msg) => { OnPrint?.Invoke(msg); };
-			Context.OnLog += (sever, msg) => { OnError?.Invoke(msg); };
+			context.OnPrint += (msg) => { OnPrint?.Invoke(msg); };
+			context.OnLog += (sever, msg) => { OnError?.Invoke(msg); };
+
+			return context;
 		}
 
 		private bool Match(LexToken token)
@@ -60,21 +65,41 @@ namespace Portland.Basic
 			return _lex.Next();
 		}
 
+		public void Parse(StringBuilder src)
+		{
+			_lex.Clear();
+			_lex.AppendInput(src);
+			_lex.Next();
+
+			ParseContinue();
+
+			_lex.Clear();
+		}
+
 		public void Parse(string src)
 		{
 			_lex.Clear();
 			_lex.AppendInput(src);
 			_lex.Next();
 
-			AddStatement(Stmts());
-
-			if (_lex.Token != LexToken.EOF)
-			{
-				HasSyntaxError = true;
-				ErrorText = "SYNTAX ERROR: " + _lex.Lexum + " on line " + _lex.LineNumber + " unexpected " + _lex.Token.ToString();
-			}
+			ParseContinue();
 
 			_lex.Clear();
+		}
+
+		void ParseContinue()
+		{
+			var stmts = Stmts();
+
+			if (_lex.Token == LexToken.EOF)
+			{
+				AddStatement(stmts);
+			}
+			else
+			{
+				ErrorText = "SYNTAX ERROR: " + _lex.Lexum + " on line " + _lex.LineNumber + " unexpected " + _lex.Token.ToString();
+				throw new SyntaxException(_lex.LineNumber, ErrorText);
+			}
 		}
 
 		private BlockStatement Stmts()
@@ -144,9 +169,9 @@ namespace Portland.Basic
 					case LexToken.NEXT:
 						return stmts;
 					default:
-						HasSyntaxError = true;
 						ErrorText = "SYNTAX ERROR: '" + _lex.Lexum + "' on line " + _lex.LineNumber;
-						return stmts;
+						throw new SyntaxException(_lex.LineNumber, ErrorText);
+						//return stmts;
 				}
 			}
 
@@ -392,7 +417,6 @@ namespace Portland.Basic
 			_lex.Next();
 
 			DefFn fn = new DefFn(_lex.LineNumber, _lex.Lexum);
-			AddSub(fn);
 
 			Match(LexToken.ID);
 			Match(LexToken.LPAR);
@@ -411,6 +435,8 @@ namespace Portland.Basic
 			}
 
 			Match(LexToken.RPAR);
+
+			AddSub(fn);
 
 			fn.CodeBlock = Stmts();
 

@@ -60,9 +60,9 @@ namespace Portland.RPG
 			return _definitions[key.DefinitonIndex].LongName;
 		}
 
-		public PropertyDefinitionBuilder DefineProperty(AsciiId4 id, string name)
+		public PropertyDefinitionBuilder DefineProperty(in AsciiId4 id, string name, in String8 category)
 		{
-			var def = new PropertyDefinition { PropertyId = id, LongName = name, Minimum = 0, Maximum = 100 };
+			var def = new PropertyDefinition { PropertyId = id, Category = category, LongName = name, Minimum = 0, Maximum = 100 };
 
 			for (int i = 0; i < _definitions.Count; i++)
 			{
@@ -78,7 +78,7 @@ namespace Portland.RPG
 			return new PropertyDefinitionBuilder { Property = def };
 		}
 
-		bool TryGetDefinition(AsciiId4 id, out PropertyDefinition def)
+		bool TryGetDefinition(in AsciiId4 id, out PropertyDefinition def)
 		{
 			for (int i = 0; i < _definitions.Count; i++)
 			{
@@ -93,7 +93,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public void DefinePropertySet(String8 setName, AsciiId4[] propIds)
+		public void DefinePropertySet(in String8 setName, AsciiId4[] propIds)
 		{
 			var set = new PropertyDefinitionSet { SetId = setName, Properties = new PropertyDefinition[propIds.Length] };
 
@@ -112,7 +112,7 @@ namespace Portland.RPG
 			_defSets.Add(set);
 		}
 
-		bool TryGetSetDef(String8 setId, out PropertyDefinitionSet setDef)
+		bool TryGetSetDef(in String8 setId, out PropertyDefinitionSet setDef)
 		{
 			for (int i = 0; i < _defSets.Count; i++)
 			{
@@ -127,7 +127,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public PropertySetKeys CreateSetKeysInstance(String8 setId)
+		public PropertySetKeys CreateSetKeysInstance(in String8 setId)
 		{
 			if (!TryGetSetDef(setId, out var setDef))
 			{
@@ -143,7 +143,7 @@ namespace Portland.RPG
 				inst.Properties[i] = new PropertyInstanceKey
 				{
 					PropertyId = def.PropertyId,
-					Index = (short)_values[def.ValueIndex].AddElement(def.DefaultValue),
+					Index = (short)_values[def.ValueIndex].AddElement(def.DefaultValueForInitialization),
 					DefinitonIndex = (short)i,
 				};
 			}
@@ -151,7 +151,7 @@ namespace Portland.RPG
 			return inst;
 		}
 
-		public PropertySet CreateSetInstance(String8 setId)
+		public PropertySet CreateSetInstance(in String8 setId)
 		{
 			return new PropertySet(CreateSetKeysInstance(setId), this);
 		}

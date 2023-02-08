@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
+using Portland.Basic;
 using Portland.CodeDom.Statements;
 using Portland.Collections;
 using Portland.Interp;
@@ -11,12 +13,12 @@ namespace Portland.CodeDom
 	{
 		private readonly Vector<Statement> _statements = new Vector<Statement>();
 		
-		private readonly Dictionary<string, IFunction> _userSubs = new Dictionary<string, IFunction>();
+		private readonly Dictionary<SubSig, IFunction> _userSubs = new Dictionary<SubSig, IFunction>(/*StringComparer.InvariantCultureIgnoreCase*/);  //< 10% performance hit to ignore case
 
-		public bool HasSyntaxError
-		{
-			get; protected set;
-		}
+		//public bool HasSyntaxError
+		//{
+		//	get; protected set;
+		//}
 
 		public string ErrorText
 		{
@@ -25,10 +27,10 @@ namespace Portland.CodeDom
 
 		public void Execute(ExecutionContext ctx)
 		{
-			if (HasSyntaxError)
-			{
-				throw new Exception("Called program with error of: " + ErrorText);
-			}
+			//if (HasSyntaxError)
+			//{
+			//	throw new Exception("Called program with error of: " + ErrorText);
+			//}
 
 			ctx.ReadyRun(_userSubs);
 
@@ -41,6 +43,14 @@ namespace Portland.CodeDom
 			}
 
 			ctx.EndRun();
+		}
+
+		public BasicNativeFunctionBuilder GetFunctionBuilder()
+		{
+			return new BasicNativeFunctionBuilder { 
+				InternalAdd = (name, argCount, fn) => _userSubs.Add(new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount }, fn),
+				HasFunction = (name, argCount) => _userSubs.ContainsKey(new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount })
+			};
 		}
 
 		public CodeDocument()
@@ -59,11 +69,12 @@ namespace Portland.CodeDom
 
 		public void AddSub(DefFn fn)
 		{
-			if (_userSubs.ContainsKey(fn.Name))
+			var ss = new SubSig { Name = String8.FromTruncate(fn.Name), ArgCount = fn.ArgCount };
+			if (_userSubs.ContainsKey(ss))
 			{
 				throw new Exception("Duplicate sub name " + fn.Name);
 			}
-			_userSubs.Add(fn.Name, fn);
+			_userSubs.Add(ss, fn);
 		}
 
 		public virtual void Dispose()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 using Portland.Interp;
 using Portland.Mathmatics;
@@ -35,13 +36,14 @@ namespace Portland.Basic
 
 	public struct BasicNativeFunctionBuilder
 	{
-		public Action<string, IFunction> InternalAdd;
+		public Action<string, int, IFunction> InternalAdd;
+		public Func<string, int, bool> HasFunction;
 		public static readonly string[] ArgNamesA = new string[] { "a" };
 		public static readonly string[] ArgNamesAB = new string[] { "a", "b" };
 
 		public BasicNativeFunctionBuilder Add(string name, Func<Variant> callback)
 		{
-			InternalAdd(name, new FuncStub
+			InternalAdd(name, 0, new FuncStub
 			{
 				ArgNames = Array.Empty<string>(),
 				Fn = (ctx) => ctx.Context.Set(callback())
@@ -51,7 +53,7 @@ namespace Portland.Basic
 
 		public BasicNativeFunctionBuilder Add(string name, Func<Variant, Variant> callback)
 		{
-			InternalAdd(name, new FuncStub
+			InternalAdd(name, 1, new FuncStub
 			{
 				ArgNames = ArgNamesA,
 				Fn = (ctx) => ctx.Context.Set(callback(ctx.Context["a"]))
@@ -59,23 +61,28 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder AddWithNumericArgCheck(string name, Func<Variant, Variant> callback)
+		public BasicNativeFunctionBuilder Add(string name, Action<ExecutionContext> callback)
 		{
-			InternalAdd(name, new FuncStub
+			InternalAdd(name, 1, new FuncStub
 			{
 				ArgNames = ArgNamesA,
-				Fn = (ctx) =>
+				Fn = callback
+			});
+			return this;
+		}
+
+		public BasicNativeFunctionBuilder AddWithNumericArgCheck(string name, Func<Variant, Variant> callback)
+		{
+			Add(name, (ctx) => {
+				var num = ctx.Context["a"];
+				if (num.IsNumeric())
 				{
-					var num = ctx.Context["a"];
-					if (num.IsNumeric())
-					{
-						ctx.Context.Set(callback(num));
-					}
-					else
-					{
-						ctx.SetError($"{name}({num})");
-						ctx.Context.Set(0);
-					}
+					ctx.Context.Set(callback(num));
+				}
+				else
+				{
+					ctx.SetError($"{name}({num})");
+					ctx.Context.Set(0);
 				}
 			});
 			return this;
@@ -83,7 +90,7 @@ namespace Portland.Basic
 
 		public BasicNativeFunctionBuilder Add(string name, Func<Variant, Variant, Variant> callback)
 		{
-			InternalAdd(name, new FuncStub
+			InternalAdd(name, 2, new FuncStub
 			{
 				ArgNames = ArgNamesAB,
 				Fn = (ctx) => ctx.Context.Set(callback(ctx.Context["a"], ctx.Context["b"]))
@@ -113,61 +120,91 @@ namespace Portland.Basic
 
 		public BasicNativeFunctionBuilder AddAbs()
 		{
-			AddWithNumericArgCheck("ABS", (num) => MathF.Abs(num));
+			if (!HasFunction("ABC", 1))
+			{
+				AddWithNumericArgCheck("ABS", (num) => MathF.Abs(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddAtan()
 		{
-			AddWithNumericArgCheck("ATAN", (num) => MathF.Atan(num));
+			if (!HasFunction("ATAN", 1))
+			{
+				AddWithNumericArgCheck("ATAN", (num) => MathF.Atan(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddCos()
 		{
-			AddWithNumericArgCheck("COS", (num) => MathF.Cos(num));
+			if (!HasFunction("COS", 1))
+			{
+				AddWithNumericArgCheck("COS", (num) => MathF.Cos(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddExp()
 		{
-			AddWithNumericArgCheck("EXP", (num) => MathF.Exp(num));
+			if (!HasFunction("EXP", 1))
+			{
+				AddWithNumericArgCheck("EXP", (num) => MathF.Exp(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddHas()
 		{
-			Add("HAS", (obj, name) => { return obj.HasProp(name); });
+			if (!HasFunction("HAS", 1))
+			{
+				Add("HAS", (obj, name) => { return obj.HasProp(name); });
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddInt()
 		{
-			AddWithNumericArgCheck("INT", (num) => (int)MathF.Ceiling((float)num));
+			if (!HasFunction("INT", 1))
+			{
+				AddWithNumericArgCheck("INT", (num) => (int)MathF.Ceiling((float)num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddLen()
 		{
-			Add("LEN", (obj) => obj.Count);
+			if (!HasFunction("LEN", 1))
+			{
+				Add("LEN", (obj) => obj.Count);
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddLog()
 		{
-			AddWithNumericArgCheck("LOG", (num) => (int)MathF.Log(num));
+			if (!HasFunction("LOG", 1))
+			{
+				AddWithNumericArgCheck("LOG", (num) => (int)MathF.Log(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddNow()
 		{
-			Add("NOW", () => { return DateTime.Now.ToString(); });
+			if (!HasFunction("NOW", 1))
+			{
+				Add("NOW", () => { return DateTime.Now.ToString(); });
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddRnd()
 		{
-			Add("RND", () => MathHelper.Rnd.NextFloat());
+			if (!HasFunction("RND", 1))
+			{
+				Add("RND", () => MathHelper.Rnd.NextFloat());
+			}
 			return this;
 		}
 
@@ -176,25 +213,37 @@ namespace Portland.Basic
 		/// </summary>
 		public BasicNativeFunctionBuilder AddSgn()
 		{
-			AddWithNumericArgCheck("SGN", (num) => MathF.Sign(num));
+			if (!HasFunction("SGN", 1))
+			{
+				AddWithNumericArgCheck("SGN", (num) => MathF.Sign(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddSin()
 		{
-			AddWithNumericArgCheck("SIN", (num) => MathF.Sin(num));
+			if (!HasFunction("SIN", 1))
+			{
+				AddWithNumericArgCheck("SIN", (num) => MathF.Sin(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddSqr()
 		{
-			AddWithNumericArgCheck("SQR", (num) => MathF.Sqrt(num));
+			if (!HasFunction("SQR", 1))
+			{
+				AddWithNumericArgCheck("SQR", (num) => MathF.Sqrt(num));
+			}
 			return this;
 		}
 
 		public BasicNativeFunctionBuilder AddTan()
 		{
-			AddWithNumericArgCheck("TAN", (num) => MathF.Tan(num));
+			if (!HasFunction("TAN", 1))
+			{
+				AddWithNumericArgCheck("TAN", (num) => MathF.Tan(num));
+			}
 			return this;
 		}
 	}

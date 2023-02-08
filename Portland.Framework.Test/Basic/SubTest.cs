@@ -112,6 +112,8 @@ Print Fib(6, map)
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddAllBuiltin();
+
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
