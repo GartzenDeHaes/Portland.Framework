@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 using Portland.Basic;
 using Portland.Collections;
 using Portland.Interp;
+using Portland.Mathmatics;
 
 namespace Portland.RPG
 {
 	[Serializable]
-	public class Character
+	public sealed class Character : ICommandRunner
 	{
 		public PropertySet Stats;
 		
@@ -21,44 +22,123 @@ namespace Portland.RPG
 
 		// derived stats (AP, AC, Carry Weight, HP, Melee Damage, Companion Nerve, UnArmed Damage, Weapon Damage)
 		// https://fallout.fandom.com/wiki/Fallout:_New_Vegas_SPECIAL#Derived_statistics
-		public ExecutionContext CalcDerivedStatsCtx;
-		//public BasicProgram CalcDerivedStatsProg;
+		public ExecutionContext BasCtx;
+		public BasicProgram BasOnChange;
 
 		// blackboard
 		// achivements
 		// active/completed quests (challenges) https://fallout.fandom.com/wiki/Fallout:_New_Vegas_challenges
 
-		public Vector<String8> PassiveEffectGroups = new Vector<String8>();
+		public Vector<Effect> PassiveEffects = new Vector<Effect>();
 		public Vector<ActiveEffect> ActiveEffects = new Vector<ActiveEffect>();
 
-		public BasicProgram PrepareProgram()
-		{
-			var prog = new BasicProgram();
-			prog.GetFunctionBuilder()
-			.AddAllBuiltin()
-			.Add("STAT", 1, (ExecutionContext ctx) => {
-				var name = ctx.Context["a"];
-				if (Stats.TryGetValue(name.ToString(), out float value))
-				{
-					ctx.Context.Set(value);
-				}
-				else
-				{
-					ctx.SetError($"{"STAT"}('{name}'): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
-				}
-			})
-			.Add("STAT", 2, (ExecutionContext ctx) => {
-				var name = ctx.Context["a"];
-				if (! Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
-				{
-					ctx.SetError($"{"STAT"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
-				}
-			});
-			
+		public readonly CharacterDefinition Definition;
+		public readonly EffectGroup RaceEffectGroup;
+		public readonly EffectGroup ClassEffectGroup;
+		public readonly EffectGroup FactionEffectGroup;
 
-			return prog;
+		public Character
+		(
+			CharacterDefinition def, 
+			PropertySet props,
+			EffectGroup raceEffectGroup,
+			EffectGroup classEffectGroup,
+			EffectGroup factionEffectGroup
+		)
+		{
+			Definition = def;
+			Stats = props;
+			RaceEffectGroup = raceEffectGroup;
+			ClassEffectGroup = classEffectGroup;
+			FactionEffectGroup = factionEffectGroup;
+
+			Inventory = new ItemCollection("MAIN", def.TotalInventorySlots);
+			
+			InventoryWindow = def.CreateInventoryWindow(Inventory);
+			InventoryWindow.SelectedSlot = def.DefaultSelectedInventorySlot;
+
+			for (int i = 0; i < def.EffectGroups.Count; i++)
+			{
+				AddEffectGroup(def.EffectGroups[i]);
+			}
+
+			AddEffectGroup(raceEffectGroup);
+			AddEffectGroup(classEffectGroup);
+			AddEffectGroup(factionEffectGroup);
+
+			BasOnChange = def.OnStatChangeRun;
+			BasCtx = new ExecutionContext(this, this);
+			BasOnChange.Execute(BasCtx);
+		}
+
+		public void AddEffectGroup(EffectGroup effectGroup)
+		{
+			for (int i = 0; i < effectGroup.Effects.Length; i++)
+			{
+				AddEffect(effectGroup.Effects[i]);
+			}
+		}
+
+		void AddEffect(Effect effect)
+		{
+			if (effect.Duration> 0)
+			{
+				ActiveEffects.Add(new ActiveEffect { BaseEffect = effect, RemainingDuration = effect.Duration });
+			}
+			else
+			{
+				PassiveEffects.Add(effect);
+			}
+
+			EffectApply(effect);
+		}
+
+		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
+		{
+			throw new NotImplementedException();
+		}
+
+		void EffectApply(Effect effect)
+		{
+			Debug.Assert(Stats.HasProperty(effect.PropertyId));
+
+			switch (effect.Op)
+			{
+				case EffectValueType.CurrentDelta:
+					Stats.TrySetValue(effect.PropertyId, Stats.GetValue(effect.PropertyId) + effect.Value);
+					break;
+				case EffectValueType.CurrentAbs:
+					Stats.TrySetValue(effect.PropertyId, effect.Value);
+					break;
+				case EffectValueType.MaxDelta:
+					Stats.TrySetMaximum(effect.PropertyId, Stats.GetMaximum(effect.PropertyId) + effect.Value);
+					break;
+				case EffectValueType.MaxAbs:
+					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
+					break;
+				case EffectValueType.Probability:
+					Stats.TrySetProbability(effect.PropertyId, DiceTerm.Parse(effect.Value.ToString()));
+					break;
+			}
+		}
+
+		void EffectRemove(Effect effect)
+		{
+			switch (effect.Op)
+			{
+				case EffectValueType.CurrentDelta:
+					Stats.TrySetValue(effect.PropertyId, Stats.GetValue(effect.PropertyId) - effect.Value);
+					break;
+				case EffectValueType.CurrentAbs:
+					Stats.TrySetValue(effect.PropertyId, effect.Value);
+					break;
+				case EffectValueType.MaxDelta:
+					Stats.TrySetMaximum(effect.PropertyId, Stats.GetMaximum(effect.PropertyId) - effect.Value);
+					break;
+				case EffectValueType.MaxAbs:
+					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
+					break;
+			}
 		}
 	}
 }

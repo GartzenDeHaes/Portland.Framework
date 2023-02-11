@@ -36,7 +36,7 @@ namespace Portland.RPG
 		public float DefaultValue;
 		public DiceTerm Probability;
 		public bool DefaultValueRandom;
-		public AsciiId4 PropertyId;
+		public String8 PropertyId;
 		public String8 Category;
 		public string LongName;
 
@@ -148,14 +148,7 @@ namespace Portland.RPG
 
 		public PropertyDefinitionBuilder SetChangePerSecond(float val)
 		{
-			Debug.Assert
-			(
-				(Property.ChangeSemantic == PropertyChangeSemantic.Accumulates && val >= 0f) 
-				|| (Property.ChangeSemantic == PropertyChangeSemantic.Depletes && val <= 0f) 
-			);
-
 			Property.ChangePerSecond = val;
-
 			return this;
 		}
 	}

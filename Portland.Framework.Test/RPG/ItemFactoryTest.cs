@@ -20,7 +20,7 @@ namespace Portland.RPG
 			items.DefineProperty("HARDNESS", ItemPropertyType.String, "Hardness", false);
 
 			items.DefineItem("Resource", "ROCK")
-				.Name("Rock")
+				.DisplayName("Rock")
 				.MaxStackCapacity(5)
 				.AddProperty("HARDNESS")
 				.SetPropertyDefault("HARDNESS", "HIGH")
@@ -49,7 +49,7 @@ namespace Portland.RPG
 			items.DefineProperty("AMMO", ItemPropertyType.IntRange, "Ammo", true);
 
 			items.DefineItem("Gun", "M49A")
-				.Name("Assult Rifle")
+				.DisplayName("Assult Rifle")
 				.AddProperty("DUR", 0, 256, 256)
 				.AddProperty("HASPARTS")
 				.AddProperty("HASMAG")

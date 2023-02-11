@@ -59,19 +59,22 @@ namespace Portland.Mathmatics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int RandomRange(int low, int high)
 		{
-			return (int)((high - low) * Rnd.NextDouble() + low);
+			return (int)MathF.Floor(Rnd.NextFloat() * (high - low + 1) + low);
+			//return (int)((high - low) * Rnd.NextDouble() + low);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float RandomRange(float low, float high)
 		{
-			return (float)((high - low) * Rnd.NextDouble() + low);
+			return MathF.Floor(Rnd.NextFloat() * (high - low + 1) + low);
+			//return (float)((high - low) * Rnd.NextDouble() + low);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static double RandomRange(double low, double high)
 		{
-			return ((high - low) * Rnd.NextDouble() + low);
+			return Math.Floor(Rnd.NextDouble() * (high - low + 1) + low);
+			//return ((high - low) * Rnd.NextDouble() + low);
 		}
 
 		/// <summary>
@@ -81,7 +84,7 @@ namespace Portland.Mathmatics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float RandomNextFloat()
 		{
-			return (float)Rnd.NextDouble();
+			return Rnd.NextFloat();
 		}
 
 		/// <summary>
@@ -115,16 +118,15 @@ namespace Portland.Mathmatics
 				return memo.ToArray();
 			}
 
-			int range = high - low;
-
-			if (range < count)
+			if (high - low < count)
 			{
 				throw new ArgumentException("count is larger than available number range");
 			}
 
 			while (count > 0)
 			{
-				int r = (int)(range * RandomNextFloat() + low);
+				int r = RandomRange(low, high);
+				//int r = (int)(range * RandomNextFloat() + low);
 				if (memo.Contains(r))
 				{
 					continue;

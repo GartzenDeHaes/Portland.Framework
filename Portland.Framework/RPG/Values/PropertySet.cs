@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 using Portland.Collections;
+using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.RPG
@@ -25,7 +27,7 @@ namespace Portland.RPG
 			set { _manager.SetPropertyValue(_keys.Properties[index], value); }
 		}
 
-		bool FindKey(in AsciiId4 id, out int index)
+		bool FindKey(in String8 id, out int index)
 		{
 			for (index = 0; index < _keys.Properties.Length; index++)
 			{
@@ -38,7 +40,30 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TryGetValue(in AsciiId4 id, out float value)
+		public bool HasProperty(in String8 id)
+		{
+			return FindKey(id, out int _);
+		}
+
+		public float GetValue(in String8 id)
+		{
+			if (TryGetValue(id, out float value)) 
+			{ 
+				return value;
+			}
+			return -1;
+		}
+
+		public float GetMaximum(in String8 id)
+		{
+			if (FindKey(id, out int index))
+			{
+				return _manager.GetPropertyMaximum(_keys.Properties[index]);
+			}
+			return -1;
+		}
+
+		public bool TryGetValue(in String8 id, out float value)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -49,7 +74,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TrySetValue(in AsciiId4 id, float value)
+		public bool TrySetValue(in String8 id, float value)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -59,12 +84,57 @@ namespace Portland.RPG
 			return false;
 		}
 
+		public bool TryGetMaximum(in String8 id, out float maximum)
+		{
+			if (FindKey(id, out int index))
+			{
+				maximum = _manager.GetPropertyMaximum(_keys.Properties[index]);
+				return true;
+			}
+
+			maximum = 100f;
+			return false;
+		}
+
+		public bool TrySetMaximum(in String8 id, float maximum)
+		{
+			if (FindKey(id, out int index))
+			{
+				_manager.SetPropertyMaximum(_keys.Properties[index], maximum);
+				return true;
+			}
+
+			return false;
+		}
+
 		public void ModifyValueAt(int index, float delta)
 		{
 			_manager.ModifyPropertyValue(_keys.Properties[index], delta);
 		}
 
-		public AsciiId4 IdAt(int index)
+		public bool TryGetProbability(in String8 id, out DiceTerm dice)
+		{
+			if (FindKey(id, out int index))
+			{
+				dice = _keys.Properties[index].Probability;
+				return true;
+			}
+
+			dice = default(DiceTerm);
+			return false;
+		}
+
+		public bool TrySetProbability(in String8 id, in DiceTerm dice)
+		{
+			if (FindKey(id, out int index))
+			{
+				_keys.Properties[index].Probability = dice;
+				return true;
+			}
+			return false;
+		}
+
+		public String8 IdAt(int index)
 		{
 			return _keys.Properties[index].PropertyId;
 		}

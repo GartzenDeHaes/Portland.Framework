@@ -21,7 +21,7 @@ namespace Portland.Basic
 		{
 			public Action<ExecutionContext, string, Variant> OnCommand;
 
-			public void Run(ExecutionContext ctx, string name, Variant args)
+			public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
 			{
 				OnCommand?.Invoke(ctx, name, args);
 			}

@@ -124,11 +124,12 @@ namespace Portland.Basic
 		{
 			AddAbs();
 			AddAtan();
+			AddCInt();
 			AddCos();
+			AddCStr();
 			AddError();
 			AddExp();
 			AddHas();
-			AddInt();
 			AddLen();
 			AddLog();
 			AddNow();
@@ -209,11 +210,11 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder AddInt()
+		public BasicNativeFunctionBuilder AddCInt()
 		{
-			if (!HasFunction("INT", 1))
+			if (!HasFunction("CINT", 1))
 			{
-				AddWithNumericArgCheck("INT", (num) => (int)MathF.Ceiling((float)num));
+				AddWithNumericArgCheck("CINT", (num) => (int)MathF.Ceiling((float)num));
 			}
 			return this;
 		}
@@ -280,6 +281,14 @@ namespace Portland.Basic
 			if (!HasFunction("SQR", 1))
 			{
 				AddWithNumericArgCheck("SQR", (num) => MathF.Sqrt(num));
+			}
+			return this;
+		}
+		public BasicNativeFunctionBuilder AddCStr()
+		{
+			if (!HasFunction("CSTR", 1))
+			{
+				Add("CSTR", (v) => v.ToString());
 			}
 			return this;
 		}

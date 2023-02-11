@@ -13,7 +13,7 @@ namespace Portland.RPG
 	{
 		public short Index;
 		public short DefinitonIndex;
-		public AsciiId4 PropertyId;
+		public String8 PropertyId;
 		public DiceTerm Probability;
 	}
 

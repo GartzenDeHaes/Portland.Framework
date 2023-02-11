@@ -20,6 +20,7 @@ namespace Portland.RPG
 		RandomFloat,
 		String,
 		Sound,
+		DiceRoll
 	}
 
 	[Serializable]

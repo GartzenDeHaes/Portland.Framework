@@ -17,7 +17,7 @@ namespace Portland.RPG
 
 		public int Count { get { return GridWidth * GridHeight; } }
 
-		public readonly string Title;
+		public readonly string SectionName;
 		public readonly bool IsReadOnly;
 		public readonly ItemRequirement[] Requirements;
 
@@ -157,7 +157,7 @@ namespace Portland.RPG
 			_startSlotInInventory = startSlotInInventory;
 			GridWidth = gridWidth;
 			GridHeight = gridHeight;
-			Title = gridName;
+			SectionName = gridName;
 			IsReadOnly = isReadonly;
 			Requirements = requirements;
 		}

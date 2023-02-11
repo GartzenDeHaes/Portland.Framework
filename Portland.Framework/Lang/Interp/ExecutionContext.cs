@@ -14,6 +14,8 @@ namespace Portland.Interp
 		public Action<string> OnPrint;
 		public Action<LogMessageSeverity, string> OnLog;
 
+		public object UserData;
+
 		public Variant Context
 		{
 			get { return _ctxStk.LastElement(); }
@@ -35,10 +37,14 @@ namespace Portland.Interp
 		// TODO: subs need to be persistant, change CodeDocument object or copy from it.
 		private Dictionary<SubSig, IFunction> _progSubs;
 
-		public ExecutionContext
-		(
-			ICommandRunner cmds
-		)
+		public ExecutionContext(ICommandRunner cmds, object userData)
+		{
+			_cmds = cmds;
+			UserData = userData;
+			_ctxStk.Add(String.Empty);
+		}
+
+		public ExecutionContext(ICommandRunner cmds)
 		{
 			_cmds = cmds;
 			_ctxStk.Add(String.Empty);
@@ -164,7 +170,7 @@ namespace Portland.Interp
 
 		public void RunCommand(string name, Variant args)
 		{
-			_cmds.Run(this, name, args);
+			_cmds.ICommandRunner_Exec(this, name, args);
 		}
 
 		public void WriteLine(string str)

@@ -12,7 +12,8 @@ namespace Portland.RPG
 		CurrentDelta = 1,
 		CurrentAbs = 2,
 		MaxDelta = 3,
-		Probability = 4
+		MaxAbs = 4,
+		Probability = 5
 	}
 
 	//public enum EffectType
@@ -30,17 +31,17 @@ namespace Portland.RPG
 	public class Effect
 	{
 		public String8 EffectId;
-		public AsciiId4 PropertyId;
+		public String8 PropertyId;
 		public Variant8 Value;
 		public float Duration;
-		public EffectValueType IsNumOrPct;
+		public EffectValueType Op;
 		public string EffectName;
-		public PropertyRequirement[] Requirements;
+		//public PropertyRequirement[] Requirements;
 	}
 
 	public struct ActiveEffect
 	{
-		public String8 EffectId;
+		public Effect BaseEffect;
 		public float RemainingDuration;
 	}
 }

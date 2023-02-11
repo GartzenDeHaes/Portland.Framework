@@ -68,6 +68,19 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
+		public bool TryGetProperty(in String8 propId, out Variant8 value)
+		{
+			if (TryFindProperty(propId, out int i))
+			{
+				value = Properties[i].TemplateProperty.CurrentVariant();
+				return true;
+			}
+
+			value = default(Variant8);
+			return false;
+		}
+
+		/// <summary>Class properties for all items of this type</summary>
 		public Variant8 GetPropertyVariant(in String8 propId)
 		{
 			if (TryFindProperty(propId, out int i))
@@ -151,7 +164,7 @@ namespace Portland.RPG
 			_itemdef.Name = itemId;
 		}
 
-		public ItemDefinitionBuilder Name(string name)
+		public ItemDefinitionBuilder DisplayName(string name)
 		{
 			_itemdef.Name = name;
 			return this;

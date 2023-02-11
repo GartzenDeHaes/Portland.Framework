@@ -6,6 +6,6 @@ namespace Portland.Interp
 {
 	public interface ICommandRunner
 	{
-		void Run(ExecutionContext ctx, string name, Variant args);
+		void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args);
 	}
 }

@@ -10,6 +10,6 @@ namespace Portland.RPG
 	{
 		public String8 EffectGroupId;
 		public Effect[] Effects;
-		public PropertyRequirement[] Requirements;
+		//public PropertyRequirement[] Requirements;
 	}
 }

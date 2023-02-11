@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Portland.RPG
 {
@@ -25,6 +26,11 @@ namespace Portland.RPG
 				}
 				return size;
 			}
+		}
+
+		public int SelectedSlot
+		{
+			get; set;
 		}
 
 		public ItemStack this[int index]
@@ -92,6 +98,93 @@ namespace Portland.RPG
 
 			area.MoveOrMergeItem(item);
 			return item.StackCount == 0;
+		}
+
+		public bool TryGetWindowSection(string name, out InventoryWindowGrid grid)
+		{
+			for (int i = 0; i < _windowAreas.Length; i++)
+			{
+				grid = _windowAreas[i];
+				if (grid.SectionName.Equals(name))
+				{
+					return true;
+				}
+			}
+
+			grid = default(InventoryWindowGrid);
+			return false;
+		}
+
+		public bool TrySetSectionItem(string winGridName, int winIndex, ItemStack item)
+		{
+			if (TryGetWindowSection(winGridName, out var grid))
+			{
+				if (winIndex < grid.Count)
+				{
+					grid[winIndex] = item;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public Variant8 GetProperty(int index, in String8 propName)
+		{
+			var item = this[index];
+			return item.GetPropertyVariant(propName);
+		}
+
+		public bool TryGetProperty(int index, in String8 propName, out Variant8 value)
+		{
+			var item = this[index];
+			return item.TryGetProperty(propName, out value);
+		}
+
+		public bool TrySumItemProp(string winGridName, in String8 propName, out float amt)
+		{
+			amt = 0;
+			bool found = false;
+			ItemStack item;
+
+			if (TryGetWindowSection(winGridName, out var grid))
+			{
+				for (int i = 0; i < grid.Count; i++)
+				{
+					item = grid[i];
+					if (item.TryGetProperty(propName, out var value))
+					{
+						amt += (float)value;
+						found = true;
+					}
+				}
+			}
+
+			return found;
+		}
+
+		public bool TrySumItemProp(in String8 propName, out float amt)
+		{
+			amt = 0;
+			bool found = false;
+			ItemStack item;
+
+			for (int x = 0; x < _windowAreas.Length; x++)
+			{
+				var grid = _windowAreas[x];
+
+				for (int i = 0; i < grid.Count; i++)
+				{
+					item = grid[i];
+					if (item.TryGetProperty(propName, out var value))
+					{
+						amt += (float)value;
+						found = true;
+					}
+				}
+			}
+
+			return found;
 		}
 
 		public InventoryWindow(string title, int windowTypeId, int windowInstanceId, InventoryWindowGrid[] sections)

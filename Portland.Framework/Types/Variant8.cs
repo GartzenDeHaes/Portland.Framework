@@ -105,6 +105,8 @@ namespace Portland
 
 		public VariantType TypeIs { get { return _value.TypeIs; } }
 
+		public bool IsNumeric { get { return _value.TypeIs == VariantType.Int || _value.TypeIs == VariantType.Float; } }
+
 		/// <summary>Constructor</summary>
 		public Variant8(int i)
 		{

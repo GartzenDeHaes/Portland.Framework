@@ -13,6 +13,11 @@ namespace Portland.RPG
 		//StatFactory _stats;
 		List<string> _categories = new List<string>();
 
+		public bool HasItemDefined(in String8 itemId)
+		{
+			return _itemDefinitions.ContainsKey(itemId);
+		}
+
 		public ItemStack CreateItem(int collectionIndex, in String8 itemId, int stackCount = 1)
 		{
 			if (_itemDefinitions.TryGetValue(itemId, out var def))
@@ -21,6 +26,11 @@ namespace Portland.RPG
 			}
 
 			throw new Exception($"Unknown item Id {itemId}");
+		}
+
+		public bool HasProperty(in String8 propId)
+		{
+			return _propertyDefinitions.ContainsKey(propId);
 		}
 
 		public void DefineProperty(in String8 propId, ItemPropertyType type, string displayName, bool isInstancedPerItem)
@@ -32,12 +42,15 @@ namespace Portland.RPG
 
 			def = new ItemPropertyDefinition { PropertyId = propId, PropertyType = type, DisplayName = displayName, IsInstancedPerItem = isInstancedPerItem };
 
-			_propertyDefinitions.Add(propId, def);			
+			_propertyDefinitions.Add(propId, def);
 		}
 
 		public void DefineCategory(string category)
 		{
-			_categories.Add(category);
+			if (!_categories.Contains(category))
+			{
+				_categories.Add(category);
+			}
 		}
 
 		public bool HasCategory(string category)

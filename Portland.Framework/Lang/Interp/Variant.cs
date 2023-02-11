@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 
 using Portland.Collections;
+using Portland.Mathmatics;
 using Portland.Text;
 
 namespace Portland.Interp
@@ -32,8 +33,10 @@ namespace Portland.Interp
 		private Dictionary<string, Variant> _proplst;
 
 		private VtType _type;
-		private int _i;
-		private float _x, _y, _z;
+		private IntFloat _ix;
+		//private int _i;
+		//private float _x,
+		private float _y, _z;
 		private object _o = null;
 
 		public VtType DataType
@@ -58,6 +61,33 @@ namespace Portland.Interp
 			}
 		}
 
+		public int Length
+		{
+			get
+			{
+				switch (_type)
+				{
+					case VtType.VT_BOOL:
+					case VtType.VT_INT:
+					case VtType.VT_REAL:
+						return 4;
+					case VtType.VT_STRING:
+						return ((string)_o).Length;
+					case VtType.VT_ERROR:
+						return 0;
+					case VtType.VT_IIDENTITY:
+					case VtType.VT_DATETIME:
+						return 8;
+					case VtType.VT_KEYVALUE:
+						return _proplst.Count;
+					case VtType.VT_FVEC:
+						return 12;
+					default:
+						return 0;
+				}
+			}
+		}
+
 		public Variant()
 		{
 			_type = VtType.VT_EMPTY;
@@ -65,13 +95,13 @@ namespace Portland.Interp
 
 		public Variant(int i)
 		{
-			_i = i;
+			_ix.IntValue = i;
 			_type = VtType.VT_INT;
 		}
 
 		public Variant(bool i)
 		{
-			_i = i ? 1 : 0;
+			_ix.IntValue = i ? 1 : 0;
 			_type = VtType.VT_BOOL;
 		}
 
@@ -224,14 +254,14 @@ namespace Portland.Interp
 		public void Set(bool i)
 		{
 			Clear();
-			_i = i ? 1 : 0;
+			_ix.IntValue = i ? 1 : 0;
 			_type = VtType.VT_BOOL;
 		}
 
 		public void Set(int i)
 		{
 			Clear();
-			_i = i;
+			_ix.IntValue = i;
 			_type = VtType.VT_INT;
 		}
 
@@ -292,7 +322,7 @@ namespace Portland.Interp
 		{
 			Clear();
 			_type = VtType.VT_FVEC;
-			_x = x;
+			_ix.FloatValue = x;
 			_y = y;
 			_z = z;
 		}
@@ -301,8 +331,8 @@ namespace Portland.Interp
 		{
 			_type = VtType.VT_EMPTY;
 			_o = null;
-			_i = 0;
-			_x = _y = _z = 0f;
+			_ix.IntValue = 0;
+			_y = _z = 0f;
 
 			if (_proplst != null)
 			{
@@ -375,9 +405,9 @@ namespace Portland.Interp
 			v.Clear();
 
 			v._type = _type;
-			v._i = _i;
+			v._ix.IntValue = _ix.IntValue;
 			v._o = _o;
-			v._x = _x;
+			//v._x = _x;
 			v._y = _y;
 			v._z = _z;
 
@@ -414,7 +444,7 @@ namespace Portland.Interp
 		{
 			if (_type == VtType.VT_FVEC)
 			{
-				x = _x;
+				x = _ix.FloatValue;
 				y = _y;
 				z = _z;
 				return;
@@ -507,7 +537,7 @@ namespace Portland.Interp
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
-				return v._i;
+				return v._ix.IntValue;
 			}
 			if (v._type == VtType.VT_REAL)
 			{
@@ -532,7 +562,7 @@ namespace Portland.Interp
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
-				return v._i;
+				return v._ix.IntValue;
 			}
 			if (v._type == VtType.VT_REAL)
 			{
@@ -567,7 +597,7 @@ namespace Portland.Interp
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
-				return (float)v._i;
+				return (float)v._ix.IntValue;
 			}
 			if (v._type == VtType.VT_REAL)
 			{
@@ -592,7 +622,7 @@ namespace Portland.Interp
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
-				return (float)v._i;
+				return (float)v._ix.IntValue;
 			}
 			if (v._type == VtType.VT_REAL)
 			{
@@ -624,7 +654,7 @@ namespace Portland.Interp
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
-				return v._i != 0;
+				return v._ix.IntValue != 0;
 			}
 			if (v._type == VtType.VT_REAL)
 			{
@@ -771,9 +801,9 @@ namespace Portland.Interp
 			switch (_type)
 			{
 				case VtType.VT_BOOL:
-					return _i == 0 ? "FALSE" : "TRUE";
+					return _ix.IntValue == 0 ? "FALSE" : "TRUE";
 				case VtType.VT_INT:
-					return _i.ToString();
+					return _ix.IntValue.ToString();
 				case VtType.VT_REAL:
 					return _z.ToString();
 				case VtType.VT_STRING:
@@ -790,7 +820,7 @@ namespace Portland.Interp
 					return key + "=" + val;
 				}
 				case VtType.VT_FVEC:
-					return "[" + _x + "," + _y + "," + _z + "]";
+					return "[" + _ix.FloatValue + "," + _y + "," + _z + "]";
 			}
 
 			return "NULL";
@@ -923,10 +953,10 @@ namespace Portland.Interp
 			switch (_type)
 			{
 				case VtType.VT_BOOL:
-					BitConverterNoAlloc.GetBytes(_i, data, ref pos);
+					BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
 					break;
 				case VtType.VT_INT:
-					BitConverterNoAlloc.GetBytes(_i, data, ref pos);
+					BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
 					break;
 				case VtType.VT_REAL:
 					BitConverterNoAlloc.GetBytes(_z, data, ref pos);
@@ -934,7 +964,7 @@ namespace Portland.Interp
 				case VtType.VT_EMPTY:
 					break;
 				case VtType.VT_FVEC:
-					BitConverterNoAlloc.GetBytes(_x, data, ref pos);
+					BitConverterNoAlloc.GetBytes(_ix.FloatValue, data, ref pos);
 					BitConverterNoAlloc.GetBytes(_y, data, ref pos);
 					BitConverterNoAlloc.GetBytes(_z, data, ref pos);
 					break;
@@ -985,11 +1015,11 @@ namespace Portland.Interp
 			switch (v._type)
 			{
 				case VtType.VT_BOOL:
-					v._i = BitConverter.ToInt32(data, pos);
+					v._ix.IntValue = BitConverter.ToInt32(data, pos);
 					pos += 4;
 					break;
 				case VtType.VT_INT:
-					v._i = BitConverter.ToInt32(data, pos);
+					v._ix.IntValue = BitConverter.ToInt32(data, pos);
 					pos += 4;
 					break;
 				case VtType.VT_REAL:
@@ -999,7 +1029,7 @@ namespace Portland.Interp
 				case VtType.VT_EMPTY:
 					break;
 				case VtType.VT_FVEC:
-					v._x = BitConverter.ToSingle(data, pos);
+					v._ix.FloatValue = BitConverter.ToSingle(data, pos);
 					pos += 4;
 					v._y = BitConverter.ToSingle(data, pos);
 					pos += 4;
@@ -1064,9 +1094,39 @@ namespace Portland.Interp
 			return !(a == b);
 		}
 
+		public bool Equals(string s)
+		{
+			bool ret = false;
+			switch (_type)
+			{
+				case VtType.VT_EMPTY:
+					break;
+				case VtType.VT_ERROR:
+					break;
+				case VtType.VT_INT:
+					break;
+				case VtType.VT_REAL:
+					break;
+				case VtType.VT_STRING:
+					ret = s.Equals((string)_o);
+					break;
+				case VtType.VT_IIDENTITY:
+					break;
+				case VtType.VT_KEYVALUE:
+					break;
+				case VtType.VT_DATETIME:
+					break;
+				case VtType.VT_FVEC:
+					break;
+				case VtType.VT_BOOL:
+					break;
+			}
+			return ret;
+		}
+
 		public bool Equals(Variant obj)
 		{
-			if (_type != obj._type || _i != obj._i)
+			if (_type != obj._type || _ix.IntValue != obj._ix.IntValue)
 			{
 				return false;
 			}
@@ -1078,7 +1138,7 @@ namespace Portland.Interp
 
 			if (_type == VtType.VT_FVEC)
 			{
-				if (_x != obj._x || _y != obj._y || _z != obj._z)
+				if (_ix.FloatValue != obj._ix.FloatValue || _y != obj._y || _z != obj._z)
 				{
 					return false;
 				}
@@ -1139,13 +1199,13 @@ namespace Portland.Interp
 			{
 				case VtType.VT_BOOL:
 				case VtType.VT_INT:
-					return _i.GetHashCode();
+					return _ix.IntValue.GetHashCode();
 				case VtType.VT_REAL:
 					return _z.GetHashCode();
 				case VtType.VT_EMPTY:
 					return 0;
 				case VtType.VT_FVEC:
-					return _x.GetHashCode() ^ _y.GetHashCode() ^ _z.GetHashCode();
+					return _ix.FloatValue.GetHashCode() ^ _y.GetHashCode() ^ _z.GetHashCode();
 				case VtType.VT_KEYVALUE:
 					return Key.GetHashCode() ^ this[Key].GetHashCode();
 				case VtType.VT_ERROR:
@@ -1337,7 +1397,7 @@ namespace Portland.Interp
 			}
 			if (_type == VtType.VT_INT || _type == VtType.VT_BOOL)
 			{
-				return _i.CompareTo(other._i);
+				return _ix.IntValue.CompareTo(other._ix.IntValue);
 			}
 			if (_type == VtType.VT_REAL)
 			{
@@ -1345,7 +1405,7 @@ namespace Portland.Interp
 			}
 			if (_type == VtType.VT_FVEC)
 			{
-				return (int)((MathF.Abs(_x) + Math.Abs(_y) + MathF.Abs(_z)) - (MathF.Abs(other._x) + Math.Abs(other._y) + MathF.Abs(other._z)));
+				return (int)((MathF.Abs(_ix.FloatValue) + Math.Abs(_y) + MathF.Abs(_z)) - (MathF.Abs(other._ix.FloatValue) + Math.Abs(other._y) + MathF.Abs(other._z)));
 			}
 
 			return 0;

@@ -42,6 +42,11 @@ namespace Portland.Mathmatics
 			return dice.Roll(rnd);
 		}
 
+		public static int Roll(in String8 expression)
+		{
+			return Roll(MathHelper.Rnd, expression);
+		}
+
 		static short ScanInt(in String8 expression, ref int pos)
 		{
 			int tens = 1;
@@ -54,6 +59,20 @@ namespace Portland.Mathmatics
 			}
 
 			return (short)ret;
+		}
+
+		public static bool TryParse(in String8 expression, out DiceTerm dice)
+		{
+			try
+			{
+				dice = Parse(expression);
+				return true;
+			}
+			catch(Exception)
+			{
+				dice = default(DiceTerm);
+				return false;
+			}
 		}
 
 		public static DiceTerm Parse(in String8 expression)
@@ -106,6 +125,22 @@ namespace Portland.Mathmatics
 				dice.Rolls = 0;
 			}
 			return dice;
+		}
+
+		public override string ToString()
+		{
+			if (PlusConst > 0)
+			{
+				return Rolls + "d" + Sides + "+" + PlusConst;
+			}
+			else if (PlusConst < 0)
+			{
+				return Rolls + "d" + Sides + PlusConst;
+			}
+			else
+			{
+				return Rolls + "d" + Sides;
+			}
 		}
 	}
 }

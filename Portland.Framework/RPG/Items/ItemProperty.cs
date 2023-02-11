@@ -85,6 +85,9 @@ namespace Portland.RPG
 				case ItemPropertyType.Sound:
 					Value.SoundResourceKey = PropertyId;
 					break;
+				case ItemPropertyType.DiceRoll:
+					Value.Text = "1d6";
+					break;
 			}
 		}
 
@@ -136,7 +139,7 @@ namespace Portland.RPG
 
 		public void SetDefault(in String8 value)
 		{
-			if (PropertyType == ItemPropertyType.String)
+			if (PropertyType == ItemPropertyType.String || PropertyType == ItemPropertyType.DiceRoll)
 			{
 				Value.Text = value;
 			}
@@ -183,7 +186,7 @@ namespace Portland.RPG
 
 		public void Set(in String8 val)
 		{
-			Debug.Assert(PropertyType == ItemPropertyType.String);
+			Debug.Assert(PropertyType == ItemPropertyType.String || PropertyType == ItemPropertyType.DiceRoll);
 			Value.Text = val;
 		}
 
@@ -206,6 +209,7 @@ namespace Portland.RPG
 				case ItemPropertyType.FloatRange:
 					Value.FloatRange.Current = val.ToFloat();
 					break;
+				case ItemPropertyType.DiceRoll:
 				case ItemPropertyType.String:
 					Value.Text = val.ToString();
 					break;
@@ -259,6 +263,8 @@ namespace Portland.RPG
 					return Value.FloatRange.Current;
 				case ItemPropertyType.RandomFloat:
 					return Value.FloatRnd.RandomValue;
+				case ItemPropertyType.DiceRoll:
+					return DiceTerm.Roll(Value.Text);
 			}
 			throw new Exception($"Item Property {PropertyId} is type {PropertyType} can cannot be converted to VARIANT");
 		}
@@ -281,6 +287,8 @@ namespace Portland.RPG
 					return (int)Value.FloatRange.Current;
 				case ItemPropertyType.RandomFloat:
 					return (int)Value.FloatRnd.RandomValue;
+				case ItemPropertyType.DiceRoll:
+					return DiceTerm.Roll(Value.Text);
 			}
 			throw new Exception($"Item Property {PropertyId} is type {PropertyType} can cannot be converted to INT");
 		}
@@ -303,6 +311,8 @@ namespace Portland.RPG
 					return Value.FloatRange.Current;
 				case ItemPropertyType.RandomFloat:
 					return Value.FloatRnd.RandomValue;
+				case ItemPropertyType.DiceRoll:
+					return DiceTerm.Roll(Value.Text);
 			}
 			throw new Exception($"Item Property {PropertyId} is type {PropertyType} can cannot be converted to INT");
 		}
@@ -327,7 +337,7 @@ namespace Portland.RPG
 
 		public String8 CurrentString()
 		{
-			if (PropertyType == ItemPropertyType.String)
+			if (PropertyType == ItemPropertyType.String || PropertyType == ItemPropertyType.DiceRoll)
 			{
 				return Value.Text;
 			}
@@ -365,6 +375,7 @@ namespace Portland.RPG
 				case ItemPropertyType.RandomFloat:
 					return Value.FloatRnd.ToString();
 				case ItemPropertyType.String:
+				case ItemPropertyType.DiceRoll:
 					return Value.Text.ToString();
 				case ItemPropertyType.Sound:
 					return Value.SoundResourceKey.ToString();
@@ -396,7 +407,11 @@ namespace Portland.RPG
 
 		public bool Equals(in String8 val)
 		{
-			return (PropertyType == ItemPropertyType.String && Value.Text == val);
+			return 
+			(
+				(PropertyType == ItemPropertyType.String || PropertyType == ItemPropertyType.DiceRoll) 
+				&& Value.Text == val
+			);
 		}
 
 		public bool Equals(bool val)

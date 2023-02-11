@@ -146,6 +146,17 @@ namespace Portland.RPG
 			throw new Exception($"Property '{propId}' not found");
 		}
 
+		public bool TryGetProperty(in String8 propId, out Variant8 value)
+		{
+			if (TryFindProperty(propId, out int i))
+			{
+				value = Properties[i].CurrentVariant();
+				return true;
+			}
+
+			return Definition.TryGetProperty(propId, out value);
+		}
+
 		public Variant8 GetPropertyVariant(in String8 propId)
 		{
 			if (TryFindProperty(propId, out int i))

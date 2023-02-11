@@ -6,7 +6,7 @@ using Portland.Interp;
 
 namespace Portland.CodeDom.Statements
 {
-	public class Call : Statement
+	public sealed class Call : Statement
 	{
 		public CallExpression Sub
 		{
@@ -21,7 +21,8 @@ namespace Portland.CodeDom.Statements
 
 		public override bool Execute(ExecutionContext ctx)
 		{
-			return Sub.Execute(ctx);
+			Sub.Execute(ctx);
+			return true;
 		}
 	}
 }
