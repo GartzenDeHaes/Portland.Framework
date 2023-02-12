@@ -105,12 +105,12 @@ namespace Portland.AI.Barks
 
 			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
 			Assert.That((string)coach.Facts[strings.Get("utility_objective")].Value, Is.EqualTo(String.Empty));
-			Assert.That((float)coach.Facts[strings.Get("const_30pct")].Value, Is.EqualTo(0.3f));
+			Assert.That((float)coach.Facts[strings.Get("const30%")].Value, Is.EqualTo(0.3f));
 			Assert.That((float)coach.Facts[strings.Get("health")].Value, Is.EqualTo(100f));
 			Assert.That((float)coach.Facts[strings.Get("hunger")].Value, Is.EqualTo(0f));
 			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(0f));
 			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepiness")].Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(0f));
 
 			// should set the objective
 			world.Update(0f);
@@ -120,7 +120,7 @@ namespace Portland.AI.Barks
 			Assert.That((float)coach.Facts[strings.Get("hunger")].Value, Is.EqualTo(0f));
 			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(0f));
 			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepiness")].Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(0f));
 
 			Assert.False(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Concept = strings.Get("hello") }));
@@ -137,7 +137,7 @@ namespace Portland.AI.Barks
 			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertThrist, Is.True);
 			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepiness")].Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertSleep, Is.True);
 
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));

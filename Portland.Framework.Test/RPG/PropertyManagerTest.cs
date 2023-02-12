@@ -17,11 +17,11 @@ namespace Portland.RPG
 
 			manager.DefinePropertySet("HUMN", new String8[] { "HLTH" });
 
-			PropertySetKeys set = manager.CreateSetKeysInstance("HUMN");
+			var set = manager.CreatePropertySet("HUMN");
 
-			Assert.That(manager.GetPropertyValue(set.Properties[0]), Is.EqualTo(100f));
-			Assert.That(manager.GetPropertyDefinitonId(set.Properties[0]), Is.EqualTo(String8.From("HLTH")));
-			Assert.That(manager.GetPropertyName(set.Properties[0]), Is.EqualTo("Health"));
+			Assert.That(set.GetValue("HLTH"), Is.EqualTo(100f));
+			Assert.That(set.GetSetId(), Is.EqualTo(String8.From("HUMN")));
+			Assert.That(set.GetDisplayName("HLTH"), Is.EqualTo("Health"));
 		}
 
 		[Test]
@@ -43,19 +43,22 @@ namespace Portland.RPG
 
 			mgr.DefinePropertySet("HUMAN", new String8[] { "STR", "INT" });
 
-			var set = mgr.CreateSetInstance("HUMAN");
+			var set = mgr.CreatePropertySet("HUMAN");
 
-			Assert.That(set.Count, Is.EqualTo(2));
-			Assert.That(set.SetName, Is.EqualTo(String8.From("HUMAN")));
+			//Assert.That(set.Count, Is.EqualTo(2));
+			Assert.That(set.GetSetId(), Is.EqualTo(String8.From("HUMAN")));
 
-			Assert.That(set.IdAt(0).ToString(), Is.EqualTo("STR"));
-			Assert.That(set.IdAt(1).ToString(), Is.EqualTo("INT"));
+			Assert.That(set.GetValue("STR"), Is.EqualTo(6));
+			Assert.That(set.GetValue("INT"), Is.EqualTo(8));
 
-			Assert.That(set.DisplayNameAt(0), Is.EqualTo("Strength"));
-			Assert.That(set.DisplayNameAt(1), Is.EqualTo("Intellegence"));
+			//Assert.That(set.IdAt(0).ToString(), Is.EqualTo("STR"));
+			//Assert.That(set.IdAt(1).ToString(), Is.EqualTo("INT"));
 
-			Assert.That(set[0], Is.EqualTo(6));
-			Assert.That(set[1], Is.EqualTo(8));
+			Assert.That(set.GetDisplayName("STR"), Is.EqualTo("Strength"));
+			Assert.That(set.GetDisplayName("INT"), Is.EqualTo("Intellegence"));
+
+			//Assert.That(set[0], Is.EqualTo(6));
+			//Assert.That(set[1], Is.EqualTo(8));
 		}
 
 		[Test]
@@ -77,7 +80,7 @@ namespace Portland.RPG
 
 			manager.DefinePropertySet("HUMN", new String8[] { "HP", "WATR" });
 
-			var set = manager.CreateSetInstance("HUMN");
+			var set = manager.CreatePropertySet("HUMN");
 
 			Assert.That(set.GetValue("HP"), Is.EqualTo(50));
 			Assert.That(set.GetMaximum("HP"), Is.EqualTo(100));

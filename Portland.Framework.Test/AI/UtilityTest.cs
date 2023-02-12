@@ -14,7 +14,7 @@ namespace Portland.AI.Utility
 		[Test]
 		public void APropInstTest()
 		{
-			var def = new ConsiderationPropertyDef() { PropertyId="test", ChangePerSec=1, Min=0, Max=100, DefaultValue=0, IsGlobalValue=false, DefaultRandomize=false, TypeName="float" };
+			var def = new PropertyDefinition() { PropertyId="test", ChangePerSec=1, Minimum=0, Maximum=100, DefaultValue=0, IsGlobalValue=false, DefaultRandomize=false, TypeName="float" };
 			var pi = new PropertyValue(def);
 
 			Assert.AreEqual(0f, pi.Amt.Value.ToFloat());

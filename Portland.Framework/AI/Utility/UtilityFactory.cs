@@ -13,7 +13,7 @@ namespace Portland.AI.Utility
 		float _clockLastUpdate;
 		Dictionary<string, PropertyValue> _globalProperties = new Dictionary<string, PropertyValue>();
 
-		Dictionary<string, ConsiderationPropertyDef> _properties = new Dictionary<string, ConsiderationPropertyDef>();
+		Dictionary<string, PropertyDefinition> _properties = new Dictionary<string, PropertyDefinition>();
 		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
 		Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
 		Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
@@ -102,7 +102,7 @@ namespace Portland.AI.Utility
 					{
 						inst.Properties.Add(c.PropertyName, prop);
 					}
-					else if (_properties.TryGetValue(c.PropertyName, out ConsiderationPropertyDef cprop))
+					else if (_properties.TryGetValue(c.PropertyName, out PropertyDefinition cprop))
 					{
 						inst.Properties.Add(c.PropertyName, new PropertyValue(cprop));
 					}
@@ -128,7 +128,7 @@ namespace Portland.AI.Utility
 
 		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, in String8 name)
 		{
-			var prop = new ConsiderationPropertyDef() { PropertyId = name, IsGlobalValue = isGlobal };
+			var prop = new PropertyDefinition() { PropertyId = name, IsGlobalValue = isGlobal };
 			_properties.Add(prop.PropertyId, prop);
 
 			if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
@@ -422,7 +422,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var global = lex.MatchProperty("global");
 
-			var prop = new ConsiderationPropertyDef() { PropertyId = name, TypeName = typ, IsGlobalValue = Boolean.Parse(global) };
+			var prop = new PropertyDefinition() { PropertyId = name, TypeName = typ, IsGlobalValue = Boolean.Parse(global) };
 			_properties.Add(prop.PropertyId, prop);
 
 			while (lex.Token != XmlLex.XmlLexToken.TAG_END)
@@ -432,11 +432,11 @@ namespace Portland.AI.Utility
 
 				if (lexum.Equals("min"))
 				{
-					prop.Min = Single.Parse(val);
+					prop.Minimum = Single.Parse(val);
 				}
 				else if (lexum.Equals("max"))
 				{
-					prop.Max = Single.Parse(val);
+					prop.Maximum = Single.Parse(val);
 				}
 				else if (lexum.Equals("start"))
 				{
@@ -661,7 +661,7 @@ namespace Portland.AI.Utility
 
 		public struct ConsiderationPropDefBuilder
 		{
-			internal ConsiderationPropertyDef Definition;
+			internal PropertyDefinition Definition;
 			internal Dictionary<string, PropertyValue> GlobalProperties;
 
 			public ConsiderationPropDefBuilder TypeName(string typename)
@@ -672,17 +672,17 @@ namespace Portland.AI.Utility
 
 			public ConsiderationPropDefBuilder Min(float min)
 			{
-				Debug.Assert(min <= Definition.Max);
+				Debug.Assert(min <= Definition.Maximum);
 
-				Definition.Min = min;
+				Definition.Minimum = min;
 				return this;
 			}
 
 			public ConsiderationPropDefBuilder Max(float max)
 			{
-				Debug.Assert(max >= Definition.Min);
+				Debug.Assert(max >= Definition.Minimum);
 
-				Definition.Max = max;
+				Definition.Maximum = max;
 				if (Definition.IsGlobalValue)
 				{
 					GlobalProperties[Definition.PropertyId].Max = max;
@@ -692,7 +692,7 @@ namespace Portland.AI.Utility
 
 			public ConsiderationPropDefBuilder StartValue(float value)
 			{
-				Debug.Assert(value >= Definition.Min && value <= Definition.Max);
+				Debug.Assert(value >= Definition.Minimum && value <= Definition.Maximum);
 				Definition.DefaultValue = value;
 
 				if (Definition.IsGlobalValue)
@@ -904,7 +904,7 @@ namespace Portland.AI.Utility
 
 			private void EnsureProp_Const30pct()
 			{
-				CreatePropIfNotExists("const_30pct", true, 0, 1, 0.3f, 0f);
+				CreatePropIfNotExists("const30%", true, 0, 1, 0.3f, 0f);
 			}
 
 			/// <summary>
@@ -956,12 +956,12 @@ namespace Portland.AI.Utility
 			}
 
 			/// <summary>
-			/// Adds sleepiness. 0 is rested and 100 is faint/sleep.
+			/// Adds sleepy. 0 is rested and 100 is faint/sleep.
 			/// </summary>
 			/// <returns></returns>
 			ObjectiveSetBuilder AddPropertyDefinitionSleepiness_0to100(float changePerHour = 8f, float startValue = 0f)
 			{
-				CreatePropIfNotExists("sleepiness", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
+				CreatePropIfNotExists("sleepy", false, 0, 100, startValue, (changePerHour / 60f) / 60f);
 
 				return this;
 			}
@@ -983,7 +983,7 @@ namespace Portland.AI.Utility
 					.Cooldown(0)
 					.Priority(0);
 
-				UtilitySystem.CreateConsideration("idle", "const_30pct")
+				UtilitySystem.CreateConsideration("idle", "const30%")
 					.Weight(1f)
 					.Transform(Consideration.TransformFunc.Normal);
 
@@ -1105,7 +1105,7 @@ namespace Portland.AI.Utility
 						.Priority(8);
 
 					// inverse converts hunger into satiety
-					UtilitySystem.CreateConsideration("sleep", "sleepiness")
+					UtilitySystem.CreateConsideration("sleep", "sleepy")
 						.Weight(1f)
 						.Transform(Consideration.TransformFunc.ClampHi);
 				}

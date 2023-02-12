@@ -36,7 +36,7 @@ namespace Portland.RPG
 			CharacterSheet chr = new CharacterSheet
 			(
 				def, 
-				_props.CreateSetInstance(def.PropertyGroupId), 
+				_props.CreatePropertySet(def.PropertyGroupId), 
 				_effectGroupByName[raceEffectGroup], 
 				_effectGroupByName[classEffectGroup], 
 				_effectGroupByName[factionEffectGroup]

@@ -55,7 +55,7 @@ namespace Portland.AI
 			// add the utility considerations as agent facts
 			foreach(var oprop in agent.UtilitySet.Properties.Values)
 			{
-				agent.Facts.Add(Strings.Get(oprop.PropertyDef.PropertyId), oprop.Amt);
+				agent.Facts.Add(Strings.Get(oprop.Definition.PropertyId), oprop.Amt);
 			}
 
 			_actors.Add(actorTok, agent);
@@ -100,7 +100,7 @@ namespace Portland.AI
 			DefineActorFactAlert_WhenOverValue("thirst", "ALERT_THIRST", 80f);
 			DefineActorFactAlert_WhenUnderValue("health", "ALERT_HEALTH", 20f);
 			DefineActorFactAlert_WhenUnderValue("stamina", "ALERT_STAMINA", 20f);
-			DefineActorFactAlert_WhenOverValue("sleepiness", "ALERT_SLEEP", 80f);
+			DefineActorFactAlert_WhenOverValue("sleepy", "ALERT_SLEEP", 80f);
 		}
 
 		public void DefineNameForActorUtilityObjectiveFact(string factNameToUseIs)

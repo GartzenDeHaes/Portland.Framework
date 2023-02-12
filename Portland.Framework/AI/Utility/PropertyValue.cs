@@ -12,23 +12,23 @@ namespace Portland.AI.Utility
 	{
 		public readonly ObservableValue<Variant8> Amt;
 		public float Max;
-		public readonly ConsiderationPropertyDef PropertyDef;
+		public readonly PropertyDefinition Definition;
 
 		public float Normalized
 		{
 			get
 			{
-				Debug.Assert(Max == PropertyDef.Max);
-				return (Amt.Value - PropertyDef.Min) / (Max - PropertyDef.Min);
+				Debug.Assert(Max == Definition.Maximum);
+				return (Amt.Value - Definition.Minimum) / (Max - Definition.Minimum);
 			}
 		}
 
-		public PropertyValue(ConsiderationPropertyDef propertyDef)
+		public PropertyValue(PropertyDefinition propertyDef)
 		{
-			PropertyDef = propertyDef;
-			Max = propertyDef.Max;
+			Definition = propertyDef;
+			Max = propertyDef.Maximum;
 			Amt = new ObservableValue<Variant8>();
-			Amt.Set(PropertyDef.DefaultValueForInitialization());
+			Amt.Set(Definition.DefaultValueForInitialization());
 		}
 
 		public void AddToValue(float val)
@@ -39,15 +39,15 @@ namespace Portland.AI.Utility
 		public void Set(float val)
 		{
 			val = val > Max ? Max : val;
-			val = val < PropertyDef.Min ? PropertyDef.Min : val;
+			val = val < Definition.Minimum ? Definition.Minimum : val;
 			Amt.Set(val);
 		}
 
 		public void Update(float timeDelta)
 		{
-			if (PropertyDef.ChangePerSec != 0f)
+			if (Definition.ChangePerSec != 0f)
 			{
-				Set(Amt.Value + timeDelta * PropertyDef.ChangePerSec);
+				Set(Amt.Value + timeDelta * Definition.ChangePerSec);
 			}
 		}
 	}

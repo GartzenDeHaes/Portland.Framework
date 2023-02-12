@@ -3,33 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.Mathmatics;
 
 namespace Portland.RPG
 {
-	public class PropertySet : IIndexed<float> 
+	public class PropertySet //: IIndexed<float> 
 	{
 		readonly PropertyDefinitionSet _def;
-		readonly PropertySetKeys _keys;
-		readonly PropertyManager _manager;
+		readonly PropertyValue[] _values;
+		//readonly PropertyManager _manager;
 
-		public int Count
-		{
-			get { return _keys.Properties.Length; }
-		}
+		//public int Count
+		//{
+		//	get { return _values.Length; }
+		//}
 
-		public float this[int index] 
-		{
-			get { return _manager.GetPropertyValue(_keys.Properties[index]); }
-			set { _manager.SetPropertyValue(_keys.Properties[index], value); }
-		}
+		//public float this[int index] 
+		//{
+		//	get { return _values[index].Amt; }
+		//	set { _values[index].Set(value); }
+		//}
 
 		bool FindKey(in String8 id, out int index)
 		{
-			for (index = 0; index < _keys.Properties.Length; index++)
+			for (index = 0; index < _values.Length; index++)
 			{
-				if (_keys.Properties[index].Definiton.PropertyId == id)
+				if (_values[index].Definition.PropertyId == id)
 				{
 					return true;
 				}
@@ -56,7 +57,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				return _manager.GetPropertyMaximum(_keys.Properties[index]);
+				return _values[index].Max;
 			}
 			return -1;
 		}
@@ -65,7 +66,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				value = this[index];
+				value = _values[index].Amt.Value;
 				return true;
 			}
 			value = 0f;
@@ -76,7 +77,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				this[index] = value;
+				_values[index].Amt.Value = value;
 				return true;
 			}
 			return false;
@@ -86,7 +87,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				maximum = _manager.GetPropertyMaximum(_keys.Properties[index]);
+				maximum = _values[index].Max;
 				return true;
 			}
 
@@ -98,7 +99,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				_manager.SetPropertyMaximum(_keys.Properties[index], maximum);
+				_values[index].Max = maximum;
 				return true;
 			}
 
@@ -107,14 +108,14 @@ namespace Portland.RPG
 
 		public void ModifyValueAt(int index, float delta)
 		{
-			_manager.ModifyPropertyValue(_keys.Properties[index], delta);
+			_values[index].AddToValue(delta);
 		}
 
 		public bool TryGetProbability(in String8 id, out DiceTerm dice)
 		{
 			if (FindKey(id, out int index))
 			{
-				dice = _keys.Properties[index].Definiton.Probability;
+				dice = _values[index].Definition.Probability;
 				return true;
 			}
 
@@ -132,26 +133,30 @@ namespace Portland.RPG
 		//	return false;
 		//}
 
-		public String8 IdAt(int index)
+		//public String8 IdAt(int index)
+		//{
+		//	return _values[index].Definition.PropertyId;
+		//}
+
+		public string GetDisplayName(in String8 propId)
 		{
-			return _keys.Properties[index].Definiton.PropertyId;
+			if (FindKey(propId, out int index))
+			{
+				return _values[index].Definition.DisplayName;
+			}
+
+			return String.Empty;
 		}
 
-		public string DisplayNameAt(int index)
+		public String8 GetSetId()
 		{
-			return _manager.GetPropertyName(_keys.Properties[index]);
+			return _def.SetId;
 		}
 
-		public String8 SetName()
-		{
-			return _keys.SetId;
-		}
-
-		public PropertySet(PropertyDefinitionSet def, PropertySetKeys keys, PropertyManager manager)
+		public PropertySet(PropertyDefinitionSet def, PropertyValue[] values)
 		{
 			_def = def;
-			_keys = keys;
-			_manager = manager;
+			_values = values;
 		}
 	}
 }
