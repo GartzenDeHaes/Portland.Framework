@@ -18,6 +18,11 @@ namespace Portland.Mathmatics
 			get { return Rolls * Sides + PlusConst; }
 		}
 
+		public int Range
+		{
+			get { return Maximum - Minimum; }
+		}
+
 		public DiceTerm(sbyte rolls, short sides, sbyte constterm)
 		{
 			Rolls = rolls;

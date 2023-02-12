@@ -306,7 +306,7 @@ namespace Portland.Collections
 
 		public T RandomElement()
 		{
-			return ElementAt(MathHelper.RandomRange(0, Count));
+			return ElementAt(MathHelper.RandomRange(0, Count-1));
 		}
 
 		IEnumerator<T> IEnumerable<T>.GetEnumerator()

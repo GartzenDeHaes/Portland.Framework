@@ -6,13 +6,13 @@ using Portland.Text;
 
 namespace Portland.RPG
 {
-	public enum PropertyChangeSemantic
-	{
-		/// <summary>Starts at zero and accumulates such as hunger, thirst, tiredness</summary>
-		Accumulates,
-		/// <summary>Starts at 100 and depletes such as health, stamina, fuel</summary>
-		Depletes,
-	}
+	//public enum PropertyChangeSemantic
+	//{
+	//	/// <summary>Starts at zero and accumulates such as hunger, thirst, tiredness</summary>
+	//	Accumulates,
+	//	/// <summary>Starts at 100 and depletes such as health, stamina, fuel</summary>
+	//	Depletes,
+	//}
 
 	/// <summary>
 	/// Named group of property definitions (usually a class group such as living)
@@ -23,7 +23,7 @@ namespace Portland.RPG
 		public PropertyDefinition[] Properties;
 	}
 
-	public class PropertyDefinition
+	public sealed class PropertyDefinition
 	{
 		public int ValueIndex;
 
@@ -32,31 +32,31 @@ namespace Portland.RPG
 		public float Minimum;
 		/// <summary>Allow changes outside probability range</summary>
 		public float Maximum;
-		public PropertyChangeSemantic ChangeSemantic;
+		//public PropertyChangeSemantic ChangeSemantic;
 		public float DefaultValue;
 		public DiceTerm Probability;
 		public bool DefaultValueRandom;
 		public String8 PropertyId;
 		public String8 Category;
-		public string LongName;
+		public string DisplayName;
 
 		public float DefaultValueForInitialization
 		{
 			get { return DefaultValueRandom ? Probability.Roll(MathHelper.Rnd) : DefaultValue; }
 		}
 
-		public float DefaultDefaultValue
-		{
-			get
-			{
-				switch (ChangeSemantic)
-				{
-					case PropertyChangeSemantic.Accumulates: return Minimum;
-					case PropertyChangeSemantic.Depletes: return Maximum;
-					default:	return 0;
-				} 
-			}
-		}
+	//	public float DefaultDefaultValue
+	//	{
+	//		get
+	//		{
+	//			switch (ChangeSemantic)
+	//			{
+	//				case PropertyChangeSemantic.Accumulates: return Minimum;
+	//				case PropertyChangeSemantic.Depletes: return Maximum;
+	//				default:	return 0;
+	//			} 
+	//		}
+	//	}
 	}
 
 	public struct PropertyDefinitionBuilder
@@ -66,11 +66,11 @@ namespace Portland.RPG
 		/// <summary>Starts at zero and accumulates such as hunger, thirst, tiredness</summary>
 		public PropertyDefinitionBuilder SetupGrowthType()
 		{
-			Property.ChangeSemantic = PropertyChangeSemantic.Accumulates;
+			//Property.ChangeSemantic = PropertyChangeSemantic.Accumulates;
 			Property.Minimum = 0;
 			Property.Maximum = 100;
 			Property.ChangePerSecond = 0.01f;
-			Property.DefaultValue = Property.DefaultDefaultValue;
+			Property.DefaultValue = 0;
 			Property.Probability = DiceTerm.Parse("1d100");
 			return this;
 		}
@@ -78,11 +78,11 @@ namespace Portland.RPG
 		/// <summary>Starts at 100 and depletes such as health, stamina, BUT regenerates by default</summary>
 		public PropertyDefinitionBuilder SetupDepletionType()
 		{
-			Property.ChangeSemantic = PropertyChangeSemantic.Depletes;
+			//Property.ChangeSemantic = PropertyChangeSemantic.Depletes;
 			Property.Minimum = 0;
 			Property.Maximum = 100;
 			Property.ChangePerSecond = 0.01f;
-			Property.DefaultValue = Property.DefaultDefaultValue;
+			Property.DefaultValue = 100;
 			Property.Probability = DiceTerm.Parse("1d100");
 
 			return this;

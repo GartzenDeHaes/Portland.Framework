@@ -55,7 +55,7 @@ namespace Portland.AI
 			// add the utility considerations as agent facts
 			foreach(var oprop in agent.UtilitySet.Properties.Values)
 			{
-				agent.Facts.Add(Strings.Get(oprop.PropertyDef.Name), oprop.Amt);
+				agent.Facts.Add(Strings.Get(oprop.PropertyDef.PropertyId), oprop.Amt);
 			}
 
 			_actors.Add(actorTok, agent);

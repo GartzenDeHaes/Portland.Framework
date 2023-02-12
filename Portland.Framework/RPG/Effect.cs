@@ -13,7 +13,7 @@ namespace Portland.RPG
 		CurrentAbs = 2,
 		MaxDelta = 3,
 		MaxAbs = 4,
-		Probability = 5
+		//Probability = 5
 	}
 
 	//public enum EffectType

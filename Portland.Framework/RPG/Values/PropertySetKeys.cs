@@ -12,9 +12,9 @@ namespace Portland.RPG
 	public struct PropertyInstanceKey
 	{
 		public short Index;
-		public short DefinitonIndex;
-		public String8 PropertyId;
-		public DiceTerm Probability;
+		public PropertyDefinition Definiton;
+		//public String8 PropertyId;
+		//public DiceTerm Probability;
 	}
 
 	public struct PropertySetKeys

@@ -15,66 +15,66 @@ namespace Portland.RPG
 		Vector<PropertyDefinitionSet> _defSets = new Vector<PropertyDefinitionSet>();
 		//Vector<PropertySetInstance> _pool = new Vector<PropertySetInstance>();
 
-		public void Update(float deltaTimeInSeconds)
-		{
-			float changePerSecond;
-			float minimum;
-			Vector<float> values;
+		//public void Update(float deltaTimeInSeconds)
+		//{
+		//	float changePerSecond;
+		//	float minimum;
+		//	Vector<float> values;
 
-			for (int i = 0; i < _definitions.Count; i++)
-			{
-				changePerSecond = _definitions[i].ChangePerSecond;
-				minimum = _definitions[i].Minimum;
+		//	for (int i = 0; i < _definitions.Count; i++)
+		//	{
+		//		changePerSecond = _definitions[i].ChangePerSecond;
+		//		minimum = _definitions[i].Minimum;
 
-				if (changePerSecond != 0f)
-				{
-					values = _values[i];
+		//		if (changePerSecond != 0f)
+		//		{
+		//			values = _values[i];
 
-					for (int j = 0; j < values.Count; j += 2)
-					{
-						ref float val = ref values.ElementAtRef(j);
-						val += deltaTimeInSeconds * changePerSecond;
-						if (val > values[j+1])
-						{
-							val = values[j+1];
-						}
-						else if (val < minimum)
-						{
-							val = minimum;
-						}
-					}
-				}
-			}
-		}
+		//			for (int j = 0; j < values.Count; j += 2)
+		//			{
+		//				ref float val = ref values.ElementAtRef(j);
+		//				val += deltaTimeInSeconds * changePerSecond;
+		//				if (val > values[j+1])
+		//				{
+		//					val = values[j+1];
+		//				}
+		//				else if (val < minimum)
+		//				{
+		//					val = minimum;
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
 
 		public float GetPropertyValue(in PropertyInstanceKey key)
 		{
-			return _values[key.DefinitonIndex][key.Index];
+			return _values[key.Definiton.ValueIndex][key.Index];
 		}
 
 		public float GetPropertyMaximum(in PropertyInstanceKey key)
 		{
-			return _values[key.DefinitonIndex][key.Index + 1];
+			return _values[key.Definiton.ValueIndex][key.Index + 1];
 		}
 
 		public float GetPropertyMinimum(in PropertyInstanceKey key)
 		{
-			return _definitions[key.DefinitonIndex].Minimum;
+			return _definitions[key.Definiton.ValueIndex].Minimum;
 		}
 
 		public void SetPropertyMaximum(in PropertyInstanceKey key, float maximum)
 		{
-			_values[key.DefinitonIndex].SetElementAt(key.Index + 1, maximum);
+			_values[key.Definiton.ValueIndex].SetElementAt(key.Index + 1, maximum);
 		}
 
 		public void SetPropertyValue(in PropertyInstanceKey key, float value)
 		{
-			var def = _definitions[key.DefinitonIndex];
+			var def = _definitions[key.Definiton.ValueIndex];
 			if (value < def.Minimum)
 			{
 				value = def.Minimum;
 			}
-			var values = _values[key.DefinitonIndex];
+			var values = _values[key.Definiton.ValueIndex];
 			var max = values[key.Index + 1];
 			if (value > max)
 			{
@@ -85,22 +85,22 @@ namespace Portland.RPG
 
 		public void ModifyPropertyValue(in PropertyInstanceKey key, float delta)
 		{
-			SetPropertyValue(key, _values[key.DefinitonIndex].ElementAt(key.Index) + delta);
+			SetPropertyValue(key, _values[key.Definiton.ValueIndex].ElementAt(key.Index) + delta);
 		}
 
 		public String8 GetPropertyDefinitonId(in PropertyInstanceKey key)
 		{
-			return _definitions[key.DefinitonIndex].PropertyId;
+			return _definitions[key.Definiton.ValueIndex].PropertyId;
 		}
 
 		public string GetPropertyName(in PropertyInstanceKey key)
 		{
-			return _definitions[key.DefinitonIndex].LongName;
+			return _definitions[key.Definiton.ValueIndex].DisplayName;
 		}
 
 		public PropertyDefinitionBuilder DefineProperty(in String8 id, string name, in String8 category)
 		{
-			var def = new PropertyDefinition { PropertyId = id, Category = category, LongName = name, Minimum = 0, Maximum = 100 };
+			var def = new PropertyDefinition { PropertyId = id, Category = category, DisplayName = name, Minimum = 0, Maximum = 100 };
 
 			for (int i = 0; i < _definitions.Count; i++)
 			{
@@ -185,10 +185,10 @@ namespace Portland.RPG
 				def = setDef.Properties[i];
 				inst.Properties[i] = new PropertyInstanceKey
 				{
-					PropertyId = def.PropertyId,
+					//PropertyId = def.PropertyId,
 					Index = (short)_values[def.ValueIndex].AddElement(def.DefaultValueForInitialization),
-					DefinitonIndex = (short)i,
-					Probability = def.Probability,
+					Definiton = def,
+					//Probability = def.Probability,
 				};
 				_values[def.ValueIndex].AddElement(def.Maximum);
 			}
@@ -198,7 +198,11 @@ namespace Portland.RPG
 
 		public PropertySet CreateSetInstance(in String8 setId)
 		{
-			return new PropertySet(CreateSetKeysInstance(setId), this);
+			if (!TryGetSetDef(setId, out var setDef))
+			{
+				throw new Exception($"Definition for set {setId} not found");
+			}
+			return new PropertySet(setDef, CreateSetKeysInstance(setId), this);
 		}
 
 		public PropertyManager(int numPropDefs = 24)

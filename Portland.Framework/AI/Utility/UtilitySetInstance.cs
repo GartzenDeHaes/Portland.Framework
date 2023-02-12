@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using Portland.Collections;
 using Portland.ComponentModel;
-using Portland.Mathmatics;
 
 namespace Portland.AI.Utility
 {
-    public class UtilitySetInstance
+	public sealed class UtilitySetInstance
 	{
 		private string _name;
 		private UtilitySetClass _agent;
 
 		// seperate consideration property from property value
-		public Dictionary<string, ConciderationProperty> Properties = new Dictionary<string, ConciderationProperty>();
+		public Dictionary<String8, PropertyValue> Properties = new Dictionary<String8, PropertyValue>();
 		public readonly ObjectiveInstance[] Objectives;
 
 		//public List<string> ObjectiveHistory = new List<string>();
@@ -33,6 +31,12 @@ namespace Portland.AI.Utility
 		public ObservableValue<Variant8> CurrentObjective
 		{
 			get; private set;
+		}
+
+		public PropertyValue this[string propertyName] 
+		{
+			get { return Properties[String8.FromTruncate(propertyName)]; }
+			set { throw new Exception("readonly"); } 
 		}
 
 		public UtilitySetInstance(string name, UtilitySetClass agent)

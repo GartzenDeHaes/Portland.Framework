@@ -56,6 +56,11 @@ namespace Portland.Mathmatics
 			StartupTick = DateTime.Now.Ticks;
 		}
 
+		/// <summary>
+		/// Random number between low and high inclusive
+		/// </summary>
+		/// <param name="low">Inclusive</param>
+		/// <param name="high">Inclusive</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int RandomRange(int low, int high)
 		{
@@ -63,6 +68,11 @@ namespace Portland.Mathmatics
 			//return (int)((high - low) * Rnd.NextDouble() + low);
 		}
 
+		/// <summary>
+		/// Random number between low and high inclusive
+		/// </summary>
+		/// <param name="low">Inclusive</param>
+		/// <param name="high">Inclusive</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float RandomRange(float low, float high)
 		{
@@ -70,6 +80,11 @@ namespace Portland.Mathmatics
 			//return (float)((high - low) * Rnd.NextDouble() + low);
 		}
 
+		/// <summary>
+		/// Random number between low and high inclusive
+		/// </summary>
+		/// <param name="low">Inclusive</param>
+		/// <param name="high">Inclusive</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static double RandomRange(double low, double high)
 		{

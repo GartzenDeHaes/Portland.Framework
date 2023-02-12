@@ -783,7 +783,7 @@ namespace Portland.Mathmatics.Geometry
 		/// <summary>
 		/// Returns a random 2D rotation
 		/// </summary>
-		public static float Rotation2 => MathHelper.RandomRange(0, 360f);
+		public static float Rotation2 => MathHelper.RandomRange(0, 359f);
 
 		/// <summary>
 		/// Returns a random rotation around X axis
@@ -1071,7 +1071,7 @@ namespace Portland.Mathmatics.Geometry
 			{
 				throw new ArgumentException("Empty list");
 			}
-			return list[(int)MathHelper.RandomRange(0f, (float)list.Count)];
+			return list[(int)MathHelper.RandomRange(0f, (float)list.Count - 1)];
 		}
 
 		/// <summary>
@@ -1179,7 +1179,7 @@ namespace Portland.Mathmatics.Geometry
 			var randomString = new StringBuilder(length);
 			for (int i = 0; i < length; i++)
 			{
-				randomString.Append(chars[(int)MathHelper.RandomRange(0f, (float)chars.Length)]);
+				randomString.Append(chars[(int)MathHelper.RandomRange(0f, (float)chars.Length - 1)]);
 			}
 			return randomString.ToString();
 		}
@@ -1197,7 +1197,7 @@ namespace Portland.Mathmatics.Geometry
 			{
 				throw new ArgumentException("Empty list");
 			}
-			var index = (int)MathHelper.RandomRange(0, list.Count);
+			var index = (int)MathHelper.RandomRange(0, list.Count-1);
 			var item = list[index];
 			list.RemoveAt(index);
 			return item;
@@ -1217,7 +1217,7 @@ namespace Portland.Mathmatics.Geometry
 			}
 			for (int i = 0; i < list.Count; i++)
 			{
-				int j = (int)MathHelper.RandomRange((float)i, (float)list.Count);
+				int j = (int)MathHelper.RandomRange((float)i, (float)list.Count - 1);
 				T tmp = list[j];
 				list[j] = list[i];
 				list[i] = tmp;

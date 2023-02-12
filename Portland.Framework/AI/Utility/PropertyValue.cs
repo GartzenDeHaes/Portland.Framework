@@ -1,38 +1,34 @@
 ﻿using System;
+using System.Diagnostics;
+
 using Portland.ComponentModel;
-using Portland.Mathmatics;
 
 namespace Portland.AI.Utility
 {
 	/// <summary>
 	/// cref="ConciderationPropertyDef" Associated with a cref="Consideration" in an cref="Objective".
 	/// </summary>
-	public class ConciderationProperty
+	public sealed class PropertyValue
 	{
-		public readonly ConsiderationPropertyDef PropertyDef;
 		public readonly ObservableValue<Variant8> Amt;
+		public float Max;
+		public readonly ConsiderationPropertyDef PropertyDef;
 
 		public float Normalized
 		{
 			get
 			{
-				return (Amt.Value - PropertyDef.Min) / (PropertyDef.Max - PropertyDef.Min);
+				Debug.Assert(Max == PropertyDef.Max);
+				return (Amt.Value - PropertyDef.Min) / (Max - PropertyDef.Min);
 			}
 		}
 
-		public ConciderationProperty(ConsiderationPropertyDef propertyDef)
+		public PropertyValue(ConsiderationPropertyDef propertyDef)
 		{
 			PropertyDef = propertyDef;
+			Max = propertyDef.Max;
 			Amt = new ObservableValue<Variant8>();
-
-			if (PropertyDef.StartRand)
-			{
-				Amt.Set(MathHelper.RandomRange(PropertyDef.Min, PropertyDef.Max));
-			}
-			else
-			{
-				Amt.Set(PropertyDef.Start);
-			}
+			Amt.Set(PropertyDef.DefaultValueForInitialization());
 		}
 
 		public void AddToValue(float val)
@@ -42,7 +38,7 @@ namespace Portland.AI.Utility
 
 		public void Set(float val)
 		{
-			val = val > PropertyDef.Max ? PropertyDef.Max : val;
+			val = val > Max ? Max : val;
 			val = val < PropertyDef.Min ? PropertyDef.Min : val;
 			Amt.Set(val);
 		}

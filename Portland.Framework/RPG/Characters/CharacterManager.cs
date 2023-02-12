@@ -29,11 +29,11 @@ namespace Portland.RPG
 			_effectGroupByName.Add(String8.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
 		}
 
-		public Character CreateCharacter(in String8 charId, in String8 raceEffectGroup, in String8 classEffectGroup, in String8 factionEffectGroup)
+		public CharacterSheet CreateCharacter(in String8 charId, in String8 raceEffectGroup, in String8 classEffectGroup, in String8 factionEffectGroup)
 		{
 			var def = _charDefs[charId];
 
-			Character chr = new Character
+			CharacterSheet chr = new CharacterSheet
 			(
 				def, 
 				_props.CreateSetInstance(def.PropertyGroupId), 
@@ -48,7 +48,7 @@ namespace Portland.RPG
 			return chr;
 		}
 
-		void CreateDefaultItems(CharacterDefinition def, in String8 raceOrClass, Character chr)
+		void CreateDefaultItems(CharacterDefinition def, in String8 raceOrClass, CharacterSheet chr)
 		{
 			if (def.DefaultItems.TryGetValue(raceOrClass, out var items))
 			{

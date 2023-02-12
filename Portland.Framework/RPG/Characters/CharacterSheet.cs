@@ -13,7 +13,7 @@ using Portland.Mathmatics;
 namespace Portland.RPG
 {
 	[Serializable]
-	public sealed class Character : ICommandRunner
+	public sealed class CharacterSheet : ICommandRunner
 	{
 		public PropertySet Stats;
 		
@@ -37,7 +37,7 @@ namespace Portland.RPG
 		public readonly EffectGroup ClassEffectGroup;
 		public readonly EffectGroup FactionEffectGroup;
 
-		public Character
+		public CharacterSheet
 		(
 			CharacterDefinition def, 
 			PropertySet props,
@@ -116,9 +116,9 @@ namespace Portland.RPG
 				case EffectValueType.MaxAbs:
 					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
 					break;
-				case EffectValueType.Probability:
-					Stats.TrySetProbability(effect.PropertyId, DiceTerm.Parse(effect.Value.ToString()));
-					break;
+				//case EffectValueType.Probability:
+				//	Stats.TrySetProbability(effect.PropertyId, DiceTerm.Parse(effect.Value.ToString()));
+				//	break;
 			}
 		}
 

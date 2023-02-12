@@ -33,7 +33,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public float Evaluate(Dictionary<string, ConciderationProperty> props)
+		public float Evaluate(Dictionary<String8, PropertyValue> props)
 		{
 			Score = 0f;
 

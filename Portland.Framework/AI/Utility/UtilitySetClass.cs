@@ -8,19 +8,19 @@ using Portland.Mathmatics;
 
 namespace Portland.AI.Utility
 {
-	public class UtilitySetClass
+	public sealed class UtilitySetClass
 	{
 		public UtilitySetClass BaseType;
 
 		public string BaseObjectiveSetName;
 		//public string Extends;
 		public string AgentName;
-		/// <summary>Not used, ???</summary>
-		public bool Logging;
-		/// <summary>Not used, ???</summary>
-		public short HistorySize;
+		///// <summary>Not used, ???</summary>
+		//public bool Logging;
+		///// <summary>Not used, ???</summary>
+		//public short HistorySize;
 		public float SecBetweenEvals;
-		public float MovementSpeed;
+		//public float MovementSpeed;
 
 		public List<Objective> Objectives = new List<Objective>();
 		public Dictionary<string, Objective> Overrides = new Dictionary<string, Objective>();

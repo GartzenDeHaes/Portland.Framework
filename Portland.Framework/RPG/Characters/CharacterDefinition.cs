@@ -169,7 +169,7 @@ namespace Portland.RPG
 			// Get the current value of a stat
 			// float: STAT("HP")
 			.Add("STAT", 1, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetValue(name.ToString(), out float value))
 				{
@@ -184,7 +184,7 @@ namespace Portland.RPG
 			// Set the current value of a stat
 			// STAT("STR", STAT("STR") + 1)
 			.Add("STAT", 2, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (!chr.Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
 				{
@@ -195,7 +195,7 @@ namespace Portland.RPG
 			// Returns the maximum range for a stat
 			// float: STATMAX("HP")
 			.Add("STATMAX", 1, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetMaximum(name.ToString(), out float value))
 				{
@@ -210,7 +210,7 @@ namespace Portland.RPG
 			// Set the maximum value for a stat, use for XP, HP
 			// STATMAX("HP", STATMAX("HP") + STATROLL("HP"))
 			.Add("STATMAX", 2, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (!chr.Stats.TrySetMaximum(name.ToString(), ctx.Context["b"]))
 				{
@@ -221,7 +221,7 @@ namespace Portland.RPG
 			// Returns the probability set for a stat in dice notation (3d8)
 			// string: STATDICE("HP")
 			.Add("STATDICE", 1, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
 				{
@@ -233,28 +233,28 @@ namespace Portland.RPG
 					ctx.Context.Set(0f);
 				}
 			})
-			// Set the probability for a stat (can be used to adjust HP levelup amount, fe)
-			// float: STATDICE("HP", "1d4")
-			.Add("STATDICE", 2, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
-				var name = ctx.Context["a"];
-				string dicetxt = ctx.Context["b"];
+			//// Set the probability for a stat (can be used to adjust HP levelup amount, fe)
+			//// float: STATDICE("HP", "1d4")
+			//.Add("STATDICE", 2, (ExecutionContext ctx) => {
+			//	var chr = (CharacterSheet)ctx.UserData;
+			//	var name = ctx.Context["a"];
+			//	string dicetxt = ctx.Context["b"];
 
-				if (!DiceTerm.TryParse(dicetxt, out var dice))
-				{
-					ctx.SetError($"{"STATDICE"}('{dicetxt}') INVALID DICE TERM");
-					ctx.Context.Set(0f);
-				}
-				else if (!chr.Stats.TrySetProbability(name.ToString(), dice))
-				{
-					ctx.SetError($"{"STATDICE"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
-				}
-			})
+			//	if (!DiceTerm.TryParse(dicetxt, out var dice))
+			//	{
+			//		ctx.SetError($"{"STATDICE"}('{dicetxt}') INVALID DICE TERM");
+			//		ctx.Context.Set(0f);
+			//	}
+			//	else if (!chr.Stats.TrySetProbability(name.ToString(), dice))
+			//	{
+			//		ctx.SetError($"{"STATDICE"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
+			//		ctx.Context.Set(0f);
+			//	}
+			//})
 			// Dice roll for the probability set for a stat
 			// float: STATROLL("HP")
 			.Add("STATROLL", 1, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
 				{
@@ -281,12 +281,12 @@ namespace Portland.RPG
 				}
 			})
 			.Add("SELECTED", 0, (ctx) => {
-				ctx.Context.Set(((Character)ctx.UserData).InventoryWindow.SelectedSlot);
+				ctx.Context.Set(((CharacterSheet)ctx.UserData).InventoryWindow.SelectedSlot);
 			})
 			// Sum all of the named properties in a window area grid, fe DEFENCE in the equipment armor grid to calcuate AC
 			// INVENTORY("SUM", "WINDOW AREA NAME", "PROPERTY NAME")
 			.Add("INVENTORY", 3, (ExecutionContext ctx) => {
-				var chr = (Character)ctx.UserData;
+				var chr = (CharacterSheet)ctx.UserData;
 				string op = ctx.Context["a"];
 				var window = ctx.Context["b"];
 				string propName = ctx.Context["c"];

@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 using Portland.Collections;
 using Portland.Mathmatics;
-using Portland.Text;
 
 namespace Portland.RPG
 {
 	public class PropertySet : IIndexed<float> 
 	{
+		readonly PropertyDefinitionSet _def;
 		readonly PropertySetKeys _keys;
 		readonly PropertyManager _manager;
 
@@ -31,7 +29,7 @@ namespace Portland.RPG
 		{
 			for (index = 0; index < _keys.Properties.Length; index++)
 			{
-				if (_keys.Properties[index].PropertyId == id)
+				if (_keys.Properties[index].Definiton.PropertyId == id)
 				{
 					return true;
 				}
@@ -116,7 +114,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				dice = _keys.Properties[index].Probability;
+				dice = _keys.Properties[index].Definiton.Probability;
 				return true;
 			}
 
@@ -124,22 +122,22 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TrySetProbability(in String8 id, in DiceTerm dice)
-		{
-			if (FindKey(id, out int index))
-			{
-				_keys.Properties[index].Probability = dice;
-				return true;
-			}
-			return false;
-		}
+		//public bool TrySetProbability(in String8 id, in DiceTerm dice)
+		//{
+		//	if (FindKey(id, out int index))
+		//	{
+		//		_keys.Properties[index].Probability = dice;
+		//		return true;
+		//	}
+		//	return false;
+		//}
 
 		public String8 IdAt(int index)
 		{
-			return _keys.Properties[index].PropertyId;
+			return _keys.Properties[index].Definiton.PropertyId;
 		}
 
-		public string NameAt(int index)
+		public string DisplayNameAt(int index)
 		{
 			return _manager.GetPropertyName(_keys.Properties[index]);
 		}
@@ -149,8 +147,9 @@ namespace Portland.RPG
 			return _keys.SetId;
 		}
 
-		public PropertySet(PropertySetKeys keys, PropertyManager manager)
+		public PropertySet(PropertyDefinitionSet def, PropertySetKeys keys, PropertyManager manager)
 		{
+			_def = def;
 			_keys = keys;
 			_manager = manager;
 		}

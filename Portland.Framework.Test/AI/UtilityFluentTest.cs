@@ -26,9 +26,9 @@ namespace Portland.AI.Utility
 				.StartValue(20)
 				.ChangePerHour(10);
 
-			//factory.CreatePropertyDef_HourOfDay(true, "hour_of_day");
+			//factory.CreatePropertyDef_HourOfDay(true, "hour");
 
-			factory.CreatePropertyDef(true, "const_30pct")
+			factory.CreatePropertyDef(true, "const_30")
 				.Min(0f)
 				.Max(1f)
 				.StartValue(0.3f)
@@ -46,7 +46,7 @@ namespace Portland.AI.Utility
 				.Cooldown(0)
 				.Priority(0);
 
-			factory.CreateConsideration("idle", "const_30pct")
+			factory.CreateConsideration("idle", "const_30")
 				.Weight(1f)
 				.Transform(Consideration.TransformFunc.Normal);
 
@@ -56,7 +56,7 @@ namespace Portland.AI.Utility
 				.Transform(Consideration.TransformFunc.Normal);
 
 			// center activates towards the middle of the range
-			factory.CreateConsideration("eat", "hour_of_day")
+			factory.CreateConsideration("eat", "hour")
 				.Weight(0.4f)
 				.Transform(Consideration.TransformFunc.ClampCenter);
 
@@ -69,12 +69,12 @@ namespace Portland.AI.Utility
 
 			var uset = factory.CreateAgentInstance("player", "ROCHELLE");
 
-			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
+			//factory.GetGlobalProperty("hour").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(0.3f, uset.Properties["const_30pct"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(20f, uset.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(8f, uset.Properties["hour_of_day"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.3f, uset["const_30"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(20f, uset["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(8f, uset["hour"].Amt.Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
@@ -86,11 +86,11 @@ namespace Portland.AI.Utility
 			Assert.AreEqual("eat", (string)uset.CurrentObjective.Value);
 
 			clock.Update(30f * 60); // 30 minutes
-			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
+			//factory.GetGlobalProperty("hour").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 			Assert.That(0, Is.EqualTo(0));
-			Assert.IsTrue(MathHelper.Approximately(25f, uset.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(8.5f, uset.Properties["hour_of_day"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(25f, uset["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(8.5f, uset["hour"].Amt.Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
@@ -103,10 +103,10 @@ namespace Portland.AI.Utility
 
 			clock.Update(31f * 60); // 31 minutes
 			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
-			uset.Properties["hunger"].Set(0);
+			uset["hunger"].Set(0);
 			factory.TickAgents();
-			Assert.IsTrue(MathHelper.Approximately(5.16666f, uset.Properties["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(9.0166f, uset.Properties["hour_of_day"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(5.16666f, uset["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(9.0166f, uset["hour"].Amt.Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
