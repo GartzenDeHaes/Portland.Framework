@@ -13,7 +13,7 @@ namespace Portland.AI.Semantics
         public string Faction;
         public AgentState State = new AgentState();
         private ObserverMatchRuleSet _barkRules;
-        public UtilitySetInstance Utility;
+        public UtilitySet Utility;
         public string Frame;
         public string Goal;
         public string UtilityObjective;

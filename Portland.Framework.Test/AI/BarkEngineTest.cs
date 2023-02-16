@@ -264,7 +264,7 @@ DO
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Agent zoey;
 			Assert.True(world.TryGetActor("ZOEY", out zoey));
-			Assert.That(zoey.Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
+			Assert.That(zoey.Facts.Get(strings.Get("ceda_trailers_seen")).Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(6f);
 			world.BarkEngine.Update();
@@ -272,7 +272,7 @@ DO
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
-			Assert.That(zoey.Facts[strings.Get("ceda_trailers_seen")].Value.ToInt(), Is.EqualTo(1));
+			Assert.That(zoey.Facts.Get(strings.Get("ceda_trailers_seen")).Value.ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
 			Assert.That(ruleId, Is.EqualTo("zoey:couldnt_holdout"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));

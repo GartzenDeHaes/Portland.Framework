@@ -18,7 +18,7 @@ namespace Portland.AI.Utility
 		Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
 		Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
 
-		Dictionary<string, UtilitySetInstance> _instances = new Dictionary<string, UtilitySetInstance>();
+		Dictionary<string, UtilitySet> _instances = new Dictionary<string, UtilitySet>();
 
 		public void TickAgents()
 		{
@@ -66,10 +66,10 @@ namespace Portland.AI.Utility
 			return _objectives.ContainsKey(objectiveName);
 		}
 
-		public UtilitySetInstance CreateAgentInstance(string agentTypeName, string name)
+		public UtilitySet CreateAgentInstance(string agentTypeName, string name)
 		{
 			var agent = _agentsByName[agentTypeName];
-			var inst = new UtilitySetInstance(name, agent);
+			var inst = new UtilitySet(name, agent);
 			_instances.Add(inst.Name, inst);
 
 			CreateProperyInstances(inst, agent);
@@ -82,7 +82,7 @@ namespace Portland.AI.Utility
 			_instances.Remove(name);
 		}
 
-		private void CreateProperyInstances(UtilitySetInstance inst, UtilitySetClass agent)
+		private void CreateProperyInstances(UtilitySet inst, UtilitySetClass agent)
 		{
 			if (agent.BaseType != null)
 			{

@@ -104,23 +104,23 @@ namespace Portland.AI.Barks
 			Assert.True(world.TryGetActor("COACH", out coach));
 
 			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts[strings.Get("utility_objective")].Value, Is.EqualTo(String.Empty));
-			Assert.That((float)coach.Facts[strings.Get("const30%")].Value, Is.EqualTo(0.3f));
-			Assert.That((float)coach.Facts[strings.Get("health")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("hunger")].Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(0f));
+			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo(String.Empty));
+			Assert.That((float)coach.Facts.Get(strings.Get("const30%")).Value, Is.EqualTo(0.3f));
+			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(0f));
 
 			// should set the objective
 			world.Update(0f);
 			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts[strings.Get("utility_objective")].Value, Is.EqualTo("idle"));
-			Assert.That((float)coach.Facts[strings.Get("health")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("hunger")].Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(0f));
+			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo("idle"));
+			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(0f));
 
 			Assert.False(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Concept = strings.Get("hello") }));
@@ -129,15 +129,15 @@ namespace Portland.AI.Barks
 			// one day
 			world.Update(1440f*60f);
 			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts[strings.Get("utility_objective")].Value, Is.EqualTo("sleep"));
-			Assert.That((float)coach.Facts[strings.Get("health")].Value, Is.EqualTo(100f));
+			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo("sleep"));
+			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertHealth, Is.False);
-			Assert.That((float)coach.Facts[strings.Get("hunger")].Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertHunger, Is.True);
-			Assert.That((float)coach.Facts[strings.Get("thirst")].Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertThrist, Is.True);
-			Assert.That((float)coach.Facts[strings.Get("stamina")].Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts[strings.Get("sleepy")].Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertSleep, Is.True);
 
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
@@ -146,7 +146,7 @@ namespace Portland.AI.Barks
 			world.Update(60f);
 			Assert.False(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 
-			coach.Facts[strings.Get("health")].Set(10f);
+			coach.Facts.Get(strings.Get("health")).Set(10f);
 			world.Update(60f);
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 			Assert.That(saidConcept, Is.EqualTo("coach:say:dying"));

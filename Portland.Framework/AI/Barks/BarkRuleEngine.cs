@@ -8,6 +8,7 @@ using NLog.LayoutRenderers.Wrappers;
 using Portland.CheckedEvents;
 using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.Framework.AI;
 using Portland.Mathmatics;
 using Portland.Text;
 
@@ -73,7 +74,7 @@ namespace Portland.AI.Barks
 				if (cmd.ActorName.Index == 0)
 				{
 					// world
-					SetVars(_world.Facts, cmd);
+					SetVars(_world.GlobalFacts, cmd);
 				}
 				else
 				{
@@ -108,7 +109,7 @@ namespace Portland.AI.Barks
 				if (cmd.ActorName.Index == 0)
 				{
 					// world
-					AddToVar(_world.Facts, cmd);
+					AddToVar(_world.GlobalFacts, cmd);
 				}
 				else
 				{
@@ -128,7 +129,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(Dictionary<StringTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
+		void SetVars(IBlackboard facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -136,11 +137,11 @@ namespace Portland.AI.Barks
 			}
 			else
 			{
-				facts[cmd.Arg1].Value = cmd.Arg2;
+				facts.Get(cmd.Arg1).Value = cmd.Arg2;
 			}
 		}
 
-		void AddToVar(Dictionary<StringTableToken, IObservableValue<Variant8>> facts, BarkCommand cmd)
+		void AddToVar(IBlackboard facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -148,7 +149,7 @@ namespace Portland.AI.Barks
 			}
 			else
 			{
-				facts[cmd.Arg1].Value = facts[cmd.Arg1].Value + cmd.Arg2;
+				facts.Get(cmd.Arg1).Value = facts.Get(cmd.Arg1).Value + cmd.Arg2;
 			}
 		}
 
@@ -241,7 +242,7 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.WorldFilters.Count; i++)
 				{
 					var filter = rule.WorldFilters[i];
-					if (!filter.IsMatch(_world.Facts))
+					if (!filter.IsMatch(_world.GlobalFacts))
 					{
 						docont = true;
 						break;

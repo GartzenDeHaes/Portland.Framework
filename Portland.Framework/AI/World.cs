@@ -9,7 +9,9 @@ using Portland.AI.Barks;
 using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.Framework.AI;
 using Portland.Mathmatics;
+using Portland.RPG;
 
 namespace Portland.AI
 {
@@ -17,9 +19,14 @@ namespace Portland.AI
 	{
 		public readonly IClock Clock;
 		public WorldStateFlags Flags;
+		public readonly IBlackboard GlobalFacts = new Blackboard(Variant8.StrTab);
+
 		public readonly UtilityFactory UtilitySystem;
-		public BarkRuleEngine BarkEngine;
-		public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
+		public readonly BarkRuleEngine BarkEngine;
+		public readonly CharacterManager CharacterManager;
+		public readonly ItemFactory ItemManager;
+
+		//public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
 		Dictionary<StringTableToken, Agent> _actors = new Dictionary<StringTableToken, Agent>();
 		public readonly StringTable Strings;
 
@@ -63,9 +70,9 @@ namespace Portland.AI
 			// Ensure all global utility consideration are set as global facts
 			for (var cons = UtilitySystem.GetGlobalConsiderationNameEnumerator(); cons.MoveNext();)
 			{
-				if (! Facts.ContainsKey(Strings.Get(cons.Current)))
+				if (! GlobalFacts.ContainsKey(Strings.Get(cons.Current)))
 				{
-					Facts.Add(Strings.Get(cons.Current), UtilitySystem.GetGlobalProperty(cons.Current).Amt);
+					GlobalFacts.Add(Strings.Get(cons.Current), UtilitySystem.GetGlobalProperty(cons.Current).Amt);
 				}
 			}
 

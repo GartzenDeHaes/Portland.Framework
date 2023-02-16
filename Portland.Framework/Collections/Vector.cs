@@ -115,7 +115,8 @@ namespace Portland.Collections
 				int space = m_data.Length;
 				while (m_used >= space)
 				{
-					space <<= 1;
+					//space <<= 1;
+					space += space / 3;
 				}
 				T[] array2 = new T[space];
 				int i;

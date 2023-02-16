@@ -10,7 +10,7 @@ namespace Portland.AI.Utility
 	/// </summary>
 	public sealed class PropertyValue
 	{
-		public readonly ObservableValue<Variant8> Amt;
+		public readonly IObservableValue<Variant8> Amt;
 		public float Max;
 		public readonly PropertyDefinition Definition;
 

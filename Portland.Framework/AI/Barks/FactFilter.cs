@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.Framework.AI;
 using Portland.Text;
 
 namespace Portland.AI.Barks
@@ -29,7 +30,7 @@ namespace Portland.AI.Barks
 		public ComparisionOp Op;
 		public Variant8 Value;
 
-		public bool IsMatch(Dictionary<StringTableToken, IObservableValue<Variant8>> facts)
+		public bool IsMatch(IBlackboard facts)
 		{
 			bool ret = false;
 
