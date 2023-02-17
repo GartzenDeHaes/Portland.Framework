@@ -6,7 +6,7 @@ using System.Text;
 using Portland.Mathmatics;
 using NUnit.Framework;
 
-namespace Portland.UnitTests
+namespace Portland.Mathmatics
 {
 	[TestFixture]
 	public class SampleTest

@@ -60,7 +60,7 @@ namespace Portland.AI.Utility
 				.Weight(0.4f)
 				.Transform(Consideration.TransformFunc.ClampCenter);
 
-			factory.CreateAgentType("human")
+			factory.CreateAgentType(String.Empty, "human")
 				.SecondsBetweenEvals(10f)
 				.AddObjective("eat")
 				.AddObjective("idle");
@@ -72,9 +72,9 @@ namespace Portland.AI.Utility
 			//factory.GetGlobalProperty("hour").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(0.3f, uset["const_30"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(20f, uset["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(8f, uset["hour"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0.3f, uset["const_30"].Value));
+			Assert.IsTrue(MathHelper.Approximately(20f, uset["hunger"].Value));
+			Assert.IsTrue(MathHelper.Approximately(8f, uset["hour"].Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
@@ -89,8 +89,8 @@ namespace Portland.AI.Utility
 			//factory.GetGlobalProperty("hour").Set(clock.TimeOfDayNormalized01 * 24);
 			factory.TickAgents();
 			Assert.That(0, Is.EqualTo(0));
-			Assert.IsTrue(MathHelper.Approximately(25f, uset["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(8.5f, uset["hour"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(25f, uset["hunger"].Value));
+			Assert.IsTrue(MathHelper.Approximately(8.5f, uset["hour"].Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)
@@ -105,8 +105,8 @@ namespace Portland.AI.Utility
 			//factory.GetGlobalProperty("hour_of_day").Set(clock.TimeOfDayNormalized01 * 24);
 			uset["hunger"].Set(0);
 			factory.TickAgents();
-			Assert.IsTrue(MathHelper.Approximately(5.16666f, uset["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(9.0166f, uset["hour"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(5.16666f, uset["hunger"].Value));
+			Assert.IsTrue(MathHelper.Approximately(9.0166f, uset["hour"].Value));
 			foreach (var objective in uset.Objectives)
 			{
 				switch (objective.Base.Name)

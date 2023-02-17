@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Portland.ComponentModel;
+using Portland.Collections;
 
 namespace Portland.AI.Utility
 {
@@ -27,7 +27,7 @@ namespace Portland.AI.Utility
 			get { return _name; }
 		}
 
-		public ObservableValue<Variant8> CurrentObjective
+		public PropertyValue CurrentObjective
 		{
 			get; private set;
 		}
@@ -43,8 +43,9 @@ namespace Portland.AI.Utility
 			_name = name;
 			_agent = agent;
 
-			CurrentObjective = new ObservableValue<Variant8>("objective");
-			CurrentObjective.Set(String.Empty);
+			//CurrentObjective = new ObservableValue<Variant8>("objective");
+			//CurrentObjective.Set(String.Empty);
+			CurrentObjective = new PropertyValue(new PropertyDefinition() { DisplayName = "Objective", PropertyId = "utility_objective", TypeName = "string" });
 
 			Objectives = _agent.CreateObjectives();
 		}
@@ -114,6 +115,17 @@ namespace Portland.AI.Utility
 
 				CurrentObjective.Set(_current.Base.Name);
 			}
+		}
+
+		public void AddProperty(PropertyDefinition def)
+		{
+			var prop = new PropertyValue(def);
+			AddProperty(prop);
+		}
+
+		public void AddProperty(PropertyValue property)
+		{
+			Properties.Add(property.Definition.PropertyId, property);
 		}
 	}
 }

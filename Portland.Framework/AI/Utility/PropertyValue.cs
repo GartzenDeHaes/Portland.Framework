@@ -10,7 +10,8 @@ namespace Portland.AI.Utility
 	/// </summary>
 	public sealed class PropertyValue
 	{
-		public readonly IObservableValue<Variant8> Amt;
+		//public readonly IObservableValue<Variant8> Amt;
+		public Variant8 Value;
 		public float Max;
 		public readonly PropertyDefinition Definition;
 
@@ -18,8 +19,9 @@ namespace Portland.AI.Utility
 		{
 			get
 			{
-				Debug.Assert(Max == Definition.Maximum);
-				return (Amt.Value - Definition.Minimum) / (Max - Definition.Minimum);
+				//Debug.Assert(Max == Definition.Maximum);
+				//return (Amt.Value - Definition.Minimum) / (Max - Definition.Minimum);
+				return (Value - Definition.Minimum) / (Max - Definition.Minimum);
 			}
 		}
 
@@ -27,27 +29,47 @@ namespace Portland.AI.Utility
 		{
 			Definition = propertyDef;
 			Max = propertyDef.Maximum;
-			Amt = new ObservableValue<Variant8>();
-			Amt.Set(Definition.DefaultValueForInitialization());
+			//Amt = new ObservableValue<Variant8>();
+			if (Definition.TypeName == "string")
+			{
+				Value = String.Empty;
+			}
+			else
+			{
+				Value = Definition.DefaultValueForInitialization();
+			}
 		}
 
-		public void AddToValue(float val)
+		public void AddToValue(in Variant8 val)
 		{
-			Set(Amt.Value + val);
+			Set(Value + val);
 		}
 
-		public void Set(float val)
+		public void Set(in Variant8 val)
 		{
-			val = val > Max ? Max : val;
-			val = val < Definition.Minimum ? Definition.Minimum : val;
-			Amt.Set(val);
+			if (! Value.IsNumeric)
+			{
+				Value = val;
+			}
+			else if (val > Max)
+			{
+				Value = Max;
+			}
+			else if (val < Definition.Minimum)
+			{
+				Value = Definition.Minimum;
+			}
+			else
+			{
+				Value = val;
+			}
 		}
 
 		public void Update(float timeDelta)
 		{
 			if (Definition.ChangePerSec != 0f)
 			{
-				Set(Amt.Value + timeDelta * Definition.ChangePerSec);
+				Set(Value + timeDelta * Definition.ChangePerSec);
 			}
 		}
 	}

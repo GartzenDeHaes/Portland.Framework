@@ -43,7 +43,7 @@ namespace Portland
 	/// <summary>
 	/// A 64-bit variant value type.  Strings longer than 3 characters are stored in a static StringTable.
 	/// </summary>
-	public struct Variant8
+	public struct Variant8 : IEquatable<Variant8>
 	{
 		[Serializable]
 		[StructLayout(LayoutKind.Explicit)]
@@ -129,7 +129,7 @@ namespace Portland
 		}
 
 		/// <summary>Constructor</summary>
-		public Variant8(String8 i)
+		public Variant8(in String8 i)
 		{
 			_value = Zero._value;
 			Set(i);
@@ -149,8 +149,8 @@ namespace Portland
 
 			//if (str.Length > String3.MAX_LEN)
 			//{
-			_value.TypeIs = VariantType.String;
 			_value.AsStrInTab = StrTab.Get(str);
+			_value.TypeIs = VariantType.String;
 			//_value.AsInt2 = (short)str[0];
 			//}
 			//else
@@ -166,8 +166,8 @@ namespace Portland
 
 			//if (str.Length > String3.MAX_LEN)
 			//{
-			_value.TypeIs = VariantType.String;
 			_value.AsStrInTab = StrTab.Get(str);
+			_value.TypeIs = VariantType.String;
 			//_value.AsInt2 = str.Length > 0 ? (short)str[0] : (short)0;
 			//}
 			//else
@@ -286,8 +286,8 @@ namespace Portland
 		{
 			//if (s.Length > String3.MAX_LEN)
 			//{
-			_value.TypeIs = VariantType.String;
 			_value.AsStrInTab = StrTab.Get(s);
+			_value.TypeIs = VariantType.String;
 			//_value.AsInt2 = (short)s[0];
 			//}
 			//else
@@ -554,11 +554,29 @@ namespace Portland
 					case VariantType.Vec3i:
 						return 3;
 					case VariantType.String:
-						return _value.AsStrInTab.Length;
+						return StrTab.GetString(_value.AsStrInTab).Length;
 					default:
 						return 0;
 				}
 			}
+		}
+
+		public bool Equals(Variant8 v2)
+		{
+			if (_value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
+			{
+				return ToFloat() == v2.ToFloat();
+			}
+			if (_value.TypeIs == VariantType.Int || v2._value.TypeIs == VariantType.Int || _value.TypeIs == VariantType.Bool || v2._value.TypeIs == VariantType.Bool)
+			{
+				return ToInt() == v2.ToInt();
+			}
+			if (_value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
+			{
+				return ToVector3d() == v2.ToVector3d();
+			}
+
+			return Equals(v2.ToString());
 		}
 
 		public bool Equals(in Variant8 v2)
@@ -596,7 +614,7 @@ namespace Portland
 				//case VariantType.StringIntern:
 				//	return _value.AsString.Equals(s);
 				case VariantType.String:
-					return _value.AsStrInTab.Length == s.Length && StrTab.Get(s) == _value.AsStrInTab;
+					return /*_value.AsStrInTab.Length == s.Length &&*/ StrTab.Get(s).Index == _value.AsStrInTab.Index;
 				default:
 					return false;
 			}
@@ -1148,6 +1166,7 @@ namespace Portland
 		/// <summary>Implicit string to Variant cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Variant8(string x) => new Variant8(x);
+		public static implicit operator Variant8(StringBuilder x) => new Variant8(x);
 
 		/// <summary>cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

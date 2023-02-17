@@ -668,6 +668,21 @@ namespace Portland.Text
 			return (long)NumberHelper.HashMurmur64(bin, (ulong)bin.Length);
 		}
 
+		public static int HashLnv1a(string data)
+		{
+			const uint fnv_prime = 0x811C9DC5;
+			uint hash = 0;
+			uint i = 0;
+
+			for (i = 0; i < data.Length; i++)
+			{
+				hash *= fnv_prime;
+				hash ^= ((byte)data[(int)i]);
+			}
+
+			return unchecked ((int)hash);
+		}
+
 		public static string SanitizeFileName(string fileName, char replacementChar = '_')
 		{
 			var blackList = new HashSet<char>(System.IO.Path.GetInvalidFileNameChars());

@@ -9,7 +9,7 @@ namespace Portland.Framework.AI.BehaviorTree
 		public BtNode Root;
 		public List<BtNode> Nodes = new List<BtNode>();
 
-		public IBlackboard LocalBlackboard;
+		public IBlackboard<string> LocalBlackboard;
 
 		public NodeState CurrentState = NodeState.None;
 

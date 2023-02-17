@@ -9,18 +9,18 @@ namespace Portland.AI.Barks
 {
     public sealed class BarkSerializer
 	{
-		public StringTable Strings;
-		public Dictionary<StringTableToken, StringTableToken> FlagAliases = new Dictionary<StringTableToken, StringTableToken>();
+		//public StringTable Strings;
+		public Dictionary<string, string> FlagAliases = new Dictionary<string, string>();
 
 		public BarkSerializer()
 		{
-			Strings = new StringTable();
+			//Strings = new StringTable();
 		}
 
-		public BarkSerializer(StringTable textTable)
-		{
-			Strings = textTable;
-		}
+		//public BarkSerializer(StringTable textTable)
+		//{
+		//	Strings = textTable;
+		//}
 
 		public List<BarkRule> Deserialize(string text)
 		{
@@ -103,11 +103,18 @@ namespace Portland.AI.Barks
 				}
 				if (lex.TypeIs == SimpleLex.TokenType.CR || lex.TypeIs == SimpleLex.TokenType.LF)
 				{
-					lex.Next();
-				}
-				if (lex.TypeIs == SimpleLex.TokenType.CR || lex.TypeIs == SimpleLex.TokenType.LF)
-				{
-					lex.Next();
+					while (lex.TypeIs == SimpleLex.TokenType.CR || lex.TypeIs == SimpleLex.TokenType.LF)
+					{
+						lex.Next();
+					}
+					if (lex.Lexum.Length == 1 && lex.Lexum[0] == '#')
+					{
+						while (lex.TypeIs != SimpleLex.TokenType.CR && lex.TypeIs != SimpleLex.TokenType.LF && !lex.IsEOF)
+						{
+							lex.Next();
+						}
+						LexSkipWhitespace(lex);
+					}
 				}
 			}
 
@@ -124,7 +131,7 @@ namespace Portland.AI.Barks
 			BarkRule rule = new BarkRule();
 
 			LexMatchIgnoreCase(lex, "RULE");
-			rule.RuleKey = Strings.GetString(ScanName(lex));
+			rule.RuleKey = ScanName(lex);
 
 			LexMatchIgnoreCase(lex, "WHEN");
 
@@ -214,10 +221,10 @@ namespace Portland.AI.Barks
 		{
 			LexMatchIgnoreCase(lex, "ALIAS");
 			LexMatchIgnoreCase(lex, "FLAG");
-			var flagText = Strings.Get(lex.Lexum);
+			var flagText = lex.Lexum.ToString();
 			LexMatch(lex, SimpleLex.TokenType.ID);
 			LexMatchIgnoreCase(lex, "AS");
-			var aliasText = Strings.Get(lex.Lexum);
+			var aliasText = lex.Lexum.ToString();
 			LexMatch(lex, SimpleLex.TokenType.ID);
 			LexMatch(lex, ".");
 
@@ -252,7 +259,7 @@ namespace Portland.AI.Barks
 		{
 			LexMatchIgnoreCase(lex, "ACTOR");
 			LexMatchIgnoreCase(lex, "IS");
-			rule.ActorName = Strings.Get(lex.Lexum);
+			rule.ActorName = lex.Lexum.ToString();
 			LexNext(lex);
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
@@ -264,7 +271,7 @@ namespace Portland.AI.Barks
 		{
 			LexMatchIgnoreCase(lex, "AGENT");
 			LexMatchIgnoreCase(lex, "IS");
-			rule.ActorName = Strings.Get(lex.Lexum);
+			rule.ActorName = lex.Lexum.ToString();
 			LexNext(lex);
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
@@ -276,7 +283,7 @@ namespace Portland.AI.Barks
 		{
 			LexMatchIgnoreCase(lex, "OBSERVER");
 			LexMatchIgnoreCase(lex, "IS");
-			rule.ObserverName = Strings.Get(lex.Lexum);
+			rule.ObserverName = lex.Lexum.ToString();
 			LexNext(lex);
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
@@ -324,8 +331,8 @@ namespace Portland.AI.Barks
 					isNot = true;
 				}
 
-				StringTableToken charName = new StringTableToken();
-				StringTableToken flagName = Strings.Get(lex.Lexum);
+				string charName = null;
+				var flagName = lex.Lexum.ToString();
 				LexMatch(lex, SimpleLex.TokenType.ID);
 
 				if (lex.Lexum[0] == '.')
@@ -333,7 +340,7 @@ namespace Portland.AI.Barks
 					isWorld = false;
 					charName = flagName;
 					lex.Match(".");
-					flagName = Strings.Get(lex.Lexum);
+					flagName = lex.Lexum.ToString();
 					lex.Match(SimpleLex.TokenType.ID);
 				}
 
@@ -346,11 +353,11 @@ namespace Portland.AI.Barks
 				{
 					if (!isNot)
 					{
-						rule.WorldFlagsSet.SetByName(Strings.GetString(flagName), true);
+						rule.WorldFlagsSet.SetByName(flagName, true);
 					}
 					else
 					{
-						rule.WorldFlagsClear.SetByName(Strings.GetString(flagName), true);
+						rule.WorldFlagsClear.SetByName(flagName, true);
 					}
 				}
 				else
@@ -371,7 +378,7 @@ namespace Portland.AI.Barks
 
 		void WhenExpr(SimpleLex lex, BarkRule rule)
 		{
-			StringTableToken id = Strings.Get(lex.Lexum);
+			var id = lex.Lexum.ToString();
 			LexMatch(lex, SimpleLex.TokenType.ID);
 
 			var filter = new FactFilter();
@@ -382,7 +389,7 @@ namespace Portland.AI.Barks
 
 				lex.Match(".");
 
-				filter.FactName = Strings.Get(lex.Lexum);
+				filter.FactName = lex.Lexum.ToString();
 				lex.Match(SimpleLex.TokenType.ID);
 
 				rule.ActorFilters.Add(filter);
@@ -510,7 +517,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					rule.ObserverName = Strings.Get(lex.Lexum);
+					rule.ObserverName = lex.Lexum.ToString();
 					LexMatch(lex, SimpleLex.TokenType.ID);
 
 					DoSay(lex, rule);
@@ -580,7 +587,7 @@ namespace Portland.AI.Barks
 			BarkCommand cmd = new BarkCommand()
 			{
 				CommandName = BarkCommand.CommandNameSetVar,
-				Arg1 = Strings.Get(lex.Lexum),
+				Arg1 = lex.Lexum.ToString(),
 				Rule = rule
 			};
 
@@ -592,7 +599,7 @@ namespace Portland.AI.Barks
 			{
 				lex.Next();
 				cmd.ActorName = cmd.Arg1;
-				cmd.Arg1 = Strings.Get(lex.Lexum);
+				cmd.Arg1 = lex.Lexum.ToString();
 				lex.Match(SimpleLex.TokenType.ID);
 			}
 
@@ -640,14 +647,14 @@ namespace Portland.AI.Barks
 			LexNext(lex);
 			LexMatchIgnoreCase(lex, "TO");
 
-			cmd.Arg1 = Strings.Get(lex.Lexum);
+			cmd.Arg1 = lex.Lexum.ToString();
 			lex.Next();
 
 			if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '.')
 			{
 				cmd.ActorName = cmd.Arg1;
 				lex.Match(".");
-				cmd.Arg1 = Strings.Get(lex.Lexum);
+				cmd.Arg1 = lex.Lexum.ToString();
 				lex.Match(SimpleLex.TokenType.ID);
 			}
 
@@ -696,7 +703,7 @@ namespace Portland.AI.Barks
 		{
 			LexMatchIgnoreCase(lex, "DONT");
 
-			var actor = Strings.Get(lex.Lexum);
+			var actor = lex.Lexum.ToString();
 			LexMatch(lex, SimpleLex.TokenType.ID);
 
 			var action = AsciiId4.ConstructStartsWith(lex.Lexum);
@@ -720,7 +727,7 @@ namespace Portland.AI.Barks
 			LexMatchOptionalIgnoreCase(lex, ",");
 		}
 
-		StringTableToken ScanName(SimpleLex lex)
+		string ScanName(SimpleLex lex)
 		{
 			StringBuilder buf = new StringBuilder();
 			buf.Append(lex.Lexum);
@@ -736,7 +743,7 @@ namespace Portland.AI.Barks
 				}
 			}
 
-			return Strings.Get(buf);
+			return buf.ToString();
 		}
 	}
 }

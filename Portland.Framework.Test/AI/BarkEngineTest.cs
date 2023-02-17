@@ -24,7 +24,7 @@ DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
 
 			RulePack rulePack = new RulePack();
-			rulePack.Parse(strings, DemoRuleText_BasicRule);
+			rulePack.Parse(DemoRuleText_BasicRule);
 			world.BarkEngine.SetRules(rulePack);
 
 			string saidText = String.Empty;
@@ -32,7 +32,7 @@ DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 			//TextTableToken textId = new TextTableToken();
 			//eng.OnConceptChanged.Listeners += (textid) => { textId = textid; };
 
-			var sentence = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = strings.Get("barrel") };
+			var sentence = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = "barrel" };
 			var found = world.BarkEngine.TryMatch(sentence);
 			Assert.IsTrue(found);
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
@@ -79,14 +79,16 @@ DO
 			StringTable strings = new StringTable();
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 			RulePack rulePack = new RulePack();
-			rulePack.Parse(strings, barkScript);
+			rulePack.Parse(barkScript);
 			world.BarkEngine.SetRules(rulePack);
 
-			world.UtilitySystem.CreateAgentType("base");
+			world.UtilitySystem.CreateObjective("nil");
+			world.UtilitySystem.CreateAgentType("nil", "base");
 			world.UtilitySystem.CreateAgent("base", "bot");
 
-			world.CreateActor("bot", "XBOT");
-			world.CreateActor("bot", "YBOT");
+			world.CharacterManager.CreateCharacterDefinition("bot");
+			world.CreateActor("bot", "XBOT", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("bot", "YBOT", String8.Empty, String8.Empty, String8.Empty);
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -95,15 +97,15 @@ DO
 
 			var sentence = new ThematicEvent
 			{
-				Concept = strings.Get("random_text")
+				Concept = "random_text"
 			};
 			Assert.False(world.BarkEngine.TryMatch(sentence));
 
 			sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionSee,
-				Concept = strings.Get("barrel"),
-				Actor = strings.Get("XBOT")
+				Concept = "barrel",
+				Actor = "XBOT"
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_01"));
@@ -124,14 +126,19 @@ DO
 			world.BarkEngine.Update();
 		}
 
+//ALIAS FLAG CHARACTER_01_ALIVE AS BILL_ALIVE.
+//ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
+//ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
+//ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
+
 		[Test]
 		public void I_Hate_Hotels_Test()
 		{
 			const string barkScript = @"
-ALIAS FLAG CHARACTER_01_ALIVE AS BILL_ALIVE.
-ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
-ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
-ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
+ALIAS FLAG USER_FLAG_01 AS BILL_ALIVE.
+ALIAS FLAG USER_FLAG_02 AS FRANCIS_ALIVE.
+ALIAS FLAG USER_FLAG_03 AS LOUIS_ALIVE.
+ALIAS FLAG USER_FLAG_04 AS ZOEY_ALIVE.
 
 RULE louis:were_walking WHEN 
 	OBJECT IS scene_01:start,
@@ -188,21 +195,29 @@ DO
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
 
 			world.Flags.Daylight = true;
-			world.Flags.IsCharacter01Alive = true;
-			world.Flags.IsCharacter02Alive = true;
-			world.Flags.IsCharacter03Alive = true;
-			world.Flags.IsCharacter04Alive = true;
+			//world.Flags.IsCharacter01Alive = true;
+			//world.Flags.IsCharacter02Alive = true;
+			//world.Flags.IsCharacter03Alive = true;
+			//world.Flags.IsCharacter04Alive = true;
+			world.Flags.IsUserFlag01 = true;
+			world.Flags.IsUserFlag02 = true;
+			world.Flags.IsUserFlag03 = true;
+			world.Flags.IsUserFlag04 = true;
 
-			world.UtilitySystem.CreateObjectiveSetBuilder("living").AddAllObjectives();
-			world.UtilitySystem.CreateAgent("living", "human");
+			world.UtilitySystem.CreateObjectiveSetBuilder("living")
+				.AddAllObjectives();
+			world.UtilitySystem.CreateAgentType("living", "human")
+				.AddCommonObjectives();
+			world.UtilitySystem.CreateAgent("human", "human");
 
-			world.CreateActor("human", "BILL");
-			world.CreateActor("human", "FRANCIS");
-			world.CreateActor("human", "LOUIS");
-			world.CreateActor("human", "ZOEY");
+			world.CharacterManager.CreateCharacterDefinition("human");
+			world.CreateActor("human", "BILL", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "FRANCIS", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "LOUIS", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "ZOEY", String8.Empty, String8.Empty, String8.Empty);
 
 			RulePack rulePack = new RulePack();
-			rulePack.Parse(strings, barkScript);
+			rulePack.Parse(barkScript);
 			world.BarkEngine.SetRules(rulePack);
 
 			string ruleId = String.Empty;
@@ -230,7 +245,7 @@ DO
 			*/
 			var sentence = new ThematicEvent
 			{
-				Concept = strings.Get("scene_01:start")
+				Concept = "scene_01:start"
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("louis:were_walking"));
@@ -258,13 +273,13 @@ DO
 			sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionSee,
-				Concept = strings.Get("ceda_trailer")
+				Concept = "ceda_trailer"
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Agent zoey;
 			Assert.True(world.TryGetActor("ZOEY", out zoey));
-			Assert.That(zoey.Facts.Get(strings.Get("ceda_trailers_seen")).Value.ToInt(), Is.EqualTo(1));
+			Assert.That(zoey.Facts.Get("ceda_trailers_seen").Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(6f);
 			world.BarkEngine.Update();
@@ -272,7 +287,7 @@ DO
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
-			Assert.That(zoey.Facts.Get(strings.Get("ceda_trailers_seen")).Value.ToInt(), Is.EqualTo(1));
+			Assert.That(zoey.Facts.Get("ceda_trailers_seen").Value.ToInt(), Is.EqualTo(1));
 			//Assert.That(strings.GetString(lastConceptEvent), Is.EqualTo("couldnt_hold_out"));
 			Assert.That(ruleId, Is.EqualTo("zoey:couldnt_holdout"));
 			Assert.True(lastDoSayText.StartsWith("Zoey: Guess they couldn't hold out."));
@@ -295,7 +310,7 @@ DO
 			sentence = new ThematicEvent
 			{
 				Action = ThematicEvent.ActionSee,
-				Concept = strings.Get("hotel_lobby")
+				Concept = "hotel_lobby"
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("francis:hates_hotels"));
@@ -321,10 +336,10 @@ DO
 		public void NickDyingTest()
 		{
 			const string barkScript = @"
-ALIAS FLAG CHARACTER_01_ALIVE AS COACH_ALIVE.
-ALIAS FLAG CHARACTER_02_ALIVE AS ELLIS_ALIVE.
-ALIAS FLAG CHARACTER_03_ALIVE AS NICK_ALIVE.
-ALIAS FLAG CHARACTER_01_ALIVE AS ROCHELLE_ALIVE.
+ALIAS FLAG USER_FLAG_01 AS COACH_ALIVE.
+ALIAS FLAG USER_FLAG_02 AS ELLIS_ALIVE.
+ALIAS FLAG USER_FLAG_03 AS NICK_ALIVE.
+ALIAS FLAG USER_FLAG_04 AS ROCHELLE_ALIVE.
 
 RULE nick:im_dying WHEN 
 	ACTION IS IDLE,
@@ -361,7 +376,7 @@ DO
 RULE coach:someone_dying WHEN 
 	ACTION IS SAY,
 	OBJECT IS ally_dying,
-	FLAGS ARE COACH_ALIVE ELLIS_ALIVE NICK_ALIVE ROCHELLE_ALIVE,
+#	FLAGS ARE COACH_ALIVE ELLIS_ALIVE NICK_ALIVE ROCHELLE_ALIVE,
 	CHANCE 5%
 DO
 	COACH SAYS ally_dying ""COACH: Come on now, put it behind you, you good, you good."" 
@@ -373,23 +388,58 @@ DO
 .
 ";
 			StringTable strings = new StringTable();
+
 			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
+
+			world.UtilitySystem.CreateObjectiveSetBuilder("living")
+				.AddAllObjectives();
+			world.UtilitySystem.CreateAgentType("living", "human")
+				.AddCommonObjectives();
+			world.UtilitySystem.CreateAgent("human", "human");
+
+			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
+			world.DefineStandardUtilityAlerts();
+
 			RulePack rulePack = new RulePack();
-			rulePack.Parse(strings, barkScript);
+			rulePack.Parse(barkScript);
+
+			int pri = 99;
+			for (int i = 0; i < rulePack.Rules.Length; i++)
+			{
+				var rule = rulePack.Rules[i];
+				Assert.That(rule.Priority, Is.LessThanOrEqualTo(pri));
+				pri = rule.Priority;
+			}
+
 			world.BarkEngine.SetRules(rulePack);
 
-			world.Flags.IsCharacter01Alive = true;
-			world.Flags.IsCharacter02Alive = true;
-			world.Flags.IsCharacter03Alive = true;
-			world.Flags.IsCharacter04Alive = true;
+			//world.Flags.IsUserFlag01 = true;
+			//world.Flags.IsUserFlag02 = true;
+			//world.Flags.IsUserFlag03 = true;
+			//world.Flags.IsUserFlag04 = true;
 
-			world.UtilitySystem.CreateObjectiveSetBuilder("living").AddAllObjectives();
-			world.UtilitySystem.CreateAgent("living", "human");
+			world.CharacterManager.CreateCharacterDefinition("human");
+			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "ELLIS", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "NICK", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "ROCHELLE", String8.Empty, String8.Empty, String8.Empty);
 
-			world.CreateActor("human", "COACH");
-			world.CreateActor("human", "ELLIS");
-			world.CreateActor("human", "NICK");
-			world.CreateActor("human", "ROCHELLE");
+			world.DefineActorAsCharacter0X("COACH", 1, "health");
+			world.DefineActorAsCharacter0X("ELLIS", 2, "health");
+			world.DefineActorAsCharacter0X("NICK", 3, "health");
+			world.DefineActorAsCharacter0X("ROCHELLE", 4, "health");
+
+			Agent nick;
+			Assert.True(world.TryGetActor("NICK", out nick));
+			Assert.True(nick.Facts.ContainsKey("health"));
+			Assert.That((int)nick.Facts.Get("health").Value, Is.EqualTo(100));
+
+			world.Update(1f);
+
+			Assert.True(world.Flags.IsUserFlag01);
+			Assert.True(world.Flags.IsUserFlag02);
+			Assert.True(world.Flags.IsUserFlag03);
+			Assert.True(world.Flags.IsUserFlag04);
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -401,16 +451,25 @@ DO
 				Action = ThematicEvent.ActionIdle
 			};
 			Assert.False(world.BarkEngine.TryMatch(sentence));
+			
+			Assert.False(nick.Flags.IsDead);
+			Assert.False(nick.Flags.AlertHealth);
 
-			Agent nick;
-			Assert.True(world.TryGetActor("NICK", out nick));
-			nick.Flags.AlertHealth = true;
+			nick.Facts.Set("health", 10);
+			Assert.That((int)nick.Facts.Get("health").Value, Is.LessThan(15));
+			world.Update(1f);
+
+			Assert.True(nick.Flags.AlertHealth);
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("nick:im_dying"));
 
-			world.Clock.Update(5f);
-			world.BarkEngine.Update();
+			world.Update(5f);
+
+			Assert.False(nick.Flags.IsDead);
+			Assert.True(nick.Flags.AlertHealth);
+
+			Assert.That((int)nick.Facts.Get("health").Value, Is.LessThan(15));
 			Assert.That(ruleId, Is.EqualTo("coach:nick_dying"));
 
 			world.Clock.Update(10f);

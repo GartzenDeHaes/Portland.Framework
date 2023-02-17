@@ -88,10 +88,10 @@ namespace Portland.Collections
 	//	}
 	//}
 
-	public struct StringTableToken
+	public struct StringTableToken : IEquatable<StringTableToken>
 	{
-		public int Index;
 		public int HashCode;
+		public ushort Index;
 
 		public bool Equals(in StringTableToken stok)
 		{
@@ -105,6 +105,11 @@ namespace Portland.Collections
 				return Index == stok.Index;
 			}
 			return false;
+		}
+
+		public bool Equals(StringTableToken other)
+		{
+			return Index == other.Index;
 		}
 
 		public override int GetHashCode()
@@ -177,7 +182,7 @@ namespace Portland.Collections
 		{
 			if (_hashIndex.TryGetValue(hash, out index))
 			{
-				return _strings[index].Equals(lexum);
+				return _strings[index].Lexum.Equals(lexum);
 			}
 
 			return false;

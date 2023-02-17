@@ -17,13 +17,13 @@ namespace Portland.AI.Utility
 			var def = new PropertyDefinition() { PropertyId="test", ChangePerSec=1, Minimum=0, Maximum=100, DefaultValue=0, IsGlobalValue=false, DefaultRandomize=false, TypeName="float" };
 			var pi = new PropertyValue(def);
 
-			Assert.AreEqual(0f, pi.Amt.Value.ToFloat());
+			Assert.AreEqual(0f, pi.Value.ToFloat());
 
 			pi.Update(1f);
-			MathHelper.Approximately(1f, pi.Amt.Value.ToFloat());
+			MathHelper.Approximately(1f, pi.Value.ToFloat());
 
 			pi.Update(101f);
-			MathHelper.Approximately(100f, pi.Amt.Value.ToFloat());
+			MathHelper.Approximately(100f, pi.Value.ToFloat());
 		}
 
 		// 	<property name = 'time' type='float' global='true' min='0' max='1' start='0.5' startrand='false' changePerHour='0.00069444444' />
@@ -136,14 +136,14 @@ namespace Portland.AI.Utility
 			factory.GetGlobalProperty("weekend").Set(0f);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(0f, agent["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(0f, agent["hunger"].Value));
 			Assert.IsTrue(MathHelper.Approximately(0.0f, agent["hunger"].Normalized));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(50f, agent["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(20f, agent["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.9583333f, agent["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(50f, agent["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["supplies"].Value));
+			Assert.IsTrue(MathHelper.Approximately(50f, agent["entertainment"].Value));
+			Assert.IsTrue(MathHelper.Approximately(20f, agent["rest"].Value));
+			Assert.IsTrue(MathHelper.Approximately(0.9583333f, agent["time"].Value));
+			Assert.IsTrue(MathHelper.Approximately(50f, agent["hygiene"].Value));
 
 			foreach (var objective in agent.Objectives)
 			{
@@ -170,16 +170,16 @@ namespace Portland.AI.Utility
 			agent["rest"].AddToValue(90f);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(90f, agent["hunger"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(90f, agent["hunger"].Value));
 			Assert.IsTrue(MathHelper.Approximately(0.9f, agent["hunger"].Normalized));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(91f, agent["supplies"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Value));
+			Assert.IsTrue(MathHelper.Approximately(91f, agent["supplies"].Value));
 			Assert.IsTrue(MathHelper.Approximately(0.91f, agent["supplies"].Normalized));
-			Assert.IsTrue(MathHelper.Approximately(5f, agent[String8.FromTruncate("entertainment")].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.333333f, factory.GetGlobalProperty("time").Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.333333f, agent["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(32f, agent["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(5f, agent[String8.FromTruncate("entertainment")].Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["rest"].Value));
+			Assert.IsTrue(MathHelper.Approximately(0.333333f, factory.GetGlobalProperty("time").Value));
+			Assert.IsTrue(MathHelper.Approximately(0.333333f, agent["time"].Value));
+			Assert.IsTrue(MathHelper.Approximately(32f, agent["hygiene"].Value));
 
 			foreach (var objective in agent.Objectives)
 			{
@@ -207,14 +207,14 @@ namespace Portland.AI.Utility
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(89f, agent["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0f, agent["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(92f, agent["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.375f, factory.GetGlobalProperty("time").Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.375f, agent["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(98f, agent["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["hunger"].Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["money"].Value));
+			Assert.IsTrue(MathHelper.Approximately(89f, agent["supplies"].Value));
+			Assert.IsTrue(MathHelper.Approximately(0f, agent["entertainment"].Value));
+			Assert.IsTrue(MathHelper.Approximately(92f, agent["rest"].Value));
+			Assert.IsTrue(MathHelper.Approximately(0.375f, factory.GetGlobalProperty("time").Value));
+			Assert.IsTrue(MathHelper.Approximately(0.375f, agent["time"].Value));
+			Assert.IsTrue(MathHelper.Approximately(98f, agent["hygiene"].Value));
 			Assert.AreEqual("watch_movie", (string)agent.CurrentObjective.Value);
 
 			agent["entertainment"].AddToValue(90f);
@@ -227,13 +227,13 @@ namespace Portland.AI.Utility
 			factory.GetGlobalProperty("daylight").Set(clock.Now.Hour > 7 && clock.Now.Hour < 18 ? 1.0f : 0f);
 			factory.TickAgents();
 
-			Assert.IsTrue(MathHelper.Approximately(100f, agent["hunger"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(60f, agent["money"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(88f, agent["supplies"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(85f, agent["entertainment"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(84f, agent["rest"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(0.41666f, agent["time"].Amt.Value));
-			Assert.IsTrue(MathHelper.Approximately(96f, agent["hygiene"].Amt.Value));
+			Assert.IsTrue(MathHelper.Approximately(100f, agent["hunger"].Value));
+			Assert.IsTrue(MathHelper.Approximately(60f, agent["money"].Value));
+			Assert.IsTrue(MathHelper.Approximately(88f, agent["supplies"].Value));
+			Assert.IsTrue(MathHelper.Approximately(85f, agent["entertainment"].Value));
+			Assert.IsTrue(MathHelper.Approximately(84f, agent["rest"].Value));
+			Assert.IsTrue(MathHelper.Approximately(0.41666f, agent["time"].Value));
+			Assert.IsTrue(MathHelper.Approximately(96f, agent["hygiene"].Value));
 
 			foreach (var objective in agent.Objectives)
 			{

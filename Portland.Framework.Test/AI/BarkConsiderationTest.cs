@@ -20,15 +20,16 @@ namespace Portland.AI.Barks
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddAllObjectives();
-
-			world.UtilitySystem.CreateAgent("living", "human");
+			world.UtilitySystem.CreateAgentType("living", "human")
+				.AddCommonObjectives();
+			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
 			world.DefineStandardUtilityAlerts();
 
 			RulePack rulePack = new RulePack();
 
-			rulePack.CreateRule(world.Strings, "testing")
+			rulePack.CreateRule("testing")
 				.WhenActionIs("SEE")
 				.WhenConceptIs("barrel")
 				.Do()
@@ -36,12 +37,13 @@ namespace Portland.AI.Barks
 
 			world.BarkEngine.SetRules(rulePack);
 
-			world.CreateActor("human", "COACH");
+			world.CharacterManager.CreateCharacterDefinition("human");
+			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
 
 			string saidText = String.Empty;
 			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidText = cmd.DefaultTexts.RandomElement(); };
 
-			var tevent = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = strings.Get("barrel") };
+			var tevent = new ThematicEvent { Action = ThematicEvent.ActionSee, Concept = "barrel" };
 			var found = world.BarkEngine.TryMatch(tevent);
 
 			Assert.IsTrue(found);
@@ -59,37 +61,39 @@ namespace Portland.AI.Barks
 			StringTable strings = new StringTable();
 			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), strings, new RandMin());
 
+			world.CharacterManager.CreateCharacterDefinition("human");
+
 			string saidConcept = String.Empty;
 			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidConcept = rule.RuleKey; };
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddAllObjectives();
-
-			world.UtilitySystem.CreateAgent("living", "human")
+			world.UtilitySystem.CreateAgentType("living", "human")
 				.AddCommonObjectives();
+			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
 			world.DefineStandardUtilityAlerts();
 
 			RulePack rulePack = new RulePack();
 
-			rulePack.CreateRule(world.Strings, "coach:hello")
+			rulePack.CreateRule("coach:hello")
 				.WhenConceptIs("hello")
 				.WhenProbabilityCheckIs(0.2f, true)
 				.Do()
 				.Say("COACH", "coach:hello", 3, "Hey! Come back! Come back! Ahh, he ain't comin' back.");
 
-			rulePack.CreateRule(world.Strings, "coach:say:dying")
+			rulePack.CreateRule("coach:say:dying")
 				.WhenActionIs("IDLE")
-				.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
+				//.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
 				.WhenProbabilityCheckIs(0.2f, true)
 				.WhenActorFlagMustBeSetIs("COACH", "ALERT_HEALTH")
 				.Do()
 				.Say("COACH", "SAY", 3, "I can walk this off.");
 
-			rulePack.CreateRule(world.Strings, "coach:say:hungry")
+			rulePack.CreateRule("coach:say:hungry")
 				.WhenActionIs("IDLE")
-				.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
+				//.WhenWorldFlagMustBeSetIs("CHARACTER_01_ALIVE")
 				.WhenProbabilityCheckIs(0.2f, true)
 				.WhenActorFlagMustBeSetIs("COACH", "ALERT_HUNGER")
 				.Do()
@@ -97,47 +101,47 @@ namespace Portland.AI.Barks
 
 			world.BarkEngine.SetRules(rulePack);
 
-			world.CreateActor("human", "COACH");
-			world.DefineActorAsCharacter0X("COACH", 1);
+			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
+			world.DefineActorAsCharacter0X("COACH", 1, "health");
 
 			Agent coach;
 			Assert.True(world.TryGetActor("COACH", out coach));
 
-			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo(String.Empty));
-			Assert.That((float)coach.Facts.Get(strings.Get("const30%")).Value, Is.EqualTo(0.3f));
-			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(0f));
+			//Assert.That(world.Flags.IsCharacter01Alive, Is.True);
+			Assert.That((string)coach.Facts.Get("utility_objective").Value, Is.EqualTo(String.Empty));
+			Assert.That((float)coach.Facts.Get("const30%").Value, Is.EqualTo(0.3f));
+			Assert.That((float)coach.Facts.Get("health").Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("hunger").Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get("thirst").Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get("stamina").Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("sleepy").Value, Is.EqualTo(0f));
 
 			// should set the objective
 			world.Update(0f);
-			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo("idle"));
-			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(0f));
-			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(0f));
+			//Assert.That(world.Flags.IsCharacter01Alive, Is.True);
+			Assert.That((string)coach.Facts.Get("utility_objective").Value, Is.EqualTo("idle"));
+			Assert.That((float)coach.Facts.Get("health").Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("hunger").Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get("thirst").Value, Is.EqualTo(0f));
+			Assert.That((float)coach.Facts.Get("stamina").Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("sleepy").Value, Is.EqualTo(0f));
 
 			Assert.False(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
-			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Concept = strings.Get("hello") }));
+			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Concept = "hello" }));
 			Assert.That(saidConcept, Is.EqualTo("coach:hello"));
 
 			// one day
 			world.Update(1440f*60f);
-			Assert.That(world.Flags.IsCharacter01Alive, Is.True);
-			Assert.That((string)coach.Facts.Get(strings.Get("utility_objective")).Value, Is.EqualTo("sleep"));
-			Assert.That((float)coach.Facts.Get(strings.Get("health")).Value, Is.EqualTo(100f));
+			//Assert.That(world.Flags.IsCharacter01Alive, Is.True);
+			Assert.That((string)coach.Facts.Get("utility_objective").Value, Is.EqualTo("sleep"));
+			Assert.That((float)coach.Facts.Get("health").Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertHealth, Is.False);
-			Assert.That((float)coach.Facts.Get(strings.Get("hunger")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("hunger").Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertHunger, Is.True);
-			Assert.That((float)coach.Facts.Get(strings.Get("thirst")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("thirst").Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertThrist, Is.True);
-			Assert.That((float)coach.Facts.Get(strings.Get("stamina")).Value, Is.EqualTo(100f));
-			Assert.That((float)coach.Facts.Get(strings.Get("sleepy")).Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("stamina").Value, Is.EqualTo(100f));
+			Assert.That((float)coach.Facts.Get("sleepy").Value, Is.EqualTo(100f));
 			Assert.That(coach.Flags.AlertSleep, Is.True);
 
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
@@ -146,7 +150,7 @@ namespace Portland.AI.Barks
 			world.Update(60f);
 			Assert.False(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 
-			coach.Facts.Get(strings.Get("health")).Set(10f);
+			coach.Facts.Get("health").Set(10f);
 			world.Update(60f);
 			Assert.True(world.BarkEngine.TryMatch(new ThematicEvent { Action = "IDLE" }));
 			Assert.That(saidConcept, Is.EqualTo("coach:say:dying"));

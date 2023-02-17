@@ -7,6 +7,7 @@ using System.Text;
 
 using Portland.Basic;
 using Portland.Collections;
+using Portland.Framework.AI;
 using Portland.Interp;
 using Portland.Mathmatics;
 
@@ -139,6 +140,11 @@ namespace Portland.RPG
 					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
 					break;
 			}
+		}
+
+		public void SetupBlackboard(IBlackboard<string> bb)
+		{
+			Stats.AddToBlackBoard(bb);
 		}
 	}
 }

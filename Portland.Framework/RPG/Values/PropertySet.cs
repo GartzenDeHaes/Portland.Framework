@@ -5,6 +5,7 @@ using System.Text;
 
 using Portland.AI.Utility;
 using Portland.Collections;
+using Portland.Framework.AI;
 using Portland.Mathmatics;
 
 namespace Portland.RPG
@@ -66,7 +67,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				value = _values[index].Amt.Value;
+				value = _values[index].Value;
 				return true;
 			}
 			value = 0f;
@@ -77,7 +78,7 @@ namespace Portland.RPG
 		{
 			if (FindKey(id, out int index))
 			{
-				_values[index].Amt.Value = value;
+				_values[index].Set(value);
 				return true;
 			}
 			return false;
@@ -137,6 +138,14 @@ namespace Portland.RPG
 		//{
 		//	return _values[index].Definition.PropertyId;
 		//}
+
+		public void AddToBlackBoard(IBlackboard<string> bb)
+		{
+			for (int i = 0; i < _values.Length; i++)
+			{
+				bb.Add(_values[i].Definition.PropertyId, _values[i]);
+			}
+		}
 
 		public string GetDisplayName(in String8 propId)
 		{

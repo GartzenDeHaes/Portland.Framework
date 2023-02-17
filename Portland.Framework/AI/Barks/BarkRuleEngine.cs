@@ -1,32 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 
-using NLog.LayoutRenderers.Wrappers;
-
+using Portland.AI.Utility;
 using Portland.CheckedEvents;
 using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Framework.AI;
 using Portland.Mathmatics;
-using Portland.Text;
 
 namespace Portland.AI.Barks
 {
-    public sealed class BarkRuleEngine
+	public sealed class BarkRuleEngine
 	{
 		readonly World _world;
-		readonly StringTable _strings;
+		//readonly StringTable _strings;
 		readonly IRandom _random;
 		RulePack _rules;
 
 		//RingBuffer<BarkCommand> _runcmds = new RingBuffer<BarkCommand>(16);
-		List<BarkCommand> _cmdsDelaying = new List<BarkCommand>();
+		Vector<BarkCommand> _cmdsDelaying = new Vector<BarkCommand>(2);
 
 		public Command<BarkCommand, BarkRule> OnSay = new Command<BarkCommand, BarkRule>();
-		public ObservableValue<StringTableToken> CurrentConcept = new ObservableValue<StringTableToken>();
-		public Notify<StringTableToken> OnEventRaised = new Notify<StringTableToken>();
+		public ObservableValue<string> CurrentConcept = new ObservableValue<string>();
+		public Notify<string> OnEventRaised = new Notify<string>();
 
 		public void SetRules(RulePack ruleSet)
 		{
@@ -71,7 +67,7 @@ namespace Portland.AI.Barks
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameSetVar)
 			{
-				if (cmd.ActorName.Index == 0)
+				if (String.IsNullOrEmpty(cmd.ActorName))
 				{
 					// world
 					SetVars(_world.GlobalFacts, cmd);
@@ -84,7 +80,7 @@ namespace Portland.AI.Barks
 					}
 					else
 					{
-						throw new Exception($"Actor '{_strings.GetString(cmd.ActorName)}' not found.");
+						throw new Exception($"Actor '{cmd.ActorName}' not found.");
 					}
 				}
 			}
@@ -106,7 +102,7 @@ namespace Portland.AI.Barks
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameAdd)
 			{
-				if (cmd.ActorName.Index == 0)
+				if (String.IsNullOrEmpty(cmd.ActorName))
 				{
 					// world
 					AddToVar(_world.GlobalFacts, cmd);
@@ -119,7 +115,7 @@ namespace Portland.AI.Barks
 					}
 					else
 					{
-						throw new Exception($"Actor '{_strings.GetString(cmd.ActorName)}' not found.");
+						throw new Exception($"Actor '{cmd.ActorName}' not found.");
 					}
 				}
 			}
@@ -129,23 +125,24 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(IBlackboard facts, BarkCommand cmd)
+		void SetVars(IBlackboard<string> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
+				facts.Add(cmd.Arg1, new Utility.PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
 			}
 			else
 			{
-				facts.Get(cmd.Arg1).Value = cmd.Arg2;
+				facts.Set(cmd.Arg1, cmd.Arg2);
 			}
 		}
 
-		void AddToVar(IBlackboard facts, BarkCommand cmd)
+		void AddToVar(IBlackboard<string> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
+				facts.Add(cmd.Arg1, new Utility.PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
+				//facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
 			}
 			else
 			{
@@ -155,10 +152,9 @@ namespace Portland.AI.Barks
 
 		public int DelayingCount { get { return _cmdsDelaying.Count; } }
 
-		public BarkRuleEngine(World world, StringTable strings, IRandom rand)
+		public BarkRuleEngine(World world, IRandom rand)
 		{
 			_world = world;
-			_strings = strings;
 			_random = rand;
 		}
 
@@ -208,7 +204,7 @@ namespace Portland.AI.Barks
 					continue;
 				}
 
-				if (rule.ActorName.Index != 0 && rule.ActorName != happened.Actor)
+				if (!String.IsNullOrEmpty(rule.ActorName) && rule.ActorName != happened.Actor)
 				{
 					continue;
 				}
@@ -223,10 +219,10 @@ namespace Portland.AI.Barks
 					Agent actor;
 					if (!_world.TryGetActor(flagf.ActorName, out actor))
 					{
-						throw new Exception($"Actor '{_strings.GetString(flagf.ActorName)}' not found");
+						throw new Exception($"Actor '{flagf.ActorName}' not found");
 					}
 					
-					var flagName = _strings.GetString(flagf.FlagName);
+					var flagName = flagf.FlagName;
 					bool isSet = actor.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName));
 					if (!isSet != flagf.Not)
 					{
@@ -259,7 +255,7 @@ namespace Portland.AI.Barks
 					Agent actor;
 					if (!_world.TryGetActor(filter.ActorName, out actor))
 					{
-						throw new Exception($"Actor '{_strings.GetString(filter.ActorName)}' not found");
+						throw new Exception($"Actor '{filter.ActorName}' not found");
 					}
 
 					if (!filter.IsMatch(actor.Facts))

@@ -11,12 +11,12 @@ namespace Portland.AI.Utility
 	{
 		IClock _clock;
 		float _clockLastUpdate;
-		Dictionary<string, PropertyValue> _globalProperties = new Dictionary<string, PropertyValue>();
+		Dictionary<String8, PropertyValue> _globalProperties = new Dictionary<String8, PropertyValue>();
 
-		Dictionary<string, PropertyDefinition> _properties = new Dictionary<string, PropertyDefinition>();
+		Dictionary<String8, PropertyDefinition> _properties = new Dictionary<String8, PropertyDefinition>();
 		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
-		Dictionary<string, UtilitySetClass> _agentsByType = new Dictionary<string, UtilitySetClass>();
-		Dictionary<string, UtilitySetClass> _agentsByName = new Dictionary<string, UtilitySetClass>();
+		Dictionary<string, UtilitySetClass> _setsByType = new Dictionary<string, UtilitySetClass>();
+		Dictionary<string, UtilitySetClass> _setsByName = new Dictionary<string, UtilitySetClass>();
 
 		Dictionary<string, UtilitySet> _instances = new Dictionary<string, UtilitySet>();
 
@@ -27,9 +27,9 @@ namespace Portland.AI.Utility
 			GetGlobalProperty("time").Set(_clock.TimeOfDayNormalized01);
 			GetGlobalProperty("hour").Set(_clock.TimeOfDayNormalized01 * 24);
 
-			foreach (var agent in _instances.Values)
+			foreach (var set in _instances.Values)
 			{
-				agent.Update(deltaTime);
+				set.Update(deltaTime);
 			}
 
 			_clockLastUpdate = _clock.Time;
@@ -68,12 +68,12 @@ namespace Portland.AI.Utility
 
 		public UtilitySet CreateAgentInstance(string agentTypeName, string name)
 		{
-			var agent = _agentsByName[agentTypeName];
+			var agent = _setsByName[agentTypeName];
 			var inst = new UtilitySet(name, agent);
 			_instances.Add(inst.Name, inst);
 
 			CreateProperyInstances(inst, agent);
-
+			
 			return inst;
 		}
 
@@ -82,29 +82,29 @@ namespace Portland.AI.Utility
 			_instances.Remove(name);
 		}
 
-		private void CreateProperyInstances(UtilitySet inst, UtilitySetClass agent)
+		void CreateProperyInstances(UtilitySet propSet, UtilitySetClass propDefs)
 		{
-			if (agent.BaseType != null)
+			if (propDefs.BaseType != null)
 			{
 				// Base type properties.  Definitions in this type can override these later on.
-				CreateProperyInstances(inst, agent.BaseType);
+				CreateProperyInstances(propSet, propDefs.BaseType);
 			}
 
-			for (int o = 0; o < agent.Objectives.Count; o++)
+			for (int o = 0; o < propDefs.Objectives.Count; o++)
 			{
-				foreach (var c in agent.Objectives[o].Considerations.Values)
+				foreach (var c in propDefs.Objectives[o].Considerations.Values)
 				{
-					if (inst.Properties.ContainsKey(c.PropertyName))
+					if (propSet.Properties.ContainsKey(c.PropertyName))
 					{
 						continue;
 					}
 					if (_globalProperties.TryGetValue(c.PropertyName, out PropertyValue prop))
 					{
-						inst.Properties.Add(c.PropertyName, prop);
+						propSet.AddProperty(prop);
 					}
 					else if (_properties.TryGetValue(c.PropertyName, out PropertyDefinition cprop))
 					{
-						inst.Properties.Add(c.PropertyName, new PropertyValue(cprop));
+						propSet.AddProperty(cprop);
 					}
 					else
 					{
@@ -119,9 +119,21 @@ namespace Portland.AI.Utility
 			_globalProperties.Clear();
 			_properties.Clear();
 			_objectives.Clear();
-			_agentsByType.Clear();
-			_agentsByName.Clear();
+			_setsByType.Clear();
+			_setsByName.Clear();
 			_instances.Clear();
+		}
+
+		public void DefineAlertForPropertyDefinition(in String8 propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
+		{
+			if (_properties.TryGetValue(propertyId, out var def))
+			{
+				def.DefineAlert(propertyId, type, value, flagName);
+			}
+			else
+			{
+				throw new Exception($"DefineAlertForPropertyDefinition: {propertyId} not found");
+			}
 		}
 
 		#region CREATE PROPERTY DEFINITIONS
@@ -230,7 +242,7 @@ namespace Portland.AI.Utility
 			return new ObjectiveBuilder { Factory = this, Goal = objective };
 		}
 
-		public ConsiderationBuilder CreateConsideration(string objectiveName, string propertyName)
+		public ConsiderationBuilder CreateConsideration(string objectiveName, in String8 propertyName)
 		{
 			var objective = _objectives[objectiveName];
 			var propDef = _properties[propertyName];
@@ -241,26 +253,26 @@ namespace Portland.AI.Utility
 			return new ConsiderationBuilder { Consideration = cons };
 		}
 
-		public AgentTypeBuilder CreateAgentType(string agentTypeName)
+		public AgentTypeBuilder CreateAgentType(string objectiveSetName, string agentTypeName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName };
-			_agentsByType.Add(agentTypeName, agent);
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = objectiveSetName };
+			_setsByType.Add(agentTypeName, agent);
 
 			return new AgentTypeBuilder { AgentType = agent, Objectives = _objectives };
 		}
 
-		public ObjectiveSetBuilder CreateObjectiveSetBuilder(string agentTypeName)
+		public ObjectiveSetBuilder CreateObjectiveSetBuilder(string setName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName };
-			_agentsByType.Add(agentTypeName, agent);
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = setName };
+			_setsByType.Add(setName, agent);
 
-			return new ObjectiveSetBuilder { UtilitySystem = this, ObjectiveSetName = agentTypeName };
+			return new ObjectiveSetBuilder { UtilitySystem = this, ObjectiveSetName = setName };
 		}
 
-		public AgentBuilder CreateAgent(string objectiveSetName, string agentName)
+		public AgentBuilder CreateAgent(string agentTypeName, string agentName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = objectiveSetName, AgentName = agentName, BaseType = _agentsByType[objectiveSetName] };
-			_agentsByName.Add(agentName, agent);
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName, AgentName = agentName, BaseType = _setsByType[agentTypeName] };
+			_setsByName.Add(agentName, agent);
 
 			return new AgentBuilder { Agent = agent, Objectives = _objectives };
 		}
@@ -495,7 +507,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 
 			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ };
-			_agentsByType.Add(typ, agent);
+			_setsByType.Add(typ, agent);
 
 			if (lex.Lexum.IsEqualTo("extends"))
 			{
@@ -557,8 +569,8 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var name = lex.MatchProperty("name");
 
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ, AgentName = name, BaseType = _agentsByType[typ] };
-			_agentsByName.Add(name, agent);
+			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ, AgentName = name, BaseType = _setsByType[typ] };
+			_setsByName.Add(name, agent);
 
 			if (lex.Token == XmlLex.XmlLexToken.TAG_END)
 			{
@@ -650,7 +662,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public IEnumerator<string> GetGlobalConsiderationNameEnumerator()
+		public IEnumerator<String8> GetGlobalConsiderationNameEnumerator()
 		{
 			return _globalProperties.Keys.GetEnumerator();
 		}
@@ -662,7 +674,7 @@ namespace Portland.AI.Utility
 		public struct ConsiderationPropDefBuilder
 		{
 			internal PropertyDefinition Definition;
-			internal Dictionary<string, PropertyValue> GlobalProperties;
+			internal Dictionary<String8, PropertyValue> GlobalProperties;
 
 			public ConsiderationPropDefBuilder TypeName(string typename)
 			{
@@ -848,6 +860,18 @@ namespace Portland.AI.Utility
 			public AgentTypeBuilder AddObjective(string name)
 			{
 				AgentType.Objectives.Add(Objectives[name]);
+				return this;
+			}
+
+			public AgentTypeBuilder AddCommonObjectives()
+			{
+				AddObjective("idle");
+				AddObjective("eat");
+				AddObjective("hydrate");
+				AddObjective("heal");
+				AddObjective("rest");
+				AddObjective("sleep");
+
 				return this;
 			}
 		}

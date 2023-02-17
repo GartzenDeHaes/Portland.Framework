@@ -10,12 +10,12 @@ namespace Portland.AI.Barks
 	{
 		public bool HasRun;
 
-		public StringTableToken ActorName;
+		public string ActorName;
 		public AsciiId4 Action;
-		public StringTableToken ObjectName;
-		public StringTableToken InstrumentName;
+		public string ObjectName;
+		public string InstrumentName;
 
-		public StringTableToken ObserverName;
+		public string ObserverName;
 
 		public WorldStateFlags WorldFlagsSet;
 		public WorldStateFlags WorldFlagsClear;
@@ -47,10 +47,13 @@ namespace Portland.AI.Barks
 				WorldFlagsClear.Bits.NumberOfBitsSet() +
 				//ActorFlagsSet.Bits.NumberOfBitsSet() +
 				//ActorFlagsClear.Bits.NumberOfBitsSet() +
-				(ActorName.Index > 0 ? 1 : 0) +
+				//(ActorName.Index ? 1 : 0) +
+				(ActorName != null ? 1 : 0) +
 				(Action.Length > 0 ? 1 : 0) +
-				(ObjectName.Index > 0 ? 1 : 0) +
-				(InstrumentName.Index > 0 ? 1 : 0) +
+				//(ObjectName.Index > 0 ? 1 : 0) +
+				//(InstrumentName.Index > 0 ? 1 : 0) +
+				(ObjectName != null ? 1 : 0) +
+				(InstrumentName != null ? 1 : 0) +
 				ActorFlags.Count +
 				WorldFilters.Count +
 				ActorFilters.Count +
@@ -65,14 +68,14 @@ namespace Portland.AI.Barks
 		public struct RuleWhenBuilder
 		{
 			internal BarkRule Rule;
-			internal StringTable Strings;
+			//internal StringTable Strings;
 
 			/// <summary>
 			/// The agent causing the event AGENT SAYS TEXT_KEY
 			/// </summary>
 			public RuleWhenBuilder WhenActorNameIs(string name)
 			{
-				Rule.ActorName = Strings.Get(name);
+				Rule.ActorName = name;
 				return this;
 			}
 
@@ -90,7 +93,7 @@ namespace Portland.AI.Barks
 			/// </summary>
 			public RuleWhenBuilder WhenConceptIs(string name)
 			{
-				Rule.ObjectName = Strings.Get(name);
+				Rule.ObjectName = name;
 				return this;
 			}
 
@@ -99,7 +102,7 @@ namespace Portland.AI.Barks
 			/// </summary>
 			public RuleWhenBuilder WhenIndirectObjectOrInstrumentIs(string name)
 			{
-				Rule.InstrumentName = Strings.Get(name);
+				Rule.InstrumentName = name;
 				return this;
 			}
 
@@ -108,7 +111,7 @@ namespace Portland.AI.Barks
 			/// </summary>
 			public RuleWhenBuilder WhenObserverIs(string name)
 			{
-				Rule.ObserverName = Strings.Get(name);
+				Rule.ObserverName = name;
 				return this;
 			}
 
@@ -133,8 +136,8 @@ namespace Portland.AI.Barks
 			)
 			{
 				Rule.WorldFilters.Add(new FactFilter { 
-					ActorName = Strings.Get(actorName), 
-					FactName = Strings.Get(factName), 
+					ActorName = actorName, 
+					FactName = factName, 
 					Op = op, 
 					Value = value
 				});
@@ -144,19 +147,19 @@ namespace Portland.AI.Barks
 
 			public RuleWhenBuilder WhenActorFlagMustBeSetIs(string actorName, string flagName)
 			{
-				Rule.ActorFlags.Add(new AgentStateFilter { ActorName = Strings.Get(actorName), Not = false, FlagName = Strings.Get(flagName) });
+				Rule.ActorFlags.Add(new AgentStateFilter { ActorName = actorName, Not = false, FlagName = flagName });
 				return this;
 			}
 
 			public RuleWhenBuilder WhenActorFlagMustNotBeSetIs(string actorName, string flagName)
 			{
-				Rule.ActorFlags.Add(new AgentStateFilter { ActorName = Strings.Get(actorName), Not = true, FlagName = Strings.Get(flagName) });
+				Rule.ActorFlags.Add(new AgentStateFilter { ActorName = actorName, Not = true, FlagName = flagName });
 				return this;
 			}
 
 			public RuleWhenBuilder WhenActorFactCheckIs(string actorName, string factName, ComparisionOp op, Variant8 value)
 			{
-				Rule.ActorFilters.Add(new FactFilter { ActorName = Strings.Get(actorName), FactName = Strings.Get(factName), Op = op, Value = value });
+				Rule.ActorFilters.Add(new FactFilter { ActorName = actorName, FactName = factName, Op = op, Value = value });
 				return this;
 			}
 
@@ -183,20 +186,20 @@ namespace Portland.AI.Barks
 
 			public RuleDoBuilder Do()
 			{
-				return new RuleDoBuilder { Rule = Rule, Strings = Strings };
+				return new RuleDoBuilder { Rule = Rule };
 			}
 		}
 
 		public struct RuleDoBuilder
 		{
 			internal BarkRule Rule;
-			internal StringTable Strings;
+			//internal StringTable Strings;
 
 			public RuleDoBuilder Say(string speakerName, string conceptOrObject, float duration = 3f, params string[] defaultText)
 			{
 				var cmd = new BarkCommand {
-					ActorName = Strings.Get(speakerName),
-					Arg1 = Strings.Get(conceptOrObject),
+					ActorName = speakerName,
+					Arg1 = conceptOrObject,
 					Rule = Rule,
 					CommandName = BarkCommand.CommandNameSay,
 					Duration = duration,
@@ -212,8 +215,8 @@ namespace Portland.AI.Barks
 				Rule.Response.Add(new BarkCommand { 
 					CommandName = BarkCommand.CommandNameSetVar,
 					Rule = Rule, 
-					ActorName = Strings.Get(agentName), 
-					Arg1 = Strings.Get(factName),
+					ActorName = agentName, 
+					Arg1 = factName,
 					Arg2 = value,
 					DelayTime = delayBeforeRunInSecs
 				});
@@ -231,8 +234,8 @@ namespace Portland.AI.Barks
 			{
 				Rule.Response.Add(new BarkCommand { 
 					CommandName = BarkCommand.CommandNameAdd,
-					ActorName = Strings.Get(agentName),
-					Arg1 = Strings.Get(factName),
+					ActorName = agentName,
+					Arg1 = factName,
 					Arg2 = value,
 					Rule = Rule
 				});
@@ -247,7 +250,7 @@ namespace Portland.AI.Barks
 
 			public RuleDoBuilder RaiseEvent(string conceptName, float delayBeforeRunInSecs = 0f)
 			{
-				Rule.Response.Add(new BarkCommand { CommandName = BarkCommand.CommandNameRaise, Arg1 = Strings.Get(conceptName), DelayTime = delayBeforeRunInSecs, Rule = Rule });
+				Rule.Response.Add(new BarkCommand { CommandName = BarkCommand.CommandNameRaise, Arg1 = conceptName, DelayTime = delayBeforeRunInSecs, Rule = Rule });
 				return this;
 			}
 
@@ -267,7 +270,7 @@ namespace Portland.AI.Barks
 				Rule.Response.Add(new BarkCommand { 
 					Rule = Rule,
 					CommandName = BarkCommand.CommandNameDontSay,
-					ActorName = Strings.Get(actorName),
+					ActorName = actorName,
 					Arg2 = verb.ToInt()
 				});
 				return this;

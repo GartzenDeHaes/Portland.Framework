@@ -2,55 +2,43 @@
 using System.Collections.Generic;
 
 using Portland.AI;
+using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.ComponentModel;
 
 namespace Portland.Framework.AI
 {
-	public sealed class Blackboard : IBlackboard
+	public sealed class Blackboard<TKEY> : IBlackboard<TKEY>
 	{
-		public StringTable Strings;
+		Dictionary<TKEY, PropertyValue> _facts = new Dictionary<TKEY, PropertyValue>();
 
-		Dictionary<StringTableToken, IObservableValue<Variant8>> _facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
-
-		public bool TryGetValue(in StringTableToken tok, out IObservableValue<Variant8> value)
+		public bool TryGetValue(in TKEY key, out PropertyValue value)
 		{
-			return _facts.TryGetValue(tok, out value);
+			return _facts.TryGetValue(key, out value);
 		}
 
-		public bool TryGetValue(string key, out IObservableValue<Variant8> value)
-		{
-			return _facts.TryGetValue(Strings.Get(key), out value);
-		}
-
-		public IObservableValue<Variant8> Get(in StringTableToken key)
+		public PropertyValue Get(in TKEY key)
 		{
 			return _facts[key];
 		}
 
-		public IObservableValue<Variant8> Get(string key)
+		public void Set(in TKEY key, in Variant8 value)
 		{
-			return _facts[Strings.Get(key)];
+			_facts[key].Set(value);
 		}
 
-		public bool ContainsKey(in StringTableToken tok)
+		public bool ContainsKey(in TKEY key)
 		{
-			return _facts.ContainsKey(tok);
+			return _facts.ContainsKey(key);
 		}
 
-		public bool ContainsKey(string key)
+		public void Add(in TKEY id, PropertyValue value)
 		{
-			return _facts.ContainsKey(Strings.Get(key));
+			_facts.Add(id, value);
 		}
 
-		public void Add(in StringTableToken tok, IObservableValue<Variant8> value)
+		public Blackboard()
 		{
-			_facts.Add(tok, value);
-		}
-
-		public Blackboard(StringTable strings)
-		{
-			Strings = strings;
 		}
 
 		//		public const int ViewBufferSize = 8;

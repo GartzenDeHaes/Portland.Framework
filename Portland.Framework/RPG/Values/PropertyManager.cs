@@ -54,7 +54,7 @@ namespace Portland.RPG
 		//	}
 		//}
 
-		public PropertyDefinitionBuilder DefineProperty(in String8 id, string name, in String8 category)
+		public PropertyDefinitionBuilder DefineProperty(in string id, string name, in string category)
 		{
 			var def = new PropertyDefinition { PropertyId = id, Category = category, DisplayName = name, Minimum = 0, Maximum = 100 };
 

@@ -23,7 +23,7 @@ namespace Portland.AI.Utility
 			ClampHi,
 		}
 
-		public String8 PropertyName = String8.Empty;
+		public string PropertyName = String.Empty;
 		public float Weight = 1.0f;
 		public TransformFunc DataTransFn;
 
@@ -31,7 +31,7 @@ namespace Portland.AI.Utility
 		{
 		}
 
-		public Consideration(in String8 prop, float weight, string fnc)
+		public Consideration(in string prop, float weight, string fnc)
 		{
 			PropertyName = prop;
 			Weight = weight;

@@ -27,6 +27,7 @@ namespace Portland.RPG
 			_items = items;
 
 			_effectGroupByName.Add(String8.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
+			_props.DefinePropertySet(String8.Empty, Array.Empty<String8>());
 		}
 
 		public CharacterSheet CreateCharacter(in String8 charId, in String8 raceEffectGroup, in String8 classEffectGroup, in String8 factionEffectGroup)

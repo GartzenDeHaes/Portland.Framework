@@ -18,7 +18,7 @@ namespace Portland
 	/// <summary>
 	/// A 64-bit variant value type.  Strings longer than 3 characters are stored in a static StringTable.
 	/// </summary>
-	public struct Variant16
+	public struct Variant16 : IEquatable<Variant16>
 	{
 		[Serializable]
 		[StructLayout(LayoutKind.Explicit)]
@@ -587,7 +587,7 @@ namespace Portland
 					case VariantType.Vec3i:
 						return 3;
 					case VariantType.String:
-						return _value.AsStrInTab.Length;
+						return Variant8.StrTab.GetString(_value.AsStrInTab).Length;
 					default:
 						return 0;
 				}
@@ -612,7 +612,7 @@ namespace Portland
 				case VariantType.StringIntern:
 					return _value.AsString.Equals(s);
 				case VariantType.String:
-					return s.Length == _value.AsStrInTab.Length && Variant8.StrTab.Get(s) == _value.AsStrInTab;
+					return Variant8.StrTab.Get(s).Index == _value.AsStrInTab.Index;
 				default:
 					return false;
 			}
@@ -643,6 +643,11 @@ namespace Portland
 				default:
 					return false;
 			}
+		}
+
+		public bool Equals(Variant16 v)
+		{
+			return _value.AsBits1.RawBits == v._value.AsBits1.RawBits && _value.AsBits2.RawBits == v._value.AsBits2.RawBits;
 		}
 
 		/// <inheritdoc/>

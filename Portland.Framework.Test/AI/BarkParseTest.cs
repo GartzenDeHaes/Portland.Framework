@@ -47,7 +47,7 @@ namespace Portland.AI.Barks
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].Action.ToString(), Is.EqualTo("SEE"));
-			Assert.That(parser.Strings.GetString(rules[0].ObjectName), Is.EqualTo("barrel"));
+			Assert.That(rules[0].ObjectName, Is.EqualTo("barrel"));
 		}
 
 		//[Test]
@@ -115,8 +115,8 @@ namespace Portland.AI.Barks
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
 			
 			var filter = rules[0].ActorFlags[0];
-			Assert.That(parser.Strings.GetString(filter.ActorName), Is.EqualTo("COACH"));
-			Assert.That(parser.Strings.GetString(filter.FlagName), Is.EqualTo("ALLY_NEAR"));
+			Assert.That(filter.ActorName, Is.EqualTo("COACH"));
+			Assert.That(filter.FlagName, Is.EqualTo("ALLY_NEAR"));
 			Assert.False(filter.Not);
 		}
 
@@ -130,8 +130,8 @@ namespace Portland.AI.Barks
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
 
 			var filter = rules[0].ActorFlags[0];
-			Assert.That(parser.Strings.GetString(filter.ActorName), Is.EqualTo("COACH"));
-			Assert.That(parser.Strings.GetString(filter.FlagName), Is.EqualTo("ALLY_NEAR"));
+			Assert.That(filter.ActorName, Is.EqualTo("COACH"));
+			Assert.That(filter.FlagName, Is.EqualTo("ALLY_NEAR"));
 			Assert.True(filter.Not);
 		}
 
@@ -145,8 +145,8 @@ namespace Portland.AI.Barks
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
 
 			var filter = rules[0].ActorFlags[0];
-			Assert.That(parser.Strings.GetString(filter.ActorName), Is.EqualTo("COACH"));
-			Assert.That(parser.Strings.GetString(filter.FlagName), Is.EqualTo("ALLY_NEAR"));
+			Assert.That(filter.ActorName, Is.EqualTo("COACH"));
+			Assert.That(filter.FlagName, Is.EqualTo("ALLY_NEAR"));
 			Assert.False(filter.Not);
 
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.True);
@@ -180,8 +180,8 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].ActorFlags.Count, Is.EqualTo(1));
 
 			var filter = rules[0].ActorFlags[0];
-			Assert.That(parser.Strings.GetString(filter.ActorName), Is.EqualTo("COACH"));
-			Assert.That(parser.Strings.GetString(filter.FlagName), Is.EqualTo("ALLY_NEAR"));
+			Assert.That(filter.ActorName, Is.EqualTo("COACH"));
+			Assert.That(filter.FlagName, Is.EqualTo("ALLY_NEAR"));
 			Assert.False(filter.Not);
 
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.True);
@@ -199,7 +199,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(parser.Strings.GetString(expr.FactName), Is.EqualTo("barrels"));
+			Assert.That(expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotExists));
 		}
 
@@ -213,7 +213,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(parser.Strings.GetString(expr.FactName), Is.EqualTo("barrels"));
+			Assert.That(expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.Equals));
 			Assert.That(expr.Value.ToInt(), Is.EqualTo(1));
 		}
@@ -228,7 +228,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(parser.Strings.GetString(expr.FactName), Is.EqualTo("barrels"));
+			Assert.That(expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotEquals));
 			Assert.That(expr.Value.ToInt(), Is.EqualTo(1));
 		}
@@ -243,7 +243,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(parser.Strings.GetString(expr.FactName), Is.EqualTo("barrels"));
+			Assert.That(expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.LessThan));
 			Assert.That(expr.Value.ToFloat(), Is.EqualTo(1.0f));
 		}
@@ -266,14 +266,14 @@ DO .
 
 			Assert.That(rules[0].Probability, Is.EqualTo(0.5f));
 			Assert.That(rules[0].Action.ToString(), Is.EqualTo("SEE"));
-			Assert.That(parser.Strings.GetString(rules[0].ObjectName), Is.EqualTo("hello"));
+			Assert.That(rules[0].ObjectName, Is.EqualTo("hello"));
 
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.True);
 			Assert.That(rules[0].WorldFlagsSet.Bits.NumberOfBitsSet(), Is.EqualTo(1));
 			Assert.That(rules[0].WorldFlagsClear.Bits.NumberOfBitsSet(), Is.Zero);
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(parser.Strings.GetString(expr.FactName), Is.EqualTo("helicopter"));
+			Assert.That(expr.FactName, Is.EqualTo("helicopter"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotExists));
 
 		}
@@ -292,7 +292,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"".
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 
 			Assert.NotNull(cmd.DefaultTexts);
 			Assert.NotZero(cmd.DefaultTexts.Count);
@@ -315,7 +315,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0.
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
@@ -336,7 +336,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DURATION 10.0 DELAY 30.0.
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
@@ -358,7 +358,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 30.0.
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
@@ -380,7 +380,7 @@ DO FRANCIS SAYS francis_hates_hotels ""I hate hotels"" DELAY 22.0 .
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
@@ -402,7 +402,7 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSetVar, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_things"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_things"));
 			var arg2 = cmd.Arg2.ToString();
 			Assert.That(arg2, Is.EqualTo("1"));
 		}
@@ -422,7 +422,7 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameAdd, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_things"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_things"));
 			var arg2 = cmd.Arg2.ToString();
 			Assert.That(arg2, Is.EqualTo("1"));
 		}
@@ -443,14 +443,14 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSetVar, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("intro"));
+			Assert.That(cmd.Arg1, Is.EqualTo("intro"));
 			var arg2 = cmd.Arg2.ToString();
 			Assert.That(arg2, Is.EqualTo("false"));
 
 			cmd = rules[0].Response[1];
 			Assert.AreEqual(BarkCommand.CommandNameSetVar, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.ActorName), Is.EqualTo("FRANCES"));
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("hates"));
+			Assert.That(cmd.ActorName, Is.EqualTo("FRANCES"));
+			Assert.That(cmd.Arg1, Is.EqualTo("hates"));
 			arg2 = cmd.Arg2.ToString();
 			Assert.That(arg2, Is.EqualTo("1"));
 		}
@@ -488,7 +488,7 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameRaise, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("coach:i_saw_a_barrel"));
+			Assert.That(cmd.Arg1, Is.EqualTo("coach:i_saw_a_barrel"));
 		}
 
 		[Test]
@@ -527,7 +527,7 @@ DO
 
 			var cmd = rules[0].Response[0];
 			Assert.AreEqual(BarkCommand.CommandNameSay, cmd.CommandName);
-			Assert.That(parser.Strings.GetString(cmd.Arg1), Is.EqualTo("francis_hates_hotels"));
+			Assert.That(cmd.Arg1, Is.EqualTo("francis_hates_hotels"));
 			var arg2 = cmd.DefaultTexts[0];
 			Assert.That(arg2, Is.EqualTo("I hate hotels"));
 		}

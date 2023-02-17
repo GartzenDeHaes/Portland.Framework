@@ -25,12 +25,12 @@ namespace Portland.AI.Barks
 
 	public sealed class FactFilter
 	{
-		public StringTableToken ActorName;
-		public StringTableToken FactName;
+		public string ActorName;
+		public string FactName;
 		public ComparisionOp Op;
 		public Variant8 Value;
 
-		public bool IsMatch(IBlackboard facts)
+		public bool IsMatch(IBlackboard<string> facts)
 		{
 			bool ret = false;
 
