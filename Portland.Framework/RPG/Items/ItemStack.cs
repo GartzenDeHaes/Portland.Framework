@@ -17,7 +17,7 @@ namespace Portland.RPG
 		public readonly ItemDefinition Definition;
 		public int CollectionIndex;
 
-		public Action<String8, Variant8> OnPropertyChanged;
+		public Action<String, Variant8> OnPropertyChanged;
 		public Action<int> OnStackCountChanged;
 
 		public int StackCount { get { return _stackCount; } }
@@ -47,7 +47,7 @@ namespace Portland.RPG
 			OnStackCountChanged?.Invoke(_stackCount);
 		}
 
-		bool TryFindProperty(in String8 propId, out int i)
+		bool TryFindProperty(in String propId, out int i)
 		{
 			for (i = 0; i < Properties.Length; i++)
 			{
@@ -60,7 +60,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public void SetProperty(in String8 propId, bool value)
+		public void SetProperty(in String propId, bool value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -76,7 +76,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetProperty(in String8 propId, float value)
+		public void SetProperty(in String propId, float value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -92,7 +92,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetProperty(in String8 propId, int value)
+		public void SetProperty(in String propId, int value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -108,7 +108,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetProperty(in String8 propId, in String8 value)
+		public void SetProperty(in String propId, in String8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -124,7 +124,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetProperty(in String8 propId, in Variant8 value)
+		public void SetProperty(in String propId, in Variant8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -136,7 +136,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public float GetPropertyRatio(in String8 propId)
+		public float GetPropertyRatio(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -146,7 +146,7 @@ namespace Portland.RPG
 			throw new Exception($"Property '{propId}' not found");
 		}
 
-		public bool TryGetProperty(in String8 propId, out Variant8 value)
+		public bool TryGetProperty(in String propId, out Variant8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -157,7 +157,7 @@ namespace Portland.RPG
 			return Definition.TryGetProperty(propId, out value);
 		}
 
-		public Variant8 GetPropertyVariant(in String8 propId)
+		public Variant8 GetPropertyVariant(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -167,7 +167,7 @@ namespace Portland.RPG
 			return Definition.GetPropertyVariant(propId);
 		}
 
-		public int GetPropertyInt(in String8 propId)
+		public int GetPropertyInt(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -177,7 +177,7 @@ namespace Portland.RPG
 			return Definition.GetPropertyInt(propId);
 		}
 
-		public float GetPropertyFloat(in String8 propId)
+		public float GetPropertyFloat(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -187,7 +187,7 @@ namespace Portland.RPG
 			return Definition.GetPropertyFloat(propId);
 		}
 
-		public String8 GetPropertyString(in String8 propId)
+		public String8 GetPropertyString(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -197,7 +197,7 @@ namespace Portland.RPG
 			return Definition.GetPropertyString(propId);
 		}
 
-		public bool GetPropertyBool(in String8 propId)
+		public bool GetPropertyBool(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -207,7 +207,7 @@ namespace Portland.RPG
 			return Definition.GetPropertyBool(propId);
 		}
 
-		public bool IsPropertyEquals(in String8 propId, in Variant8 value)
+		public bool IsPropertyEquals(in String propId, in Variant8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -217,7 +217,7 @@ namespace Portland.RPG
 			return Definition.IsPropertyEquals(propId, value);
 		}
 
-		public bool HasProperty(in String8 propId)
+		public bool HasProperty(in String propId)
 		{
 			return TryFindProperty(propId, out int _)
 				|| Definition.HasProperty(propId);

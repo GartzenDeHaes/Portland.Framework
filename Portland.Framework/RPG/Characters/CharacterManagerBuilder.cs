@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Portland.Collections;
+using Portland.Types;
 
 using static Portland.RPG.CharacterDefinition;
 
@@ -14,11 +15,11 @@ namespace Portland.RPG
 	{
 		private static void AddDndStat
 		(
-			PropertyManager props, 
-			String8 id, 
+			PropertyManager props,
+			String id, 
 			string name, 
 			bool randomize,
-			List<String8> proplist
+			List<String> proplist
 		)
 		{
 			proplist.Add(id);
@@ -31,7 +32,7 @@ namespace Portland.RPG
 				.SetProbability("3d6");
 		}
 
-		private static void AddDndResistance(PropertyManager props, String8 id, string name, List<String8> proplist)
+		private static void AddDndResistance(PropertyManager props, String id, string name, List<String> proplist)
 		{
 			proplist.Add(id);
 
@@ -42,7 +43,7 @@ namespace Portland.RPG
 				.SetProbability("1d20");
 		}
 
-		private static void AddDndSkill(PropertyManager props, String8 id, string name, List<String8> proplist)
+		private static void AddDndSkill(PropertyManager props, String id, string name, List<String> proplist)
 		{
 			proplist.Add(id);
 
@@ -56,7 +57,7 @@ namespace Portland.RPG
 		/// <summary>
 		/// This is an example of how to setup a full system, useful for unit testing
 		/// </summary>
-		public static CharacterManager CreateDnDDefaults(ItemFactory items, bool randomizeStats = true)
+		public static CharacterManager CreateDnDTest(ItemFactory items, bool randomizeStats = true)
 		{
 			StringBuilder statsRecalc = new StringBuilder();
 			//StringBuilder statsRecalcOnEquip = new StringBuilder();
@@ -70,7 +71,7 @@ namespace Portland.RPG
 
 			PropertyManager props = new PropertyManager();
 
-			List<String8> proplist = new List<String8>();
+			List<String> proplist = new List<String>();
 
 			AddDndStat(props, "STR", "Strength", randomizeStats, proplist);
 			AddDndStat(props, "INT", "Intellegence", randomizeStats, proplist);
@@ -158,25 +159,25 @@ namespace Portland.RPG
 			CharacterManager mgr = new CharacterManager(Variant8.StrTab, props, items);
 
 			// no race effects
-			mgr.DefineEffectGroup("HUMAN", Array.Empty<String8>());
+			mgr.DefineEffectGroup("HUMAN", Array.Empty<String>());
 
 			mgr.DefineStatEffect_Delta("STR-1", "STR", -1);
 			mgr.DefineStatEffect_Delta("INT+1", "INT", 1);
 			mgr.DefineStatEffect_Delta("DEX+1", "DEX", 1);
 			mgr.DefineStatEffect_Delta("CON-1", "CON", -1);
 			mgr.DefineStatEffect_Delta("BOW+1", "BOW", 1);
-			mgr.DefineEffectGroup("ELF", new String8[] { "STR-1", "INT+1", "DEX+1", "CON-1", "BOW+1" });
+			mgr.DefineEffectGroup("ELF", new String[] { "STR-1", "INT+1", "DEX+1", "CON-1", "BOW+1" });
 
 			// Class Effects
 
 			mgr.DefineStatEffect_Delta("SWORD+1", "SWORD", 1);
 			mgr.DefineStatEffect_Set("XPMOD+F", "XPMOD", 1.1f);
 			mgr.DefineStatEffect_Delta("ATK+2", "ATTACK", 2);
-			mgr.DefineEffectGroup("FIGHTER", new String8[] { "SWORD+1", "XPMOD+F", "ATK+2" });
+			mgr.DefineEffectGroup("FIGHTER", new String[] { "SWORD+1", "XPMOD+F", "ATK+2" });
 
 			mgr.DefineStatEffect_Set("XPMOD+A", "XPMOD", 1.2f);
 			mgr.DefineStatEffect_Delta("ATK+1", "ATTACK", 1);
-			mgr.DefineEffectGroup("ARCHER", new String8[] { "BOW+1", "XPMOD+A", "ATK+1" });
+			mgr.DefineEffectGroup("ARCHER", new String[] { "BOW+1", "XPMOD+A", "ATK+1" });
 
 			mgr.DefineStatEffect_Set("STR 12", "STR", 12);
 			mgr.DefineStatEffect_Set("CHR 5", "CHR", 5);
@@ -185,14 +186,14 @@ namespace Portland.RPG
 			mgr.DefineEffect_RangeMax("HPMAX 8", "HP", 8);
 			mgr.DefineStatEffect_Set("HP 8", "HP", 8);
 			mgr.DefineStatEffect_Set("THAC0 5", "THAC0", 5);
-			mgr.DefineEffectGroup("ORC", new String8[] { "STR 12", "CHR 5", "CON 12", "HPMAX 8", "AC 4", "HP 8", "THAC0 5" });
+			mgr.DefineEffectGroup("ORC", new String[] { "STR 12", "CHR 5", "CON 12", "HPMAX 8", "AC 4", "HP 8", "THAC0 5" });
 
 			// Items
 
 			items.DefineCategory("Armor");
 			items.DefineCategory("Consumable");
-			items.DefineCategory("Melee Weapon");
-			items.DefineCategory("Interactable");
+			items.DefineCategory("Melee");
+			items.DefineCategory("Useable");
 			items.DefineCategory("Resource");
 			items.DefineCategory("Ranged");
 			items.DefineCategory("Shield");
@@ -231,7 +232,7 @@ namespace Portland.RPG
 			}
 			if (! items.HasItemDefined("CLUB6"))
 			{
-				items.DefineItem("Melee Weapon", "CLUB6")
+				items.DefineItem("Melee", "CLUB6")
 					.DisplayName("Wooden Club")
 					.MaxStackCapacity(1)
 					.AddProperty("WEIGHT", 2)

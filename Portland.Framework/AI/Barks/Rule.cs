@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Portland.Collections;
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.AI.Barks
 {
@@ -10,12 +11,12 @@ namespace Portland.AI.Barks
 	{
 		public bool HasRun;
 
-		public string ActorName;
+		public String ActorName;
 		public AsciiId4 Action;
 		public string ObjectName;
-		public string InstrumentName;
+		public String InstrumentName;
 
-		public string ObserverName;
+		public String ObserverName;
 
 		public WorldStateFlags WorldFlagsSet;
 		public WorldStateFlags WorldFlagsClear;
@@ -48,12 +49,12 @@ namespace Portland.AI.Barks
 				//ActorFlagsSet.Bits.NumberOfBitsSet() +
 				//ActorFlagsClear.Bits.NumberOfBitsSet() +
 				//(ActorName.Index ? 1 : 0) +
-				(ActorName != null ? 1 : 0) +
+				(ActorName == null ? 0 : 1) +
 				(Action.Length > 0 ? 1 : 0) +
 				//(ObjectName.Index > 0 ? 1 : 0) +
 				//(InstrumentName.Index > 0 ? 1 : 0) +
-				(ObjectName != null ? 1 : 0) +
-				(InstrumentName != null ? 1 : 0) +
+				(ObjectName == null ? 0 : 1) +
+				(InstrumentName == null ? 0 : 1) +
 				ActorFlags.Count +
 				WorldFilters.Count +
 				ActorFilters.Count +

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Types;
+
 namespace Portland.AI.Utility
 {
 	/// <summary>
@@ -23,7 +25,7 @@ namespace Portland.AI.Utility
 			ClampHi,
 		}
 
-		public string PropertyName = String.Empty;
+		public String PropertyName = String.Empty;
 		public float Weight = 1.0f;
 		public TransformFunc DataTransFn;
 
@@ -31,7 +33,7 @@ namespace Portland.AI.Utility
 		{
 		}
 
-		public Consideration(in string prop, float weight, string fnc)
+		public Consideration(in String prop, float weight, string fnc)
 		{
 			PropertyName = prop;
 			Weight = weight;

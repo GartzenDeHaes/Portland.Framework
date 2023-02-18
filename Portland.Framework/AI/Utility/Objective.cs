@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Types;
+
 namespace Portland.AI.Utility
 {
 	/// <summary>
@@ -12,7 +14,7 @@ namespace Portland.AI.Utility
 	[Serializable]
 	public class Objective
 	{
-		public Dictionary<string, Consideration> Considerations = new Dictionary<string, Consideration>();
+		public Dictionary<String, Consideration> Considerations = new Dictionary<String, Consideration>();
 
 		/// <summary>Objective name, also used for notifying other systems of the current goal.</summary>
 		public string Name;

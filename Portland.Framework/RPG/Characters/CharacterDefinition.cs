@@ -9,6 +9,7 @@ using Portland.Basic;
 using Portland.Collections;
 using Portland.Interp;
 using Portland.Mathmatics;
+using Portland.Types;
 
 using static Portland.RPG.CharacterDefinition;
 
@@ -18,7 +19,7 @@ namespace Portland.RPG
 	{
 		sealed class InventorySection
 		{
-			public String8 SectionName;
+			public String SectionName;
 			public int SectionTypeId;
 			public int Start;
 			public int Width;
@@ -29,21 +30,21 @@ namespace Portland.RPG
 
 		public struct ItemPropertyDefault
 		{
-			public String8 PropId;
+			public String PropId;
 			public Variant8 Default;
 		}
 
 		public sealed class DefaultItemSpec
 		{
-			public String8 ItemId;
+			public String ItemId;
 			public int Count;
-			public String8 WindowSectionName;
+			public String WindowSectionName;
 			public int WindowSectionIndex;
 			public ItemPropertyDefault[] Properties;
 		}
 
-		public String8 CharId;
-		public String8 PropertyGroupId;
+		public String CharId;
+		public String PropertyGroupId = String.Empty;
 
 		public string OnStatChangeBas = String.Empty;
 		public BasicProgram OnStatChangeRun = new BasicProgram();
@@ -55,11 +56,11 @@ namespace Portland.RPG
 		public int DefaultSelectedInventorySlot;
 		Vector<InventorySection> _inventorySections = new Vector<InventorySection>(6);
 
-		public Dictionary<String8, List<DefaultItemSpec>> DefaultItems = new Dictionary<String8, List<DefaultItemSpec>>();
+		public Dictionary<String, List<DefaultItemSpec>> DefaultItems = new Dictionary<String, List<DefaultItemSpec>>();
 
 		public void AddInventorySection
 		(
-			in String8 name, 
+			in String name, 
 			int sectionTypeId,
 			bool isReadOnly, 
 			int start, 
@@ -91,15 +92,15 @@ namespace Portland.RPG
 		CharacterDefinition Character;
 		int _invNext;
 		bool _autoCountInventorySlots;
-		Dictionary<String8, EffectGroup> _effectGroups;
+		Dictionary<String, EffectGroup> _effectGroups;
 
-		public CharacterDefinitionBuilder(CharacterDefinition chr, Dictionary<String8, EffectGroup> effectGroups)
+		public CharacterDefinitionBuilder(CharacterDefinition chr, Dictionary<String, EffectGroup> effectGroups)
 		{
 			Character = chr;
 			_effectGroups = effectGroups;
 		}
 
-		public CharacterDefinitionBuilder PropertyGroupId(in String8 id)
+		public CharacterDefinitionBuilder PropertyGroupId(in String id)
 		{
 			Character.PropertyGroupId = id;
 			return this;
@@ -113,7 +114,7 @@ namespace Portland.RPG
 
 		public CharacterDefinitionBuilder AddInventorySection
 		(
-			in String8 name, 
+			in String name, 
 			int sectionTypeId,
 			bool isReadOnly, 
 			int width, 
@@ -141,13 +142,13 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public CharacterDefinitionBuilder AddEffectGroup(in String8 groupId)
+		public CharacterDefinitionBuilder AddEffectGroup(in String groupId)
 		{
 			Character.EffectGroups.Add(_effectGroups[groupId]);
 			return this;
 		}
 
-		public CharacterDefinitionBuilder AddDefaultItem(in String8 raceOrClass, DefaultItemSpec item)
+		public CharacterDefinitionBuilder AddDefaultItem(in String raceOrClass, DefaultItemSpec item)
 		{
 			if (! Character.DefaultItems.TryGetValue(raceOrClass, out var lst))
 			{

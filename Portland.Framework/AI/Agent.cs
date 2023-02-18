@@ -7,19 +7,20 @@ using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Framework.AI;
 using Portland.RPG;
+using Portland.Types;
 
 namespace Portland.AI
 {
 	public sealed class Agent
 	{
 		public AgentStateFlags Flags;
-		public string Name;
-		public string Class;
+		public String Name;
+		public String Class;
 		//public TextTableToken Location;
 		public UtilitySet UtilitySet;
 		//public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
 		public CharacterSheet Character;
-		public IBlackboard<string> Facts;
+		public IBlackboard<String> Facts;
 
 		public Action Alerts;
 
@@ -28,14 +29,14 @@ namespace Portland.AI
 			Alerts?.Invoke();
 		}
 
-		public Agent(string cls, string name, UtilitySet utilitySet, CharacterSheet character)
+		public Agent(String8 cls, String8 name, UtilitySet utilitySet, CharacterSheet character)
 		{
 			Name = name;
 			Class = cls;
 			UtilitySet = utilitySet;
 			Character = character;
 
-			Facts = new Blackboard<string>();
+			Facts = new Blackboard<String>();
 
 			Character.SetupBlackboard(Facts);
 

@@ -15,7 +15,7 @@ namespace Portland.RPG
 		public void BaseTest()
 		{
 			var items = new ItemFactory();
-			var mgr = CharacterManagerBuilder.CreateDnDDefaults(items, false);
+			var mgr = CharacterManagerBuilder.CreateDnDTest(items, false);
 
 			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "");
 
@@ -91,7 +91,7 @@ namespace Portland.RPG
 		public void BaseMonsterTest()
 		{
 			var items = new ItemFactory();
-			var mgr = CharacterManagerBuilder.CreateDnDDefaults(items, false);
+			var mgr = CharacterManagerBuilder.CreateDnDTest(items, false);
 
 			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "");
 
@@ -107,14 +107,14 @@ namespace Portland.RPG
 			Assert.That(orc.Stats.GetValue("THAC0"), Is.EqualTo(5f));
 
 			Assert.That(orc.Inventory[0].StackCount, Is.EqualTo(1));
-			Assert.That(orc.Inventory[0].Definition.ItemId, Is.EqualTo("CLUB6"));
+			Assert.That((string)orc.Inventory[0].Definition.ItemId, Is.EqualTo("CLUB6"));
 			Assert.That(orc.Inventory[0].Definition.Name, Is.EqualTo("Wooden Club"));
 			Assert.That(orc.Inventory[0].GetPropertyInt("WEIGHT"), Is.EqualTo(2));
-			Assert.That(orc.Inventory[0].GetPropertyString("TYPE"), Is.EqualTo("BLUNT"));
-			Assert.That(orc.Inventory[0].GetPropertyString("DAMAGE"), Is.EqualTo("1d6"));
+			Assert.That((string)orc.Inventory[0].GetPropertyString("TYPE"), Is.EqualTo("BLUNT"));
+			Assert.That((string)orc.Inventory[0].GetPropertyString("DAMAGE"), Is.EqualTo("1d6"));
 
 			Assert.That(orc.Inventory[4].StackCount, Is.EqualTo(1));
-			Assert.That(orc.Inventory[4].Definition.ItemId, Is.EqualTo("ORKSKIN"));
+			Assert.That((string)orc.Inventory[4].Definition.ItemId, Is.EqualTo("ORKSKIN"));
 			Assert.That(orc.Inventory[4].Definition.Name, Is.EqualTo("Orc Hide"));
 		}
 	}

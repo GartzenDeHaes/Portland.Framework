@@ -2,6 +2,8 @@
 
 using NUnit.Framework;
 
+using Portland.Types;
+
 namespace Portland.RPG
 {
 	[TestFixture]
@@ -15,12 +17,12 @@ namespace Portland.RPG
 			manager.DefineProperty("HLTH", "Health", "STATS")
 				.SetupDepletionType();
 
-			manager.DefinePropertySet("HUMN", new String8[] { "HLTH" });
+			manager.DefinePropertySet("HUMN", new String[] { "HLTH" });
 
 			var set = manager.CreatePropertySet("HUMN");
 
 			Assert.That(set.GetValue("HLTH"), Is.EqualTo(100f));
-			Assert.That(set.GetSetId(), Is.EqualTo(String8.From("HUMN")));
+			Assert.That((string)set.GetSetId(), Is.EqualTo("HUMN"));
 			Assert.That(set.GetDisplayName("HLTH"), Is.EqualTo("Health"));
 		}
 
@@ -41,12 +43,12 @@ namespace Portland.RPG
 				.SetProbability("3d6")
 				.SetDefault(8);
 
-			mgr.DefinePropertySet("HUMAN", new String8[] { "STR", "INT" });
+			mgr.DefinePropertySet("HUMAN", new String[] { "STR", "INT" });
 
 			var set = mgr.CreatePropertySet("HUMAN");
 
 			//Assert.That(set.Count, Is.EqualTo(2));
-			Assert.That(set.GetSetId(), Is.EqualTo(String8.From("HUMAN")));
+			Assert.That((string)set.GetSetId(), Is.EqualTo("HUMAN"));
 
 			Assert.That(set.GetValue("STR"), Is.EqualTo(6));
 			Assert.That(set.GetValue("INT"), Is.EqualTo(8));
@@ -78,7 +80,7 @@ namespace Portland.RPG
 				.SetChangePerSecond(1f)
 				;
 
-			manager.DefinePropertySet("HUMN", new String8[] { "HP", "WATR" });
+			manager.DefinePropertySet("HUMN", new String[] { "HP", "WATR" });
 
 			var set = manager.CreatePropertySet("HUMN");
 

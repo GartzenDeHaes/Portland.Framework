@@ -129,19 +129,19 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public Variant8 GetProperty(int index, in String8 propName)
+		public Variant8 GetProperty(int index, in String propName)
 		{
 			var item = this[index];
 			return item.GetPropertyVariant(propName);
 		}
 
-		public bool TryGetProperty(int index, in String8 propName, out Variant8 value)
+		public bool TryGetProperty(int index, in String propName, out Variant8 value)
 		{
 			var item = this[index];
 			return item.TryGetProperty(propName, out value);
 		}
 
-		public bool TrySumItemProp(string winGridName, in String8 propName, out float amt)
+		public bool TrySumItemProp(string winGridName, in String propName, out float amt)
 		{
 			amt = 0;
 			bool found = false;
@@ -163,7 +163,7 @@ namespace Portland.RPG
 			return found;
 		}
 
-		public bool TrySumItemProp(in String8 propName, out float amt)
+		public bool TrySumItemProp(in String propName, out float amt)
 		{
 			amt = 0;
 			bool found = false;

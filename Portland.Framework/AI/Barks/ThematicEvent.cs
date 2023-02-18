@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Portland.Collections;
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.AI.Barks
 {
@@ -15,12 +16,12 @@ namespace Portland.AI.Barks
 		public static AsciiId4 ActionIdle = "IDLE";
 
 		/// <summary>Actor performing the action</summary>
-		public string Actor;
+		public String Actor;
 		/// <summary>Verb</summary>
 		public AsciiId4 Action;
 		/// <summary>Direct object</summary>
 		public string Concept;
 		/// <summary>Indirect object</summary>
-		public string Instrument;
+		public String Instrument;
 	}
 }

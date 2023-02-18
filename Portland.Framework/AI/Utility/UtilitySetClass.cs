@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {

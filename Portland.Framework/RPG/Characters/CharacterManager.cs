@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 using Portland.Collections;
 using Portland.Interp;
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.RPG
 {
 	public sealed class CharacterManager
 	{
 		PropertyManager _props;
-		Dictionary<String8, Effect> _effectsById = new Dictionary<String8, Effect>();
-		Dictionary<String8, EffectGroup> _effectGroupByName = new Dictionary<String8, EffectGroup>();
-		Dictionary<String8, CharacterDefinition> _charDefs = new Dictionary<String8, CharacterDefinition>();
+		Dictionary<String, Effect> _effectsById = new Dictionary<String, Effect>();
+		Dictionary<String, EffectGroup> _effectGroupByName = new Dictionary<String, EffectGroup>();
+		Dictionary<String, CharacterDefinition> _charDefs = new Dictionary<String, CharacterDefinition>();
 
 		ItemFactory _items;
 		StringTable _strings;
@@ -26,11 +27,11 @@ namespace Portland.RPG
 			_props = props;
 			_items = items;
 
-			_effectGroupByName.Add(String8.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
-			_props.DefinePropertySet(String8.Empty, Array.Empty<String8>());
+			_effectGroupByName.Add(String.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
+			_props.DefinePropertySet(String.Empty, Array.Empty<String>());
 		}
 
-		public CharacterSheet CreateCharacter(in String8 charId, in String8 raceEffectGroup, in String8 classEffectGroup, in String8 factionEffectGroup)
+		public CharacterSheet CreateCharacter(in String charId, in String raceEffectGroup, in String classEffectGroup, in String factionEffectGroup)
 		{
 			var def = _charDefs[charId];
 
@@ -49,7 +50,7 @@ namespace Portland.RPG
 			return chr;
 		}
 
-		void CreateDefaultItems(CharacterDefinition def, in String8 raceOrClass, CharacterSheet chr)
+		void CreateDefaultItems(CharacterDefinition def, in String raceOrClass, CharacterSheet chr)
 		{
 			if (def.DefaultItems.TryGetValue(raceOrClass, out var items))
 			{
@@ -66,7 +67,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public CharacterDefinitionBuilder CreateCharacterDefinition(in String8 id)
+		public CharacterDefinitionBuilder CreateCharacterDefinition(in String id)
 		{
 			CharacterDefinition def = new CharacterDefinition() { CharId = id };
 			_charDefs.Add(id, def);
@@ -76,23 +77,23 @@ namespace Portland.RPG
 
 		#region Effects
 
-		public bool HasEffect(string name)
+		public bool HasEffect(in String name)
 		{
 			//int id = StringHelper.HashMurmur32(name);
-			var id = String8.FromTruncate(name);
+			//var id = String8.FromTruncate(name);
 
-			return _effectsById.ContainsKey(id);
+			return _effectsById.ContainsKey(name);
 		}
 
-		void DefineEffect(string name, String8 appliesToPropId, in Variant8 value, float duration, EffectValueType isNumOrPct, PropertyRequirement[] requirements)
+		void DefineEffect(in String name, in String appliesToPropId, in Variant8 value, float duration, EffectValueType isNumOrPct, PropertyRequirement[] requirements)
 		{
 			//int id = StringHelper.HashMurmur32(name);
-			var id = String8.FromTruncate(name);
+			//var id = String8.FromTruncate(name);
 
 			_effectsById.Add
 			(
-				id,
-				new Effect { EffectId = id, EffectName = name, PropertyId = appliesToPropId, Value = value, Duration = duration, Op = isNumOrPct/*, Requirements = requirements*/ }
+				name,
+				new Effect { EffectId = name, EffectName = name, PropertyId = appliesToPropId, Value = value, Duration = duration, Op = isNumOrPct/*, Requirements = requirements*/ }
 			);
 		}
 
@@ -104,7 +105,7 @@ namespace Portland.RPG
 		/// <summary>
 		/// Can be used for STAT's and derived stats
 		/// </summary>
-		public void DefineEffect_RangeDelta(string name, String8 appliesToPropId, in Variant8 value)
+		public void DefineEffect_RangeDelta(string name, in String appliesToPropId, in Variant8 value)
 		{
 			DefineEffect(name, appliesToPropId, value, 0f, EffectValueType.MaxDelta, Array.Empty<PropertyRequirement>());
 		}
@@ -112,7 +113,7 @@ namespace Portland.RPG
 		/// <summary>
 		/// Can be used for STAT's and derived stats
 		/// </summary>
-		public void DefineEffect_RangeMax(string name, String8 appliesToPropId, in Variant8 value)
+		public void DefineEffect_RangeMax(string name, in String appliesToPropId, in Variant8 value)
 		{
 			DefineEffect(name, appliesToPropId, value, 0f, EffectValueType.MaxDelta, Array.Empty<PropertyRequirement>());
 		}
@@ -120,7 +121,7 @@ namespace Portland.RPG
 		/// <summary>
 		/// Only use for STAT's, not derived values
 		/// </summary>
-		public void DefineStatEffect_Set(string name, String8 appliesToPropId, in Variant8 value)
+		public void DefineStatEffect_Set(string name, in String appliesToPropId, in Variant8 value)
 		{
 			DefineEffect(name, appliesToPropId, value, 0f, EffectValueType.CurrentAbs, Array.Empty<PropertyRequirement>());
 		}
@@ -128,7 +129,7 @@ namespace Portland.RPG
 		/// <summary>
 		/// Only use for STAT's, not derived values
 		/// </summary>
-		public void DefineStatEffect_Delta(string name, String8 appliesToPropId, in Variant8 value)
+		public void DefineStatEffect_Delta(string name, in String appliesToPropId, in Variant8 value)
 		{
 			DefineEffect(name, appliesToPropId, value, 0f, EffectValueType.CurrentDelta, Array.Empty<PropertyRequirement>());
 		}
@@ -138,7 +139,7 @@ namespace Portland.RPG
 		//	DefineEffect(name, appliesToPropId, value, duration, isNumOrPct, Array.Empty<PropertyRequirement>());
 		//}
 
-		public void DefineEffectGroup(in String8 groupName, String8[] effectNames)
+		public void DefineEffectGroup(in String groupName, String[] effectNames)
 		{
 			List<Effect> effects = new List<Effect>(effectNames.Length);
 

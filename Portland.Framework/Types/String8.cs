@@ -11,7 +11,7 @@ namespace Portland
 	/// </summary>
 	[Serializable]
 	[StructLayout(LayoutKind.Explicit)]
-	public struct String8 : IEquatable<String>, IEquatable<String8>
+	public struct String8 : IEquatable<String8>
 	{
 		public const int MAX_LEN = 8;
 		public static String8 Empty;
@@ -563,7 +563,7 @@ namespace Portland
 
 		/// <summary>Implicit String8 to string cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator string(String8 s) => s.ToString();
+		public static implicit operator string(in String8 s) => s.ToString();
 		/// <summary>Implicit string to String8 cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator String8(string x) => String8.From(x);

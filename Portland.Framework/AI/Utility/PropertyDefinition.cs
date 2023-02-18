@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
+using Portland.Collections;
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -24,12 +26,12 @@ namespace Portland.AI.Utility
 		public struct AlertDefinition
 		{
 			public AlertType Type;
-			public string PropertId;
+			public String PropertId;
 			public Variant8 Value;
 			public string FlagName;
 		}
 
-		public string PropertyId = String.Empty;
+		public String PropertyId = String.Empty;
 		public string DisplayName = String.Empty;
 		public string Category = String.Empty;
 		public string TypeName = String.Empty;
@@ -49,7 +51,7 @@ namespace Portland.AI.Utility
 		/// <summary>Probabilty distibution</summary>
 		public DiceTerm Probability;
 
-		public List<AlertDefinition> Alerts = new List<AlertDefinition>();
+		public Vector<AlertDefinition> Alerts = new Vector<AlertDefinition>(8);
 
 		public float DefaultValueForInitialization()
 		{
@@ -67,22 +69,22 @@ namespace Portland.AI.Utility
 			return DefaultValue;
 		}
 
-		public void DefineAlert(in String8 propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
+		public void DefineAlert(in String propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
 		{
 			Alerts.Add(new PropertyDefinition.AlertDefinition { PropertId = propertyId, Type = type, Value = value, FlagName = flagName });
 		}
 
-		public static PropertyDefinition CreateStringDefinition(string category, string displayName, string propId)
+		public static PropertyDefinition CreateStringDefinition(string category, string displayName, in String propId)
 		{
 			return new PropertyDefinition() { PropertyId = propId, Category = category, DisplayName = displayName, TypeName = "string" };
 		}
 
-		public static PropertyDefinition CreateVariantDefinition(string category, string displayName, string propId)
+		public static PropertyDefinition CreateVariantDefinition(string category, string displayName, in String propId)
 		{
 			return new PropertyDefinition() { PropertyId = propId, Category = category, DisplayName = displayName, TypeName = "variant" };
 		}
 
-		public static PropertyDefinition CreateFloatDefinition(string category, string displayName, string propId, bool randDefault, float defaultValue = 0, float min = 0, float max = 100, string probability = "1d100")
+		public static PropertyDefinition CreateFloatDefinition(string category, string displayName, in String propId, bool randDefault, float defaultValue = 0, float min = 0, float max = 100, string probability = "1d100")
 		{
 			return new PropertyDefinition() { PropertyId = propId, Category = category, DisplayName = displayName, TypeName = "float", DefaultRandomize = randDefault, DefaultValue = defaultValue, Minimum = min, Maximum = max, Probability = DiceTerm.Parse(probability) };
 		}
@@ -184,7 +186,7 @@ namespace Portland.AI.Utility
 		public PropertyDefinitionBuilder AddAlert
 		(
 			PropertyDefinition.AlertType type,
-			in String8 propId,
+			in String propId,
 			in Variant8 value,
 			string flagName
 		)

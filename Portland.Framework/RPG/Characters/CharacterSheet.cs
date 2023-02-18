@@ -10,6 +10,7 @@ using Portland.Collections;
 using Portland.Framework.AI;
 using Portland.Interp;
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.RPG
 {
@@ -142,7 +143,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetupBlackboard(IBlackboard<string> bb)
+		public void SetupBlackboard(IBlackboard<String> bb)
 		{
 			Stats.AddToBlackBoard(bb);
 		}

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 using Portland.Mathmatics;
+using Portland.Types;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
@@ -13,20 +14,20 @@ namespace Portland.RPG
 	[Serializable]
 	public class ItemProperty
 	{
-		public String8 PropertyId;
+		public String PropertyId;
 		public ItemPropertyType PropertyType;
 		public ItemPropertyValue Value;
 		public ResourceDescription DisplayName;
 
 		public ItemProperty()
 		{
-			PropertyId = String8.Empty;
+			PropertyId = String.Empty;
 			PropertyType = ItemPropertyType.Flag;
 
 			ResetToZero();
 		}
 
-		public ItemProperty(in String8 propertyId, ItemPropertyType propertyType)
+		public ItemProperty(in String propertyId, ItemPropertyType propertyType)
 		{
 			PropertyId = propertyId;
 			PropertyType = propertyType;
@@ -405,7 +406,7 @@ namespace Portland.RPG
 				|| (PropertyType == ItemPropertyType.FloatRange && Value.FloatRange.Current == val);
 		}
 
-		public bool Equals(in String8 val)
+		public bool Equals(in String val)
 		{
 			return 
 			(

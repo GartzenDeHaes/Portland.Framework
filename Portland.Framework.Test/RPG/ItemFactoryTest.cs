@@ -59,7 +59,7 @@ namespace Portland.RPG
 
 			var gun = items.CreateItem(0, "M49A");
 			Assert.That(gun.Definition.ItemId.ToString(), Is.EqualTo("M49A"));
-			Assert.That(gun.Definition.Category, Is.EqualTo("Gun"));
+			Assert.That((string)gun.Definition.Category, Is.EqualTo("Gun"));
 			Assert.That(gun.GetPropertyFloat("DUR"), Is.EqualTo(256f));
 			Assert.True(gun.HasProperty("HASPARTS"));
 			Assert.True(gun.HasProperty("HASMAG"));

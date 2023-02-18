@@ -76,5 +76,7 @@ namespace Portland.Types
 		/// <summary>Implicit string to Variant cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator StringKey(string x) => new StringKey(x);
+
+		public static String Empty = String.Empty;
 	}
 }

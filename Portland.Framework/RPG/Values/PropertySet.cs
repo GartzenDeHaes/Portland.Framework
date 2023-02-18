@@ -7,6 +7,7 @@ using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.Framework.AI;
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.RPG
 {
@@ -27,7 +28,7 @@ namespace Portland.RPG
 		//	set { _values[index].Set(value); }
 		//}
 
-		bool FindKey(in String8 id, out int index)
+		bool FindKey(in String id, out int index)
 		{
 			for (index = 0; index < _values.Length; index++)
 			{
@@ -40,12 +41,12 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool HasProperty(in String8 id)
+		public bool HasProperty(in String id)
 		{
 			return FindKey(id, out int _);
 		}
 
-		public float GetValue(in String8 id)
+		public float GetValue(in String id)
 		{
 			if (TryGetValue(id, out float value)) 
 			{ 
@@ -54,7 +55,7 @@ namespace Portland.RPG
 			return -1;
 		}
 
-		public float GetMaximum(in String8 id)
+		public float GetMaximum(in String id)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -63,7 +64,7 @@ namespace Portland.RPG
 			return -1;
 		}
 
-		public bool TryGetValue(in String8 id, out float value)
+		public bool TryGetValue(in String id, out float value)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -74,7 +75,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TrySetValue(in String8 id, float value)
+		public bool TrySetValue(in String id, float value)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -84,7 +85,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TryGetMaximum(in String8 id, out float maximum)
+		public bool TryGetMaximum(in String id, out float maximum)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -96,7 +97,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public bool TrySetMaximum(in String8 id, float maximum)
+		public bool TrySetMaximum(in String id, float maximum)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -112,7 +113,7 @@ namespace Portland.RPG
 			_values[index].AddToValue(delta);
 		}
 
-		public bool TryGetProbability(in String8 id, out DiceTerm dice)
+		public bool TryGetProbability(in String id, out DiceTerm dice)
 		{
 			if (FindKey(id, out int index))
 			{
@@ -139,7 +140,7 @@ namespace Portland.RPG
 		//	return _values[index].Definition.PropertyId;
 		//}
 
-		public void AddToBlackBoard(IBlackboard<string> bb)
+		public void AddToBlackBoard(IBlackboard<String> bb)
 		{
 			for (int i = 0; i < _values.Length; i++)
 			{
@@ -147,7 +148,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public string GetDisplayName(in String8 propId)
+		public string GetDisplayName(in string propId)
 		{
 			if (FindKey(propId, out int index))
 			{
@@ -157,7 +158,7 @@ namespace Portland.RPG
 			return String.Empty;
 		}
 
-		public String8 GetSetId()
+		public String GetSetId()
 		{
 			return _def.SetId;
 		}

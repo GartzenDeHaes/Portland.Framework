@@ -7,6 +7,7 @@ using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Framework.AI;
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Barks
 {
@@ -125,7 +126,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void SetVars(IBlackboard<string> facts, BarkCommand cmd)
+		void SetVars(IBlackboard<String> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
@@ -137,7 +138,7 @@ namespace Portland.AI.Barks
 			}
 		}
 
-		void AddToVar(IBlackboard<string> facts, BarkCommand cmd)
+		void AddToVar(IBlackboard<String> facts, BarkCommand cmd)
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{

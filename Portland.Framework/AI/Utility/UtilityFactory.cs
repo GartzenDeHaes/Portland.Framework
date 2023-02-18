@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -11,14 +12,14 @@ namespace Portland.AI.Utility
 	{
 		IClock _clock;
 		float _clockLastUpdate;
-		Dictionary<String8, PropertyValue> _globalProperties = new Dictionary<String8, PropertyValue>();
+		Dictionary<String, PropertyValue> _globalProperties = new Dictionary<String, PropertyValue>();
 
-		Dictionary<String8, PropertyDefinition> _properties = new Dictionary<String8, PropertyDefinition>();
+		Dictionary<string, PropertyDefinition> _properties = new Dictionary<string, PropertyDefinition>();
 		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
 		Dictionary<string, UtilitySetClass> _setsByType = new Dictionary<string, UtilitySetClass>();
 		Dictionary<string, UtilitySetClass> _setsByName = new Dictionary<string, UtilitySetClass>();
 
-		Dictionary<string, UtilitySet> _instances = new Dictionary<string, UtilitySet>();
+		Dictionary<String, UtilitySet> _instances = new Dictionary<String, UtilitySet>();
 
 		public void TickAgents()
 		{
@@ -46,17 +47,17 @@ namespace Portland.AI.Utility
 			CreatePropertyDef_HourOfDay(true, "hour");
 		}
 
-		public PropertyValue GetGlobalProperty(in String8 name)
+		public PropertyValue GetGlobalProperty(in String name)
 		{
 			return _globalProperties[name];
 		}
 
-		public bool HasGlobalPropertyDefinition(in String8 propName)
+		public bool HasGlobalPropertyDefinition(in String propName)
 		{
 			return _globalProperties.ContainsKey(propName);
 		}
 
-		public bool HasPropertyDefinition(in String8 propName)
+		public bool HasPropertyDefinition(in String propName)
 		{
 			return _properties.ContainsKey(propName);
 		}
@@ -124,7 +125,7 @@ namespace Portland.AI.Utility
 			_instances.Clear();
 		}
 
-		public void DefineAlertForPropertyDefinition(in String8 propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
+		public void DefineAlertForPropertyDefinition(in String propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
 		{
 			if (_properties.TryGetValue(propertyId, out var def))
 			{
@@ -138,7 +139,7 @@ namespace Portland.AI.Utility
 
 		#region CREATE PROPERTY DEFINITIONS
 
-		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, in String name)
 		{
 			var prop = new PropertyDefinition() { PropertyId = name, IsGlobalValue = isGlobal };
 			_properties.Add(prop.PropertyId, prop);
@@ -154,7 +155,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 0 to 100 decreasing, such as satiation, health, hydration, sleepyness
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Descreasing(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Descreasing(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef(isGlobal, name)
 				.Min(0f)
@@ -168,7 +169,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 0 to 100 increasing, such as hunger, thirst, tiredness
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Increasing(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Increasing(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef_0to100_Descreasing(isGlobal, name)
 				.ChangePerSecond((20f / 60f) / 60f)
@@ -180,7 +181,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 0+ such as money, gold, XP
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Positive_Unbounded(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_Positive_Unbounded(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef(isGlobal, name)
 				.Min(0f)
@@ -193,7 +194,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 24 hour clock, so 0000 to 2399. First two digits are hour, second two are 1/100 hour (0.6 minutes)
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Military(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Military(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef(isGlobal, name)
 				.Min(0f)
@@ -207,7 +208,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 0 to 23 increasing
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_HourOfDay(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_HourOfDay(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
 				.Min(0)
@@ -221,7 +222,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// 0 to 1 increasing
 		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Normalized(bool isGlobal, in String8 name)
+		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Normalized(bool isGlobal, in String name)
 		{
 			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
 				.Min(0)
@@ -242,7 +243,7 @@ namespace Portland.AI.Utility
 			return new ObjectiveBuilder { Factory = this, Goal = objective };
 		}
 
-		public ConsiderationBuilder CreateConsideration(string objectiveName, in String8 propertyName)
+		public ConsiderationBuilder CreateConsideration(string objectiveName, in String propertyName)
 		{
 			var objective = _objectives[objectiveName];
 			var propDef = _properties[propertyName];
@@ -430,7 +431,7 @@ namespace Portland.AI.Utility
 
 		private void ParseProperty(XmlLex lex)
 		{
-			var name = String8.FromTruncate(lex.MatchProperty("name"));
+			var name = lex.MatchProperty("name");
 			var typ = lex.MatchProperty("type");
 			var global = lex.MatchProperty("global");
 
@@ -491,7 +492,7 @@ namespace Portland.AI.Utility
 			{
 				lex.MatchTagStart("consideration");
 
-				var prop = String8.FromTruncate(lex.MatchProperty("property"));
+				var prop = lex.MatchProperty("property");
 				var weight = lex.MatchProperty("weight");
 				var func = lex.MatchProperty("func");
 
@@ -662,7 +663,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public IEnumerator<String8> GetGlobalConsiderationNameEnumerator()
+		public IEnumerator<String> GetGlobalConsiderationNameEnumerator()
 		{
 			return _globalProperties.Keys.GetEnumerator();
 		}
@@ -674,7 +675,7 @@ namespace Portland.AI.Utility
 		public struct ConsiderationPropDefBuilder
 		{
 			internal PropertyDefinition Definition;
-			internal Dictionary<String8, PropertyValue> GlobalProperties;
+			internal Dictionary<String, PropertyValue> GlobalProperties;
 
 			public ConsiderationPropDefBuilder TypeName(string typename)
 			{

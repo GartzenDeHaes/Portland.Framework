@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Types;
+
 namespace Portland.RPG
 {
 	public enum EffectValueType
@@ -30,8 +32,8 @@ namespace Portland.RPG
 
 	public class Effect
 	{
-		public String8 EffectId;
-		public String8 PropertyId;
+		public String EffectId;
+		public String PropertyId;
 		public Variant8 Value;
 		public float Duration;
 		public EffectValueType Op;

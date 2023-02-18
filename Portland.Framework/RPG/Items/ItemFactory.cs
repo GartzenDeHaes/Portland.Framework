@@ -4,21 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Types;
+
 namespace Portland.RPG
 {
 	public class ItemFactory
 	{
-		Dictionary<String8, ItemPropertyDefinition> _propertyDefinitions = new Dictionary<String8, ItemPropertyDefinition>();
-		Dictionary<String8, ItemDefinition> _itemDefinitions = new Dictionary<String8, ItemDefinition>();
+		Dictionary<String, ItemPropertyDefinition> _propertyDefinitions = new Dictionary<String, ItemPropertyDefinition>();
+		Dictionary<String, ItemDefinition> _itemDefinitions = new Dictionary<String, ItemDefinition>();
 		//StatFactory _stats;
-		List<string> _categories = new List<string>();
+		List<String> _categories = new List<String>();
 
-		public bool HasItemDefined(in String8 itemId)
+		public bool HasItemDefined(in String itemId)
 		{
 			return _itemDefinitions.ContainsKey(itemId);
 		}
 
-		public ItemStack CreateItem(int collectionIndex, in String8 itemId, int stackCount = 1)
+		public ItemStack CreateItem(int collectionIndex, in String itemId, int stackCount = 1)
 		{
 			if (_itemDefinitions.TryGetValue(itemId, out var def))
 			{
@@ -28,12 +30,12 @@ namespace Portland.RPG
 			throw new Exception($"Unknown item Id {itemId}");
 		}
 
-		public bool HasProperty(in String8 propId)
+		public bool HasProperty(in String propId)
 		{
 			return _propertyDefinitions.ContainsKey(propId);
 		}
 
-		public void DefineProperty(in String8 propId, ItemPropertyType type, string displayName, bool isInstancedPerItem)
+		public void DefineProperty(in String propId, ItemPropertyType type, string displayName, bool isInstancedPerItem)
 		{
 			if (_propertyDefinitions.TryGetValue(propId, out var def))
 			{
@@ -58,12 +60,12 @@ namespace Portland.RPG
 			return _categories.Contains(category);
 		}
 
-		public ItemPropertyDefinition GetItemPropertyDefinition(in String8 propId)
+		public ItemPropertyDefinition GetItemPropertyDefinition(in String propId)
 		{
 			return _propertyDefinitions[propId];
 		}
 
-		public void SetPropertyLocalizedDisplayName(in String8 attributeId, ResourceDescription localizationKey)
+		public void SetPropertyLocalizedDisplayName(in String attributeId, ResourceDescription localizationKey)
 		{
 			_propertyDefinitions[attributeId].LocalizedDisplayName = localizationKey;
 		}
@@ -77,7 +79,7 @@ namespace Portland.RPG
 			//}
 		}
 
-		public ItemDefinitionBuilder DefineItem(string itemCategory, in String8 itemId)
+		public ItemDefinitionBuilder DefineItem(string itemCategory, in String itemId)
 		{
 			if (!HasCategory(itemCategory))
 			{

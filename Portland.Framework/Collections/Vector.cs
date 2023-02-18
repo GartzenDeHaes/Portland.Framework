@@ -332,7 +332,7 @@ namespace Portland.Collections
 			{
 				m_data = data;
 				m_len = len;
-				m_pos = 0;
+				m_pos = -1;
 			}
 
 			public bool MoveNext()
@@ -347,7 +347,7 @@ namespace Portland.Collections
 
 			public void Reset()
 			{
-				m_pos = 0;
+				m_pos = -1;
 			}
 		}
 	}

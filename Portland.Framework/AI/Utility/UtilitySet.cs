@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Portland.Collections;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -11,7 +12,7 @@ namespace Portland.AI.Utility
 		private UtilitySetClass _agent;
 
 		// seperate consideration property from property value
-		public Dictionary<String8, PropertyValue> Properties = new Dictionary<String8, PropertyValue>();
+		public Dictionary<String, PropertyValue> Properties = new Dictionary<String, PropertyValue>();
 		public readonly ObjectiveInstance[] Objectives;
 
 		//public List<string> ObjectiveHistory = new List<string>();
@@ -34,8 +35,14 @@ namespace Portland.AI.Utility
 
 		public PropertyValue this[string propertyName] 
 		{
-			get { return Properties[String8.FromTruncate(propertyName)]; }
+			get { return Properties[propertyName]; }
 			set { throw new Exception("readonly"); } 
+		}
+
+		public PropertyValue this[in String propertyName]
+		{
+			get { return Properties[propertyName]; }
+			set { throw new Exception("readonly"); }
 		}
 
 		public UtilitySet(string name, UtilitySetClass agent)
@@ -45,7 +52,7 @@ namespace Portland.AI.Utility
 
 			//CurrentObjective = new ObservableValue<Variant8>("objective");
 			//CurrentObjective.Set(String.Empty);
-			CurrentObjective = new PropertyValue(new PropertyDefinition() { DisplayName = "Objective", PropertyId = "utility_objective", TypeName = "string" });
+			CurrentObjective = new PropertyValue(new PropertyDefinition() { DisplayName = "Objective", PropertyId = "objective", TypeName = "string" });
 
 			Objectives = _agent.CreateObjectives();
 		}
@@ -113,7 +120,7 @@ namespace Portland.AI.Utility
 				_current?.StartCooldown();
 				_current = nextCurrent;
 
-				CurrentObjective.Set(_current.Base.Name);
+				CurrentObjective.Set((string)_current.Base.Name);
 			}
 		}
 

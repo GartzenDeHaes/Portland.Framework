@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
+
 using Portland.Collections;
 using Portland.Mathmatics;
 
 namespace Portland.AI.Barks
 {
-    [TestFixture]
+	[TestFixture]
 	public class BarkEngineTest
 	{
 		[Test]
@@ -87,8 +88,8 @@ DO
 			world.UtilitySystem.CreateAgent("base", "bot");
 
 			world.CharacterManager.CreateCharacterDefinition("bot");
-			world.CreateActor("bot", "XBOT", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("bot", "YBOT", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("bot", "XBOT", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("bot", "YBOT", String.Empty, String.Empty, String.Empty);
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -126,10 +127,10 @@ DO
 			world.BarkEngine.Update();
 		}
 
-//ALIAS FLAG CHARACTER_01_ALIVE AS BILL_ALIVE.
-//ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
-//ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
-//ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
+		//ALIAS FLAG CHARACTER_01_ALIVE AS BILL_ALIVE.
+		//ALIAS FLAG CHARACTER_02_ALIVE AS FRANCIS_ALIVE.
+		//ALIAS FLAG CHARACTER_03_ALIVE AS LOUIS_ALIVE.
+		//ALIAS FLAG CHARACTER_01_ALIVE AS ZOEY_ALIVE.
 
 		[Test]
 		public void I_Hate_Hotels_Test()
@@ -211,10 +212,10 @@ DO
 			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateActor("human", "BILL", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "FRANCIS", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "LOUIS", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "ZOEY", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "BILL", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "FRANCIS", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "LOUIS", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "ZOEY", String.Empty, String.Empty, String.Empty);
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
@@ -397,7 +398,7 @@ DO
 				.AddCommonObjectives();
 			world.UtilitySystem.CreateAgent("human", "human");
 
-			world.DefineNameForActorUtilityObjectiveFact("utility_objective");
+			world.DefineNameForActorUtilityObjectiveFact("objective");
 			world.DefineStandardUtilityAlerts();
 
 			RulePack rulePack = new RulePack();
@@ -419,10 +420,10 @@ DO
 			//world.Flags.IsUserFlag04 = true;
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "ELLIS", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "NICK", String8.Empty, String8.Empty, String8.Empty);
-			world.CreateActor("human", "ROCHELLE", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateActor("human", "COACH", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "ELLIS", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "NICK", String.Empty, String.Empty, String.Empty);
+			world.CreateActor("human", "ROCHELLE", String.Empty, String.Empty, String.Empty);
 
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 			world.DefineActorAsCharacter0X("ELLIS", 2, "health");
@@ -451,14 +452,16 @@ DO
 				Action = ThematicEvent.ActionIdle
 			};
 			Assert.False(world.BarkEngine.TryMatch(sentence));
-			
+
 			Assert.False(nick.Flags.IsDead);
 			Assert.False(nick.Flags.AlertHealth);
 
 			nick.Facts.Set("health", 10);
 			Assert.That((int)nick.Facts.Get("health").Value, Is.LessThan(15));
+
 			world.Update(1f);
 
+			Assert.That((int)nick.Facts.Get("health").Value, Is.LessThan(15));
 			Assert.True(nick.Flags.AlertHealth);
 
 			Assert.True(world.BarkEngine.TryMatch(sentence));

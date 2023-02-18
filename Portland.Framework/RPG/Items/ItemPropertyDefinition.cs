@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Portland.Collections;
 
 namespace Portland.RPG
 {
@@ -26,7 +20,7 @@ namespace Portland.RPG
 	[Serializable]
 	public class ItemPropertyDefinition
 	{
-		public String8 PropertyId;
+		public String PropertyId;
 		public ItemPropertyType PropertyType;
 		public string DisplayName;
 		public ResourceDescription LocalizedDisplayName;

@@ -4,12 +4,13 @@ using System.Diagnostics;
 using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.RPG
 {
 	public struct PropertyDefinitionSet
 	{
-		public String8 SetId;
+		public String SetId;
 		public PropertyDefinition[] Properties;
 	}  
 	
@@ -17,7 +18,7 @@ namespace Portland.RPG
 	/// </summary>
 	public sealed class PropertyManager
 	{
-		Vector<float>[] _values;
+		//Vector<float>[] _values;
 		Vector<PropertyDefinition> _definitions;
 		Vector<PropertyDefinitionSet> _defSets = new Vector<PropertyDefinitionSet>();
 		//Vector<PropertySetInstance> _pool = new Vector<PropertySetInstance>();
@@ -71,7 +72,7 @@ namespace Portland.RPG
 			return new PropertyDefinitionBuilder { Property = def };
 		}
 
-		bool TryGetDefinition(in String8 id, out PropertyDefinition def)
+		bool TryGetDefinition(in String id, out PropertyDefinition def)
 		{
 			for (int i = 0; i < _definitions.Count; i++)
 			{
@@ -86,7 +87,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		public void DefinePropertySet(in String8 setName, String8[] propIds)
+		public void DefinePropertySet(in String setName, String[] propIds)
 		{
 			var set = new PropertyDefinitionSet { SetId = setName, Properties = new PropertyDefinition[propIds.Length] };
 
@@ -104,19 +105,19 @@ namespace Portland.RPG
 
 			_defSets.Add(set);
 
-			if (_defSets.Count > _values.Length)
-			{
-				throw new Exception($"Increase size of numProperties parameter to PropertyManager");
-			}
+			//if (_defSets.Count > _values.Length)
+			//{
+			//	throw new Exception($"Increase size of numProperties parameter to PropertyManager");
+			//}
 		}
 
-		bool TryGetSetDef(in String8 setId, out PropertyDefinitionSet setDef)
+		bool TryGetSetDef(in String setId, out PropertyDefinitionSet setDef)
 		{
 			for (int i = 0; i < _defSets.Count; i++)
 			{
-				setDef = _defSets[i];
-				if (setDef.SetId == setId)
+				if (_defSets[i].SetId == setId)
 				{
+					setDef = _defSets[i];
 					return true;
 				}
 			}
@@ -125,7 +126,7 @@ namespace Portland.RPG
 			return false;
 		}
 
-		PropertyValue[] CreatePropertySetValues(in String8 setId)
+		PropertyValue[] CreatePropertySetValues(in String setId)
 		{
 			if (!TryGetSetDef(setId, out var setDef))
 			{
@@ -145,7 +146,7 @@ namespace Portland.RPG
 			return values;
 		}
 
-		public PropertySet CreatePropertySet(in String8 setId)
+		public PropertySet CreatePropertySet(in String setId)
 		{
 			if (!TryGetSetDef(setId, out var setDef))
 			{
@@ -157,12 +158,12 @@ namespace Portland.RPG
 		public PropertyManager(int numPropDefs = 24)
 		{
 			_definitions = new Vector<PropertyDefinition>(numPropDefs);
-			_values = new Vector<float>[numPropDefs];
+			//_values = new Vector<float>[numPropDefs];
 
-			for (int i = 0; i < numPropDefs; i++)
-			{
-				_values[i] = new Vector<float>(32);
-			}
+			//for (int i = 0; i < numPropDefs; i++)
+			//{
+			//	_values[i] = new Vector<float>(32);
+			//}
 		}
 	}
 }

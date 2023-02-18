@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -33,7 +34,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public float Evaluate(Dictionary<String8, PropertyValue> props)
+		public float Evaluate(Dictionary<String, PropertyValue> props)
 		{
 			Score = 0f;
 

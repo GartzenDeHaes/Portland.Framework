@@ -47,7 +47,7 @@ namespace Portland.AI.Barks
 			Assert.That(rules, Is.Not.Null);
 			Assert.That(rules.Count, Is.EqualTo(1));
 			Assert.That(rules[0].Action.ToString(), Is.EqualTo("SEE"));
-			Assert.That(rules[0].ObjectName, Is.EqualTo("barrel"));
+			Assert.That((string)rules[0].ObjectName, Is.EqualTo("barrel"));
 		}
 
 		//[Test]
@@ -199,7 +199,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(expr.FactName, Is.EqualTo("barrels"));
+			Assert.That((string)expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotExists));
 		}
 
@@ -213,7 +213,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(expr.FactName, Is.EqualTo("barrels"));
+			Assert.That((string)expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.Equals));
 			Assert.That(expr.Value.ToInt(), Is.EqualTo(1));
 		}
@@ -228,7 +228,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(expr.FactName, Is.EqualTo("barrels"));
+			Assert.That((string)expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotEquals));
 			Assert.That(expr.Value.ToInt(), Is.EqualTo(1));
 		}
@@ -243,7 +243,7 @@ RULE test WHEN FLAGS ARE COACH.HAS_FRIENDS DLT DO .";
 			Assert.That(rules[0].WorldFilters.Count, Is.EqualTo(1));
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(expr.FactName, Is.EqualTo("barrels"));
+			Assert.That((string)expr.FactName, Is.EqualTo("barrels"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.LessThan));
 			Assert.That(expr.Value.ToFloat(), Is.EqualTo(1.0f));
 		}
@@ -266,14 +266,14 @@ DO .
 
 			Assert.That(rules[0].Probability, Is.EqualTo(0.5f));
 			Assert.That(rules[0].Action.ToString(), Is.EqualTo("SEE"));
-			Assert.That(rules[0].ObjectName, Is.EqualTo("hello"));
+			Assert.That((string)rules[0].ObjectName, Is.EqualTo("hello"));
 
 			Assert.That(rules[0].WorldFlagsSet.Daylight, Is.True);
 			Assert.That(rules[0].WorldFlagsSet.Bits.NumberOfBitsSet(), Is.EqualTo(1));
 			Assert.That(rules[0].WorldFlagsClear.Bits.NumberOfBitsSet(), Is.Zero);
 
 			var expr = rules[0].WorldFilters[0];
-			Assert.That(expr.FactName, Is.EqualTo("helicopter"));
+			Assert.That((string)expr.FactName, Is.EqualTo("helicopter"));
 			Assert.That(expr.Op, Is.EqualTo(ComparisionOp.NotExists));
 
 		}

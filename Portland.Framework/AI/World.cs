@@ -12,14 +12,15 @@ using Portland.ComponentModel;
 using Portland.Framework.AI;
 using Portland.Mathmatics;
 using Portland.RPG;
+using Portland.Types;
 
 namespace Portland.AI
 {
-    public sealed class World
+	public sealed class World
 	{
 		public readonly IClock Clock;
 		public WorldStateFlags Flags;
-		public readonly IBlackboard<string> GlobalFacts = new Blackboard<string>();
+		public readonly IBlackboard<String> GlobalFacts = new Blackboard<String>();
 
 		public readonly UtilityFactory UtilitySystem;
 		public readonly BarkRuleEngine BarkEngine;
@@ -66,7 +67,7 @@ namespace Portland.AI
 		{
 			var agent = new Agent
 			(
-				className, 
+				className,
 				actorName,
 				UtilitySystem.CreateAgentInstance(className, actorName),
 				CharacterManager.CreateCharacter(className, raceEffectGrp, classEffectGrp, faction)
@@ -83,19 +84,19 @@ namespace Portland.AI
 			// Ensure all global utility consideration are set as global facts
 			for (var cons = UtilitySystem.GetGlobalConsiderationNameEnumerator(); cons.MoveNext();)
 			{
-				if (! GlobalFacts.ContainsKey(cons.Current))
+				if (!GlobalFacts.ContainsKey(cons.Current))
 				{
 					GlobalFacts.Add(cons.Current, UtilitySystem.GetGlobalProperty(cons.Current));
 				}
 			}
 
-			if (! String.IsNullOrWhiteSpace(_actorUtilityObjectiveFactName))
+			if (!String.IsNullOrWhiteSpace(_actorUtilityObjectiveFactName))
 			{
 				agent.Facts.Add(_actorUtilityObjectiveFactName, agent.UtilitySet.CurrentObjective);
 			}
 		}
 
-		public bool TryGetActor(string name, out Agent actor)
+		public bool TryGetActor(in String name, out Agent actor)
 		{
 			//return _actors.TryGetValue(name, out actor);
 			for (int i = 0; i < _actors.Count; i++)
@@ -128,17 +129,17 @@ namespace Portland.AI
 			_actorUtilityObjectiveFactName = factNameToUseIs;
 		}
 
-		public void DefineActorFactAlert_WhenUnderValue(in String8 factPropName, string flagName, Variant8 threshold)
+		public void DefineActorFactAlert_WhenUnderValue(in String factPropName, string flagName, Variant8 threshold)
 		{
 			UtilitySystem.DefineAlertForPropertyDefinition(factPropName, PropertyDefinition.AlertType.Below, threshold, flagName);
 		}
 
-		public void DefineActorFactAlert_WhenOverValue(string factPropName, string flagName, Variant8 threshold)
+		public void DefineActorFactAlert_WhenOverValue(in String factPropName, string flagName, Variant8 threshold)
 		{
 			UtilitySystem.DefineAlertForPropertyDefinition(factPropName, PropertyDefinition.AlertType.Above, threshold, flagName);
 		}
 
-		public void DefineActorAsCharacter0X(string actorName, int characterNum_1to4, string healthPropertyName)
+		public void DefineActorAsCharacter0X(in String actorName, int characterNum_1to4, in String healthPropertyName)
 		{
 			Debug.Assert(characterNum_1to4 > 0 && characterNum_1to4 < 5);
 

@@ -8,7 +8,7 @@ namespace Portland.Collections
 	/// Convience helper for bits
 	/// </summary>
 	[Serializable]
-	public struct BitSet64
+	public struct BitSet64 : IEquatable<BitSet64>
 	{
 		/// <summary></summary>
 		public ulong RawBits;
@@ -35,7 +35,7 @@ namespace Portland.Collections
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearBits(BitSet64 clearTheseBits)
+		public void ClearBits(in BitSet64 clearTheseBits)
 		{
 			RawBits &= ~clearTheseBits.RawBits;
 		}
@@ -56,21 +56,21 @@ namespace Portland.Collections
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnySet(BitSet64 bitsToCheck)
+		public bool IsAnySet(in BitSet64 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) != 0UL;
 		}
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAllSet(BitSet64 bitsToCheck)
+		public bool IsAllSet(in BitSet64 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == bitsToCheck.RawBits;
 		}
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsNoneSet(BitSet64 bitsToCheck)
+		public bool IsNoneSet(in BitSet64 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == 0UL;
 		}
@@ -81,7 +81,7 @@ namespace Portland.Collections
 			ulong result = 0UL;
 			for (int x = 0; x < count; x++)
 			{
-				result |= RawBits & (1UL << x);
+				result |= RawBits & (1UL << x + bitNum);
 			}
 
 			return result >> bitNum;
@@ -150,6 +150,16 @@ namespace Portland.Collections
 			return buf.ToString();
 		}
 
+		public bool Equals(BitSet64 other)
+		{
+			return RawBits == other.RawBits;
+		}
+
+		public bool Equals(in BitSet64 other)
+		{
+			return RawBits == other.RawBits;
+		}
+
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(BitSet64 b1, BitSet64 b2)
@@ -210,7 +220,7 @@ namespace Portland.Collections
 
 		/// <summary>Clear the bits</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearBits(BitSet32 clearTheseBits)
+		public void ClearBits(in BitSet32 clearTheseBits)
 		{
 			RawBits &= ~clearTheseBits.RawBits;
 		}
@@ -231,21 +241,21 @@ namespace Portland.Collections
 
 		/// <summary>Is any of the bits set?</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnySet(BitSet32 bitsToCheck)
+		public bool IsAnySet(in BitSet32 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) != 0U;
 		}
 
 		/// <summary>Are all of the bits set?</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAllSet(BitSet32 bitsToCheck)
+		public bool IsAllSet(in BitSet32 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == bitsToCheck.RawBits;
 		}
 
 		/// <summary>Are none of the bits set?</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsNoneSet(BitSet32 bitsToCheck)
+		public bool IsNoneSet(in BitSet32 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == 0U;
 		}
@@ -327,28 +337,28 @@ namespace Portland.Collections
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(BitSet32 b1, BitSet32 b2)
+		public static bool operator ==(in BitSet32 b1, in BitSet32 b2)
 		{
 			return b1.RawBits == b2.RawBits;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(BitSet32 b1, BitSet32 b2)
+		public static bool operator !=(in BitSet32 b1, in BitSet32 b2)
 		{
 			return b1.RawBits != b2.RawBits;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(BitSet32 b1, uint b2)
+		public static bool operator ==(in BitSet32 b1, uint b2)
 		{
 			return b1.RawBits == b2;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(BitSet32 b1, uint b2)
+		public static bool operator !=(in BitSet32 b1, uint b2)
 		{
 			return b1.RawBits != b2;
 		}
@@ -395,7 +405,7 @@ namespace Portland.Collections
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearBits(BitSet16 clearTheseBits)
+		public void ClearBits(in BitSet16 clearTheseBits)
 		{
 			RawBits &= (ushort)~clearTheseBits.RawBits;
 		}
@@ -416,21 +426,21 @@ namespace Portland.Collections
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnySet(BitSet16 bitsToCheck)
+		public bool IsAnySet(in BitSet16 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) != 0U;
 		}
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAllSet(BitSet16 bitsToCheck)
+		public bool IsAllSet(in BitSet16 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == bitsToCheck.RawBits;
 		}
 
 		/// <summary></summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsNoneSet(BitSet16 bitsToCheck)
+		public bool IsNoneSet(in BitSet16 bitsToCheck)
 		{
 			return (RawBits & bitsToCheck.RawBits) == 0U;
 		}
@@ -441,7 +451,7 @@ namespace Portland.Collections
 			ushort result = 0;
 			for (int x = 0; x < count; x++)
 			{
-				result |= (ushort)(RawBits & (1U << x));
+				result |= (ushort)(RawBits & (1U << x + bitNum));
 			}
 
 			return (ushort)(result >> bitNum);
@@ -512,28 +522,28 @@ namespace Portland.Collections
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(BitSet16 b1, BitSet16 b2)
+		public static bool operator ==(in BitSet16 b1, in BitSet16 b2)
 		{
 			return b1.RawBits == b2.RawBits;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(BitSet16 b1, BitSet16 b2)
+		public static bool operator !=(in BitSet16 b1, in BitSet16 b2)
 		{
 			return b1.RawBits != b2.RawBits;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(BitSet16 b1, ushort b2)
+		public static bool operator ==(in BitSet16 b1, ushort b2)
 		{
 			return b1.RawBits == b2;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(BitSet16 b1, ushort b2)
+		public static bool operator !=(in BitSet16 b1, ushort b2)
 		{
 			return b1.RawBits != b2;
 		}

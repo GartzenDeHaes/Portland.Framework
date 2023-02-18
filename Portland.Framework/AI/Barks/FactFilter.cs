@@ -7,6 +7,7 @@ using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Framework.AI;
 using Portland.Text;
+using Portland.Types;
 
 namespace Portland.AI.Barks
 {
@@ -25,12 +26,12 @@ namespace Portland.AI.Barks
 
 	public sealed class FactFilter
 	{
-		public string ActorName;
+		public String ActorName;
 		public string FactName;
 		public ComparisionOp Op;
 		public Variant8 Value;
 
-		public bool IsMatch(IBlackboard<string> facts)
+		public bool IsMatch(IBlackboard<String> facts)
 		{
 			bool ret = false;
 

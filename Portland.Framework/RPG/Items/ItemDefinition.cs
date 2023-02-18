@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Types;
+
 namespace Portland.RPG
 {
 	public struct ItemPropertySetting
@@ -15,8 +17,8 @@ namespace Portland.RPG
 
 	public class ItemDefinition
 	{
-		public String8 ItemId;
-		public string Category;
+		public String ItemId;
+		public String Category;
 		public string Name;
 		public string Description;
 		public float Weight;
@@ -49,12 +51,12 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public bool HasProperty(in String8 propId)
+		public bool HasProperty(in String propId)
 		{
 			return TryFindProperty(propId, out var _);
 		}
 
-		bool TryFindProperty(in String8 propId, out int i)
+		bool TryFindProperty(in String propId, out int i)
 		{
 			for (i = 0; i < Properties.Length; i++)
 			{
@@ -68,7 +70,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public bool TryGetProperty(in String8 propId, out Variant8 value)
+		public bool TryGetProperty(in String propId, out Variant8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -81,7 +83,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public Variant8 GetPropertyVariant(in String8 propId)
+		public Variant8 GetPropertyVariant(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -92,7 +94,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public int GetPropertyInt(in String8 propId)
+		public int GetPropertyInt(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -103,7 +105,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public float GetPropertyFloat(in String8 propId)
+		public float GetPropertyFloat(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -114,7 +116,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public String8 GetPropertyString(in String8 propId)
+		public String8 GetPropertyString(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -125,7 +127,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public bool GetPropertyBool(in String8 propId)
+		public bool GetPropertyBool(in String propId)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -136,7 +138,7 @@ namespace Portland.RPG
 		}
 
 		/// <summary>Class properties for all items of this type</summary>
-		public bool IsPropertyEquals(in String8 propId, in Variant8 value)
+		public bool IsPropertyEquals(in String propId, in Variant8 value)
 		{
 			if (TryFindProperty(propId, out int i))
 			{
@@ -155,7 +157,7 @@ namespace Portland.RPG
 		List<ItemPropertySetting> _props = new List<ItemPropertySetting>();
 		List<Effect> _effects = new List<Effect>();
 
-		public ItemDefinitionBuilder(ItemFactory factory, string category, in String8 itemId)
+		public ItemDefinitionBuilder(ItemFactory factory, string category, in String itemId)
 		{
 			_factory = factory;
 			_itemdef = new ItemDefinition();
@@ -194,7 +196,7 @@ namespace Portland.RPG
 		//	return this;
 		//}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId)
+		public ItemDefinitionBuilder AddProperty(in String propId)
 		{
 			ItemPropertySetting template = new ItemPropertySetting { Definition = _factory.GetItemPropertyDefinition(propId) };
 			template.TemplateProperty = new ItemProperty(template.Definition);
@@ -202,7 +204,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId, String8 defaultValue)
+		public ItemDefinitionBuilder AddProperty(in String propId, in String8 defaultValue)
 		{
 			AddProperty(propId);
 			var prop = FindProperty(propId);
@@ -210,7 +212,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId, float defaultValue)
+		public ItemDefinitionBuilder AddProperty(in String propId, float defaultValue)
 		{
 			AddProperty(propId);
 			var prop = FindProperty(propId);
@@ -218,7 +220,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId, int defaultValue)
+		public ItemDefinitionBuilder AddProperty(in String propId, int defaultValue)
 		{
 			AddProperty(propId);
 			var prop = FindProperty(propId);
@@ -226,7 +228,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId, float min, float max, float current)
+		public ItemDefinitionBuilder AddProperty(in String propId, float min, float max, float current)
 		{
 			AddProperty(propId);
 			var prop = FindProperty(propId);
@@ -235,7 +237,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		public ItemDefinitionBuilder AddProperty(in String8 propId, int min, int max, int current)
+		public ItemDefinitionBuilder AddProperty(in String propId, int min, int max, int current)
 		{
 			AddProperty(propId);
 			var prop = FindProperty(propId);
@@ -244,7 +246,7 @@ namespace Portland.RPG
 			return this;
 		}
 
-		ItemPropertySetting FindProperty(in String8 propId)
+		ItemPropertySetting FindProperty(in String propId)
 		{
 			for (int i = 0; i < _props.Count; i++)
 			{
@@ -256,35 +258,35 @@ namespace Portland.RPG
 			throw new Exception($"Property {propId} not found");
 		}
 
-		public ItemDefinitionBuilder SetPropertyRange(in String8 propId, float min, float max)
+		public ItemDefinitionBuilder SetPropertyRange(in String propId, float min, float max)
 		{
 			FindProperty(propId).TemplateProperty.SetRange(min, max);
 
 			return this;
 		}
 
-		public ItemDefinitionBuilder SetPropertyRange(in String8 propId, int min, int max)
+		public ItemDefinitionBuilder SetPropertyRange(in String propId, int min, int max)
 		{
 			FindProperty(propId).TemplateProperty.SetRange(min, max);
 
 			return this;
 		}
 
-		public ItemDefinitionBuilder SetPropertyDefault(in String8 propId, int value)
+		public ItemDefinitionBuilder SetPropertyDefault(in String propId, int value)
 		{
 			FindProperty(propId).TemplateProperty.SetDefault(value);
 
 			return this;
 		}
 
-		public ItemDefinitionBuilder SetPropertyDefault(in String8 propId, float value)
+		public ItemDefinitionBuilder SetPropertyDefault(in String propId, float value)
 		{
 			FindProperty(propId).TemplateProperty.SetDefault(value);
 
 			return this;
 		}
 
-		public ItemDefinitionBuilder SetPropertyDefault(in String8 propId, in String8 value)
+		public ItemDefinitionBuilder SetPropertyDefault(in String propId, in String8 value)
 		{
 			FindProperty(propId).TemplateProperty.SetDefault(value);
 
