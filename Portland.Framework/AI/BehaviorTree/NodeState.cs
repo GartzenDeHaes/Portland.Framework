@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Portland.Framework.AI.BehaviorTree
+namespace Portland.AI.BehaviorTree
 {
 	public enum NodeState
 	{

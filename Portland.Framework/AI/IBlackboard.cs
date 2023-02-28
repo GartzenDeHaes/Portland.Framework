@@ -2,7 +2,7 @@
 using Portland.ComponentModel;
 using Portland.Types;
 
-namespace Portland.Framework.AI
+namespace Portland.AI
 {
 	public interface IBlackboard<TKEY>
 	{

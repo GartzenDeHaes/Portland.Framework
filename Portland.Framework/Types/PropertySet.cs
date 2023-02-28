@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Portland.Framework.AI;
+using Portland.AI;
 using Portland.Mathmatics;
 
 namespace Portland.Types

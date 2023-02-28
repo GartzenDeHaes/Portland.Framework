@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Portland.Framework.AI.BehaviorTree.Decorators
+namespace Portland.AI.BehaviorTree
 {
 	public sealed class TimedRepeater : Decorator
 	{

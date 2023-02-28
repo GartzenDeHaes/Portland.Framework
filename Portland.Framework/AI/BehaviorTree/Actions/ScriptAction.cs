@@ -1,7 +1,7 @@
 ﻿//using System;
 //using System.Collections.Generic;
 
-//namespace Portland.Framework.AI.BehaviorTree.Actions
+//namespace Portland.AI.BehaviorTree
 //{
 //	public class ScriptAction : ActionNode
 //	{

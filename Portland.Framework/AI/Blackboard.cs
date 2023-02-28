@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Portland.AI;
 using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Types;
 
-namespace Portland.Framework.AI
+namespace Portland.AI
 {
 	public sealed class Blackboard<TKEY> : IBlackboard<TKEY>
 	{

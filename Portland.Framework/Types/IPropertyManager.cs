@@ -1,7 +1,7 @@
 ﻿using System;
 
+using Portland.AI;
 using Portland.AI.Utility;
-using Portland.Framework.AI;
 using Portland.Text;
 
 namespace Portland.Types

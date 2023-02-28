@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Portland.Framework.AI.BehaviorTree.Actions
+namespace Portland.AI.BehaviorTree
 {
 	public class DebugLog : ActionNode
 	{

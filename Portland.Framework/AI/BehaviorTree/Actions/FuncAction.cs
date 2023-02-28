@@ -1,24 +1,26 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Portland.AI.BehaviorTree
 {
-	public sealed class Repeater : Decorator
+	public class FuncAction : ActionNode
 	{
+		public Func<float, NodeState> Callback;
+
 		protected override void OnStart()
 		{
 		}
 
 		protected override void OnStop()
 		{
-			Child?.Stop();
 		}
 
 		protected override NodeState OnUpdate(float deltaTime)
 		{
-			Child?.Update(deltaTime);
-
-			return NodeState.Running;
+			return Callback(deltaTime);
 		}
 	}
 }

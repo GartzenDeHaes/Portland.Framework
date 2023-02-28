@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Portland.Framework.AI.BehaviorTree.Actions
+namespace Portland.AI.BehaviorTree
 {
 	public class SubTree : ActionNode
 	{

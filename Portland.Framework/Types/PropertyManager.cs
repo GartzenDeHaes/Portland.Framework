@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using Portland.AI;
 using Portland.AI.Utility;
 using Portland.Basic;
 using Portland.Collections;
-using Portland.Framework.AI;
 using Portland.Mathmatics;
 using Portland.Text;
 

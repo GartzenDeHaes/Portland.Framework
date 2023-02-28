@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Portland.Framework.AI.BehaviorTree.Decorators
+namespace Portland.AI.BehaviorTree
 {
 	public sealed class OverrideResult : Decorator
 	{

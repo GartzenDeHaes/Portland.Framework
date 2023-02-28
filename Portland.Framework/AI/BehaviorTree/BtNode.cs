@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Portland.Framework.AI.BehaviorTree
+namespace Portland.AI.BehaviorTree
 {
 	public abstract class BtNode
 	{
@@ -29,19 +29,15 @@ namespace Portland.Framework.AI.BehaviorTree
 
 		public void Stop()
 		{
-			OnStop();
-			Started = false;
+			if (Started)
+			{
+				OnStop();
+				Started = false;
+			}
 		}
 
 		protected abstract void OnStart();
 		protected abstract void OnStop();
 		protected abstract NodeState OnUpdate(float deltaTime);
-
-		//public virtual BtNode Clone(Blackboard bb)
-		//{
-		//	var node = Instantiate(this);
-		//	node.name = node.name.Replace("(Clone)", "*");
-		//	return node;
-		//}
 	}
 }

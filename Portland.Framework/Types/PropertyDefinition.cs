@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 
+using Portland.AI;
 using Portland.Collections;
-using Portland.Framework.AI;
 using Portland.Mathmatics;
 
 namespace Portland.Types

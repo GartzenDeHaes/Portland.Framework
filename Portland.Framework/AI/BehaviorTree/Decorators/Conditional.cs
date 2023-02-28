@@ -5,15 +5,17 @@ using Portland.AI.Barks;
 using Portland.Basic;
 using Portland.Text;
 
-namespace Portland.Framework.AI.BehaviorTree.Decorators
+namespace Portland.AI.BehaviorTree
 {
 	public class Conditional : Decorator
 	{
-		ComparisionOp _op;
+		public string FactName;
+		public ComparisionOp Op;
+		public Variant8 Value;
 
 		public NodeState StateOnConditionOnFalse = NodeState.Failure;
 
-		//public Blackboard AgentBlackboard;
+		public IBlackboard<string> Facts;
 
 		//private BasicProgram _prog;
 
@@ -22,23 +24,13 @@ namespace Portland.Framework.AI.BehaviorTree.Decorators
 			Description = "Aborts when Code evaluates to false";
 		}
 
-		//public override BtNode Clone(Blackboard bb)
-		//{
-		//	var con = (Conditional)base.Clone(bb);
-		//	con.name = con.name.Replace("(Clone)", "*");
-
-		//	con._jskey = "BtConditional" + _jskeyGen++;
-		//	con.AgentBlackboard = bb;
-
-		//	return con;
-		//}
-
 		protected override void OnStart()
 		{
 			// JsEngine singleton
 			//JsContext.Instance.JS.NativeObjectAdd(this, _jskey);
 
 			//_prog = JsContext.Instance.JS.PrepareProgram(Code, _jskey);
+			//Child?.s
 		}
 
 		protected override void OnStop()
@@ -66,49 +58,54 @@ namespace Portland.Framework.AI.BehaviorTree.Decorators
 			//	return StateOnConditionOnFalse;
 			//}
 
-			//bool ret = false;
+			bool ret = false;
 
-			//if (facts.TryGetValue(FactName, out var fvalue))
-			//{
-			//	switch (Op)
-			//	{
-			//		case ComparisionOp.Equals:
-			//			ret = Value == fvalue.Value;
-			//			break;
-			//		case ComparisionOp.NotEquals:
-			//			ret = Value != fvalue.Value;
-			//			break;
-			//		case ComparisionOp.GreaterThan:
-			//			ret = Value > fvalue.Value;
-			//			break;
-			//		case ComparisionOp.GreaterThenEquals:
-			//			ret = Value >= fvalue.Value;
-			//			break;
-			//		case ComparisionOp.LessThan:
-			//			ret = Value < fvalue.Value;
-			//			break;
-			//		case ComparisionOp.LessThanOrEquals:
-			//			ret = Value <= fvalue.Value;
-			//			break;
-			//		case ComparisionOp.Exists:
-			//			ret = true;
-			//			break;
-			//		case ComparisionOp.NotExists:
-			//			ret = false;
-			//			break;
-			//		case ComparisionOp.PaternMatch:
-			//			ret = StringHelper.Like(fvalue.ToString(), Value.ToString());
-			//			break;
-			//	}
-			//}
-			//else if (Op == ComparisionOp.NotExists)
-			//{
-			//	ret = true;
-			//}
+			if (Facts.TryGetValue(FactName, out var fvalue))
+			{
+				switch (Op)
+				{
+					case ComparisionOp.Equals:
+						ret = Value == fvalue.Value;
+						break;
+					case ComparisionOp.NotEquals:
+						ret = Value != fvalue.Value;
+						break;
+					case ComparisionOp.GreaterThan:
+						ret = Value > fvalue.Value;
+						break;
+					case ComparisionOp.GreaterThenEquals:
+						ret = Value >= fvalue.Value;
+						break;
+					case ComparisionOp.LessThan:
+						ret = Value < fvalue.Value;
+						break;
+					case ComparisionOp.LessThanOrEquals:
+						ret = Value <= fvalue.Value;
+						break;
+					case ComparisionOp.Exists:
+						ret = true;
+						break;
+					case ComparisionOp.NotExists:
+						ret = false;
+						break;
+					case ComparisionOp.PaternMatch:
+						ret = StringHelper.Like(fvalue.ToString(), Value.ToString());
+						break;
+				}
+			}
+			else if (Op == ComparisionOp.NotExists)
+			{
+				ret = true;
+			}
+
+			if (ret && Child != null)
+			{
+				return Child.Update(deltaTime);
+			}
 
 			//return ret;
 
-			return NodeState.Success;
+			return ret ? NodeState.Success : StateOnConditionOnFalse;
 		}
 	}
 }

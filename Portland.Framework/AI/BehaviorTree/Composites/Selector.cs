@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Portland.Framework.AI.BehaviorTree.Composites
+namespace Portland.AI.BehaviorTree
 {
 	public sealed class Selector : Composite
 	{
