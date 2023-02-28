@@ -18,25 +18,27 @@ namespace Portland.Interp
 		VT_INT,
 		VT_REAL,
 		VT_STRING,
-		VT_IIDENTITY,
-		VT_KEYVALUE,
+		//VT_IIDENTITY,
+		//VT_KEYVALUE,
 		VT_DATETIME,
-		VT_FVEC,
-		VT_BOOL
+		//VT_FVEC,
+		VT_BOOL,
+		VT_ARRAY
 	}
 
-	[Serializable]
+	//[Serializable]
 	public sealed class Variant : IEquatable<Variant>, IComparable<Variant>, IPoolable, IDisposable
+	//public struct Variant : IEquatable<Variant>, IComparable<Variant>//, IPoolable, IDisposable
 	{
 		//private static SimplePool<float> _vecpool = new SimplePool<float>();
 
-		private Dictionary<string, Variant> _proplst;
+		//private Dictionary<string, Variant> _proplst;
 
 		private VtType _type;
 		private IntFloat _ix;
 		//private int _i;
 		//private float _x,
-		private float _y, _z;
+		//private float _y, _z;
 		private object _o = null;
 
 		public VtType DataType
@@ -47,19 +49,19 @@ namespace Portland.Interp
 			}
 		}
 
-		public string Key
-		{
-			get
-			{
-				if (_type == VtType.VT_KEYVALUE)
-				{
+		//public string Key
+		//{
+		//	get
+		//	{
+		//		if (_type == VtType.VT_KEYVALUE)
+		//		{
 					
-					return _proplst.Keys.First();
-				}
+		//			return ((Dictionary<string, Variant>)_o).Keys.First();
+		//		}
 
-				return ToString();
-			}
-		}
+		//		return ToString();
+		//	}
+		//}
 
 		public int Length
 		{
@@ -75,13 +77,13 @@ namespace Portland.Interp
 						return ((string)_o).Length;
 					case VtType.VT_ERROR:
 						return 0;
-					case VtType.VT_IIDENTITY:
+					//case VtType.VT_IIDENTITY:
 					case VtType.VT_DATETIME:
 						return 8;
-					case VtType.VT_KEYVALUE:
-						return _proplst.Count;
-					case VtType.VT_FVEC:
-						return 12;
+					//case VtType.VT_KEYVALUE:
+					//	return _proplst.Count;
+					//case VtType.VT_FVEC:
+					//	return 12;
 					default:
 						return 0;
 				}
@@ -90,29 +92,34 @@ namespace Portland.Interp
 
 		public Variant()
 		{
+			_ix = default(IntFloat);
 			_type = VtType.VT_EMPTY;
 		}
 
 		public Variant(int i)
 		{
+			_ix = default(IntFloat);
 			_ix.IntValue = i;
 			_type = VtType.VT_INT;
 		}
 
 		public Variant(bool i)
 		{
+			_ix = default(IntFloat);
 			_ix.IntValue = i ? 1 : 0;
 			_type = VtType.VT_BOOL;
 		}
 
 		public Variant(float d)
 		{
-			_z = d;
+			_ix = default(IntFloat);
+			_ix.FloatValue = d;
 			_type = VtType.VT_REAL;
 		}
 
 		public Variant(string s)
 		{
+			_ix = default(IntFloat);
 			_o = s;
 			_type = VtType.VT_STRING;
 		}
@@ -132,35 +139,46 @@ namespace Portland.Interp
 
 		private void EnsureProps()
 		{
-			if (_proplst == null)
+			if (_o == null || _o is String)
 			{
-				_proplst = new Dictionary<string, Variant>();
+				_o = new Dictionary<string, Variant>();
+				_type = VtType.VT_ARRAY;
 			}
 		}
 
 		public bool HasProp(string name)
 		{
-			if (_proplst == null)
+			if (_o == null)
 			{
 				return false;
 			}
 
-			return _proplst.ContainsKey(name);
+			return ((Dictionary<string, Variant>)_o).ContainsKey(name);
 		}
 
-		public void SetProp(string name, Variant value)
+		public bool TryGetProp(string name, out Variant value)
 		{
-			Debug.Assert(! ReferenceEquals(value, this));
+			if (_o == null)
+			{
+				value = default(Variant);
+				return false;
+			}
+			return ((Dictionary<string, Variant>)_o).TryGetValue(name, out value);
+		}
+
+		public void SetProp(string name, in Variant value)
+		{
+			//Debug.Assert(! ReferenceEquals(value, this));
 
 			EnsureProps();
 
-			if (_proplst.ContainsKey(name))
+			if (((Dictionary<string, Variant>)_o).ContainsKey(name))
 			{
-				_proplst[name] = value;
+				((Dictionary<string, Variant>)_o)[name].Set(value);
 			}
 			else
 			{
-				_proplst.Add(name, value);
+				((Dictionary<string, Variant>)_o).Add(name, value);
 			}
 		}
 
@@ -168,36 +186,42 @@ namespace Portland.Interp
 		{
 			EnsureProps();
 
-			if (_proplst.ContainsKey(name))
+			if (((Dictionary<string, Variant>)_o).ContainsKey(name))
 			{
-				_proplst[name].Clear();
+				((Dictionary<string, Variant>)_o)[name].Clear();
+			}
+			else
+			{
+				((Dictionary<string, Variant>)_o).Add(name, new Variant());
 			}
 		}
 
-		public void SetPropArray(string name, string index, Variant value)
+		public void SetPropArray(string name, string index, in Variant value)
 		{
-			Debug.Assert(!ReferenceEquals(value, this));
+			//Debug.Assert(!ReferenceEquals(value, this));
 
 			EnsureProps();
 
-			if (!_proplst.ContainsKey(name))
+			if (!((Dictionary<string, Variant>)_o).ContainsKey(name))
 			{
-				_proplst.Add(name, new Variant());
+				((Dictionary<string, Variant>)_o).Add(name, new Variant());
 			}
 
-			_proplst[name].SetProp(index, value);
+			((Dictionary<string, Variant>)_o)[name].SetProp(index, value);
 		}
 
 		public void ClearPropArray(string name, int size)
 		{
 			EnsureProps();
 
-			if (_proplst.ContainsKey(name))
+			var proplst = ((Dictionary<string, Variant>)_o);
+
+			if (proplst.ContainsKey(name))
 			{
-				_proplst[name].Clear();
+				proplst[name].Clear();
 				for (int i = 0; i < size; i++)
 				{
-					_proplst[name].SetProp(i.ToString(), new Variant());
+					proplst[name].SetProp(i.ToString(), new Variant());
 				}
 			}
 		}
@@ -208,23 +232,23 @@ namespace Portland.Interp
 			{
 				EnsureProps();
 
-				if (!_proplst.ContainsKey(index))
+				if (!((Dictionary<string, Variant>)_o).ContainsKey(index))
 				{
-					_proplst.Add(index, new Variant());
+					((Dictionary<string, Variant>)_o).Add(index, new Variant());
 				}
-				return _proplst[index];
+				return ((Dictionary<string, Variant>)_o)[index];
 			}
 			set
 			{
 				EnsureProps();
 
-				if (_proplst.ContainsKey(index))
+				if (((Dictionary<string, Variant>)_o).ContainsKey(index))
 				{
-					_proplst[index] = value;
+					((Dictionary<string, Variant>)_o)[index] = value;
 				}
 				else
 				{
-					_proplst.Add(index, value);
+					((Dictionary<string, Variant>)_o).Add(index, value);
 				}
 			}
 		}
@@ -239,9 +263,13 @@ namespace Portland.Interp
 		{
 			get
 			{
-				if (_proplst != null)
+				if (_o is String s)
 				{
-					return _proplst.Count;
+					return s.Length;
+				}
+				if (_o is Dictionary<string, Variant> dict)
+				{
+					return dict.Count;
 				}
 				else if (_type == VtType.VT_STRING)
 				{
@@ -265,15 +293,16 @@ namespace Portland.Interp
 			_type = VtType.VT_INT;
 		}
 
-		public void Set(Variant v)
+		public void Set(in Variant v)
 		{
+			//v.CopyTo(ref this);
 			v.CopyTo(this);
 		}
 
 		public void Set(float d)
 		{
 			Clear();
-			_z = d;
+			_ix.FloatValue = d;
 			_type = VtType.VT_REAL;
 		}
 
@@ -284,7 +313,7 @@ namespace Portland.Interp
 			_type = VtType.VT_STRING;
 		}
 
-		public void Set(DateTime dtm)
+		public void Set(in DateTime dtm)
 		{
 			Clear();
 			_type = VtType.VT_DATETIME;
@@ -300,7 +329,7 @@ namespace Portland.Interp
 		public void SetNull()
 		{
 			Clear();
-			_proplst = null;
+			_o = null;
 			_type = VtType.VT_EMPTY;
 		}
 
@@ -311,33 +340,33 @@ namespace Portland.Interp
 		//	_o = uid;
 		//}
 
-		public void Set(string key, string value)
-		{
-			Clear();
-			_type = VtType.VT_KEYVALUE;
-			SetProp(key, value);
-		}
+		//public void Set(string key, string value)
+		//{
+		//	Clear();
+		//	_type = VtType.VT_KEYVALUE;
+		//	SetProp(key, value);
+		//}
 
-		public void Set(float x, float y, float z)
-		{
-			Clear();
-			_type = VtType.VT_FVEC;
-			_ix.FloatValue = x;
-			_y = y;
-			_z = z;
-		}
+		//public void Set(float x, float y, float z)
+		//{
+		//	Clear();
+		//	_type = VtType.VT_FVEC;
+		//	_ix.FloatValue = x;
+		//	_y = y;
+		//	_z = z;
+		//}
 
 		public void Clear()
 		{
 			_type = VtType.VT_EMPTY;
 			_o = null;
 			_ix.IntValue = 0;
-			_y = _z = 0f;
+			//_y = _z = 0f;
 
-			if (_proplst != null)
-			{
-				_proplst.Clear();
-			}
+			//if (_proplst != null)
+			//{
+			//	_proplst.Clear();
+			//}
 		}
 
 		public bool IsNull()
@@ -375,24 +404,24 @@ namespace Portland.Interp
 			return _type == VtType.VT_REAL;
 		}
 
-		public bool IsIdentity()
-		{
-			return _type == VtType.VT_IIDENTITY;
-		}
+		//public bool IsIdentity()
+		//{
+		//	return _type == VtType.VT_IIDENTITY;
+		//}
 
-		public bool IsKeyValue()
-		{
-			return _type == VtType.VT_KEYVALUE;
-		}
+		//public bool IsKeyValue()
+		//{
+		//	return _type == VtType.VT_KEYVALUE;
+		//}
 
 		public bool IsDateTime()
 		{
 			return _type == VtType.VT_DATETIME;
 		}
 
-		public bool IsVector()
+		public bool IsArray()
 		{
-			return _type == VtType.VT_FVEC;
+			return _o is Dictionary<string, Variant>;
 		}
 
 		public bool IsBool()
@@ -408,16 +437,18 @@ namespace Portland.Interp
 			v._ix.IntValue = _ix.IntValue;
 			v._o = _o;
 			//v._x = _x;
-			v._y = _y;
-			v._z = _z;
+			//v._y = _y;
+			//v._z = _z;
 
-			if (_proplst != null)
+			if (_o is Dictionary<string, Variant> dict)
 			{
+				v._o = null;
+
 				v.EnsureProps();
 
-				foreach (var prop in _proplst.Keys)
+				foreach (var prop in dict.Keys)
 				{
-					v[prop] = _proplst[prop].Dup();
+					v[prop] = dict[prop].Dup();
 				}
 			}
 		}
@@ -426,6 +457,7 @@ namespace Portland.Interp
 		public Variant Dup()
 		{
 			Variant v = new Variant();
+			//CopyTo(ref v);
 			CopyTo(v);
 			return v;
 		}
@@ -440,26 +472,26 @@ namespace Portland.Interp
 		//	return _o as IIdentity;
 		//}
 
-		public void AsFloatVector(out float x, out float y, out float z)
-		{
-			if (_type == VtType.VT_FVEC)
-			{
-				x = _ix.FloatValue;
-				y = _y;
-				z = _z;
-				return;
-			}
+		//public void AsFloatVector(out float x, out float y, out float z)
+		//{
+		//	if (_type == VtType.VT_FVEC)
+		//	{
+		//		x = _ix.FloatValue;
+		//		y = _y;
+		//		z = _z;
+		//		return;
+		//	}
 
-			x = 0f;
-			y = 0f;
-			z = 0f;
-		}
+		//	x = 0f;
+		//	y = 0f;
+		//	z = 0f;
+		//}
 
-		public void AsFloatVector(out float x, out float y)
-		{
-			float z;
-			AsFloatVector(out x, out y, out z);
-		}
+		//public void AsFloatVector(out float x, out float y)
+		//{
+		//	float z;
+		//	AsFloatVector(out x, out y, out z);
+		//}
 
 		#region Conversions
 
@@ -467,12 +499,12 @@ namespace Portland.Interp
 		{
 			return new Variant(s);
 		}
-		public static implicit operator string(Variant v)
+		public static implicit operator string(in Variant v)
 		{
 			return v.ToString();
 		}
 
-		public static implicit operator Variant(DateTime v)
+		public static implicit operator Variant(in DateTime v)
 		{
 			Variant ret = new Variant();
 			ret.Set(v.ToString());
@@ -489,7 +521,7 @@ namespace Portland.Interp
 			ret.Set(v.Value);
 			return ret;
 		}
-		public static implicit operator DateTime(Variant v)
+		public static implicit operator DateTime(in Variant v)
 		{
 			if (v._type == VtType.VT_DATETIME)
 			{
@@ -506,7 +538,7 @@ namespace Portland.Interp
 
 			return DateTime.MinValue;
 		}
-		public static implicit operator DateTime?(Variant v)
+		public static implicit operator DateTime?(in Variant v)
 		{
 			if (v._type == VtType.VT_DATETIME)
 			{
@@ -533,7 +565,7 @@ namespace Portland.Interp
 			}
 			return ret;
 		}
-		public static implicit operator int(Variant v)
+		public static implicit operator int(in Variant v)
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
@@ -541,7 +573,7 @@ namespace Portland.Interp
 			}
 			if (v._type == VtType.VT_REAL)
 			{
-				return (int)v._z;
+				return (int)v._ix.FloatValue;
 			}
 			if (v._type == VtType.VT_STRING)
 			{
@@ -558,7 +590,7 @@ namespace Portland.Interp
 
 			return 0;
 		}
-		public static implicit operator int?(Variant v)
+		public static implicit operator int?(in Variant v)
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
@@ -566,7 +598,7 @@ namespace Portland.Interp
 			}
 			if (v._type == VtType.VT_REAL)
 			{
-				return (int)v._z;
+				return (int)v._ix.FloatValue;
 			}
 			if (v._type == VtType.VT_STRING)
 			{
@@ -593,7 +625,7 @@ namespace Portland.Interp
 			}
 			return ret;
 		}
-		public static implicit operator float(Variant v)
+		public static implicit operator float(in Variant v)
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
@@ -601,7 +633,7 @@ namespace Portland.Interp
 			}
 			if (v._type == VtType.VT_REAL)
 			{
-				return v._z;
+				return v._ix.FloatValue;
 			}
 			if (v._type == VtType.VT_STRING)
 			{
@@ -618,7 +650,7 @@ namespace Portland.Interp
 
 			return Single.NaN;
 		}
-		public static implicit operator float?(Variant v)
+		public static implicit operator float?(in Variant v)
 		{
 			if (v._type == VtType.VT_INT || v._type == VtType.VT_BOOL)
 			{
@@ -626,7 +658,7 @@ namespace Portland.Interp
 			}
 			if (v._type == VtType.VT_REAL)
 			{
-				return v._z;
+				return v._ix.FloatValue;
 			}
 			if (v._type == VtType.VT_STRING)
 			{
@@ -658,7 +690,7 @@ namespace Portland.Interp
 			}
 			if (v._type == VtType.VT_REAL)
 			{
-				return v._z != 0f;
+				return v._ix.FloatValue != 0f;
 			}
 			if (v._type == VtType.VT_STRING)
 			{
@@ -680,20 +712,19 @@ namespace Portland.Interp
 
 			return ret;
 		}
-		public static implicit operator List<string>(Variant v)
+
+		public static implicit operator List<string>(in Variant v)
 		{
 			var lst = new List<string>();
 
-			if (v._proplst == null)
+			if (v._o is Dictionary<string, Variant> proplst)
 			{
-				return lst;
-			}
-
-			foreach (var key in v._proplst.Keys)
-			{
-				if (StringHelper.IsInt(key))
+				foreach (var key in proplst.Keys)
 				{
-					lst.Add(v._proplst[key]);
+					if (StringHelper.IsInt(key))
+					{
+						lst.Add(proplst[key]);
+					}
 				}
 			}
 
@@ -760,7 +791,7 @@ namespace Portland.Interp
 			if (StringHelper.CountOccurancesOf(value, '=') == 1)
 			{
 				var parts = value.Split('=');
-				ret.Set(parts[0], parts[1]);
+				ret[parts[0]] = parts[1];
 				return ret;
 			}
 
@@ -771,14 +802,14 @@ namespace Portland.Interp
 
 		public override string ToString()
 		{
-			if (_proplst != null && _proplst.Count > 0)
+			if (_o is Dictionary<string, Variant> proplst)
 			{
 				StringBuilder buf = new StringBuilder();
 				bool addComma = false;
 
 				buf.Append('[');
 
-				foreach (var key in _proplst.Keys)
+				foreach (var key in proplst.Keys)
 				{
 					if (addComma)
 					{
@@ -790,7 +821,32 @@ namespace Portland.Interp
 					}
 					buf.Append(key);
 					buf.Append('=');
-					buf.Append(_proplst[key].ToString());
+					buf.Append(proplst[key].ToString());
+				}
+
+				buf.Append(']');
+
+				return buf.ToString();
+			}
+			
+			if (_type == VtType.VT_ARRAY)
+			{
+				StringBuilder buf = new StringBuilder();
+				bool addComma = false;
+
+				buf.Append('[');
+
+				foreach (var val in ((Vector<Variant>)_o))
+				{
+					if (addComma)
+					{
+						buf.Append(',');
+					}
+					else
+					{
+						addComma = true;
+					}
+					buf.Append((string)val);
 				}
 
 				buf.Append(']');
@@ -805,281 +861,282 @@ namespace Portland.Interp
 				case VtType.VT_INT:
 					return _ix.IntValue.ToString();
 				case VtType.VT_REAL:
-					return _z.ToString();
+					return _ix.FloatValue.ToString();
 				case VtType.VT_STRING:
 					return (string)_o;
 				case VtType.VT_ERROR:
 					return "UNDEFINED";
-				case VtType.VT_IIDENTITY:
+				//case VtType.VT_IIDENTITY:
 				case VtType.VT_DATETIME:
 					return _o.ToString();
-				case VtType.VT_KEYVALUE:
-				{
-					var key = _proplst.Keys.First();
-					var val = _proplst[key];
-					return key + "=" + val;
-				}
-				case VtType.VT_FVEC:
-					return "[" + _ix.FloatValue + "," + _y + "," + _z + "]";
+
+				//case VtType.VT_KEYVALUE:
+				//{
+				//	var key = _proplst.Keys.First();
+				//	var val = _proplst[key];
+				//	return key + "=" + val;
+				//}
+				//case VtType.VT_FVEC:
+				//	return "[" + _ix.FloatValue + "," + _y + "," + _z + "]";
 			}
 
 			return "NULL";
 		}
 
-		public string ToJSON()
-		{
-			StringBuilder buf = new StringBuilder();
-			buf.Append('{');
-			buf.Append('"');
-			buf.Append(ToString());
-			buf.Append('"');
-			buf.Append(":[{");
+		//public string ToJSON()
+		//{
+		//	StringBuilder buf = new StringBuilder();
+		//	buf.Append('{');
+		//	buf.Append('"');
+		//	buf.Append(ToString());
+		//	buf.Append('"');
+		//	buf.Append(":[{");
 
-			bool comma = false;
+		//	bool comma = false;
 
-			if (_proplst != null)
-			{
-				foreach(var key in _proplst.Keys)
-				{
-					if (comma)
-					{
-						buf.Append(',');
-					}
-					else
-					{
-						comma = true;
-					}
+		//	if (_proplst != null)
+		//	{
+		//		foreach(var key in _proplst.Keys)
+		//		{
+		//			if (comma)
+		//			{
+		//				buf.Append(',');
+		//			}
+		//			else
+		//			{
+		//				comma = true;
+		//			}
 
-					buf.Append('"');
-					buf.Append(key);
-					buf.Append('"');
-					buf.Append(':');
-					if (_proplst[key].Count > 0)
-					{
-						buf.Append(_proplst[key].ToJSON());
-					}
-					else
-					{
-						buf.Append('"');
-						buf.Append(_proplst[key].ToString());
-						buf.Append('"');
-					}
-				}
-			}
+		//			buf.Append('"');
+		//			buf.Append(key);
+		//			buf.Append('"');
+		//			buf.Append(':');
+		//			if (_proplst[key].Count > 0)
+		//			{
+		//				buf.Append(_proplst[key].ToJSON());
+		//			}
+		//			else
+		//			{
+		//				buf.Append('"');
+		//				buf.Append(_proplst[key].ToString());
+		//				buf.Append('"');
+		//			}
+		//		}
+		//	}
 
-			buf.Append("}]}");
+		//	buf.Append("}]}");
 
-			return buf.ToString();
-		}
+		//	return buf.ToString();
+		//}
 
-		public static Variant ParseJSON(string json)
-		{
-			JSONLex lex = new JSONLex(json);
-			lex.Next();
-			return ParseJSON(lex);
-		}
+		//public static Variant ParseJSON(string json)
+		//{
+		//	JSONLex lex = new JSONLex(json);
+		//	lex.Next();
+		//	return ParseJSON(lex);
+		//}
 
-		private static void Match(JSONLex lex, JSONLexToken token)
-		{
-			if (lex.Token != token)
-			{
-				throw new FormatException("Expected JSON " + token);
-			}
+		//private static void Match(JSONLex lex, JSONLexToken token)
+		//{
+		//	if (lex.Token != token)
+		//	{
+		//		throw new FormatException("Expected JSON " + token);
+		//	}
 
-			lex.Next();
-		}
+		//	lex.Next();
+		//}
 
-		static Variant ParseJSON(JSONLex lex)
-		{
-			Match(lex, JSONLexToken.LBRACE);
+		//static Variant ParseJSON(JSONLex lex)
+		//{
+		//	Match(lex, JSONLexToken.LBRACE);
 
-			Variant v = Variant.Parse(lex.Lexum);
+		//	Variant v = Variant.Parse(lex.Lexum);
 
-			Match(lex, JSONLexToken.STRING);
+		//	Match(lex, JSONLexToken.STRING);
 
-			Match(lex, JSONLexToken.COLON);
-			Match(lex, JSONLexToken.LBRACK);
-			Match(lex, JSONLexToken.LBRACE);
+		//	Match(lex, JSONLexToken.COLON);
+		//	Match(lex, JSONLexToken.LBRACK);
+		//	Match(lex, JSONLexToken.LBRACE);
 
-			while (lex.Token != JSONLexToken.RBRACE)
-			{
-				string key = lex.Lexum;
+		//	while (lex.Token != JSONLexToken.RBRACE)
+		//	{
+		//		string key = lex.Lexum;
 
-				Match(lex, JSONLexToken.STRING);
-				Match(lex, JSONLexToken.COLON);
+		//		Match(lex, JSONLexToken.STRING);
+		//		Match(lex, JSONLexToken.COLON);
 
-				if (lex.Token == JSONLexToken.STRING)
-				{
-					if (StringHelper.IsInt(key))
-					{
-						v[Int32.Parse(key)] = Variant.Parse(lex.Lexum);
-					}
-					else
-					{
-						v.SetProp(key, Variant.Parse(lex.Lexum));
-					}
+		//		if (lex.Token == JSONLexToken.STRING)
+		//		{
+		//			if (StringHelper.IsInt(key))
+		//			{
+		//				v[Int32.Parse(key)] = Variant.Parse(lex.Lexum);
+		//			}
+		//			else
+		//			{
+		//				v.SetProp(key, Variant.Parse(lex.Lexum));
+		//			}
 
-					Match(lex, JSONLexToken.STRING);
-				}
-				else
-				{
-					if (StringHelper.IsInt(key))
-					{
-						v[Int32.Parse(key)] = ParseJSON(lex);
-					}
-					else
-					{
-						v.SetProp(key, ParseJSON(lex));
-					}
-				}
+		//			Match(lex, JSONLexToken.STRING);
+		//		}
+		//		else
+		//		{
+		//			if (StringHelper.IsInt(key))
+		//			{
+		//				v[Int32.Parse(key)] = ParseJSON(lex);
+		//			}
+		//			else
+		//			{
+		//				v.SetProp(key, ParseJSON(lex));
+		//			}
+		//		}
 
-				if (lex.Token == JSONLexToken.COMMA)
-				{
-					lex.Next();
-				}
-			}
+		//		if (lex.Token == JSONLexToken.COMMA)
+		//		{
+		//			lex.Next();
+		//		}
+		//	}
 
-			Match(lex, JSONLexToken.RBRACE);
-			Match(lex, JSONLexToken.RBRACK);
-			Match(lex, JSONLexToken.RBRACE);
+		//	Match(lex, JSONLexToken.RBRACE);
+		//	Match(lex, JSONLexToken.RBRACK);
+		//	Match(lex, JSONLexToken.RBRACE);
 
-			return v;
-		}
+		//	return v;
+		//}
 
-		public void ToBin(byte[] data, ref int pos)
-		{
-			data[pos++] = (byte)_type;
+		//public void ToBin(byte[] data, ref int pos)
+		//{
+		//	data[pos++] = (byte)_type;
 
-			switch (_type)
-			{
-				case VtType.VT_BOOL:
-					BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
-					break;
-				case VtType.VT_INT:
-					BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
-					break;
-				case VtType.VT_REAL:
-					BitConverterNoAlloc.GetBytes(_z, data, ref pos);
-					break;
-				case VtType.VT_EMPTY:
-					break;
-				case VtType.VT_FVEC:
-					BitConverterNoAlloc.GetBytes(_ix.FloatValue, data, ref pos);
-					BitConverterNoAlloc.GetBytes(_y, data, ref pos);
-					BitConverterNoAlloc.GetBytes(_z, data, ref pos);
-					break;
-				case VtType.VT_KEYVALUE:
-					break;
-				case VtType.VT_ERROR:
-					break;
-				case VtType.VT_STRING:
-					BitConverterNoAlloc.GetBytes((string)_o, data, ref pos);
-					break;
-				case VtType.VT_IIDENTITY:
-					throw new InvalidOperationException("Not serializing Identity");
-				case VtType.VT_DATETIME:
-					BitConverterNoAlloc.GetBytes(((DateTime)_o).Ticks, data, ref pos);
-					break;
-			}
+		//	switch (_type)
+		//	{
+		//		case VtType.VT_BOOL:
+		//			BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
+		//			break;
+		//		case VtType.VT_INT:
+		//			BitConverterNoAlloc.GetBytes(_ix.IntValue, data, ref pos);
+		//			break;
+		//		case VtType.VT_REAL:
+		//			BitConverterNoAlloc.GetBytes(_z, data, ref pos);
+		//			break;
+		//		case VtType.VT_EMPTY:
+		//			break;
+		//		case VtType.VT_FVEC:
+		//			BitConverterNoAlloc.GetBytes(_ix.FloatValue, data, ref pos);
+		//			BitConverterNoAlloc.GetBytes(_y, data, ref pos);
+		//			BitConverterNoAlloc.GetBytes(_z, data, ref pos);
+		//			break;
+		//		case VtType.VT_KEYVALUE:
+		//			break;
+		//		case VtType.VT_ERROR:
+		//			break;
+		//		case VtType.VT_STRING:
+		//			BitConverterNoAlloc.GetBytes((string)_o, data, ref pos);
+		//			break;
+		//		case VtType.VT_IIDENTITY:
+		//			throw new InvalidOperationException("Not serializing Identity");
+		//		case VtType.VT_DATETIME:
+		//			BitConverterNoAlloc.GetBytes(((DateTime)_o).Ticks, data, ref pos);
+		//			break;
+		//	}
 
-			int count = 0;
-			if (_proplst != null)
-			{
-				count = _proplst.Count;
-			}
+		//	int count = 0;
+		//	if (_proplst != null)
+		//	{
+		//		count = _proplst.Count;
+		//	}
 
-			BitConverterNoAlloc.GetBytes((short)count, data, ref pos);
+		//	BitConverterNoAlloc.GetBytes((short)count, data, ref pos);
 
-			if (count == 0)
-			{
-				return;
-			}
+		//	if (count == 0)
+		//	{
+		//		return;
+		//	}
 
-			foreach (var key in _proplst.Keys)
-			{
-				BitConverterNoAlloc.GetBytes(key, data, ref pos);
-				_proplst[key].ToBin(data, ref pos);
-			}
-		}
+		//	foreach (var key in _proplst.Keys)
+		//	{
+		//		BitConverterNoAlloc.GetBytes(key, data, ref pos);
+		//		_proplst[key].ToBin(data, ref pos);
+		//	}
+		//}
 
-		public static Variant ParseBin(byte[] data, ref int pos)
-		{
-			return ParseBin(data, ref pos, new Variant());
-		}
+		//public static Variant ParseBin(byte[] data, ref int pos)
+		//{
+		//	return ParseBin(data, ref pos, new Variant());
+		//}
 
-		public static Variant ParseBin(byte[] data, ref int pos, Variant v)
-		{
-			StringBuilder sbuf = null;
-			v._type = (VtType)data[pos++];
+		//public static Variant ParseBin(byte[] data, ref int pos, Variant v)
+		//{
+		//	StringBuilder sbuf = null;
+		//	v._type = (VtType)data[pos++];
 
-			switch (v._type)
-			{
-				case VtType.VT_BOOL:
-					v._ix.IntValue = BitConverter.ToInt32(data, pos);
-					pos += 4;
-					break;
-				case VtType.VT_INT:
-					v._ix.IntValue = BitConverter.ToInt32(data, pos);
-					pos += 4;
-					break;
-				case VtType.VT_REAL:
-					v._z = BitConverter.ToSingle(data, pos);
-					pos += 8;
-					break;
-				case VtType.VT_EMPTY:
-					break;
-				case VtType.VT_FVEC:
-					v._ix.FloatValue = BitConverter.ToSingle(data, pos);
-					pos += 4;
-					v._y = BitConverter.ToSingle(data, pos);
-					pos += 4;
-					v._z = BitConverter.ToSingle(data, pos);
-					pos += 8;
-					break;
-				case VtType.VT_KEYVALUE:
-					break;
-				case VtType.VT_ERROR:
-					break;
-				case VtType.VT_STRING:
-					sbuf = new StringBuilder();
-					v._o = BitConverterNoAlloc.ToString(data, ref pos, sbuf);
-					break;
-				case VtType.VT_IIDENTITY:
-					throw new InvalidOperationException("Not serializing Identity");
-				case VtType.VT_DATETIME:
-					v._o = new DateTime(BitConverter.ToInt64(data, pos));
-					pos += 8;
-					break;
-			}
+		//	switch (v._type)
+		//	{
+		//		case VtType.VT_BOOL:
+		//			v._ix.IntValue = BitConverter.ToInt32(data, pos);
+		//			pos += 4;
+		//			break;
+		//		case VtType.VT_INT:
+		//			v._ix.IntValue = BitConverter.ToInt32(data, pos);
+		//			pos += 4;
+		//			break;
+		//		case VtType.VT_REAL:
+		//			v._z = BitConverter.ToSingle(data, pos);
+		//			pos += 8;
+		//			break;
+		//		case VtType.VT_EMPTY:
+		//			break;
+		//		case VtType.VT_FVEC:
+		//			v._ix.FloatValue = BitConverter.ToSingle(data, pos);
+		//			pos += 4;
+		//			v._y = BitConverter.ToSingle(data, pos);
+		//			pos += 4;
+		//			v._z = BitConverter.ToSingle(data, pos);
+		//			pos += 8;
+		//			break;
+		//		case VtType.VT_KEYVALUE:
+		//			break;
+		//		case VtType.VT_ERROR:
+		//			break;
+		//		case VtType.VT_STRING:
+		//			sbuf = new StringBuilder();
+		//			v._o = BitConverterNoAlloc.ToString(data, ref pos, sbuf);
+		//			break;
+		//		case VtType.VT_IIDENTITY:
+		//			throw new InvalidOperationException("Not serializing Identity");
+		//		case VtType.VT_DATETIME:
+		//			v._o = new DateTime(BitConverter.ToInt64(data, pos));
+		//			pos += 8;
+		//			break;
+		//	}
 
-			int count = BitConverter.ToInt16(data, pos);
-			pos += 2;
+		//	int count = BitConverter.ToInt16(data, pos);
+		//	pos += 2;
 
-			if (count == 0)
-			{
-				return v;
-			}
+		//	if (count == 0)
+		//	{
+		//		return v;
+		//	}
 
-			if (sbuf == null)
-			{
-				sbuf = new StringBuilder();
-			}
+		//	if (sbuf == null)
+		//	{
+		//		sbuf = new StringBuilder();
+		//	}
 
-			v._proplst = new Dictionary<string, Variant>();
+		//	v._proplst = new Dictionary<string, Variant>();
 
-			for (int x = 0; x < count; x++)
-			{
-				string key = BitConverterNoAlloc.ToString(data, ref pos, sbuf);
-				v._proplst.Add(key, Variant.ParseBin(data, ref pos));
-			}
+		//	for (int x = 0; x < count; x++)
+		//	{
+		//		string key = BitConverterNoAlloc.ToString(data, ref pos, sbuf);
+		//		v._proplst.Add(key, Variant.ParseBin(data, ref pos));
+		//	}
 
-			return v;
-		}
+		//	return v;
+		//}
 
 		public void Dispose()
 		{
 			Clear();
-			_proplst = null;
+			//_proplst = null;
 		}
 
 		#region Compare
@@ -1110,14 +1167,14 @@ namespace Portland.Interp
 				case VtType.VT_STRING:
 					ret = s.Equals((string)_o);
 					break;
-				case VtType.VT_IIDENTITY:
-					break;
-				case VtType.VT_KEYVALUE:
-					break;
+				//case VtType.VT_IIDENTITY:
+				//	break;
+				//case VtType.VT_KEYVALUE:
+				//	break;
 				case VtType.VT_DATETIME:
 					break;
-				case VtType.VT_FVEC:
-					break;
+				//case VtType.VT_FVEC:
+				//	break;
 				case VtType.VT_BOOL:
 					break;
 			}
@@ -1136,44 +1193,44 @@ namespace Portland.Interp
 				return false;
 			}
 
-			if (_type == VtType.VT_FVEC)
-			{
-				if (_ix.FloatValue != obj._ix.FloatValue || _y != obj._y || _z != obj._z)
-				{
-					return false;
-				}
-			}
+			//if (_type == VtType.VT_FVEC)
+			//{
+			//	if (_ix.FloatValue != obj._ix.FloatValue || _y != obj._y || _z != obj._z)
+			//	{
+			//		return false;
+			//	}
+			//}
 
 			if (_o != null && !_o.Equals(obj._o))
 			{
 				return false;
 			}
 
-			int pcnt1 = _proplst == null ? 0 : _proplst.Count;
-			int pcnt2 = obj._proplst == null ? 0 : obj._proplst.Count;
+			//int pcnt1 = _proplst == null ? 0 : _proplst.Count;
+			//int pcnt2 = obj._proplst == null ? 0 : obj._proplst.Count;
 
-			if (pcnt1 != pcnt2)
-			{
-				return false;
-			}
+			//if (pcnt1 != pcnt2)
+			//{
+			//	return false;
+			//}
 
-			if (pcnt1 == 0)
-			{
-				return true;
-			}
+			//if (pcnt1 == 0)
+			//{
+			//	return true;
+			//}
 
-			foreach (var key in _proplst.Keys)
-			{
-				if (!obj._proplst.ContainsKey(key))
-				{
-					return false;
-				}
+			//foreach (var key in _proplst.Keys)
+			//{
+			//	if (!obj._proplst.ContainsKey(key))
+			//	{
+			//		return false;
+			//	}
 
-				if (!_proplst[key].Equals(obj._proplst[key]))
-				{
-					return false;
-				}
-			}
+			//	if (!_proplst[key].Equals(obj._proplst[key]))
+			//	{
+			//		return false;
+			//	}
+			//}
 
 			return true;
 		}
@@ -1189,10 +1246,9 @@ namespace Portland.Interp
 
 		public override int GetHashCode()
 		{
-			// TODO: not good
-			if (_proplst != null && _proplst.Count > 0)
+			if (_o != null)
 			{
-				return _proplst.GetHashCode();
+				return _o.GetHashCode();
 			}
 
 			switch (_type)
@@ -1201,19 +1257,19 @@ namespace Portland.Interp
 				case VtType.VT_INT:
 					return _ix.IntValue.GetHashCode();
 				case VtType.VT_REAL:
-					return _z.GetHashCode();
+					return _ix.FloatValue.GetHashCode();
 				case VtType.VT_EMPTY:
 					return 0;
-				case VtType.VT_FVEC:
-					return _ix.FloatValue.GetHashCode() ^ _y.GetHashCode() ^ _z.GetHashCode();
-				case VtType.VT_KEYVALUE:
-					return Key.GetHashCode() ^ this[Key].GetHashCode();
+				//case VtType.VT_FVEC:
+				//	return _ix.FloatValue.GetHashCode() ^ _y.GetHashCode() ^ _z.GetHashCode();
+				//case VtType.VT_KEYVALUE:
+				//	return Key.GetHashCode() ^ this[Key].GetHashCode();
 				case VtType.VT_ERROR:
 					return -1;
 				case VtType.VT_STRING:
 					return _o.GetHashCode();
-				case VtType.VT_IIDENTITY:
-					return _o.GetHashCode();
+				//case VtType.VT_IIDENTITY:
+				//	return _o.GetHashCode();
 				case VtType.VT_DATETIME:
 					return _o.GetHashCode();
 			}
@@ -1401,12 +1457,12 @@ namespace Portland.Interp
 			}
 			if (_type == VtType.VT_REAL)
 			{
-				return _z.CompareTo(other._z);
+				return _ix.FloatValue.CompareTo(other._ix.FloatValue);
 			}
-			if (_type == VtType.VT_FVEC)
-			{
-				return (int)((MathF.Abs(_ix.FloatValue) + Math.Abs(_y) + MathF.Abs(_z)) - (MathF.Abs(other._ix.FloatValue) + Math.Abs(other._y) + MathF.Abs(other._z)));
-			}
+			//if (_type == VtType.VT_FVEC)
+			//{
+			//	return (int)((MathF.Abs(_ix.FloatValue) + Math.Abs(_y) + MathF.Abs(_z)) - (MathF.Abs(other._ix.FloatValue) + Math.Abs(other._y) + MathF.Abs(other._z)));
+			//}
 
 			return 0;
 		}

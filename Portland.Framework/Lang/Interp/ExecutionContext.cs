@@ -9,16 +9,16 @@ namespace Portland.Interp
 {
 	public sealed class ExecutionContext : IDisposable
 	{
-		private readonly Vector<Variant> _ctxStk = new Vector<Variant>();
+		private readonly Vector<StackFrame> _ctxStk = new Vector<StackFrame>();
 
 		public Action<string> OnPrint;
 		public Action<LogMessageSeverity, string> OnLog;
 
 		public object UserData;
 
-		public Variant Context
+		public ref StackFrame Context
 		{
-			get { return _ctxStk.LastElement(); }
+			get { return ref _ctxStk.LastElementRef(); }
 		}
 
 		public bool HasError
@@ -38,16 +38,15 @@ namespace Portland.Interp
 		private Dictionary<SubSig, IFunction> _progSubs;
 
 		public ExecutionContext(ICommandRunner cmds, object userData)
+		: this(cmds)
 		{
-			_cmds = cmds;
 			UserData = userData;
-			_ctxStk.Add(String.Empty);
 		}
 
 		public ExecutionContext(ICommandRunner cmds)
 		{
 			_cmds = cmds;
-			_ctxStk.Add(String.Empty);
+			_ctxStk.Add(StackFrame.Create());
 		}
 
 		public void SetError(string message)
@@ -90,26 +89,40 @@ namespace Portland.Interp
 
 		public void PushContex()
 		{
-			_ctxStk.Add(new Variant());
+			_ctxStk.Add(StackFrame.Create());
 			HasError = false;
 		}
 
 		public Variant PopContext()
 		{
-			return _ctxStk.Pop();
+			return _ctxStk.Pop().GetReturnValue();
 		}
 
 		public Variant FindVariable(string name)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
-				if (_ctxStk[x].HasProp(name))
+				if (_ctxStk[x].TryGetProp(name, out var value))
 				{
-					return _ctxStk[x][name];
+					return value;
 				}
 			}
 
-			return new Variant();
+			return default(Variant);
+		}
+
+		public bool TryFindVariable(string name, out Variant value)
+		{
+			for (int x = _ctxStk.Count - 1; x >= 0; x--)
+			{
+				if (_ctxStk[x].TryGetProp(name, out value))
+				{
+					return true;
+				}
+			}
+
+			value = default(Variant);
+			return false;
 		}
 
 		public void ClearVariable(string name)
@@ -118,7 +131,7 @@ namespace Portland.Interp
 			{
 				if (_ctxStk[x].HasProp(name))
 				{
-					_ctxStk[x][name].Clear();
+					_ctxStk[x].ClearProp(name);
 					return;
 				}
 			}
@@ -126,7 +139,7 @@ namespace Portland.Interp
 			Context.ClearProp(name);
 		}
 
-		public void SetVariable(string name, Variant value)
+		public void SetVariable(string name, in Variant value)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
@@ -154,7 +167,7 @@ namespace Portland.Interp
 			Context.ClearPropArray(name, size);
 		}
 
-		public void SetVariableArray(string name, string index, Variant value)
+		public void SetVariableArray(string name, string index, in Variant value)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{

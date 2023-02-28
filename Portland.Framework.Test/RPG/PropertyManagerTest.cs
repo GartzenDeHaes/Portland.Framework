@@ -19,7 +19,7 @@ namespace Portland.RPG
 
 			manager.DefinePropertySet("HUMN", new String[] { "HLTH" });
 
-			var set = manager.CreatePropertySet("HUMN");
+			var set = manager.CreatePropertySet("HUMN", null);
 
 			Assert.That(set.GetValue("HLTH"), Is.EqualTo(100f));
 			Assert.That((string)set.GetSetId(), Is.EqualTo("HUMN"));
@@ -32,20 +32,20 @@ namespace Portland.RPG
 			PropertyManager mgr = new PropertyManager();
 
 			mgr.DefineProperty("STR", "Strength", "STATS")
-				.SetMinimum(1)
-				.SetMaximum(20)
-				.SetProbability("3d6")
+				.Minimum(1)
+				.Maximum(20)
+				.Probability("3d6")
 				.SetDefault(6);
 
 			mgr.DefineProperty("INT", "Intellegence", "STATS")
-				.SetMinimum(1)
-				.SetMaximum(20)
-				.SetProbability("3d6")
+				.Minimum(1)
+				.Maximum(20)
+				.Probability("3d6")
 				.SetDefault(8);
 
 			mgr.DefinePropertySet("HUMAN", new String[] { "STR", "INT" });
 
-			var set = mgr.CreatePropertySet("HUMAN");
+			var set = mgr.CreatePropertySet("HUMAN", null);
 
 			//Assert.That(set.Count, Is.EqualTo(2));
 			Assert.That((string)set.GetSetId(), Is.EqualTo("HUMAN"));
@@ -71,18 +71,18 @@ namespace Portland.RPG
 			manager.DefineProperty("HP", "Health", "STATS")
 				.SetupDepletionType()
 				.SetDefault(50)
-				.SetChangePerSecond(1f)
+				.ChangePerSecond(1f)
 				;
 
 			manager.DefineProperty("WATR", "Thurst", "STATS")
 				.SetupGrowthType()
 				.SetDefault(10)
-				.SetChangePerSecond(1f)
+				.ChangePerSecond(1f)
 				;
 
 			manager.DefinePropertySet("HUMN", new String[] { "HP", "WATR" });
 
-			var set = manager.CreatePropertySet("HUMN");
+			var set = manager.CreatePropertySet("HUMN", null);
 
 			Assert.That(set.GetValue("HP"), Is.EqualTo(50));
 			Assert.That(set.GetMaximum("HP"), Is.EqualTo(100));

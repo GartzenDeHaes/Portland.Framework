@@ -25,7 +25,12 @@ namespace Portland.CodeDom.Operators
 
 		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
-			return ctx.FindVariable(VariableName)[(string)Indexer.Execute(ctx)];
+			var theVar = ctx.FindVariable(VariableName);
+			if (theVar.TryGetProp((string)Indexer.Execute(ctx), out var ret))
+			{
+				return ret;
+			}
+			return new Variant();
 		}
 	}
 }

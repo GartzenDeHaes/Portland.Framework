@@ -21,8 +21,8 @@ namespace Portland.AI.Barks
 WHEN ACTION IS SEE, OBJECT IS barrel 
 DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
-			StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
+			//StringTable strings = new StringTable();
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMin());
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(DemoRuleText_BasicRule);
@@ -77,8 +77,8 @@ DO
 	ADD 1 TO barrels
 .
 ";
-			StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
+			//StringTable strings = new StringTable();
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMax());
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
 			world.BarkEngine.SetRules(rulePack);
@@ -88,8 +88,8 @@ DO
 			world.UtilitySystem.CreateAgent("base", "bot");
 
 			world.CharacterManager.CreateCharacterDefinition("bot");
-			world.CreateActor("bot", "XBOT", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("bot", "YBOT", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("bot", "XBOT", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("bot", "YBOT", String.Empty, String.Empty, String.Empty);
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -192,8 +192,8 @@ DO
 	FRANCIS SAYS there_is_one_thing ""Francis: Well, there is one thing."" DURATION 3
 .
 ";
-			StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
+			//StringTable strings = new StringTable();
+			World world = new World(new Clock(DateTime.Now, 1440),  new RandMax());
 
 			world.Flags.Daylight = true;
 			//world.Flags.IsCharacter01Alive = true;
@@ -206,16 +206,16 @@ DO
 			world.Flags.IsUserFlag04 = true;
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
-				.AddAllObjectives();
+				.AddTestObjectives();
 			world.UtilitySystem.CreateAgentType("living", "human")
 				.AddCommonObjectives();
 			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateActor("human", "BILL", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "FRANCIS", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "LOUIS", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "ZOEY", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "BILL", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "FRANCIS", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "LOUIS", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "ZOEY", String.Empty, String.Empty, String.Empty);
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
@@ -388,18 +388,18 @@ DO
 		DURATION 3
 .
 ";
-			StringTable strings = new StringTable();
+			//StringTable strings = new StringTable();
 
-			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMin());
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMin());
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
-				.AddAllObjectives();
+				.AddTestObjectives();
 			world.UtilitySystem.CreateAgentType("living", "human")
 				.AddCommonObjectives();
 			world.UtilitySystem.CreateAgent("human", "human");
 
-			world.DefineNameForActorUtilityObjectiveFact("objective");
-			world.DefineStandardUtilityAlerts();
+			//world.DefineNameForActorUtilityObjectiveFact("objective");
+			world.DefineTestUtilityAlerts();
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
@@ -420,10 +420,10 @@ DO
 			//world.Flags.IsUserFlag04 = true;
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateActor("human", "COACH", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "ELLIS", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "NICK", String.Empty, String.Empty, String.Empty);
-			world.CreateActor("human", "ROCHELLE", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "COACH", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "ELLIS", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "NICK", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "ROCHELLE", String.Empty, String.Empty, String.Empty);
 
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 			world.DefineActorAsCharacter0X("ELLIS", 2, "health");

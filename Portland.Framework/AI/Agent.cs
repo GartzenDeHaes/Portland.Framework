@@ -18,7 +18,6 @@ namespace Portland.AI
 		public String Class;
 		//public TextTableToken Location;
 		public UtilitySet UtilitySet;
-		//public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
 		public CharacterSheet Character;
 		public IBlackboard<String> Facts;
 
@@ -29,20 +28,36 @@ namespace Portland.AI
 			Alerts?.Invoke();
 		}
 
-		public Agent(String8 cls, String8 name, UtilitySet utilitySet, CharacterSheet character)
+		public Agent
+		(
+			IUtilityFactory utility,
+			ICharacterManager charMan,
+			in String cls, 
+			in String name,
+			in string raceEffectGrp,
+			in string classEffectGrp,
+			in string faction
+		)
 		{
 			Name = name;
 			Class = cls;
-			UtilitySet = utilitySet;
-			Character = character;
+
+			UtilitySet = utility.CreateAgentInstance(cls, name);
+
+			Character = charMan.CreateCharacter(cls, raceEffectGrp, classEffectGrp, faction, UtilitySet);
 
 			Facts = new Blackboard<String>();
+
+			Facts.Add("objective", UtilitySet.CurrentObjective);
 
 			Character.SetupBlackboard(Facts);
 
 			foreach (var prop in UtilitySet.Properties.Values)
 			{
-				Facts.Add(prop.Definition.PropertyId, prop);
+				if (! Facts.ContainsKey(prop.Definition.PropertyId))
+				{
+					Facts.Add(prop.Definition.PropertyId, prop);
+				}
 
 				foreach (var alert in prop.Definition.Alerts)
 				{

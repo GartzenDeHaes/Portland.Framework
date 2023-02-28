@@ -3,21 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using Portland.Framework.AI;
 using Portland.Text;
 using Portland.Types;
 
 namespace Portland.AI.Utility
 {
-	public sealed class UtilityFactory
+	public sealed class UtilityFactory : IUtilityFactory
 	{
 		IClock _clock;
 		float _clockLastUpdate;
-		Dictionary<String, PropertyValue> _globalProperties = new Dictionary<String, PropertyValue>();
+		//Dictionary<String, PropertyValue> _globalProperties = new Dictionary<String, PropertyValue>();
 
-		Dictionary<string, PropertyDefinition> _properties = new Dictionary<string, PropertyDefinition>();
+		IBlackboard<string> _globalProperties;
+
+		IPropertyManager _propertyDefs;
+		//Dictionary<string, PropertyDefinition> _propertyDefs = new Dictionary<string, PropertyDefinition>();
 		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
-		Dictionary<string, UtilitySetClass> _setsByType = new Dictionary<string, UtilitySetClass>();
-		Dictionary<string, UtilitySetClass> _setsByName = new Dictionary<string, UtilitySetClass>();
+		Dictionary<string, UtilitySetDefinition> _setsByType = new Dictionary<string, UtilitySetDefinition>();
+		Dictionary<string, UtilitySetDefinition> _setsByName = new Dictionary<string, UtilitySetDefinition>();
 
 		Dictionary<String, UtilitySet> _instances = new Dictionary<String, UtilitySet>();
 
@@ -36,20 +40,23 @@ namespace Portland.AI.Utility
 			_clockLastUpdate = _clock.Time;
 		}
 
-		public UtilityFactory(IClock clock)
+		public UtilityFactory(IClock clock, IPropertyManager propMan)
 		{
 			_clock = clock;
 			_clockLastUpdate = clock.Time;
+			_propertyDefs = propMan;
+			_globalProperties = propMan.GetGlobalProperties();
 
-			CreatePropertyDef_Time_Normalized(true, "time");
+			propMan.DefineProperty_Time_Normalized("time", true);
+
 			GetGlobalProperty("time").Set(_clock.TimeOfDayNormalized01);
 
-			CreatePropertyDef_HourOfDay(true, "hour");
+			propMan.DefineProperty_HourOfDay("hour", true);
 		}
 
 		public PropertyValue GetGlobalProperty(in String name)
 		{
-			return _globalProperties[name];
+			return _globalProperties.Get(name);
 		}
 
 		public bool HasGlobalPropertyDefinition(in String propName)
@@ -59,7 +66,7 @@ namespace Portland.AI.Utility
 
 		public bool HasPropertyDefinition(in String propName)
 		{
-			return _properties.ContainsKey(propName);
+			return _propertyDefs.HasPropertyDefined(propName);
 		}
 
 		public bool HasObjective(string objectiveName)
@@ -69,12 +76,12 @@ namespace Portland.AI.Utility
 
 		public UtilitySet CreateAgentInstance(string agentTypeName, string name)
 		{
-			var agent = _setsByName[agentTypeName];
-			var inst = new UtilitySet(name, agent);
+			var definition = _setsByName[agentTypeName];
+			var inst = new UtilitySet(name, definition);
 			_instances.Add(inst.Name, inst);
 
-			CreateProperyInstances(inst, agent);
-			
+			CreateProperyInstances(inst, definition);
+
 			return inst;
 		}
 
@@ -83,7 +90,7 @@ namespace Portland.AI.Utility
 			_instances.Remove(name);
 		}
 
-		void CreateProperyInstances(UtilitySet propSet, UtilitySetClass propDefs)
+		void CreateProperyInstances(UtilitySet propSet, UtilitySetDefinition propDefs)
 		{
 			if (propDefs.BaseType != null)
 			{
@@ -95,7 +102,7 @@ namespace Portland.AI.Utility
 			{
 				foreach (var c in propDefs.Objectives[o].Considerations.Values)
 				{
-					if (propSet.Properties.ContainsKey(c.PropertyName))
+					if (propSet.HasProperty(c.PropertyName))
 					{
 						continue;
 					}
@@ -103,7 +110,7 @@ namespace Portland.AI.Utility
 					{
 						propSet.AddProperty(prop);
 					}
-					else if (_properties.TryGetValue(c.PropertyName, out PropertyDefinition cprop))
+					else if (_propertyDefs.TryGetDefinition(c.PropertyName, out PropertyDefinition cprop))
 					{
 						propSet.AddProperty(cprop);
 					}
@@ -117,8 +124,8 @@ namespace Portland.AI.Utility
 
 		public void Clear()
 		{
-			_globalProperties.Clear();
-			_properties.Clear();
+			//_globalProperties.Clear();
+			//_propertyDefs.Clear();
 			_objectives.Clear();
 			_setsByType.Clear();
 			_setsByName.Clear();
@@ -127,7 +134,7 @@ namespace Portland.AI.Utility
 
 		public void DefineAlertForPropertyDefinition(in String propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
 		{
-			if (_properties.TryGetValue(propertyId, out var def))
+			if (_propertyDefs.TryGetDefinition(propertyId, out var def))
 			{
 				def.DefineAlert(propertyId, type, value, flagName);
 			}
@@ -138,100 +145,6 @@ namespace Portland.AI.Utility
 		}
 
 		#region CREATE PROPERTY DEFINITIONS
-
-		public ConsiderationPropDefBuilder CreatePropertyDef(bool isGlobal, in String name)
-		{
-			var prop = new PropertyDefinition() { PropertyId = name, IsGlobalValue = isGlobal };
-			_properties.Add(prop.PropertyId, prop);
-
-			if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
-			{
-				_globalProperties.Add(name, new PropertyValue(prop));
-			}
-
-			return new ConsiderationPropDefBuilder { Definition = prop, GlobalProperties = _globalProperties };
-		}
-
-		/// <summary>
-		/// 0 to 100 decreasing, such as satiation, health, hydration, sleepyness
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Descreasing(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef(isGlobal, name)
-				.Min(0f)
-				.Max(100f)
-				.ChangePerSecond(-(20f / 60f) / 60f)
-				.StartValue(100f)
-				.TypeName("float") // doesn't seem to be used
-			;
-		}
-
-		/// <summary>
-		/// 0 to 100 increasing, such as hunger, thirst, tiredness
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_0to100_Increasing(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef_0to100_Descreasing(isGlobal, name)
-				.ChangePerSecond((20f / 60f) / 60f)
-				.StartValue(0)
-				.TypeName("float")
-			;
-		}
-
-		/// <summary>
-		/// 0+ such as money, gold, XP
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Positive_Unbounded(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef(isGlobal, name)
-				.Min(0f)
-				.ChangePerSecond(0f)
-				.StartValue(0)
-				.TypeName("float")
-			;
-		}
-
-		/// <summary>
-		/// 24 hour clock, so 0000 to 2399. First two digits are hour, second two are 1/100 hour (0.6 minutes)
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Military(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef(isGlobal, name)
-				.Min(0f)
-				.Max(2399)
-				.ChangePerSecond(0.6f / 60f)
-				.StartValue(0800)
-				.TypeName("float")
-			;
-		}
-
-		/// <summary>
-		/// 0 to 23 increasing
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_HourOfDay(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
-				.Min(0)
-				.Max(23)
-				//.ChangePerSecond((1f / 60f) / 60f)
-				.ChangePerSecond(0f)
-				.StartValue(8)
-			;
-		}
-
-		/// <summary>
-		/// 0 to 1 increasing
-		/// </summary>
-		public ConsiderationPropDefBuilder CreatePropertyDef_Time_Normalized(bool isGlobal, in String name)
-		{
-			return CreatePropertyDef_0to100_Increasing(isGlobal, name)
-				.Min(0)
-				.Max(1)
-				//.ChangePerSecond((1f * _clock.SecondsPerHour / 1440f) / 1440f)
-				.ChangePerSecond(0f)
-				.StartValue(0.5f)
-			;
-		}
 
 		#endregion
 
@@ -246,7 +159,10 @@ namespace Portland.AI.Utility
 		public ConsiderationBuilder CreateConsideration(string objectiveName, in String propertyName)
 		{
 			var objective = _objectives[objectiveName];
-			var propDef = _properties[propertyName];
+			if (!_propertyDefs.TryGetDefinition(propertyName, out var propDef))
+			{
+				throw new Exception($"'{propertyName}' not found for objective {objectiveName}");
+			}
 
 			var cons = new Consideration() { PropertyName = propertyName };
 			objective.Considerations.Add(propertyName, cons);
@@ -256,7 +172,7 @@ namespace Portland.AI.Utility
 
 		public AgentTypeBuilder CreateAgentType(string objectiveSetName, string agentTypeName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = objectiveSetName };
+			var agent = new UtilitySetDefinition() { BaseObjectiveSetName = objectiveSetName };
 			_setsByType.Add(agentTypeName, agent);
 
 			return new AgentTypeBuilder { AgentType = agent, Objectives = _objectives };
@@ -264,15 +180,20 @@ namespace Portland.AI.Utility
 
 		public ObjectiveSetBuilder CreateObjectiveSetBuilder(string setName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = setName };
+			var agent = new UtilitySetDefinition() { BaseObjectiveSetName = setName };
 			_setsByType.Add(setName, agent);
 
-			return new ObjectiveSetBuilder { UtilitySystem = this, ObjectiveSetName = setName };
+			return new ObjectiveSetBuilder { UtilitySystem = this, PropMan = _propertyDefs, ObjectiveSetName = setName };
+		}
+
+		public bool HasObjectiveSet(string name)
+		{
+			return _setsByType.ContainsKey(name);
 		}
 
 		public AgentBuilder CreateAgent(string agentTypeName, string agentName)
 		{
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = agentTypeName, AgentName = agentName, BaseType = _setsByType[agentTypeName] };
+			var agent = new UtilitySetDefinition() { BaseObjectiveSetName = agentTypeName, AgentName = agentName, BaseType = _setsByType[agentTypeName] };
 			_setsByName.Add(agentName, agent);
 
 			return new AgentBuilder { Agent = agent, Objectives = _objectives };
@@ -283,6 +204,7 @@ namespace Portland.AI.Utility
 		/// <summary>
 		/// Example XML:
 		/* <utility>
+		<utility_properties>
 		<properties>
 			<property name = 'hunger' type='float' global='false' min='0' max='100' start='0' startrand='false' changePerHour='10' />
 			<property name = 'money' type='float' global='false' min='0' max='500' start='100' startrand='false' changePerHour='0' />
@@ -293,6 +215,7 @@ namespace Portland.AI.Utility
 			<property name = 'time' type='float' global='true' min='0' max='24' start='12' startrand='false' changePerHour='0' />
 			<property name = 'weekend' type='bool' global='true' startrand='false' />
 		</properties>
+		</utility_properties>
 		<objectives>
 			<objective name = 'eat_at_restaurant' time='2' priority='2' interruptible='false' cooldown='60'>
 				<consideration property = 'hunger' weight='1.2' func='inverse' />
@@ -382,16 +305,18 @@ namespace Portland.AI.Utility
 
 			lex.MatchTag("utility");
 
-			lex.MatchTag("properties");
-			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
-			{
-				lex.MatchTagStart("property");
+			lex.MatchTag("utility_properties");
 
-				ParseProperty(lex);
+			_propertyDefs.LoadPropertyDefinitions(lex);
+			//while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+			//{
+			//	lex.MatchTagStart("property");
 
-				lex.Match(XmlLex.XmlLexToken.TAG_END);
-			}
-			lex.MatchTagClose("properties");
+			//	ParseProperty(lex);
+
+			//	lex.Match(XmlLex.XmlLexToken.TAG_END);
+			//}
+			lex.MatchTagClose("utility_properties");
 
 			lex.MatchTag("objectives");
 			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
@@ -429,51 +354,51 @@ namespace Portland.AI.Utility
 			lex.MatchTagClose("utility");
 		}
 
-		private void ParseProperty(XmlLex lex)
-		{
-			var name = lex.MatchProperty("name");
-			var typ = lex.MatchProperty("type");
-			var global = lex.MatchProperty("global");
+		//private void ParseProperty(XmlLex lex)
+		//{
+		//	var name = lex.MatchProperty("name");
+		//	var typ = lex.MatchProperty("type");
+		//	var global = lex.MatchProperty("global");
 
-			var prop = new PropertyDefinition() { PropertyId = name, TypeName = typ, IsGlobalValue = Boolean.Parse(global) };
-			_properties.Add(prop.PropertyId, prop);
+		//	var prop = new PropertyDefinition() { PropertyId = name, TypeName = typ, IsGlobalValue = Boolean.Parse(global) };
+		//	_propertyDefs.Add(prop.PropertyId, prop);
 
-			while (lex.Token != XmlLex.XmlLexToken.TAG_END)
-			{
-				var lexum = lex.Lexum.ToString();
-				var val = lex.MatchProperty(lexum);
+		//	while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+		//	{
+		//		var lexum = lex.Lexum.ToString();
+		//		var val = lex.MatchProperty(lexum);
 
-				if (lexum.Equals("min"))
-				{
-					prop.Minimum = Single.Parse(val);
-				}
-				else if (lexum.Equals("max"))
-				{
-					prop.Maximum = Single.Parse(val);
-				}
-				else if (lexum.Equals("start"))
-				{
-					prop.DefaultValue = Single.Parse(val);
-				}
-				else if (lexum.Equals("startrand"))
-				{
-					prop.DefaultRandomize = Boolean.Parse(val);
-				}
-				else if (lexum.Equals("changePerHour"))
-				{
-					prop.ChangePerSec = Single.Parse(val) / 60f / 60f;
-				}
-				else
-				{
-					throw new ArgumentException("Unknown property " + lexum);
-				}
-			}
+		//		if (lexum.Equals("min"))
+		//		{
+		//			prop.Minimum = Single.Parse(val);
+		//		}
+		//		else if (lexum.Equals("max"))
+		//		{
+		//			prop.Maximum = Single.Parse(val);
+		//		}
+		//		else if (lexum.Equals("start"))
+		//		{
+		//			prop.DefaultValue = Single.Parse(val);
+		//		}
+		//		else if (lexum.Equals("startrand"))
+		//		{
+		//			prop.DefaultRandomize = Boolean.Parse(val);
+		//		}
+		//		else if (lexum.Equals("changePerHour"))
+		//		{
+		//			prop.ChangePerSec = Single.Parse(val) / 60f / 60f;
+		//		}
+		//		else
+		//		{
+		//			throw new ArgumentException("Unknown property " + lexum);
+		//		}
+		//	}
 
-			if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
-			{
-				_globalProperties.Add(name, new PropertyValue(prop));
-			}
-		}
+		//	if (prop.IsGlobalValue && !_globalProperties.ContainsKey(name))
+		//	{
+		//		_globalProperties.Add(name, new PropertyValue(prop));
+		//	}
+		//}
 
 		private void ParseObjective(XmlLex lex)
 		{
@@ -507,12 +432,13 @@ namespace Portland.AI.Utility
 		{
 			var typ = lex.MatchProperty("type");
 
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ };
+			var agent = new UtilitySetDefinition() { BaseObjectiveSetName = typ };
 			_setsByType.Add(typ, agent);
 
 			if (lex.Lexum.IsEqualTo("extends"))
 			{
-				/*agent.Extends =*/ lex.MatchProperty("extends");
+				/*agent.Extends =*/
+				lex.MatchProperty("extends");
 			}
 
 			//if (lex.Lexum.IsEqualTo("logging"))
@@ -570,7 +496,7 @@ namespace Portland.AI.Utility
 			var typ = lex.MatchProperty("type");
 			var name = lex.MatchProperty("name");
 
-			var agent = new UtilitySetClass() { BaseObjectiveSetName = typ, AgentName = name, BaseType = _setsByType[typ] };
+			var agent = new UtilitySetDefinition() { BaseObjectiveSetName = typ, AgentName = name, BaseType = _setsByType[typ] };
 			_setsByName.Add(name, agent);
 
 			if (lex.Token == XmlLex.XmlLexToken.TAG_END)
@@ -599,7 +525,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		private void ParseAgentObjectives(XmlLex lex, UtilitySetClass agent)
+		private void ParseAgentObjectives(XmlLex lex, UtilitySetDefinition agent)
 		{
 			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
 			{
@@ -610,7 +536,7 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		private void ParseAgentOverrides(XmlLex lex, UtilitySetClass agent)
+		private void ParseAgentOverrides(XmlLex lex, UtilitySetDefinition agent)
 		{
 			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
 			{
@@ -663,79 +589,79 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		public IEnumerator<String> GetGlobalConsiderationNameEnumerator()
-		{
-			return _globalProperties.Keys.GetEnumerator();
-		}
+		//public IEnumerator<String> GetGlobalConsiderationNameEnumerator()
+		//{
+		//	return _globalProperties.Keys.GetEnumerator();
+		//}
 
 		#endregion
 
 		#region BUILDERS
 
-		public struct ConsiderationPropDefBuilder
-		{
-			internal PropertyDefinition Definition;
-			internal Dictionary<String, PropertyValue> GlobalProperties;
+		//public struct ConsiderationPropDefBuilder
+		//{
+		//	internal PropertyDefinition Definition;
+		//	internal Dictionary<String, PropertyValue> GlobalProperties;
 
-			public ConsiderationPropDefBuilder TypeName(string typename)
-			{
-				Definition.TypeName = typename;
-				return this;
-			}
+		//	public ConsiderationPropDefBuilder TypeName(string typename)
+		//	{
+		//		Definition.TypeName = typename;
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder Min(float min)
-			{
-				Debug.Assert(min <= Definition.Maximum);
+		//	public ConsiderationPropDefBuilder Min(float min)
+		//	{
+		//		Debug.Assert(min <= Definition.Maximum);
 
-				Definition.Minimum = min;
-				return this;
-			}
+		//		Definition.Minimum = min;
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder Max(float max)
-			{
-				Debug.Assert(max >= Definition.Minimum);
+		//	public ConsiderationPropDefBuilder Max(float max)
+		//	{
+		//		Debug.Assert(max >= Definition.Minimum);
 
-				Definition.Maximum = max;
-				if (Definition.IsGlobalValue)
-				{
-					GlobalProperties[Definition.PropertyId].Max = max;
-				}
-				return this;
-			}
+		//		Definition.Maximum = max;
+		//		if (Definition.IsGlobalValue)
+		//		{
+		//			GlobalProperties[Definition.PropertyId].Max = max;
+		//		}
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder StartValue(float value)
-			{
-				Debug.Assert(value >= Definition.Minimum && value <= Definition.Maximum);
-				Definition.DefaultValue = value;
+		//	public ConsiderationPropDefBuilder StartValue(float value)
+		//	{
+		//		Debug.Assert(value >= Definition.Minimum && value <= Definition.Maximum);
+		//		Definition.DefaultValue = value;
 
-				if (Definition.IsGlobalValue)
-				{
-					GlobalProperties[Definition.PropertyId].Set(value);
-				}
+		//		if (Definition.IsGlobalValue)
+		//		{
+		//			GlobalProperties[Definition.PropertyId].Set(value);
+		//		}
 
-				return this;
-			}
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder StartWithRandomValue(bool randOnStart)
-			{
-				Debug.Assert(Definition.DefaultValue == 0f);
+		//	public ConsiderationPropDefBuilder StartWithRandomValue(bool randOnStart)
+		//	{
+		//		Debug.Assert(Definition.DefaultValue == 0f);
 
-				Definition.DefaultRandomize = randOnStart;
-				return this;
-			}
+		//		Definition.DefaultRandomize = randOnStart;
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder ChangePerSecond(float delta)
-			{
-				Definition.ChangePerSec = delta;
-				return this;
-			}
+		//	public ConsiderationPropDefBuilder ChangePerSecond(float delta)
+		//	{
+		//		Definition.ChangePerSec = delta;
+		//		return this;
+		//	}
 
-			public ConsiderationPropDefBuilder ChangePerHour(float delta)
-			{
-				Definition.ChangePerSec = (delta / 60f) / 60f;
-				return this;
-			}
-		}
+		//	public ConsiderationPropDefBuilder ChangePerHour(float delta)
+		//	{
+		//		Definition.ChangePerSec = (delta / 60f) / 60f;
+		//		return this;
+		//	}
+		//}
 
 		public struct ObjectiveBuilder
 		{
@@ -821,7 +747,7 @@ namespace Portland.AI.Utility
 
 		public struct AgentTypeBuilder
 		{
-			internal UtilitySetClass AgentType;
+			internal UtilitySetDefinition AgentType;
 			internal Dictionary<string, Objective> Objectives;
 
 			//public AgentTypeBuilder Extends(string agentTypeName)
@@ -864,6 +790,12 @@ namespace Portland.AI.Utility
 				return this;
 			}
 
+			public AgentTypeBuilder AddObjectiveIdle()
+			{
+				AddObjective("idle");
+				return this;
+			}
+
 			public AgentTypeBuilder AddCommonObjectives()
 			{
 				AddObjective("idle");
@@ -879,7 +811,7 @@ namespace Portland.AI.Utility
 
 		public struct AgentBuilder
 		{
-			internal UtilitySetClass Agent;
+			internal UtilitySetDefinition Agent;
 			internal Dictionary<string, Objective> Objectives;
 
 			public AgentBuilder AddObjective(string name)
@@ -908,6 +840,7 @@ namespace Portland.AI.Utility
 		public struct ObjectiveSetBuilder
 		{
 			internal UtilityFactory UtilitySystem;
+			internal IPropertyManager PropMan;
 			internal string ObjectiveSetName;
 
 			void CreatePropIfNotExists(string name, bool isGlobal, float min, float max, float start, float changePerSec)
@@ -916,13 +849,13 @@ namespace Portland.AI.Utility
 				{
 					return;
 				}
-				
+
 				if (!UtilitySystem.HasPropertyDefinition(name))
 				{
-					UtilitySystem.CreatePropertyDef(isGlobal, name)
-						.Min(min)
-						.Max(max)
-						.StartValue(start)
+					PropMan.DefineProperty(name, name, String.Empty, isGlobal)
+						.Minimum(min)
+						.Maximum(max)
+						.SetDefault(start)
 						.ChangePerSecond(changePerSec);
 				}
 			}
@@ -1138,7 +1071,7 @@ namespace Portland.AI.Utility
 				return this;
 			}
 
-			public void AddAllObjectives()
+			public void AddTestObjectives()
 			{
 				AddObjectiveIdleAt30pct();
 				AddObjective_Eat();

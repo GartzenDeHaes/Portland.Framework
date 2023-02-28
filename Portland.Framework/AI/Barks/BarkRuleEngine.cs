@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Portland.AI.Utility;
 using Portland.CheckedEvents;
 using Portland.Collections;
 using Portland.ComponentModel;
@@ -130,7 +129,7 @@ namespace Portland.AI.Barks
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, new Utility.PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
+				facts.Add(cmd.Arg1, new PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
 			}
 			else
 			{
@@ -142,7 +141,7 @@ namespace Portland.AI.Barks
 		{
 			if (!facts.ContainsKey(cmd.Arg1))
 			{
-				facts.Add(cmd.Arg1, new Utility.PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
+				facts.Add(cmd.Arg1, new PropertyValue(PropertyDefinition.CreateVariantDefinition("Facts", cmd.Arg1, cmd.Arg1)) { Value = cmd.Arg2 });
 				//facts.Add(cmd.Arg1, new ObservableValue<Variant8>(cmd.Arg2));
 			}
 			else

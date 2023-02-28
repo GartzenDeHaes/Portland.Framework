@@ -12,6 +12,26 @@ namespace Portland.Basic
 	internal class ArrayTest
 	{
 		[Test]
+		public void _BaseTest()
+		{
+			const string src = @"
+LET A[0] = 1
+
+PRINT A[0] : PRINT A
+";
+			StringBuilder printOut = new StringBuilder();
+
+			BasicProgram bas = new BasicProgram();
+			bas.OnPrint += (msg) => { printOut.Append(msg); };
+			bas.OnError += (msg) => { printOut.Append(msg); };
+
+			bas.Parse(src);
+			bas.Execute();
+
+			Assert.True(printOut.ToString().StartsWith("1[0=1]"));
+		}
+
+		[Test]
 		public void SimpleTest()
 		{
 			const string src = @"

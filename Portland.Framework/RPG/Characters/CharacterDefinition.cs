@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Portland.Basic;
 using Portland.Collections;
@@ -11,10 +7,23 @@ using Portland.Interp;
 using Portland.Mathmatics;
 using Portland.Types;
 
-using static Portland.RPG.CharacterDefinition;
-
 namespace Portland.RPG
 {
+	public sealed class DefaultItemSpec
+	{
+		public String ItemId;
+		public int Count;
+		public String WindowSectionName;
+		public int WindowSectionIndex;
+		public ItemPropertyDefault[] Properties;
+	}
+
+	public struct ItemPropertyDefault
+	{
+		public String PropId;
+		public Variant8 Default;
+	}
+
 	public sealed class CharacterDefinition
 	{
 		sealed class InventorySection
@@ -26,21 +35,6 @@ namespace Portland.RPG
 			public int Height;
 			public bool IsReadOnly;
 			public Vector<ItemRequirement> Requirements = new Vector<ItemRequirement>(3);
-		}
-
-		public struct ItemPropertyDefault
-		{
-			public String PropId;
-			public Variant8 Default;
-		}
-
-		public sealed class DefaultItemSpec
-		{
-			public String ItemId;
-			public int Count;
-			public String WindowSectionName;
-			public int WindowSectionIndex;
-			public ItemPropertyDefault[] Properties;
 		}
 
 		public String CharId;
@@ -174,12 +168,12 @@ namespace Portland.RPG
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetValue(name.ToString(), out float value))
 				{
-					ctx.Context.Set(value);
+					ctx.Context.SetReturnValue(value);
 				}
 				else
 				{
 					ctx.SetError($"{"STAT"}('{name}'): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			// Set the current value of a stat
@@ -190,7 +184,7 @@ namespace Portland.RPG
 				if (!chr.Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
 				{
 					ctx.SetError($"{"STAT"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
-					ctx.Context.Set(ctx.Context["b"]);
+					ctx.Context.SetReturnValue(ctx.Context["b"]);
 				}
 			})
 			// Returns the maximum range for a stat
@@ -200,12 +194,12 @@ namespace Portland.RPG
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetMaximum(name.ToString(), out float value))
 				{
-					ctx.Context.Set(value);
+					ctx.Context.SetReturnValue(value);
 				}
 				else
 				{
 					ctx.SetError($"{"STATMAX"}('{name}'): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			// Set the maximum value for a stat, use for XP, HP
@@ -216,7 +210,7 @@ namespace Portland.RPG
 				if (!chr.Stats.TrySetMaximum(name.ToString(), ctx.Context["b"]))
 				{
 					ctx.SetError($"{"STATMAX"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			// Returns the probability set for a stat in dice notation (3d8)
@@ -226,12 +220,12 @@ namespace Portland.RPG
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
 				{
-					ctx.Context.Set(value.ToString());
+					ctx.Context.SetReturnValue(value.ToString());
 				}
 				else
 				{
 					ctx.SetError($"{"STATDICE"}('{name}'): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			//// Set the probability for a stat (can be used to adjust HP levelup amount, fe)
@@ -259,12 +253,12 @@ namespace Portland.RPG
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
 				{
-					ctx.Context.Set(value.Roll(MathHelper.Rnd));
+					ctx.Context.SetReturnValue(value.Roll(MathHelper.Rnd));
 				}
 				else
 				{
 					ctx.SetError($"{"STATROLL"}('{name}'): '{name}' NOT FOUND");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			// Random number based on dice roll
@@ -273,16 +267,16 @@ namespace Portland.RPG
 				string dicetxt = ctx.Context["a"];
 				if (DiceTerm.TryParse(dicetxt, out var dice))
 				{
-					ctx.Context.Set(dice.Roll(MathHelper.Rnd));
+					ctx.Context.SetReturnValue(dice.Roll(MathHelper.Rnd));
 				}
 				else
 				{
 					ctx.SetError($"{"ROLLDICE"}('{dicetxt}'): INVALID DICE TERM");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			.Add("SELECTED", 0, (ctx) => {
-				ctx.Context.Set(((CharacterSheet)ctx.UserData).InventoryWindow.SelectedSlot);
+				ctx.Context.SetReturnValue(((CharacterSheet)ctx.UserData).InventoryWindow.SelectedSlot);
 			})
 			// Sum all of the named properties in a window area grid, fe DEFENCE in the equipment armor grid to calcuate AC
 			// INVENTORY("SUM", "WINDOW AREA NAME", "PROPERTY NAME")
@@ -302,20 +296,20 @@ namespace Portland.RPG
 						{
 							if (value8.TypeIs == VariantType.Int)
 							{
-								ctx.Context.Set((int)value8);
+								ctx.Context.SetReturnValue((int)value8);
 							}
 							else if (value8.TypeIs == VariantType.Float)
 							{
-								ctx.Context.Set((int)value8);
+								ctx.Context.SetReturnValue((int)value8);
 							}
 							else
 							{
-								ctx.Context.Set((string)value8);
+								ctx.Context.SetReturnValue((string)value8);
 							}
 						}
 						else
 						{
-							ctx.Context.Set(new Variant());
+							ctx.Context.SetReturnValue(new Variant());
 						}
 					}
 				}
@@ -325,19 +319,19 @@ namespace Portland.RPG
 					{
 						// Sum property for entire inventory, WEIGHT fe
 						chr.InventoryWindow.TrySumItemProp(propName, out float amt);
-						ctx.Context.Set(amt);
+						ctx.Context.SetReturnValue(amt);
 					}
 					else
 					{
 						// Sum property for window
 						chr.InventoryWindow.TrySumItemProp(window, propName, out float amt);
-						ctx.Context.Set(amt);
+						ctx.Context.SetReturnValue(amt);
 					}
 				}
 				else
 				{
 					ctx.SetError($"{"INVENTORY"}('{op}', '{window}', '{propName}'): INVALID OPERATION '{op}'");
-					ctx.Context.Set(0f);
+					ctx.Context.SetReturnValue(0f);
 				}
 			})
 			;

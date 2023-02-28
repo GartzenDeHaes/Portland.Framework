@@ -37,9 +37,7 @@ namespace Portland.CodeDom
 			int count = _statements.Count;
 			for (int x = 0; x < count; x++)
 			{
-				var stmt = _statements[x];
-
-				stmt.Execute(ctx);
+				_statements[x].Execute(ctx);
 			}
 
 			ctx.EndRun();

@@ -7,7 +7,7 @@ using Portland.Types;
 
 namespace Portland.AI.Barks
 {
-    public sealed class BarkRule
+	public sealed class BarkRule
 	{
 		public bool HasRun;
 
@@ -20,8 +20,6 @@ namespace Portland.AI.Barks
 
 		public WorldStateFlags WorldFlagsSet;
 		public WorldStateFlags WorldFlagsClear;
-		//public AgentStateFlags ActorFlagsSet;
-		//public AgentStateFlags ActorFlagsClear;
 		public List<FactFilter> WorldFilters = new List<FactFilter>();
 
 		//public TextTableToken Location;
@@ -136,10 +134,11 @@ namespace Portland.AI.Barks
 				Variant8 value
 			)
 			{
-				Rule.WorldFilters.Add(new FactFilter { 
-					ActorName = actorName, 
-					FactName = factName, 
-					Op = op, 
+				Rule.WorldFilters.Add(new FactFilter
+				{
+					ActorName = actorName,
+					FactName = factName,
+					Op = op,
 					Value = value
 				});
 
@@ -198,7 +197,8 @@ namespace Portland.AI.Barks
 
 			public RuleDoBuilder Say(string speakerName, string conceptOrObject, float duration = 3f, params string[] defaultText)
 			{
-				var cmd = new BarkCommand {
+				var cmd = new BarkCommand
+				{
 					ActorName = speakerName,
 					Arg1 = conceptOrObject,
 					Rule = Rule,
@@ -213,10 +213,11 @@ namespace Portland.AI.Barks
 
 			public RuleDoBuilder Set(string agentName, string factName, Variant8 value, float delayBeforeRunInSecs = 0f)
 			{
-				Rule.Response.Add(new BarkCommand { 
+				Rule.Response.Add(new BarkCommand
+				{
 					CommandName = BarkCommand.CommandNameSetVar,
-					Rule = Rule, 
-					ActorName = agentName, 
+					Rule = Rule,
+					ActorName = agentName,
 					Arg1 = factName,
 					Arg2 = value,
 					DelayTime = delayBeforeRunInSecs
@@ -233,7 +234,8 @@ namespace Portland.AI.Barks
 
 			public RuleDoBuilder AddTo(string agentName, string factName, Variant8 value)
 			{
-				Rule.Response.Add(new BarkCommand { 
+				Rule.Response.Add(new BarkCommand
+				{
 					CommandName = BarkCommand.CommandNameAdd,
 					ActorName = agentName,
 					Arg1 = factName,
@@ -268,7 +270,8 @@ namespace Portland.AI.Barks
 			{
 				// Arg2 supposed to be observer?
 
-				Rule.Response.Add(new BarkCommand { 
+				Rule.Response.Add(new BarkCommand
+				{
 					Rule = Rule,
 					CommandName = BarkCommand.CommandNameDontSay,
 					ActorName = actorName,

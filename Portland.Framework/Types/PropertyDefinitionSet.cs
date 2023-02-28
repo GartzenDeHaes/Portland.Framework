@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Portland.RPG
+namespace Portland.Types
 {
-
-	public class PropertyRequirement
+	public struct PropertyDefinitionSet
 	{
-		public AsciiId4 PropertyId;
-		public Variant8 Value;
+		public string SetId;
+		public PropertyDefinition[] Properties;
 	}
 }

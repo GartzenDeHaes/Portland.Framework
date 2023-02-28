@@ -9,53 +9,19 @@ namespace Portland.AI.Utility
 	public sealed class UtilitySet
 	{
 		private string _name;
-		private UtilitySetClass _agent;
+		private UtilitySetDefinition _setDef;
 
 		// seperate consideration property from property value
 		public Dictionary<String, PropertyValue> Properties = new Dictionary<String, PropertyValue>();
-		public readonly ObjectiveInstance[] Objectives;
+		public readonly ObjectiveScore[] Objectives;
 
 		//public List<string> ObjectiveHistory = new List<string>();
 
-		private ObjectiveInstance _current;
+		private ObjectiveScore _current;
 		private float _currentScore;
 		
 		private bool _isTiming = false;
 		public float _actionTimer = 0.0f;
-
-		public string Name
-		{
-			get { return _name; }
-		}
-
-		public PropertyValue CurrentObjective
-		{
-			get; private set;
-		}
-
-		public PropertyValue this[string propertyName] 
-		{
-			get { return Properties[propertyName]; }
-			set { throw new Exception("readonly"); } 
-		}
-
-		public PropertyValue this[in String propertyName]
-		{
-			get { return Properties[propertyName]; }
-			set { throw new Exception("readonly"); }
-		}
-
-		public UtilitySet(string name, UtilitySetClass agent)
-		{
-			_name = name;
-			_agent = agent;
-
-			//CurrentObjective = new ObservableValue<Variant8>("objective");
-			//CurrentObjective.Set(String.Empty);
-			CurrentObjective = new PropertyValue(new PropertyDefinition() { DisplayName = "Objective", PropertyId = "objective", TypeName = "string" });
-
-			Objectives = _agent.CreateObjectives();
-		}
 
 		public void Update(float deltaTime)
 		{
@@ -94,7 +60,7 @@ namespace Portland.AI.Utility
 			// No current or current is interruptable
 
 			bool chgObjective = false;
-			ObjectiveInstance nextCurrent = null;
+			ObjectiveScore nextCurrent = null;
 
 			// Find any with higher score AND higher priority
 			for (int x = 0; x < Objectives.Length; x++)
@@ -124,6 +90,28 @@ namespace Portland.AI.Utility
 			}
 		}
 
+		public string Name
+		{
+			get { return _name; }
+		}
+
+		public PropertyValue CurrentObjective
+		{
+			get; private set;
+		}
+
+		public PropertyValue this[string propertyName] 
+		{
+			get { return Properties[propertyName]; }
+			set { throw new Exception("readonly"); } 
+		}
+
+		public PropertyValue this[in String propertyName]
+		{
+			get { return Properties[propertyName]; }
+			set { throw new Exception("readonly"); }
+		}
+
 		public void AddProperty(PropertyDefinition def)
 		{
 			var prop = new PropertyValue(def);
@@ -133,6 +121,28 @@ namespace Portland.AI.Utility
 		public void AddProperty(PropertyValue property)
 		{
 			Properties.Add(property.Definition.PropertyId, property);
+		}
+
+		public bool HasProperty(in String propertyName)
+		{
+			return Properties.ContainsKey(propertyName);
+		}
+
+		public bool TryGetProperty(in String propertyName, out PropertyValue value)
+		{
+			return Properties.TryGetValue(propertyName, out value);
+		}
+
+		public UtilitySet(string name, UtilitySetDefinition agent)
+		{
+			_name = name;
+			_setDef = agent;
+
+			//CurrentObjective = new ObservableValue<Variant8>("objective");
+			//CurrentObjective.Set(String.Empty);
+			CurrentObjective = new PropertyValue(new PropertyDefinition() { DisplayName = "Objective", PropertyId = "objective", TypeName = "string" });
+
+			Objectives = _setDef.CreateObjectives();
 		}
 	}
 }

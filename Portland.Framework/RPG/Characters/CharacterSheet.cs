@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
 
 using Portland.Basic;
 using Portland.Collections;
 using Portland.Framework.AI;
 using Portland.Interp;
-using Portland.Mathmatics;
 using Portland.Types;
 
 namespace Portland.RPG

@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Portland.Collections;
-using Portland.ComponentModel;
+
 using Portland.Framework.AI;
 using Portland.Text;
-using Portland.Types;
 
 namespace Portland.AI.Barks
 {
-    public enum ComparisionOp
+	public enum ComparisionOp
 	{
 		Equals,
 		NotEquals,

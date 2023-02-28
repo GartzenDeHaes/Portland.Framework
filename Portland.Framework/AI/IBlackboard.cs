@@ -1,6 +1,6 @@
-﻿using Portland.AI.Utility;
-using Portland.Collections;
+﻿using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.Types;
 
 namespace Portland.Framework.AI
 {
@@ -11,5 +11,7 @@ namespace Portland.Framework.AI
 		PropertyValue Get(in TKEY key);
 		void Set(in TKEY key, in Variant8 value);
 		bool TryGetValue(in TKEY tok, out PropertyValue value);
+
+		public int Count { get; }
 	}
 }

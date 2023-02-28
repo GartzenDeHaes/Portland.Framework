@@ -2,24 +2,33 @@
 using System.Collections.Generic;
 
 using Portland.AI;
-using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.Types;
 
 namespace Portland.Framework.AI
 {
 	public sealed class Blackboard<TKEY> : IBlackboard<TKEY>
 	{
 		Dictionary<TKEY, PropertyValue> _facts = new Dictionary<TKEY, PropertyValue>();
+		IBlackboard<TKEY> _parent;
 
 		public bool TryGetValue(in TKEY key, out PropertyValue value)
 		{
-			return _facts.TryGetValue(key, out value);
+			if (_facts.TryGetValue(key, out value))
+			{
+				return true;
+			}
+			return _parent?.TryGetValue(key, out value) ?? false;
 		}
 
 		public PropertyValue Get(in TKEY key)
 		{
-			return _facts[key];
+			if (_facts.TryGetValue(key, out var val))
+			{
+				return val;
+			}
+			return _parent?.Get(key) ?? null;
 		}
 
 		public void Set(in TKEY key, in Variant8 value)
@@ -29,7 +38,7 @@ namespace Portland.Framework.AI
 
 		public bool ContainsKey(in TKEY key)
 		{
-			return _facts.ContainsKey(key);
+			return _facts.ContainsKey(key) || (_parent?.ContainsKey(key) ?? false);
 		}
 
 		public void Add(in TKEY id, PropertyValue value)
@@ -37,8 +46,15 @@ namespace Portland.Framework.AI
 			_facts.Add(id, value);
 		}
 
+		public int Count { get { return _facts.Count; } }
+
 		public Blackboard()
 		{
+		}
+
+		public Blackboard(IBlackboard<TKEY> parent)
+		{
+			_parent = parent;
 		}
 
 		//		public const int ViewBufferSize = 8;

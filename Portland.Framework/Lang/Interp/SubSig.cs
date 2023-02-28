@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Portland.Interp
 {
-	public struct SubSig
+	public struct SubSig : IEquatable<SubSig>
 	{
 		public String8 Name;
 		public int ArgCount;
@@ -29,6 +29,16 @@ namespace Portland.Interp
 		public override string ToString()
 		{
 			return Name.ToString() + "_" + ArgCount;
+		}
+
+		public bool Equals(SubSig other)
+		{
+			return ArgCount == other.ArgCount && Name == other.Name;
+		}
+
+		public bool Equals(in SubSig other)
+		{
+			return ArgCount == other.ArgCount && Name == other.Name;
 		}
 	}
 }

@@ -291,7 +291,7 @@ namespace Portland.Collections
 		{
 			int hash = StringHelper.HashMurmur32(lexum);
 			var item = new StringItem { Lexum = lexum, HashCode = hash, Index = _strings.Count };
-			int idx = _strings.Add(item);
+			int idx = _strings.AddAndGetIndex(item);
 			
 			Debug.Assert(idx == item.Index);
 

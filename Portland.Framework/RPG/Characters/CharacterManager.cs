@@ -1,46 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Portland.Collections;
-using Portland.Interp;
-using Portland.Text;
+using Portland.AI.Utility;
 using Portland.Types;
 
 namespace Portland.RPG
 {
-	public sealed class CharacterManager
+	public sealed class CharacterManager : ICharacterManager
 	{
-		PropertyManager _props;
+		readonly IPropertyManager _props;
 		Dictionary<String, Effect> _effectsById = new Dictionary<String, Effect>();
 		Dictionary<String, EffectGroup> _effectGroupByName = new Dictionary<String, EffectGroup>();
 		Dictionary<String, CharacterDefinition> _charDefs = new Dictionary<String, CharacterDefinition>();
 
-		ItemFactory _items;
-		StringTable _strings;
+		readonly ItemFactory _items;
+		//StringTable _strings;
 
-		public CharacterManager(StringTable strings, PropertyManager props, ItemFactory items)
+		public CharacterManager(IPropertyManager propMan, ItemFactory items)
 		{
-			_strings = strings;
-			_props = props;
+			//_strings = strings;
+			_props = propMan;
 			_items = items;
 
 			_effectGroupByName.Add(String.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
 			_props.DefinePropertySet(String.Empty, Array.Empty<String>());
 		}
 
-		public CharacterSheet CreateCharacter(in String charId, in String raceEffectGroup, in String classEffectGroup, in String factionEffectGroup)
+		public bool HasStatDefined(in string statName)
+		{
+			return _props.HasPropertyDefined(statName);
+		}
+
+		public void DefineAlertForStatDefinition(in String propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName)
+		{
+			if (_props.TryGetDefinition(propertyId, out var def))
+			{
+				def.DefineAlert(propertyId, type, value, flagName);
+			}
+			else
+			{
+				throw new Exception($"DefineAlertForPropertyDefinition: {propertyId} not found");
+			}
+		}
+
+		public CharacterManagerBuilder GetBuilder()
+		{
+			return new CharacterManagerBuilder(this, _props, _items);
+		}
+
+		#region Characters
+
+		public CharacterSheet CreateCharacter
+		(
+			in String charId,
+			in String raceEffectGroup,
+			in String classEffectGroup,
+			in String factionEffectGroup,
+			UtilitySet utilityProperties
+		)
 		{
 			var def = _charDefs[charId];
 
 			CharacterSheet chr = new CharacterSheet
 			(
-				def, 
-				_props.CreatePropertySet(def.PropertyGroupId), 
-				_effectGroupByName[raceEffectGroup], 
-				_effectGroupByName[classEffectGroup], 
+				def,
+				_props.CreatePropertySet(def.PropertyGroupId, utilityProperties),
+				_effectGroupByName[raceEffectGroup],
+				_effectGroupByName[classEffectGroup],
 				_effectGroupByName[factionEffectGroup]
 			);
 
@@ -59,7 +85,7 @@ namespace Portland.RPG
 					var itemdef = items[i];
 					var item = _items.CreateItem(0, itemdef.ItemId, itemdef.Count);
 
-					if (! chr.InventoryWindow.TrySetSectionItem(itemdef.WindowSectionName, itemdef.WindowSectionIndex, item))
+					if (!chr.InventoryWindow.TrySetSectionItem(itemdef.WindowSectionName, itemdef.WindowSectionIndex, item))
 					{
 						throw new Exception($"Window section {itemdef.WindowSectionName} not found, or invalid window index {itemdef.WindowSectionIndex}");
 					}
@@ -67,13 +93,20 @@ namespace Portland.RPG
 			}
 		}
 
-		public CharacterDefinitionBuilder CreateCharacterDefinition(in String id)
+		public CharacterDefinitionBuilder CreateCharacterDefinition(in String charId)
 		{
-			CharacterDefinition def = new CharacterDefinition() { CharId = id };
-			_charDefs.Add(id, def);
+			CharacterDefinition def = new CharacterDefinition() { CharId = charId };
+			_charDefs.Add(charId, def);
 
 			return new CharacterDefinitionBuilder(def, _effectGroupByName);
 		}
+
+		public bool HasCharacterDefinition(in String charId)
+		{
+			return _charDefs.ContainsKey(charId);
+		}
+
+		#endregion
 
 		#region Effects
 
@@ -152,5 +185,48 @@ namespace Portland.RPG
 		}
 
 		#endregion
+
+		//#region Properties
+
+		//public PropertyDefinitionBuilder DefineProperty(in String id, string displayName, string category)
+		//{
+		//	return _props.DefineProperty(id, displayName, category);
+		//}
+
+		//public void DefinePropertySet(in String setId, in String[] propertyIds)
+		//{
+		//	_props.DefinePropertySet(setId, propertyIds);
+		//}
+
+		//#endregion
+
+		//#region Items
+
+		//public void DefineItemCategory(in String category)
+		//{
+		//	_items.DefineCategory(category);
+		//}
+
+		//public bool HasItemPropertyDefined(in String itemPropertyId)
+		//{
+		//	return _items.HasProperty(itemPropertyId);
+		//}
+
+		//public void DefineItemProperty(in String itemPropertyId, ItemPropertyType type, string description, bool instancePerItem)
+		//{
+		//	_items.DefineProperty(itemPropertyId, type, description, instancePerItem);
+		//}
+
+		//public bool HasItemDefined(in String itemTypeId)
+		//{
+		//	return _items.HasItemDefined(itemTypeId);
+		//}
+
+		//public ItemDefinitionBuilder DefineItemType(string category, in String itemTypeId)
+		//{
+		//	return _items.DefineItem(category, itemTypeId);
+		//}
+
+		//#endregion
 	}
 }

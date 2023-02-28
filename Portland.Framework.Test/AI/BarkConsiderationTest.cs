@@ -15,17 +15,17 @@ namespace Portland.AI.Barks
 		[Test]
 		public void FullSetupBaseTest()
 		{
-			StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), strings, new RandMax());
+			//StringTable strings = new StringTable();
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMax());
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
-				.AddAllObjectives();
+				.AddTestObjectives();
 			world.UtilitySystem.CreateAgentType("living", "human")
 				.AddCommonObjectives();
 			world.UtilitySystem.CreateAgent("human", "human");
 
-			world.DefineNameForActorUtilityObjectiveFact("objective");
-			world.DefineStandardUtilityAlerts();
+			//world.DefineNameForActorUtilityObjectiveFact("objective");
+			world.DefineTestUtilityAlerts();
 
 			RulePack rulePack = new RulePack();
 
@@ -38,7 +38,7 @@ namespace Portland.AI.Barks
 			world.BarkEngine.SetRules(rulePack);
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateAgent("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
 
 			string saidText = String.Empty;
 			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidText = cmd.DefaultTexts.RandomElement(); };
@@ -58,22 +58,23 @@ namespace Portland.AI.Barks
 		[Test]
 		public void HealthAlertTest()
 		{
-			StringTable strings = new StringTable();
-			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), strings, new RandMin());
+			//StringTable strings = new StringTable();
+			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), new RandMin());
 
 			world.CharacterManager.CreateCharacterDefinition("human");
 
-			string saidConcept = String.Empty;
-			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidConcept = rule.RuleKey; };
-
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
-				.AddAllObjectives();
+				.AddTestObjectives();
 			world.UtilitySystem.CreateAgentType("living", "human")
 				.AddCommonObjectives();
 			world.UtilitySystem.CreateAgent("human", "human");
 
-			world.DefineNameForActorUtilityObjectiveFact("objective");
-			world.DefineStandardUtilityAlerts();
+			//world.DefineNameForActorUtilityObjectiveFact("objective");
+			
+			world.DefineTestUtilityAlerts();
+
+			string saidConcept = String.Empty;
+			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidConcept = rule.RuleKey; };
 
 			RulePack rulePack = new RulePack();
 
@@ -101,7 +102,7 @@ namespace Portland.AI.Barks
 
 			world.BarkEngine.SetRules(rulePack);
 
-			world.CreateActor("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateAgent("human", "COACH");
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 
 			Agent coach;

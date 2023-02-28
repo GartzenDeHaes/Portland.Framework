@@ -28,11 +28,11 @@ namespace Portland.CodeDom.Statements
 			//throw new ReturnException(new Variant());
 			if (ReturnValue != null)
 			{
-				ctx.Context.Set(ReturnValue.Execute(ctx));
+				ctx.Context.SetReturnValue(ReturnValue.Execute(ctx));
 			}
 			else
 			{
-				ctx.Context.Set(new Variant());
+				ctx.Context.SetReturnValue(new Variant());
 			}
 
 			return false;

@@ -46,7 +46,7 @@ namespace Portland.Basic
 			InternalAdd(name, 0, new FuncStub
 			{
 				ArgNames = Array.Empty<string>(),
-				Fn = (ctx) => ctx.Context.Set(callback())
+				Fn = (ctx) => ctx.Context.SetReturnValue(callback())
 			});
 			return this;
 		}
@@ -56,7 +56,7 @@ namespace Portland.Basic
 			InternalAdd(name, 1, new FuncStub
 			{
 				ArgNames = ArgNamesA,
-				Fn = (ctx) => ctx.Context.Set(callback(ctx.Context["a"]))
+				Fn = (ctx) => ctx.Context.SetReturnValue(callback(ctx.Context["a"]))
 			});
 			return this;
 		}
@@ -99,12 +99,12 @@ namespace Portland.Basic
 				var num = ctx.Context["a"];
 				if (num.IsNumeric())
 				{
-					ctx.Context.Set(callback(num));
+					ctx.Context.SetReturnValue(callback(num));
 				}
 				else
 				{
 					ctx.SetError($"{name}({num})");
-					ctx.Context.Set(0);
+					ctx.Context.SetReturnValue(0);
 				}
 			});
 			return this;
@@ -115,7 +115,7 @@ namespace Portland.Basic
 			InternalAdd(name, 2, new FuncStub
 			{
 				ArgNames = ArgNamesAB,
-				Fn = (ctx) => ctx.Context.Set(callback(ctx.Context["a"], ctx.Context["b"]))
+				Fn = (ctx) => ctx.Context.SetReturnValue(callback(ctx.Context["a"], ctx.Context["b"]))
 			});
 			return this;
 		}
@@ -176,7 +176,7 @@ namespace Portland.Basic
 				Add("ERROR", 0, (ExecutionContext ctx) =>
 				{
 					var name = ctx.Context["a"];
-					ctx.Context.Set(ctx.LastError);
+					ctx.Context.SetReturnValue(ctx.LastError);
 				});
 			}
 
@@ -186,7 +186,7 @@ namespace Portland.Basic
 				{
 					var msg = ctx.Context["a"];
 					ctx.SetError(msg);
-					ctx.Context.Set(msg);
+					ctx.Context.SetReturnValue(msg);
 				});
 			}
 			return this;

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 using Portland.Mathmatics;
 
 namespace Portland.Collections
 {
 	[Serializable]
-	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>
+	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>, IList<T>
 	{
 		T[] m_data;
 		int m_used;
@@ -71,14 +69,20 @@ namespace Portland.Collections
 			return m_data.Length;
 		}
 
-		public int AddElement(T o)
+		public int AddElement(in T o)
 		{
 			Extend();
 			m_data[m_used] = o;
 			return m_used++;
 		}
 
-		public int Add(T o)
+		public void Add(T o)
+		{
+			Extend();
+			m_data[m_used++] = o;
+		}
+
+		public int AddAndGetIndex(in T o)
 		{
 			Extend();
 			m_data[m_used++] = o;
@@ -158,7 +162,7 @@ namespace Portland.Collections
 			set { SetElementAt(idx, value); }
 		}
 
-		public void SetElementAt(int at, T o)
+		public void SetElementAt(int at, in T o)
 		{
 			m_data[at] = o;
 		}
@@ -184,6 +188,18 @@ namespace Portland.Collections
 			else
 			{
 				return default(T);
+			}
+		}
+
+		public ref T LastElementRef()
+		{
+			if (m_used > 0)
+			{
+				return ref m_data[m_used - 1];
+			}
+			else
+			{
+				throw new Exception("Vector empty");
 			}
 		}
 
@@ -265,7 +281,7 @@ namespace Portland.Collections
 			}
 		}
 
-		public void InsertBefore(T oNew, T oExisting)
+		public void InsertBefore(in T oNew, in T oExisting)
 		{
 			int at = IndexOf(oExisting);
 			if (at < 0)

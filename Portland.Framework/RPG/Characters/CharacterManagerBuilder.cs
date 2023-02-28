@@ -1,63 +1,235 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-using Portland.Collections;
 using Portland.Types;
-
-using static Portland.RPG.CharacterDefinition;
 
 namespace Portland.RPG
 {
-	public static class CharacterManagerBuilder
+	public class CharacterManagerBuilder
 	{
-		private static void AddDndStat
+		CharacterManager _manager;
+		IPropertyManager _props;
+		ItemFactory _items;
+
+		public CharacterManagerBuilder(CharacterManager manager, IPropertyManager propMan, ItemFactory items)
+		{
+			_manager = manager;
+			_props = propMan;
+			_items = items;
+		}
+
+		public enum InventoryType
+		{
+			Test,
+			UltimateSurvival,
+			Minecraft
+		}
+
+		public CharacterManagerBuilder DefineSimpleCharacter(string playerCharId, InventoryType invtype)
+		{
+			AddFalloutStat("STR", "Strength");
+			AddFalloutStat("CON", "Constitution");
+			AddFalloutStat("CHR", "Chrisma");
+			AddFalloutStat("INT", "Intelligence");
+			AddFalloutDerivedStat("HP", "Hit Points", 10, false);
+			AddProperty("DERIVED", "LV", "Level", 0, 1, 99, false);
+			AddProperty("DERIVED", "XP", "Experience Points", 0, 1, 1000, false);
+			AddProperty("SYSTEM", "XPMOD", "XP Max Class Modifier", 0, 1, 10, false);
+			AddProperty("DERIVED", "ATTACK", "Attack damaage modifier", 0, 1, 10, false);
+			AddProperty("DERIVED", "DEFENSE", "Defense damaage modifier", 0, 1, 10, false);
+			AddProperty("DERIVED", "CARRY", "Carry Weight", 0, 50, 200, false);
+			AddProperty("SKILL", "EDGED", "Edged weapon skill", 0, 1, 10, false);
+			AddProperty("SKILL", "BLUNT", "Blunt weapon skill", 0, 1, 10, false);
+			AddProperty("SKILL", "PROJ", "Projectile weapon skill", 0, 1, 10, false);
+
+			StringBuilder statsRecalc = new StringBuilder();
+			statsRecalc.AppendLine("REM -== RECALC DERIVED STATS ==-");
+			// XP = LV * XPMOD * (1000 - INT^2)
+			statsRecalc.AppendLine("CALL STATMAX('XP', STAT('LV') * STAT('XPMOD') * (1000 - STAT('INT')*STAT('INT')))");
+			// DEFENSE = DEFENSE of armor and shild plus a dexterity bonus
+			statsRecalc.AppendLine("CALL STAT('DEFENSE', INVENTORY('SUM', 'ARMOR', 'DEFENSE') + INVENTORY('SUM', 'SHIELD', 'DEFENSE') + SQR(STAT('CON') / 2.0))");
+			// ATTACK: 20 - LV - (skill for equipped weapon) - STR
+			statsRecalc.AppendLine("CALL STAT('ATTACK', SQR(STAT('LV') + STAT(INVENTORY('GET', SELECTED(), 'TYPE'))))");
+			// HP = LV * SQRT(CON)
+			statsRecalc.AppendLine("CALL STATMAX('HP', STAT('LV') * SQR(STAT('CON')))");
+			// CARRY = STR + SQRT(CON)
+			statsRecalc.AppendLine("CALL STATMAX('CARRY', STAT('STR') + SQR(STAT('CON')))");
+			// CARRY current value
+			statsRecalc.AppendLine("CALL STAT('CARRY', INVENTORY('SUM', '*', 'WEIGHT'))");
+
+			// Associate stats with player
+
+			_props.DefinePropertySet(playerCharId, new string[] {
+					"STR", "CON", "CHR", "INT",
+					"HP", "LV", "XP", "XPMOD", "ATTACK", "DEFENSE", "CARRY",
+					"EDGED", "BLUNT", "PROJ"
+				});
+
+			DefineCharacter(playerCharId, statsRecalc.ToString(), InventoryType.Test);
+
+			return this;
+		}
+
+		void DefineCharacter(string playerCharId, string statUpdateBas, InventoryType invType)
+		{
+			if (invType == InventoryType.Test)
+			{
+				_manager.CreateCharacterDefinition(playerCharId)
+					.PropertyGroupId(playerCharId)
+					.AutoCountInventory(true)
+					.SetOnChangeScriptBas(statUpdateBas)
+					.AddInventorySection("HOTBAR", 0, false, 4, 1)
+					.AddInventorySection("MAIN", 1, false, 9, 1)
+					.AddInventorySection("ARMOR", 2, false, 1, 1)
+					.AddInventorySection("SHIELD", 3, false, 1, 1)
+					.SetSelectedSlot(0)
+					.PrepareProgram()
+					;
+			}
+			else if (invType == InventoryType.UltimateSurvival)
+			{
+				_manager.CreateCharacterDefinition(playerCharId)
+					.PropertyGroupId(playerCharId)
+					.AutoCountInventory(true)
+					.SetOnChangeScriptBas(statUpdateBas)
+					.AddInventorySection("HOTBAR", 0, false, 6, 1)
+					.AddInventorySection("MAIN", 1, false, 6, 4)
+					.AddInventorySection("HEAD", 2, false, 1, 1)
+					.AddInventorySection("SHIRT", 3, false, 1, 1)
+					.AddInventorySection("PANTS", 4, false, 1, 1)
+					.AddInventorySection("SHOES", 5, false, 1, 1)
+					.SetSelectedSlot(0)
+					.PrepareProgram()
+					;
+			}
+			else if (invType == InventoryType.Minecraft)
+			{
+				_manager.CreateCharacterDefinition(playerCharId)
+					.PropertyGroupId(playerCharId)
+					.AutoCountInventory(true)
+					.SetOnChangeScriptBas(statUpdateBas)
+					.AddInventorySection("HOTBAR", 0, false, 9, 1)
+					.AddInventorySection("MAIN", 1, false, 9, 3)
+					.AddInventorySection("HEAD", 2, false, 1, 1)
+					.AddInventorySection("SHIRT", 3, false, 1, 1)
+					.AddInventorySection("PANTS", 4, false, 1, 1)
+					.AddInventorySection("SHOES", 5, false, 1, 1)
+					.AddInventorySection("SHIELD", 6, false, 1, 1)
+					.AddInventorySection("CRAFT", 7, false, 2, 2)
+					.AddInventorySection("OUTPUT", 8, false, 1, 1)
+					.SetSelectedSlot(0)
+					.PrepareProgram()
+					;
+			}
+		}
+
+		public CharacterManagerBuilder AddFalloutStat
 		(
-			PropertyManager props,
-			String id, 
-			string name, 
-			bool randomize,
-			List<String> proplist
+			in String id,
+			string name
 		)
 		{
-			proplist.Add(id);
+			_props.DefineProperty(id, name, "STAT", false)
+				.Minimum(1)
+				.Maximum(10)
+				.SetDefault(5)
+				.RandomizeDefault(false)
+				.Probability("1d10");
 
-			props.DefineProperty(id, name, "STAT")
-				.SetMinimum(1)
-				.SetMaximum(20)
+			return this;
+		}
+
+		public CharacterManagerBuilder AddFalloutDerivedStat
+		(
+			in String id, 
+			string name,
+			float maximum,
+			bool isUtility
+		)
+		{
+			_props.DefineProperty(id, name, "DERIVED", false)
+				.Minimum(0)
+				.Maximum(maximum)
+				.SetDefault(maximum)
+				.IsUtilitySystemProperty(isUtility);
+			return this;
+		}
+
+		public CharacterManagerBuilder AddProperty
+		(
+			in String category,
+			in String id,
+			string name,
+			float minimum,
+			float start,
+			float maximum,
+			bool isUtility
+		)
+		{
+			_props.DefineProperty(id, name, category, false)
+				.Minimum(minimum)
+				.Maximum(maximum)
+				.SetDefault(start)
+				.IsUtilitySystemProperty(isUtility);
+			return this;
+		}
+
+		public CharacterManagerBuilder AddDnDStats(bool randomizeStats)
+		{
+			AddDndStat("STR", "Strength", randomizeStats);
+			AddDndStat("INT", "Intellegence", randomizeStats);
+			AddDndStat("WIS", "Wisdom", randomizeStats);
+			AddDndStat("CON", "Constitution", randomizeStats);
+			AddDndStat("DEX", "Dexterity", randomizeStats);
+			AddDndStat("CHR", "Charisma", randomizeStats);
+
+			return this;
+		}
+
+		public CharacterManagerBuilder AddDndStat
+		(
+			String id, 
+			string name, 
+			bool randomize
+		)
+		{
+			_props.DefineProperty(id, name, "STAT", false)
+				.Minimum(1)
+				.Maximum(20)
 				.SetDefault(8)
-				.SetRandomizeDefault(randomize)
-				.SetProbability("3d6");
+				.RandomizeDefault(randomize)
+				.Probability("3d6");
+
+			return this;
 		}
 
-		private static void AddDndResistance(PropertyManager props, String id, string name, List<String> proplist)
+		public CharacterManagerBuilder AddDndResistance(String id, string name)
 		{
-			proplist.Add(id);
-
-			props.DefineProperty(id, name, "RES")
-				.SetMinimum(0)
-				.SetMaximum(20)
+			_props.DefineProperty(id, name, "RES", false)
+				.Minimum(0)
+				.Maximum(20)
 				.SetDefault(1)
-				.SetProbability("1d20");
+				.Probability("1d20");
+
+			return this;
 		}
 
-		private static void AddDndSkill(PropertyManager props, String id, string name, List<String> proplist)
+		public CharacterManagerBuilder AddDndSkill(String id, string name)
 		{
-			proplist.Add(id);
-
-			props.DefineProperty(id, name, "SKILL")
-				.SetMinimum(0)
-				.SetMaximum(20)
+			_props.DefineProperty(id, name, "SKILL", false)
+				.Minimum(0)
+				.Maximum(20)
 				.SetDefault(1)
-				.SetProbability("1d20");
+				.Probability("1d20");
+
+			return this;
 		}
 
 		/// <summary>
 		/// This is an example of how to setup a full system, useful for unit testing
 		/// </summary>
-		public static CharacterManager CreateDnDTest(ItemFactory items, bool randomizeStats = true)
+		public void SetupDnDTest(bool randomizeStats = true)
 		{
 			StringBuilder statsRecalc = new StringBuilder();
 			//StringBuilder statsRecalcOnEquip = new StringBuilder();
@@ -69,170 +241,175 @@ namespace Portland.RPG
 
 			// Stats
 
-			PropertyManager props = new PropertyManager();
-
 			List<String> proplist = new List<String>();
 
-			AddDndStat(props, "STR", "Strength", randomizeStats, proplist);
-			AddDndStat(props, "INT", "Intellegence", randomizeStats, proplist);
-			AddDndStat(props, "WIS", "Wisdom", randomizeStats, proplist);
-			AddDndStat(props, "CON", "Constitution", randomizeStats, proplist);
-			AddDndStat(props, "DEX", "Dexterity", randomizeStats, proplist);
-			AddDndStat(props, "CHR", "Charisma", randomizeStats, proplist);
+			AddDnDStats(randomizeStats);
+
+			proplist.Add("STR");
+			proplist.Add("INT");
+			proplist.Add("WIS");
+			proplist.Add("CON");
+			proplist.Add("DEX");
+			proplist.Add("CHR");
 
 			proplist.Add("AC");
-			props.DefineProperty("AC", "Armor Class", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(20)
+			_props.DefineProperty("AC", "Armor Class", "DERIVED", false)
+				.Minimum(0)
+				.Maximum(20)
 				.SetDefault(0);
 			// AC = DEFENSE of armor and shild plus a dexterity bonus
 			statsRecalc.AppendLine("CALL STAT('AC', INVENTORY('SUM', 'ARMOR', 'DEFENSE') + INVENTORY('SUM', 'SHIELD', 'DEFENSE') + SQR(STAT('DEX') / 2.0))");
 
 			// Hit probability: 1d20 > THAC0 - LV - SWORD/BOW/ETC - STR + TARGET_AC + TARGET_DEX
 			proplist.Add("THAC0");
-			props.DefineProperty("THAC0", "Attack", "DSTATS")
-				.SetMinimum(1)
-				.SetMaximum(20)
-				.SetProbability("1d20")
+			_props.DefineProperty("THAC0", "Attack", "DERIVED")
+				.Minimum(1)
+				.Maximum(20)
+				.Probability("1d20")
 				.SetDefault(20);
 			// To hit AC 0: 20 - LV - (skill for equipped weapon) - STR
 			statsRecalc.AppendLine("CALL STAT('THAC0', STATMAX('THAC0') - STAT('ATTACK') - SQR(STAT('LV')) - SQR(STAT('STR')) - STAT(INVENTORY('GET', SELECTED(), 'TYPE')))");
 
 			proplist.Add("ATTACK");
-			props.DefineProperty("ATTACK", "THAC0 Modifier", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(8)
+			_props.DefineProperty("ATTACK", "THAC0 Modifier", "DERIVED")
+				.Minimum(0)
+				.Maximum(8)
 				.SetDefault(0);
 
 			proplist.Add("HP");
-			props.DefineProperty("HP", "Hit Points", "DSTATS")
+			_props.DefineProperty("HP", "Hit Points", "DERIVED")
 				.SetupDepletionType()
-				.SetMaximum(6)
+				.Maximum(6)
 				.SetDefault(1)
-				.SetProbability("1d6");
+				.Probability("1d6");
 			statsRecalc.AppendLine("CALL STATMAX('HP', STAT('LV') * SQR(STAT('CON')))");
 
 			proplist.Add("LV");
-			props.DefineProperty("LV", "Level", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(99)
+			_props.DefineProperty("LV", "Level", "DERIVED")
+				.Minimum(0)
+				.Maximum(99)
 				.SetDefault(1);
 
 			proplist.Add("XPMOD");
-			props.DefineProperty("XPMOD", "XP Max Class Modifier", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(10)
+			_props.DefineProperty("XPMOD", "XP Max Class Modifier", "DERIVED")
+				.Minimum(0)
+				.Maximum(10)
 				.SetDefault(1);
 
 			proplist.Add("XP");
-			props.DefineProperty("XP", "Experience Points", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(1000)
+			_props.DefineProperty("XP", "Experience Points", "DERIVED")
+				.Minimum(0)
+				.Maximum(1000)
 				.SetDefault(0);
 			statsRecalc.AppendLine("CALL STATMAX('XP', STAT('LV') * STAT('XPMOD') * (1000 - STAT('INT')*STAT('INT')))");
 
 			proplist.Add("ENCB");
-			props.DefineProperty("ENCB", "Encumbrance", "DSTATS")
-				.SetMinimum(0)
-				.SetMaximum(20)
+			_props.DefineProperty("ENCB", "Encumbrance", "DERIVED")
+				.Minimum(0)
+				.Maximum(20)
 				.SetDefault(0);
 			statsRecalc.AppendLine("CALL STATMAX('ENCB', STAT('STR') + SQR(STAT('CON')))");
 			statsRecalc.AppendLine("CALL STAT('ENCB', INVENTORY('SUM', '*', 'WEIGHT'))");
 
 			// Resistances
-
-			AddDndResistance(props, "RFIR", "Fire Resistance", proplist);
-			AddDndResistance(props, "RPOI", "Poison Resistance", proplist);
-			AddDndResistance(props, "RSHK", "Shock Resistance", proplist);
+				
+			AddDndResistance("RFIR", "Fire Resistance");
+			proplist.Add("RFIR");
+			AddDndResistance("RPOI", "Poison Resistance");
+			proplist.Add("RPOI");
+			AddDndResistance("RSHK", "Shock Resistance");
+			proplist.Add("RSHK");
 
 			// Skills
 
-			AddDndSkill(props, "BOW", "Weapon Bow", proplist);
-			AddDndSkill(props, "LOCK", "Lock Pick", proplist);
-			AddDndSkill(props, "SNEEK", "Sneek", proplist);
-			AddDndSkill(props, "SWORD", "Weapon Sword", proplist);
+			AddDndSkill("BOW", "Weapon Bow");
+			proplist.Add("BOW");
+			AddDndSkill("LOCK", "Lock Pick");
+			proplist.Add("LOCK");
+			AddDndSkill("SNEEK", "Sneek");
+			proplist.Add("SNEEK");
+			AddDndSkill("SWORD", "Weapon Sword");
+			proplist.Add("SWORD");
 
-			props.DefinePropertySet("CHAR", proplist.ToArray());
+			_props.DefinePropertySet("CHAR", proplist.ToArray());
 
 			// Race Effects
 
-			CharacterManager mgr = new CharacterManager(Variant8.StrTab, props, items);
-
 			// no race effects
-			mgr.DefineEffectGroup("HUMAN", Array.Empty<String>());
+			_manager.DefineEffectGroup("HUMAN", Array.Empty<String>());
 
-			mgr.DefineStatEffect_Delta("STR-1", "STR", -1);
-			mgr.DefineStatEffect_Delta("INT+1", "INT", 1);
-			mgr.DefineStatEffect_Delta("DEX+1", "DEX", 1);
-			mgr.DefineStatEffect_Delta("CON-1", "CON", -1);
-			mgr.DefineStatEffect_Delta("BOW+1", "BOW", 1);
-			mgr.DefineEffectGroup("ELF", new String[] { "STR-1", "INT+1", "DEX+1", "CON-1", "BOW+1" });
+			_manager.DefineStatEffect_Delta("STR-1", "STR", -1);
+			_manager.DefineStatEffect_Delta("INT+1", "INT", 1);
+			_manager.DefineStatEffect_Delta("DEX+1", "DEX", 1);
+			_manager.DefineStatEffect_Delta("CON-1", "CON", -1);
+			_manager.DefineStatEffect_Delta("BOW+1", "BOW", 1);
+			_manager.DefineEffectGroup("ELF", new String[] { "STR-1", "INT+1", "DEX+1", "CON-1", "BOW+1" });
 
 			// Class Effects
 
-			mgr.DefineStatEffect_Delta("SWORD+1", "SWORD", 1);
-			mgr.DefineStatEffect_Set("XPMOD+F", "XPMOD", 1.1f);
-			mgr.DefineStatEffect_Delta("ATK+2", "ATTACK", 2);
-			mgr.DefineEffectGroup("FIGHTER", new String[] { "SWORD+1", "XPMOD+F", "ATK+2" });
+			_manager.DefineStatEffect_Delta("SWORD+1", "SWORD", 1);
+			_manager.DefineStatEffect_Set("XPMOD+F", "XPMOD", 1.1f);
+			_manager.DefineStatEffect_Delta("ATK+2", "ATTACK", 2);
+			_manager.DefineEffectGroup("FIGHTER", new String[] { "SWORD+1", "XPMOD+F", "ATK+2" });
 
-			mgr.DefineStatEffect_Set("XPMOD+A", "XPMOD", 1.2f);
-			mgr.DefineStatEffect_Delta("ATK+1", "ATTACK", 1);
-			mgr.DefineEffectGroup("ARCHER", new String[] { "BOW+1", "XPMOD+A", "ATK+1" });
+			_manager.DefineStatEffect_Set("XPMOD+A", "XPMOD", 1.2f);
+			_manager.DefineStatEffect_Delta("ATK+1", "ATTACK", 1);
+			_manager.DefineEffectGroup("ARCHER", new String[] { "BOW+1", "XPMOD+A", "ATK+1" });
 
-			mgr.DefineStatEffect_Set("STR 12", "STR", 12);
-			mgr.DefineStatEffect_Set("CHR 5", "CHR", 5);
-			mgr.DefineStatEffect_Set("CON 12", "CON", 12);
-			mgr.DefineStatEffect_Set("AC 4", "AC", 4);
-			mgr.DefineEffect_RangeMax("HPMAX 8", "HP", 8);
-			mgr.DefineStatEffect_Set("HP 8", "HP", 8);
-			mgr.DefineStatEffect_Set("THAC0 5", "THAC0", 5);
-			mgr.DefineEffectGroup("ORC", new String[] { "STR 12", "CHR 5", "CON 12", "HPMAX 8", "AC 4", "HP 8", "THAC0 5" });
+			_manager.DefineStatEffect_Set("STR 12", "STR", 12);
+			_manager.DefineStatEffect_Set("CHR 5", "CHR", 5);
+			_manager.DefineStatEffect_Set("CON 12", "CON", 12);
+			_manager.DefineStatEffect_Set("AC 4", "AC", 4);
+			_manager.DefineEffect_RangeMax("HPMAX 8", "HP", 8);
+			_manager.DefineStatEffect_Set("HP 8", "HP", 8);
+			_manager.DefineStatEffect_Set("THAC0 5", "THAC0", 5);
+			_manager.DefineEffectGroup("ORC", new String[] { "STR 12", "CHR 5", "CON 12", "HPMAX 8", "AC 4", "HP 8", "THAC0 5" });
 
 			// Items
 
-			items.DefineCategory("Armor");
-			items.DefineCategory("Consumable");
-			items.DefineCategory("Melee");
-			items.DefineCategory("Useable");
-			items.DefineCategory("Resource");
-			items.DefineCategory("Ranged");
-			items.DefineCategory("Shield");
-			items.DefineCategory("Throwable");
-			items.DefineCategory("Tool");
+			_items.DefineCategory("Armor");
+			_items.DefineCategory("Consumable");
+			_items.DefineCategory("Melee");
+			_items.DefineCategory("Useable");
+			_items.DefineCategory("Resource");
+			_items.DefineCategory("Ranged");
+			_items.DefineCategory("Shield");
+			_items.DefineCategory("Throwable");
+			_items.DefineCategory("Tool");
 
-			if (!items.HasProperty("TYPE"))
+			if (!_items.HasProperty("TYPE"))
 			{
 				// Weapon skill type: BOW, SWORD
-				items.DefineProperty("TYPE", ItemPropertyType.String, "Weapon Skill Type", false);
+				_items.DefineProperty("TYPE", ItemPropertyType.String, "Weapon Skill Type", false);
 			}
-			if (! items.HasProperty("DEFENSE"))
+			if (! _items.HasProperty("DEFENSE"))
 			{
 				// AC modifer
-				items.DefineProperty("DEFENSE", ItemPropertyType.Int, "Defense Modifer", false);
+				_items.DefineProperty("DEFENSE", ItemPropertyType.Int, "Defense Modifer", false);
 			}
-			if (!items.HasProperty("DAMAGE"))
+			if (!_items.HasProperty("DAMAGE"))
 			{
 				// damage on hit, fe 1d8
-				items.DefineProperty("DAMAGE", ItemPropertyType.DiceRoll, "Weapon Damage Roll", false);
+				_items.DefineProperty("DAMAGE", ItemPropertyType.DiceRoll, "Weapon Damage Roll", false);
 			}
-			if (!items.HasProperty("WEIGHT"))
+			if (!_items.HasProperty("WEIGHT"))
 			{
 				// item weight in encumbrance units (20 max, so 1 == about 10 lbs)
-				items.DefineProperty("WEIGHT", ItemPropertyType.Float, "Weight", false);
+				_items.DefineProperty("WEIGHT", ItemPropertyType.Float, "Weight", false);
 			}
 
-			if (!items.HasItemDefined("ORKSKIN"))
+			if (!_items.HasItemDefined("ORKSKIN"))
 			{
-				items.DefineItem("Armor", "ORKSKIN")
+				_items.DefineItem("Armor", "ORKSKIN")
 					.DisplayName("Orc Hide")
 					.MaxStackCapacity(1)
 					.AddProperty("WEIGHT", 1)
 					.AddProperty("DEFENSE", 4)
 					.Build();
 			}
-			if (! items.HasItemDefined("CLUB6"))
+			if (! _items.HasItemDefined("CLUB6"))
 			{
-				items.DefineItem("Melee", "CLUB6")
+				_items.DefineItem("Melee", "CLUB6")
 					.DisplayName("Wooden Club")
 					.MaxStackCapacity(1)
 					.AddProperty("WEIGHT", 2)
@@ -243,7 +420,7 @@ namespace Portland.RPG
 
 			// Character Templates
 
-			mgr.CreateCharacterDefinition("PLAYER")
+			_manager.CreateCharacterDefinition("PLAYER")
 				.PropertyGroupId("CHAR")
 				.AutoCountInventory(true)
 				.SetOnChangeScriptBas(statsRecalc.ToString())
@@ -255,7 +432,7 @@ namespace Portland.RPG
 				.PrepareProgram()
 				;
 
-			mgr.CreateCharacterDefinition("MONSTER")
+			_manager.CreateCharacterDefinition("MONSTER")
 				.PropertyGroupId("CHAR")
 				.AutoCountInventory(true)
 				.AddInventorySection("WEAPON", 0, false, 1, 1)
@@ -287,8 +464,6 @@ namespace Portland.RPG
 					}
 				})
 				;
-
-			return mgr;
 		}
 	}
 }

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Net.NetworkInformation;
 
 using NUnit.Framework;
 
-using Portland.AI.Utility;
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -29,16 +28,18 @@ namespace Portland.AI.Utility
 		// 	<property name = 'time' type='float' global='true' min='0' max='1' start='0.5' startrand='false' changePerHour='0.00069444444' />
 		string _xml = @"
 <utility>
-<properties>
-	<property name = 'hunger' type='float' global='false' min='0' max='100' start='0' startrand='false' changePerHour='10' />
-	<property name = 'money' type='float' global='false' min='0' max='500' start='100' startrand='false' changePerHour='0' />
-	<property name = 'rest' type='float' global='false' min='0' max='100' start='20' startrand='false' changePerHour='-8' />
-	<property name = 'hygiene' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-2' />
-	<property name = 'recreation' type='float' global='false' min='0' max='100' start='50' startrand='false' changePerHour='-5' />
-	<property name = 'supplies' type='float' global='false' min='0' max='100' start='100' startrand='false' changePerHour='-1' />
-	<property name = 'weekend' type='bool' global='true' min='0' max='1' startrand='false' />
-	<property name = 'daylight' type='bool' global='true' min='0' max='1' start='0' startrand='false' />
-</properties>
+<utility_properties>
+	<properties>
+		<property name='hunger' type='float' global='false' min='0' max='100' start='0' start_rand='false' change_per_hour='10' />
+		<property name='money' type='float' global='false' min='0' max='500' start='100' start_rand='false' change_per_hour='0' />
+		<property name='rest' type='float' global='false' min='0' max='100' start='20' start_rand='false' change_per_hour='-8' />
+		<property name='hygiene' type='float' global='false' min='0' max='100' start='50' start_rand='false' change_per_hour='-2' />
+		<property name='recreation' type='float' global='false' min='0' max='100' start='50' start_rand='false' change_per_hour='-5' />
+		<property name='supplies' type='float' global='false' min='0' max='100' start='100' start_rand='false' change_per_hour='-1' />
+		<property name='weekend' type='bool' global='true' min='0' max='1' start_rand='false' />
+		<property name='daylight' type='bool' global='true' min='0' max='1' start='0' start_rand='false' />
+	</properties>
+</utility_properties>
 <objectives>
 	<objective name = 'eat_at_restaurant' time='2' priority='3' interruptible='false' cooldown='60'>
 		<consideration property = 'hunger' weight='1.2' func='inverse' />
@@ -117,7 +118,8 @@ namespace Portland.AI.Utility
 		public void BParseTest()
 		{
 			var clock = new Clock(DateTime.Now, 1440);
-			UtilityFactory factory = new UtilityFactory(clock);
+			var props = new PropertyManager();
+			UtilityFactory factory = new UtilityFactory(clock, props);
 			factory.ParseLoad(_xml);
 		}
 
@@ -125,7 +127,8 @@ namespace Portland.AI.Utility
 		public void CCreateTest()
 		{
 			var clock = new Clock(new DateTime(2000, 1, 1, 23, 0, 0), 1440);
-			UtilityFactory factory = new UtilityFactory(clock);
+			var props = new PropertyManager();
+			UtilityFactory factory = new UtilityFactory(clock, props);
 			factory.ParseLoad(_xml);
 
 			var agent = factory.CreateAgentInstance("Ellis", "ELLIS");

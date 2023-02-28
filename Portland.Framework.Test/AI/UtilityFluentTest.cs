@@ -8,6 +8,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal.Execution;
 
 using Portland.Mathmatics;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -18,20 +19,21 @@ namespace Portland.AI.Utility
 		public void BaseCaseTest()
 		{
 			IClock clock = new Clock(new DateTime(2000, 01, 01, 8, 0, 0), 1440);
-			UtilityFactory factory = new UtilityFactory(clock);
+			IPropertyManager props = new PropertyManager();
+			UtilityFactory factory = new UtilityFactory(clock, props);
 
-			factory.CreatePropertyDef_0to100_Increasing(false, "hunger")
-				.Min(0)
-				.Max(100)
-				.StartValue(20)
+			props.DefineProperty_0to100_Increasing("hunger")
+				.Minimum(0)
+				.Maximum(100)
+				.SetDefault(20)
 				.ChangePerHour(10);
 
 			//factory.CreatePropertyDef_HourOfDay(true, "hour");
 
-			factory.CreatePropertyDef(true, "const_30")
-				.Min(0f)
-				.Max(1f)
-				.StartValue(0.3f)
+			props.DefineProperty("const_30", "0.3 Constant", String.Empty, true)
+				.Minimum(0f)
+				.Maximum(1f)
+				.SetDefault(0.3f)
 				.ChangePerSecond(0f);
 
 			factory.CreateObjective("eat")

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
+using Portland.Types;
+
 namespace Portland.RPG
 {
 	[TestFixture]
@@ -15,9 +17,12 @@ namespace Portland.RPG
 		public void BaseTest()
 		{
 			var items = new ItemFactory();
-			var mgr = CharacterManagerBuilder.CreateDnDTest(items, false);
+			var props = new PropertyManager();
+			var mgr = new CharacterManager(props, items);
 
-			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "");
+			mgr.GetBuilder().SetupDnDTest(false);
+
+			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "", null);
 
 			Assert.That(noclass.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(noclass.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -40,7 +45,7 @@ namespace Portland.RPG
 			Assert.That(noclass.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(noclass.Stats.GetValue("SWORD"), Is.EqualTo(1f));
 
-			var figher = mgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "");
+			var figher = mgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null);
 
 			Assert.That(figher.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(figher.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -63,7 +68,7 @@ namespace Portland.RPG
 			Assert.That(figher.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(figher.Stats.GetValue("SWORD"), Is.EqualTo(2f));
 
-			var elfa = mgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "");
+			var elfa = mgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null);
 
 			Assert.That(elfa.Stats.GetValue("STR"), Is.EqualTo(7f));
 			Assert.That(elfa.Stats.GetValue("INT"), Is.EqualTo(9f));
@@ -91,9 +96,12 @@ namespace Portland.RPG
 		public void BaseMonsterTest()
 		{
 			var items = new ItemFactory();
-			var mgr = CharacterManagerBuilder.CreateDnDTest(items, false);
+			var props = new PropertyManager();
+			var mgr = new CharacterManager(props, items);
 
-			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "");
+			mgr.GetBuilder().SetupDnDTest(false);
+
+			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "", null);
 
 			Assert.That(orc.Stats.GetValue("STR"), Is.EqualTo(12f));
 			Assert.That(orc.Stats.GetValue("INT"), Is.EqualTo(8f));

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 
-using Portland.ComponentModel;
-
-namespace Portland.AI.Utility
+namespace Portland.Types
 {
 	/// <summary>
 	/// cref="ConciderationPropertyDef" Associated with a cref="Consideration" in an cref="Objective".
@@ -32,7 +29,7 @@ namespace Portland.AI.Utility
 			//Amt = new ObservableValue<Variant8>();
 			if (Definition.TypeName == "string")
 			{
-				Value = String.Empty;
+				Value = string.Empty;
 			}
 			else
 			{
@@ -47,7 +44,7 @@ namespace Portland.AI.Utility
 
 		public void Set(in Variant8 val)
 		{
-			if (! Value.IsNumeric)
+			if (!Value.IsNumeric)
 			{
 				Value = val;
 			}
