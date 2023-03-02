@@ -6,10 +6,20 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
+using Portland.AI;
+using Portland.Interp;
 using Portland.Types;
 
 namespace Portland.RPG
 {
+	internal class CommandRunnerFails : ICommandRunner
+	{
+		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
+		{
+			Assert.Fail($"Should not execute commands {name}({args.ToString()})");
+		}
+	}
+
 	[TestFixture]
 	internal class CharacterTest
 	{
@@ -19,10 +29,12 @@ namespace Portland.RPG
 			var items = new ItemFactory();
 			var props = new PropertyManager();
 			var mgr = new CharacterManager(props, items);
+			
+			var basCtx = new ExecutionContext(World.LoadBasFunctions(), new CommandRunnerFails(), null);
 
 			mgr.GetBuilder().SetupDnDTest(false);
 
-			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "", null);
+			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "", null, basCtx);
 
 			Assert.That(noclass.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(noclass.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -45,7 +57,7 @@ namespace Portland.RPG
 			Assert.That(noclass.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(noclass.Stats.GetValue("SWORD"), Is.EqualTo(1f));
 
-			var figher = mgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null);
+			var figher = mgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null, basCtx);
 
 			Assert.That(figher.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(figher.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -68,7 +80,7 @@ namespace Portland.RPG
 			Assert.That(figher.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(figher.Stats.GetValue("SWORD"), Is.EqualTo(2f));
 
-			var elfa = mgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null);
+			var elfa = mgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null, basCtx);
 
 			Assert.That(elfa.Stats.GetValue("STR"), Is.EqualTo(7f));
 			Assert.That(elfa.Stats.GetValue("INT"), Is.EqualTo(9f));
@@ -98,10 +110,11 @@ namespace Portland.RPG
 			var items = new ItemFactory();
 			var props = new PropertyManager();
 			var mgr = new CharacterManager(props, items);
+			var basCtx = new ExecutionContext(World.LoadBasFunctions(), new CommandRunnerFails(), null);
 
 			mgr.GetBuilder().SetupDnDTest(false);
 
-			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "", null);
+			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "", null, basCtx);
 
 			Assert.That(orc.Stats.GetValue("STR"), Is.EqualTo(12f));
 			Assert.That(orc.Stats.GetValue("INT"), Is.EqualTo(8f));

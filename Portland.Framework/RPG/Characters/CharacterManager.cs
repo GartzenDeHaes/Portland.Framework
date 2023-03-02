@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Portland.AI;
 using Portland.AI.Utility;
+using Portland.Interp;
 using Portland.Types;
 
 namespace Portland.RPG
@@ -56,7 +58,8 @@ namespace Portland.RPG
 			in String raceEffectGroup,
 			in String classEffectGroup,
 			in String factionEffectGroup,
-			UtilitySet utilityProperties
+			UtilitySet utilityProperties,
+			ExecutionContext basCtx
 		)
 		{
 			var def = _charDefs[charId];
@@ -65,6 +68,7 @@ namespace Portland.RPG
 			(
 				def,
 				_props.CreatePropertySet(def.PropertyGroupId, utilityProperties),
+				basCtx,
 				_effectGroupByName[raceEffectGroup],
 				_effectGroupByName[classEffectGroup],
 				_effectGroupByName[factionEffectGroup]

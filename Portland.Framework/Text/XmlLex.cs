@@ -17,7 +17,9 @@ namespace Portland.Text
 			EOF,
 			COMMENT,
 			TAG_START,
-			TAG_END
+			TAG_END,
+			CODE_START,
+			TEXT,
 		}
 
 		private readonly string _text;
@@ -37,7 +39,7 @@ namespace Portland.Text
 			COMMENT3,
 			HEADER,
 			OPEN,
-			CLOSE
+			CLOSE,
 		}
 
 		public XmlLexToken Token;
@@ -180,6 +182,25 @@ namespace Portland.Text
 			return retVal;
 		}
 
+		/// <summary>
+		/// Read until <
+		/// </summary>
+		public void NextText()
+		{
+			Token = XmlLexToken.TEXT;
+
+			while (_textPos < _text.Length)
+			{
+				char ch = NextCh();
+				if (ch == '<')
+				{
+					UnGetCh();
+					return;
+				}
+				Lexum.Append(ch);
+			}
+		}
+
 		public bool Next()
 		{
 			Lexum.Length = 0;
@@ -246,6 +267,11 @@ namespace Portland.Text
 									state = State.CLOSE;
 									Token = XmlLexToken.CLOSE;
 									break;
+								}
+								else if (ch == '%')
+								{
+									Token = XmlLexToken.CODE_START;
+									return true;
 								}
 								else
 								{

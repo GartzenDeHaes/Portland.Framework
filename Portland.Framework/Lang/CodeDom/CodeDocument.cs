@@ -46,8 +46,8 @@ namespace Portland.CodeDom
 		public BasicNativeFunctionBuilder GetFunctionBuilder()
 		{
 			return new BasicNativeFunctionBuilder { 
-				InternalAdd = (name, argCount, fn) => _userSubs.Add(new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount }, fn),
-				HasFunction = (name, argCount) => _userSubs.ContainsKey(new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount })
+				InternalAdd = (name, argCount, fn) => _userSubs.Add(new SubSig { Name = name, ArgCount = argCount }, fn),
+				HasFunction = (name, argCount) => _userSubs.ContainsKey(new SubSig { Name = name, ArgCount = argCount })
 			};
 		}
 

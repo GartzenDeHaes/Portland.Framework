@@ -8,7 +8,7 @@ namespace Portland.Interp
 {
 	public struct StackFrame
 	{
-		Variant Data;
+		public Variant Data;
 
 		//public Variant ReturnValue { get { return Data; } }
 
@@ -35,31 +35,6 @@ namespace Portland.Interp
 		public bool TryGetProp(string name, out Variant value)
 		{
 			return Data.TryGetProp(name, out value);
-		}
-
-		public void SetReturnValue(float val)
-		{
-			Data.Set(val);
-		}
-
-		public void SetReturnValue(int val)
-		{
-			Data.Set(val);
-		}
-
-		public void SetReturnValue(string val)
-		{
-			Data.Set(val);
-		}
-
-		public void SetReturnValue(in Variant val)
-		{
-			Data.Set(val);
-		}
-
-		public Variant GetReturnValue()
-		{
-			return Data;
 		}
 
 		public void SetPropArray(string name, string index, in Variant value)

@@ -38,7 +38,7 @@ namespace Portland.AI.Barks
 			world.BarkEngine.SetRules(rulePack);
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateAgent("human", "COACH", String8.Empty, String8.Empty, String8.Empty);
+			world.CreateAgent("human", "COACH");
 
 			string saidText = String.Empty;
 			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidText = cmd.DefaultTexts.RandomElement(); };
@@ -106,7 +106,7 @@ namespace Portland.AI.Barks
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 
 			Agent coach;
-			Assert.True(world.TryGetActor("COACH", out coach));
+			Assert.True(world.TryGetAgent("COACH", out coach));
 
 			//Assert.That(world.Flags.IsCharacter01Alive, Is.True);
 			Assert.That((string)coach.Facts.Get("objective").Value, Is.EqualTo(String.Empty));

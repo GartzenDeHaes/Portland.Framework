@@ -38,6 +38,7 @@ namespace Portland.RPG
 		(
 			CharacterDefinition def, 
 			PropertySet props,
+			ExecutionContext basctx,
 			EffectGroup raceEffectGroup,
 			EffectGroup classEffectGroup,
 			EffectGroup factionEffectGroup
@@ -48,6 +49,9 @@ namespace Portland.RPG
 			RaceEffectGroup = raceEffectGroup;
 			ClassEffectGroup = classEffectGroup;
 			FactionEffectGroup = factionEffectGroup;
+			BasCtx = basctx;
+
+			BasCtx.UserData = this;
 
 			Inventory = new ItemCollection("MAIN", def.TotalInventorySlots);
 			
@@ -64,7 +68,6 @@ namespace Portland.RPG
 			AddEffectGroup(factionEffectGroup);
 
 			BasOnChange = def.OnStatChangeRun;
-			BasCtx = new ExecutionContext(this, this);
 			BasOnChange.Execute(BasCtx);
 		}
 
@@ -138,7 +141,7 @@ namespace Portland.RPG
 			}
 		}
 
-		public void SetupBlackboard(IBlackboard<String> bb)
+		public void SetupBlackboard(IBlackboard<string> bb)
 		{
 			Stats.AddToBlackBoard(bb);
 		}

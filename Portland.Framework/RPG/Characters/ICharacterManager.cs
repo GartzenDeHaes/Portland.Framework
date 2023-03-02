@@ -1,11 +1,13 @@
-﻿using Portland.AI.Utility;
+﻿using Portland.AI;
+using Portland.AI.Utility;
+using Portland.Interp;
 using Portland.Types;
 
 namespace Portland.RPG
 {
 	public interface ICharacterManager
 	{
-		CharacterSheet CreateCharacter(in string charId, in string raceEffectGroup, in string classEffectGroup, in string factionEffectGroup, UtilitySet utilityProperties);
+		CharacterSheet CreateCharacter(in string charId, in string raceEffectGroup, in string classEffectGroup, in string factionEffectGroup, UtilitySet utilityProperties, ExecutionContext basCtx);
 		CharacterDefinitionBuilder CreateCharacterDefinition(in string charId);
 		void DefineAlertForStatDefinition(in string propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName);
 		void DefineEffectGroup(in string groupName, string[] effectNames);

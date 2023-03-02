@@ -9,7 +9,7 @@ namespace Portland.Interp
 {
 	public struct SubSig : IEquatable<SubSig>
 	{
-		public String8 Name;
+		public String Name;
 		public int ArgCount;
 
 		public override int GetHashCode()

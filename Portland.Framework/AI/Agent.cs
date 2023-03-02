@@ -6,20 +6,24 @@ using Portland.AI.Utility;
 using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Framework.AI;
+using Portland.Interp;
 using Portland.RPG;
 using Portland.Types;
 
 namespace Portland.AI
 {
-	public sealed class Agent
+	public sealed class Agent : ICommandRunner
 	{
 		public AgentStateFlags Flags;
-		public String Name;
-		public String Class;
+		public readonly String AgentId;
+		public readonly String Class;
+		public readonly string ShortName;
+		public readonly string LongName;
 		//public TextTableToken Location;
-		public UtilitySet UtilitySet;
-		public CharacterSheet Character;
-		public IBlackboard<String> Facts;
+		public readonly UtilitySet UtilitySet;
+		public readonly CharacterSheet Character;
+		public readonly IBlackboard<String> Facts;
+		public readonly ExecutionContext ScriptCtx;
 
 		public Action Alerts;
 
@@ -28,27 +32,38 @@ namespace Portland.AI
 			Alerts?.Invoke();
 		}
 
+		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Agent
 		(
+			Dictionary<SubSig, IFunction> globalFuncs,
 			IUtilityFactory utility,
 			ICharacterManager charMan,
 			in String cls, 
-			in String name,
+			in String agentId,
+			in string shortName,
+			in string longName,
 			in string raceEffectGrp,
 			in string classEffectGrp,
 			in string faction
 		)
 		{
-			Name = name;
+			AgentId = agentId;
 			Class = cls;
+			ShortName = shortName;
+			LongName = longName;
 
-			UtilitySet = utility.CreateAgentInstance(cls, name);
+			ScriptCtx = new ExecutionContext(globalFuncs, this, null);
 
-			Character = charMan.CreateCharacter(cls, raceEffectGrp, classEffectGrp, faction, UtilitySet);
+			UtilitySet = utility.CreateAgentInstance(cls, agentId);
 
 			Facts = new Blackboard<String>();
-
 			Facts.Add("objective", UtilitySet.CurrentObjective);
+
+			Character = charMan.CreateCharacter(cls, raceEffectGrp, classEffectGrp, faction, UtilitySet, ScriptCtx);
 
 			Character.SetupBlackboard(Facts);
 

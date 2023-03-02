@@ -88,8 +88,8 @@ DO
 			world.UtilitySystem.CreateAgent("base", "bot");
 
 			world.CharacterManager.CreateCharacterDefinition("bot");
-			world.CreateAgent("bot", "XBOT", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("bot", "YBOT", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("bot", "XBOT");
+			world.CreateAgent("bot", "YBOT");
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -212,10 +212,10 @@ DO
 			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateAgent("human", "BILL", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "FRANCIS", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "LOUIS", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "ZOEY", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "BILL");
+			world.CreateAgent("human", "FRANCIS");
+			world.CreateAgent("human", "LOUIS");
+			world.CreateAgent("human", "ZOEY");
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
@@ -279,7 +279,7 @@ DO
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
 			Agent zoey;
-			Assert.True(world.TryGetActor("ZOEY", out zoey));
+			Assert.True(world.TryGetAgent("ZOEY", out zoey));
 			Assert.That(zoey.Facts.Get("ceda_trailers_seen").Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(6f);
@@ -420,10 +420,10 @@ DO
 			//world.Flags.IsUserFlag04 = true;
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateAgent("human", "COACH", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "ELLIS", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "NICK", String.Empty, String.Empty, String.Empty);
-			world.CreateAgent("human", "ROCHELLE", String.Empty, String.Empty, String.Empty);
+			world.CreateAgent("human", "COACH");
+			world.CreateAgent("human", "ELLIS");
+			world.CreateAgent("human", "NICK");
+			world.CreateAgent("human", "ROCHELLE");
 
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 			world.DefineActorAsCharacter0X("ELLIS", 2, "health");
@@ -431,7 +431,7 @@ DO
 			world.DefineActorAsCharacter0X("ROCHELLE", 4, "health");
 
 			Agent nick;
-			Assert.True(world.TryGetActor("NICK", out nick));
+			Assert.True(world.TryGetAgent("NICK", out nick));
 			Assert.True(nick.Facts.ContainsKey("health"));
 			Assert.That((int)nick.Facts.Get("health").Value, Is.EqualTo(100));
 

@@ -73,7 +73,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					if (_world.TryGetActor(cmd.ActorName, out var actor))
+					if (_world.TryGetAgent(cmd.ActorName, out var actor))
 					{
 						SetVars(actor.Facts, cmd);
 					}
@@ -108,7 +108,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					if (_world.TryGetActor(cmd.ActorName, out var actor))
+					if (_world.TryGetAgent(cmd.ActorName, out var actor))
 					{
 						AddToVar(actor.Facts, cmd);
 					}
@@ -216,7 +216,7 @@ namespace Portland.AI.Barks
 					var flagf = rule.ActorFlags[i];
 
 					Agent actor;
-					if (!_world.TryGetActor(flagf.ActorName, out actor))
+					if (!_world.TryGetAgent(flagf.ActorName, out actor))
 					{
 						throw new Exception($"Actor '{flagf.ActorName}' not found");
 					}
@@ -252,7 +252,7 @@ namespace Portland.AI.Barks
 				{
 					var filter = rule.ActorFilters[i];
 					Agent actor;
-					if (!_world.TryGetActor(filter.ActorName, out actor))
+					if (!_world.TryGetAgent(filter.ActorName, out actor))
 					{
 						throw new Exception($"Actor '{filter.ActorName}' not found");
 					}

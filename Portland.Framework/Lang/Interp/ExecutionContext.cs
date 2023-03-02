@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using Portland.AI;
 using Portland.Basic;
 using Portland.Collections;
 
 namespace Portland.Interp
 {
-	public sealed class ExecutionContext : IDisposable
+	public sealed class ExecutionContext : IDisposable, ICommandRunner
 	{
 		private readonly Vector<StackFrame> _ctxStk = new Vector<StackFrame>();
 
@@ -29,7 +30,7 @@ namespace Portland.Interp
 		public string LastError;
 
 		// TODO: convert built-ins to static or a table
-		//private readonly Dictionary<string, IFunction> _functs = new Dictionary<string, IFunction>(/*StringComparer.InvariantCultureIgnoreCase*/); //< 10% performance hit to ignore case
+		private readonly Dictionary<SubSig, IFunction> _globalFuncs;
 
 		// Application specific commands. (built-ins are handled by the parser).
 		private readonly ICommandRunner _cmds;
@@ -37,9 +38,10 @@ namespace Portland.Interp
 		// TODO: subs need to be persistant, change CodeDocument object or copy from it.
 		private Dictionary<SubSig, IFunction> _progSubs;
 
-		public ExecutionContext(ICommandRunner cmds, object userData)
+		public ExecutionContext(Dictionary<SubSig, IFunction> globalFuncs, ICommandRunner cmds, object userData)
 		: this(cmds)
 		{
+			_globalFuncs = globalFuncs;
 			UserData = userData;
 		}
 
@@ -47,7 +49,15 @@ namespace Portland.Interp
 		{
 			_cmds = cmds;
 			_ctxStk.Add(StackFrame.Create());
+			_globalFuncs = new Dictionary<SubSig, IFunction>();
 		}
+
+		public ExecutionContext()
+		: this(null)
+		{
+			_cmds = this;
+		}
+
 
 		public void SetError(string message)
 		{
@@ -74,17 +84,17 @@ namespace Portland.Interp
 
 		public IFunction GetSub(string name, int argCount)
 		{
-			//if (_functs.TryGetValue(name, out var fn))
-			//{
-			//	return fn;
-			//}
+			if (_globalFuncs.TryGetValue(new SubSig { Name = name, ArgCount = argCount }, out var fn))
+			{
+				return fn;
+			}
 
 			//if (_progSubs == null)
 			//{
 			//	return null;
 			//}
 
-			return _progSubs[new SubSig { Name = String8.FromTruncate(name), ArgCount = argCount }];
+			return _progSubs[new SubSig { Name = name, ArgCount = argCount }];
 		}
 
 		public void PushContex()
@@ -95,7 +105,7 @@ namespace Portland.Interp
 
 		public Variant PopContext()
 		{
-			return _ctxStk.Pop().GetReturnValue();
+			return _ctxStk.Pop().Data;
 		}
 
 		public Variant FindVariable(string name)
@@ -181,6 +191,31 @@ namespace Portland.Interp
 			Context.SetPropArray(name, index, value);
 		}
 
+
+		public void SetReturnValue(float val)
+		{
+			_ctxStk.LastElementRef().Data.Set(val);
+		}
+
+		public void SetReturnValue(int val)
+		{
+			_ctxStk.LastElementRef().Data.Set(val);
+		}
+
+		public void SetReturnValue(string val)
+		{
+			_ctxStk.LastElementRef().Data.Set(val);
+		}
+
+		public void SetReturnValue(in Variant val)
+		{
+			_ctxStk.LastElementRef().Data.Set(val);
+		}
+
+		public Variant GetReturnValue()
+		{
+			return _ctxStk.LastElementRef().Data;
+		}
 		public void RunCommand(string name, Variant args)
 		{
 			_cmds.ICommandRunner_Exec(this, name, args);
@@ -198,6 +233,11 @@ namespace Portland.Interp
 			OnLog = null;
 			//_functs.Clear();
 			_progSubs = null;
+		}
+
+		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
