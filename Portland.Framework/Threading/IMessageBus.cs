@@ -4,24 +4,25 @@ using Portland.Text;
 
 namespace Portland.Threading
 {
-	public interface IMessageBus
+	public interface IMessageBus<TMSG>
 	{
 		void Start();
 		void Shutdown();
 
-		void Subscribe(string subrUniqueKey, TwoPartName8 msgName, Action<SimpleMessage> action, MessageExecContext ctx = MessageExecContext.BACKGROUND);
-		void RemoveSubscriber(string subrUniqueKey, TwoPartName8 msgName);
+		void Subscribe(string subrUniqueKey, in String10 msgName, Action<TMSG> action, MessageExecContext ctx = MessageExecContext.BACKGROUND);
+		void UnSubscribe(string subrUniqueKey, in String10 msgName);
 		void RemoveSubscriber(string subrUniqueKey);
 
-		void Publish(TwoPartName8 msgName);
-		void Publish(TwoPartName8 msgName, Variant16 arg);
-		void Publish(TwoPartName8 msgName, object data);
-		void Publish(TwoPartName8 msgName, Variant16 arg, object data);
+		void Publish(in String10 msgName);
+		void Publish(in TMSG msg);
+		//void Publish(in String10 msgName, in Variant8 arg);
+		//void Publish(in String10 msgName, TDATA data);
+		//void Publish(in String10 msgName, in Variant8 arg, TDATA data);
 		
 		void StopAcceptingNewMessageDefinitions();
-		void DefineMessage(TwoPartName8 name);
+		void DefineMessage(in String10 name);
 
-		void SetMessageMarshaller(Action<Subscription, SimpleMessage> runner);
-		void AddMessageObserver(Action<Subscription, SimpleMessage> observer);
+		//void SetMessageMarshaller(Action<Subscription<TMSG>, TMSG> runner);
+		//void AddMessageObserver(Action<Subscription<TMSG>, TMSG> observer);
 	}
 }

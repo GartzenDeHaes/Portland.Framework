@@ -14,7 +14,7 @@ namespace Portland.SceneGraph
 {
 	public struct EcEvent
 	{
-		public TwoPartName8 EventName;
+		public String10 EventName;
 		public IEntity Other;
 		public Vector3 Point;
 		public Variant8 Value;

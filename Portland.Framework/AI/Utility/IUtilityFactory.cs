@@ -1,4 +1,5 @@
-﻿using Portland.Types;
+﻿using Portland.Text;
+using Portland.Types;
 
 namespace Portland.AI.Utility
 {
@@ -19,6 +20,7 @@ namespace Portland.AI.Utility
 		bool HasObjectiveSet(string name);
 		bool HasPropertyDefinition(in string propName);
 		void ParseLoad(string xml);
+		void ParseLoad(XmlLex xml);
 		void TickAgents();
 	}
 }

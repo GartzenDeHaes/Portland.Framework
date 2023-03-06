@@ -10,7 +10,7 @@ namespace Portland
 	/// A 4 byte character ID
 	/// </summary>
 	[Serializable]
-	public struct AsciiId4 //: IEquatable<String>
+	public struct AsciiId4 : IEquatable<AsciiId4>
 	{
 		public static AsciiId4 Empty;
 
@@ -93,6 +93,15 @@ namespace Portland
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Equals(in AsciiId4 s)
+		{
+			return Bits.RawBits == s.Bits.RawBits;
+		}
+
+		/// <summary>
+		/// Equals
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Equals(AsciiId4 s)
 		{
 			return Bits.RawBits == s.Bits.RawBits;
 		}

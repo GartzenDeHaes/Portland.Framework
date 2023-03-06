@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Portland.AI.Barks;
-using Portland.AI.NLP;
 using Portland.AI.Utility;
 using Portland.Basic;
 using Portland.Collections;
 using Portland.ComponentModel;
-using Portland.Framework.AI;
 using Portland.Interp;
 using Portland.Mathmatics;
+using Portland.Mathmatics.Geometry;
 using Portland.RPG;
+using Portland.RPG.Dialogue;
+using Portland.Text;
 using Portland.Types;
 
 namespace Portland.AI
 {
-	public sealed class World
+    public sealed class World
 	{
 		public readonly IClock Clock;
 		public readonly IPropertyManager PropertyMan;
@@ -33,14 +31,19 @@ namespace Portland.AI
 		public readonly ICharacterManager CharacterManager;
 		public readonly ItemFactory Items;
 
+		public readonly DialogueManager DialogueMan;
+
 		//public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
-		//Dictionary<string, Agent> _actors = new Dictionary<string, Agent>();
-		Vector<Agent> _actors = new Vector<Agent>();
-		//public readonly StringTable Strings;
+		Dictionary<String, Agent> _agentsById = new Dictionary<String, Agent>();
+		readonly Vector<Agent> _agents = new Vector<Agent>();
+
+		public EventBus Events = new EventBus();
 
 		//List<Action<Agent>> _alertsToAddToActor = new List<Action<Agent>>();
 		//string _actorUtilityObjectiveFactName;
-		
+
+		public List<string> Locations = new List<string>();
+
 		private readonly Dictionary<SubSig, IFunction> _globalBasFuncs;
 
 		public void Update(float deltaTimeInSeconds)
@@ -49,12 +52,16 @@ namespace Portland.AI
 			Flags.Daylight = !Clock.IsNightTime;
 			UtilitySystem.TickAgents();
 
-			for (int i = 0; i < _actors.Count; i++)
+			for (int i = 0; i < _agents.Count; i++)
 			{
-				_actors[i].Update(deltaTimeInSeconds);
+				_agents[i].Update(deltaTimeInSeconds);
 			}
 
 			BarkEngine.Update();
+			
+			DialogueMan.Update(deltaTimeInSeconds);
+
+			Events.Poll();
 		}
 
 		public World(IClock clock, IRandom rnd)
@@ -67,8 +74,9 @@ namespace Portland.AI
 			BarkEngine = new BarkRuleEngine(this, rnd);
 			Items = new ItemFactory();
 			CharacterManager = new CharacterManager(PropertyMan, Items);
-
 			_globalBasFuncs = LoadBasFunctions();
+
+			DialogueMan = new DialogueManager(Flags, GlobalFacts, _agentsById, Events); 
 		}
 
 		public World(DateTime epoc, float minutesPerDay = 1440f)
@@ -102,6 +110,7 @@ namespace Portland.AI
 				_globalBasFuncs,
 				UtilitySystem,
 				CharacterManager,
+				GlobalFacts,
 				className,
 				agentId,
 				shortName,
@@ -117,7 +126,8 @@ namespace Portland.AI
 			//	agent.Facts.Add(oprop.Definition.PropertyId, oprop);
 			//}
 
-			_actors.Add(agent);
+			agent.RuntimeIndex = _agents.AddAndGetIndex(agent);
+			_agentsById.Add(agentId, agent);
 
 			//if (!String.IsNullOrWhiteSpace(_actorUtilityObjectiveFactName))
 			//{
@@ -127,19 +137,32 @@ namespace Portland.AI
 			return agent;
 		}
 
-		public bool TryGetAgent(in String name, out Agent actor)
+		public bool TryGetAgent(in String agentId, out Agent actor)
 		{
-			//return _actors.TryGetValue(name, out actor);
-			for (int i = 0; i < _actors.Count; i++)
+			return _agentsById.TryGetValue(agentId, out actor);
+			//for (int i = 0; i < _agents.Count; i++)
+			//{
+			//	actor = _agents[i];
+			//	if (actor.AgentId == agentId)
+			//	{
+			//		return true;
+			//	}
+			//}
+			//actor = null;
+			//return false;
+		}
+
+		public void DestroyAgent(in String agentId)
+		{
+			if (_agentsById.TryGetValue(agentId, out var agent))
 			{
-				actor = _actors[i];
-				if (actor.AgentId == name)
-				{
-					return true;
-				}
+				_agentsById.Remove(agentId);
+				_agents.RemoveAt(agent.RuntimeIndex);
+				
+				UtilitySystem.DestroyInstance(agentId);
+				//BarkEngine.RemoveRules(agentId);
+				//DialogueMgr.RemoveRules(agentId);
 			}
-			actor = null;
-			return false;
 		}
 
 		public void DefineAlertHungerFlag(in String propertId, float threshold = 80f)
@@ -450,7 +473,6 @@ namespace Portland.AI
 			;
 		}
 
-
 		public class WorldBuilder
 		{
 			World _world;
@@ -594,6 +616,114 @@ namespace Portland.AI
 			//	return this;
 
 			//}
+		}
+
+		public static World Parse(string xml)
+		{
+			XmlLex lex = new XmlLex(xml);
+
+			DateTime dt = DateTime.Now;
+			float minutesPerDay = 1440f;
+
+			if (lex.Token == XmlLex.XmlLexToken.TAG)
+			{
+				lex.MatchTag("world");
+			}
+			else
+			{
+				lex.MatchTagStart("world");
+
+				while (lex.Token == XmlLex.XmlLexToken.STRING)
+				{
+					if (lex.Lexum.IsEqualTo("date"))
+					{
+						string sdt = lex.MatchProperty("date");
+						dt = DateTime.Parse(sdt);
+					}
+					else if (lex.Lexum.IsEqualTo("minutesPerDay"))
+					{
+						minutesPerDay = Single.Parse(lex.MatchProperty("minutesPerDay"));
+					}
+					else
+					{
+						throw new Exception($"Unexpected property {lex.Lexum} on line {lex.LineNum}");
+					}
+				}
+
+				lex.MatchTagClose();
+			}
+
+			World world = new World(dt, minutesPerDay);
+
+			while (lex.Token == XmlLex.XmlLexToken.TAG)
+			{
+				if (lex.Lexum.IsEqualTo("locations"))
+				{
+					lex.MatchTag("locations");
+					ParseLocations(world, lex);
+					lex.MatchTagClose("locations");
+				}
+				else if (lex.Lexum.IsEqualTo("dialogues"))
+				{
+					lex.MatchTag("dialogues");
+					ParseDialogues(world, lex);
+					lex.MatchTagClose("dialogues");
+				}
+				else if (lex.Lexum.IsEqualTo("utilities"))
+				{
+					lex.MatchTag("utilities");
+					ParseUtility(world, lex);
+					lex.MatchTagClose("utilities");
+				}
+				else
+				{
+					throw new Exception($"Unknown section {lex.Lexum} on line {lex.LineNum}");
+				}
+			}
+
+			lex.MatchTagClose("world");
+
+			return world;
+		}
+
+		static void ParseLocations(World world, XmlLex lex)
+		{
+			while (lex.Lexum.IsEqualTo("location"))
+			{
+				lex.MatchTagStart("location");
+
+				if (lex.Lexum.IsEqualTo("name"))
+				{
+					world.Locations.Add(lex.MatchProperty("name"));
+				}
+				else
+				{
+					throw new Exception($"Unexpected property {lex.Lexum} on line {lex.LineNum}");
+				}
+
+				lex.MatchTagEnd();
+			}
+		}
+
+		static void ParseDialogues(World world, XmlLex lex)
+		{
+			if (lex.Token != XmlLex.XmlLexToken.STRING)
+			{
+				return;
+			}
+			lex.NextText();
+			string yarnish = lex.Lexum.ToString();
+			lex.Match(XmlLex.XmlLexToken.TEXT);
+
+			world.DialogueMan.Parse(yarnish);
+		}
+
+		static void ParseUtility(World world, XmlLex lex)
+		{
+			if (lex.Lexum.IsEqualTo("utility"))
+			{
+				world.UtilitySystem.ParseLoad(lex);
+			}
 		}
 	}
 }

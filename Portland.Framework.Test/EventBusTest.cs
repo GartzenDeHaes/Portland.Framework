@@ -20,15 +20,15 @@ namespace Portland.ComponentModel
 
 			bool eventCalled = false;
 
-			bus.Subscribe("TEST", new TwoPartName8("A", "B"), (e) => { eventCalled = true; });
-			bus.Publish(new TwoPartName8("A", "B"));
+			bus.Subscribe("TEST", new String10("A.B"), (e) => { eventCalled = true; });
+			bus.Publish(new String10("A.B"));
 			Assert.IsFalse(eventCalled);
 			bus.Poll();
 			Assert.IsTrue(eventCalled);
 
 			eventCalled = false;
-			bus.UnSubscribe("TEST");
-			bus.Publish(new TwoPartName8("A", "B"));
+			bus.RemoveSubscriber("TEST");
+			bus.Publish(new String10("A.B"));
 			bus.Poll();
 			Assert.IsFalse(eventCalled);
 		}

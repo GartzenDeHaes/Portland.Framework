@@ -249,11 +249,11 @@ namespace Portland.AI.NLP
 			using (SimpleLex lex = new SimpleLex(clsspec))
 			{
 				lex.Next();
-				if (lex.TypeIs != SimpleLex.TokenType.PUNCT || lex.Lexum.Length == 0 || lex.Lexum[0] != '[')
+				if (lex.Token != SimpleLex.TokenType.PUNCT || lex.Lexum.Length == 0 || lex.Lexum[0] != '[')
 				{
 					string slotOrCls = lex.Lexum.ToString();
 					lex.Next();
-					if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '=')
+					if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '=')
 					{
 						mitem.Slot = slotOrCls;
 						lex.Next();
@@ -271,7 +271,7 @@ namespace Portland.AI.NLP
 						mitem.IsOptional = true;
 					}
 				}
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '[')
+				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '[')
 				{
 					lex.Next();
 
@@ -288,7 +288,7 @@ namespace Portland.AI.NLP
 							mitem.IsOptional = true;
 						}
 
-						if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '|')
+						if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '|')
 						{
 							lex.Next();
 						}
@@ -296,7 +296,7 @@ namespace Portland.AI.NLP
 					lex.Match(SimpleLex.TokenType.PUNCT);
 				}
 
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == ':')
+				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == ':')
 				{
 					lex.Next();
 					mitem.SemanticType = lex.Lexum.ToString();

@@ -10,7 +10,7 @@ using Portland.Collections;
 namespace Portland
 {
 	/// <summary>
-	/// A 10 character ASCII 6-bit string (upper case only, case insensitive)
+	/// An 8-byte, 10 character ASCII 6-bit string (upper case only, case insensitive)
 	/// </summary>
 	[Serializable]
 	//[StructLayout(LayoutKind.Explicit)]
@@ -342,6 +342,10 @@ namespace Portland
 		/// </summary>
 		public override bool Equals(object obj)
 		{
+			if (obj is String10 s10)
+			{
+				return Equals(s10);
+			}
 			if (obj is String8 s)
 			{
 				return Equals(s);
@@ -429,6 +433,12 @@ namespace Portland
 				buf.Append(this[i]);
 			}
 			return buf.ToString();
+		}
+
+		public String10(string s)
+		{
+			_bits = new BitSet64();
+			Parse(s);
 		}
 
 		/// <summary>

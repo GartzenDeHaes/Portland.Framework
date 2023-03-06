@@ -154,7 +154,7 @@ namespace Portland
 			Variant16 vs = Variant16.DeserializeFromString(ser);
 
 			Assert.That(vs.TypeIs, Is.EqualTo(VariantType.Vec3));
-			Assert.That(v.ToVector3d(), Is.EqualTo(vs.ToVector3d()));
+			Assert.That(v.ToVector3(), Is.EqualTo(vs.ToVector3()));
 		}
 
 		[Test]

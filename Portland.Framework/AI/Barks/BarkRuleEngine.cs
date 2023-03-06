@@ -23,12 +23,6 @@ namespace Portland.AI.Barks
 		public ObservableValue<string> CurrentConcept = new ObservableValue<string>();
 		public Notify<string> OnEventRaised = new Notify<string>();
 
-		public void SetRules(RulePack ruleSet)
-		{
-			_rules = ruleSet;
-			_rules.CreationOfRulesComplete();
-		}
-
 		public void Update()
 		{
 			BarkCommand cmd;
@@ -147,6 +141,12 @@ namespace Portland.AI.Barks
 			{
 				facts.Get(cmd.Arg1).Value = facts.Get(cmd.Arg1).Value + cmd.Arg2;
 			}
+		}
+
+		public void SetRules(RulePack ruleSet)
+		{
+			_rules = ruleSet;
+			_rules.CreationOfRulesComplete();
 		}
 
 		public int DelayingCount { get { return _cmdsDelaying.Count; } }

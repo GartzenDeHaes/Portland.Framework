@@ -14,59 +14,59 @@ namespace Portland.Text
 		{
 			SimpleLex lex = new SimpleLex("");
 			Assert.AreEqual(false, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.Token);
 
 			lex = new SimpleLex("abc");
 			Assert.AreEqual(true, lex.Next());
 			Assert.AreEqual(true, lex.Lexum.ToString().Equals("abc"));
 			Assert.AreEqual(false, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.Token);
 
 			lex = new SimpleLex("'a'");
 			Assert.AreEqual(true, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.STRING, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.STRING, lex.Token);
 			Assert.AreEqual(true, lex.Lexum.ToString().Equals("a"));
 			Assert.AreEqual(false, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.Token);
 
 			lex = new SimpleLex("$");
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("$"));
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 			Assert.AreEqual(false, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.Token);
 
 			lex = new SimpleLex("abc'd'$%*/11");
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("abc"));
-			Assert.AreEqual(SimpleLex.TokenType.ID, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.ID, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("d"));
-			Assert.AreEqual(SimpleLex.TokenType.STRING, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.STRING, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("$"));
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("%"));
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("*"));
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("/"));
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 
 			Assert.AreEqual(true, lex.Next());
 			Assert.IsTrue(lex.Lexum.ToString().Equals("11"));
-			Assert.AreEqual(SimpleLex.TokenType.INTEGER, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.INTEGER, lex.Token);
 
 			Assert.AreEqual(false, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.EOF, lex.Token);
 
 			//for (int x = 0; x < 600; x++)
 			//{
@@ -104,19 +104,19 @@ namespace Portland.Text
 			SimpleLex lex = new SimpleLex("t1._intVal;");
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.ID, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.ID, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("t1"));
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("."));
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.ID, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.ID, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("_intVal"));
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals(";"));
 		}
 
@@ -126,7 +126,7 @@ namespace Portland.Text
 			SimpleLex lex = new SimpleLex("2.0");
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("2.0"));
 			Assert.AreEqual(false, lex.Next());
 		}
@@ -137,10 +137,10 @@ namespace Portland.Text
 			SimpleLex lex = new SimpleLex("2.0.");
 			Assert.AreEqual(true, lex.Next());
 
-			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.FLOAT, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("2.0"));
 			Assert.AreEqual(true, lex.Next());
-			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.TypeIs);
+			Assert.AreEqual(SimpleLex.TokenType.PUNCT, lex.Token);
 			Assert.IsTrue(lex.Lexum.ToString().Equals("."));
 			Assert.AreEqual(false, lex.Next());
 		}

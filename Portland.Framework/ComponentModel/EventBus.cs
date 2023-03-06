@@ -1,45 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Portland.Collections;
 using Portland.Text;
+using Portland.Threading;
 
 namespace Portland.ComponentModel
 {
-	public struct EventMessage
-	{
-		public TwoPartName8 EventName;
-		public String8 ArgS;
-		public Variant8 ArgV;
-	}
+	//public struct EventMessage
+	//{
+	//	public String10 EventName;
+	//	public String ArgS;
+	//	public Variant8 ArgV;
+	//}
 
 	/// <summary>
 	/// EventBus is a polled, non-threaded message bus
 	/// </summary>
-	public class EventBus
+	public sealed class EventBus : IMessageBus<SimpleMessage>
 	{
-		public struct Subscription
-		{
-			public TwoPartName8 EventName;
-			public Action<EventMessage> Callback;
-			public String8 SubscriberKey;
-		}
+		//public struct Subscription
+		//{
+		//	public String10 EventName;
+		//	public Action<EventMessage> Callback;
+		//	public string SubscriberKey;
+		//}
 
-		Dictionary<TwoPartName8, Vector<Subscription>> _subscriptions = new Dictionary<TwoPartName8, Vector<Subscription>>();
-		Vector<EventMessage> _pending = new Vector<EventMessage>();
+		Dictionary<String10, Vector<Subscription<SimpleMessage>>> _subscriptions = new Dictionary<String10, Vector<Subscription<SimpleMessage>>>();
+		Vector<SimpleMessage> _pending = new Vector<SimpleMessage>(5);
+		bool _acceptNewMessageTypes = true;
 
 		public void Poll()
 		{
-			Vector<Subscription> vec;
+			Vector<Subscription<SimpleMessage>> vec;
 
 			for (int x = 0; x < _pending.Count; x++)
 			{
 				var msg = _pending[x];
-				vec = _subscriptions[msg.EventName];
+				vec = _subscriptions[msg.MsgName];
 
 				for (int i = 0; i < vec.Count; i++)
 				{
@@ -50,53 +49,107 @@ namespace Portland.ComponentModel
 			_pending.Clear();
 		}
 
-		public void Publish(in TwoPartName8 eventName, in String8 argStr, in Variant8 argVar)
+		public void Publish(in String10 eventName, in Variant16 arg, in object data)
 		{
 			Debug.Assert(_subscriptions.ContainsKey(eventName));
 
-			_pending.Add(new EventMessage { EventName = eventName, ArgS = argStr, ArgV = argVar });
+			_pending.Add(new SimpleMessage { MsgName = eventName, Arg = arg, Data = data });
 		}
 
-		public void Publish(in TwoPartName8 eventName, in String8 argStr)
+		public void Publish(in String10 eventName, in Variant16 arg)
 		{
 			Debug.Assert(_subscriptions.ContainsKey(eventName));
 
-			_pending.Add(new EventMessage { EventName = eventName, ArgS = argStr });
+			_pending.Add(new SimpleMessage { MsgName = eventName, Arg = arg });
 		}
 
-		public void Publish(in TwoPartName8 eventName, in Variant8 argVar)
+		public void Publish(in String10 eventName, in object data)
 		{
 			Debug.Assert(_subscriptions.ContainsKey(eventName));
 
-			_pending.Add(new EventMessage { EventName = eventName, ArgV = argVar });
+			_pending.Add(new SimpleMessage { MsgName = eventName, Data = data });
 		}
 
-		public void Publish(in TwoPartName8 eventName)
+		public void Publish(in String10 eventName)
 		{
 			Debug.Assert(_subscriptions.ContainsKey(eventName));
 
-			_pending.Add(new EventMessage { EventName = eventName });
+			_pending.Add(new SimpleMessage { MsgName = eventName });
 		}
 
-		public void Subscribe(String8 subscriberKey, TwoPartName8 eventName, Action<EventMessage> handler)
+		public void Publish(in SimpleMessage msg)
 		{
-			Vector<Subscription> vec;
-			if (! _subscriptions.TryGetValue(eventName, out vec))
+			Debug.Assert(_subscriptions.ContainsKey(msg.MsgName));
+
+			_pending.Add(msg);
+		}
+
+		public void Subscribe(string subscriberKey, in String10 eventName, Action<SimpleMessage> handler, MessageExecContext notUsed = MessageExecContext.UI_UPDATE)
+		{
+			Vector<Subscription<SimpleMessage>> vec;
+			if (!_subscriptions.TryGetValue(eventName, out vec))
 			{
-				vec = new Vector<Subscription>();
-				_subscriptions.Add(eventName, vec);
+				if (_acceptNewMessageTypes)
+				{
+					vec = new Vector<Subscription<SimpleMessage>>();
+					_subscriptions.Add(eventName, vec);
+				}
+				else
+				{
+					throw new Exception($"No longer accepting new message types {subscriberKey} > {eventName}");
+				}
 			}
 
-			vec.Add(new Subscription { EventName = eventName, Callback = handler, SubscriberKey = subscriberKey });
+			vec.Add(new Subscription<SimpleMessage> { MessageName = eventName, Callback = handler, SubscriberUniqueKey = subscriberKey });
 		}
 
-		public void UnSubscribe(String8 subscriberKey)
+		public void RemoveSubscriber(string subscriberKey)
 		{
-			var rmfn = (Subscription s) => { return s.SubscriberKey == subscriberKey; };
+			var rmfn = (Subscription<SimpleMessage> s) => { return s.SubscriberUniqueKey == subscriberKey; };
 
 			foreach(var vec in _subscriptions.Values)
 			{
 				vec.RemoveWhen(rmfn);	
+			}
+		}
+
+		public void UnSubscribe(string subscriberKey, in String10 eventName)
+		{
+			var msgName = eventName;
+			var rmfn = (Subscription<SimpleMessage> s) => { return s.SubscriberUniqueKey == subscriberKey && s.MessageName == msgName; };
+
+			foreach (var vec in _subscriptions.Values)
+			{
+				vec.RemoveWhen(rmfn);
+			}
+		}
+
+		public void Start()
+		{
+		}
+
+		public void Shutdown()
+		{
+		}
+
+		public void StopAcceptingNewMessageDefinitions()
+		{
+			_acceptNewMessageTypes = false;
+		}
+
+		public void DefineMessage(in String10 eventName)
+		{
+			if (!_subscriptions.TryGetValue(eventName, out var vec))
+			{
+				if (_acceptNewMessageTypes)
+				{
+					vec = new Vector<Subscription<SimpleMessage>>();
+					_subscriptions.Add(eventName, vec);
+				}
+				else
+				{
+					throw new Exception($"No longer accepting new message types {eventName}");
+				}
 			}
 		}
 	}

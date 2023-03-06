@@ -86,12 +86,12 @@ namespace Portland.AI.Barks
 		{
 			while
 			(
-				lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/'
-				|| lex.TypeIs == SimpleLex.TokenType.CR 
-				|| lex.TypeIs == SimpleLex.TokenType.LF
+				lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/'
+				|| lex.Token == SimpleLex.TokenType.CR 
+				|| lex.Token == SimpleLex.TokenType.LF
 			)
 			{
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/')
+				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/')
 				{
 					lex.Match("/");
 					lex.Match("/");
@@ -101,15 +101,15 @@ namespace Portland.AI.Barks
 						lex.Next();
 					}
 				}
-				if (lex.TypeIs == SimpleLex.TokenType.CR || lex.TypeIs == SimpleLex.TokenType.LF)
+				if (lex.Token == SimpleLex.TokenType.CR || lex.Token == SimpleLex.TokenType.LF)
 				{
-					while (lex.TypeIs == SimpleLex.TokenType.CR || lex.TypeIs == SimpleLex.TokenType.LF)
+					while (lex.Token == SimpleLex.TokenType.CR || lex.Token == SimpleLex.TokenType.LF)
 					{
 						lex.Next();
 					}
 					if (lex.Lexum.Length == 1 && lex.Lexum[0] == '#')
 					{
-						while (lex.TypeIs != SimpleLex.TokenType.CR && lex.TypeIs != SimpleLex.TokenType.LF && !lex.IsEOF)
+						while (lex.Token != SimpleLex.TokenType.CR && lex.Token != SimpleLex.TokenType.LF && !lex.IsEOF)
 						{
 							lex.Next();
 						}
@@ -206,7 +206,7 @@ namespace Portland.AI.Barks
 					WhenExpr(lex, rule);
 					continue;
 				}
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+				if (lex.Token == SimpleLex.TokenType.PUNCT)
 				{
 					break;
 				}
@@ -325,7 +325,7 @@ namespace Portland.AI.Barks
 				bool isNot = false;
 				bool isWorld = true;
 
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+				if (lex.Token == SimpleLex.TokenType.PUNCT)
 				{
 					LexMatch(lex, "!");
 					isNot = true;
@@ -400,7 +400,7 @@ namespace Portland.AI.Barks
 				filter.FactName = id;
 			}
 
-			if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+			if (lex.Token == SimpleLex.TokenType.PUNCT)
 			{
 				WhenExprTerm(lex, filter);
 			}
@@ -467,12 +467,12 @@ namespace Portland.AI.Barks
 				}
 			}
 
-			if (lex.TypeIs == SimpleLex.TokenType.ID)
+			if (lex.Token == SimpleLex.TokenType.ID)
 			{
 				filter.Value = lex.Lexum.ToString();
 				LexMatch(lex, SimpleLex.TokenType.ID);
 			}
-			else if (lex.TypeIs == SimpleLex.TokenType.INTEGER)
+			else if (lex.Token == SimpleLex.TokenType.INTEGER)
 			{
 				filter.Value = Int32.Parse(lex.Lexum.ToString());
 				LexMatch(lex, SimpleLex.TokenType.INTEGER);
@@ -595,7 +595,7 @@ namespace Portland.AI.Barks
 
 			rule.Response.Add(cmd);
 
-			if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '.')
+			if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '.')
 			{
 				lex.Next();
 				cmd.ActorName = cmd.Arg1;
@@ -605,11 +605,11 @@ namespace Portland.AI.Barks
 
 			LexMatch(lex, "TO");
 
-			if (lex.TypeIs == SimpleLex.TokenType.INTEGER)
+			if (lex.Token == SimpleLex.TokenType.INTEGER)
 			{
 				cmd.Arg2 = Int32.Parse(lex.Lexum.ToString());
 			}
-			else if (lex.TypeIs == SimpleLex.TokenType.FLOAT)
+			else if (lex.Token == SimpleLex.TokenType.FLOAT)
 			{
 				cmd.Arg2 = Single.Parse(lex.Lexum.ToString());
 			}
@@ -636,7 +636,7 @@ namespace Portland.AI.Barks
 
 			rule.Response.Add(cmd);
 
-			if (lex.TypeIs == SimpleLex.TokenType.INTEGER)
+			if (lex.Token == SimpleLex.TokenType.INTEGER)
 			{
 				cmd.Arg2 = Int32.Parse(lex.Lexum.ToString());
 			}
@@ -650,7 +650,7 @@ namespace Portland.AI.Barks
 			cmd.Arg1 = lex.Lexum.ToString();
 			lex.Next();
 
-			if (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '.')
+			if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '.')
 			{
 				cmd.ActorName = cmd.Arg1;
 				lex.Match(".");
@@ -732,11 +732,11 @@ namespace Portland.AI.Barks
 			StringBuilder buf = new StringBuilder();
 			buf.Append(lex.Lexum);
 			LexMatch(lex, SimpleLex.TokenType.ID);
-			while (lex.TypeIs == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == ':')
+			while (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == ':')
 			{
 				buf.Append(':');
 				LexMatch(lex, SimpleLex.TokenType.PUNCT);
-				if (lex.TypeIs == SimpleLex.TokenType.ID)
+				if (lex.Token == SimpleLex.TokenType.ID)
 				{
 					buf.Append(lex.Lexum);
 					LexMatch(lex, SimpleLex.TokenType.ID);

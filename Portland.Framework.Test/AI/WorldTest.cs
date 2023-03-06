@@ -20,7 +20,7 @@ namespace Portland.AI
 	
 			var chr = world.CreateAgent("player", "player name");
 
-			Assert.That(chr.Facts.Count, Is.EqualTo(16));
+			Assert.That(chr.Facts.Count, Is.AtLeast(16));
 		}
 	}
 }

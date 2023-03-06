@@ -8,168 +8,52 @@ using Portland.Text;
 
 namespace Portland.Threading
 {
-	public class MessageBusService : IMessageBus
+	public class MessageBusService : IMessageBus<SimpleMessage>
 	{
-		private readonly ConcurrentDictionary<TwoPartName8, List<Subscription>> _subscriptions = new ConcurrentDictionary<TwoPartName8, List<Subscription>>();
+		private readonly ConcurrentDictionary<String10, List<Subscription<SimpleMessage>>> _subscriptions = new ConcurrentDictionary<String10, List<Subscription<SimpleMessage>>>();
 
 		private readonly ConcurrentQueue<SimpleMessage> _messageQueue = new ConcurrentQueue<SimpleMessage>();
 
 		private bool _lockNewMessages;
-		private TwoPartName8 _shutdownMessage;
+		private String10 _shutdownMessage;
 
-		protected Action<Subscription, SimpleMessage> _marshaller;
+		protected Action<Subscription<SimpleMessage>, SimpleMessage> _marshaller;
 
 		private IThreadPool _threadPool;
 		private ThreadService _thread;
 
-		public MessageBusService(IThreadPool threadPool, TwoPartName8 shutdownMessage)
+		public void Publish(in String10 messageName)
 		{
-			_shutdownMessage = shutdownMessage;
-			_marshaller = RunCallback;
-
-			_threadPool = threadPool;
-
-			_thread = new ThreadService(nameof(MessageBusService), RunServiceOne);
-			_thread.WaitTime = 1000;
-		}
-
-		public void StopAcceptingNewMessageDefinitions()
-		{
-			_lockNewMessages = true;
-		}
-
-		/// <summary>
-		/// Called to dispatch message, should run Subscription.Callback(SimpleMessage)
-		/// </summary>
-		public void SetMessageMarshaller(Action<Subscription, SimpleMessage> runner)
-		{
-			_marshaller = runner;
-		}
-
-		/// <summary>
-		/// Note, SetMessageMarshaller() removes observers
-		/// </summary>
-		public void AddMessageObserver(Action<Subscription, SimpleMessage> observer)
-		{
-			_marshaller += observer;
-		}
-
-		public void DefineMessage(TwoPartName8 msgName)
-		{
-			if (_lockNewMessages)
-			{
-				throw new Exception(msgName + " cannot add, locked");
-			}
-			if (!_subscriptions.ContainsKey(msgName))
-			{
-				_subscriptions.TryAdd(msgName, new List<Subscription>());
-			}
-		}
-
-		public void Subscribe
-		(
-			string subscriberUniqueKeyForRemove,
-			TwoPartName8 msgName,
-			Action<SimpleMessage> action,
-			MessageExecContext ctx = MessageExecContext.BACKGROUND
-		)
-		{
-			if (!_subscriptions.ContainsKey(msgName))
-			{
-				if (_lockNewMessages)
-				{
-					throw new Exception(msgName + " cannot add, locked");
-				}
-				_subscriptions.TryAdd(msgName, new List<Subscription>());
-			}
-
-			_subscriptions[msgName].Add
-			(
-				new Subscription()
-				{
-					SubscriberUniqueKey = subscriberUniqueKeyForRemove,
-					MessageName = msgName,
-					ThreadContext = ctx,
-					Callback = action
-				}
-			);
-		}
-
-		public void RemoveSubscriber(string subrUniqueKey)
-		{
-			foreach (var service in _subscriptions.Keys)
-			{
-				var vec = _subscriptions[service];
-
-				for (int x = 0; x < vec.Count; x++)
-				{
-					if (x < vec.Count && vec[x].SubscriberUniqueKey.Equals(subrUniqueKey))
-					{
-						vec.RemoveAt(x);
-						break;
-					}
-				}
-			}
-		}
-
-		public void RemoveSubscriber(string subscriberUniqueKey, TwoPartName8 msgName)
-		{
-			if (!_subscriptions.ContainsKey(msgName))
-			{
-				return;
-			}
-
-			bool found = false;
-			var vec = _subscriptions[msgName];
-
-			for (int x = 0; x < vec.Count; x++)
-			{
-				if (x < vec.Count && vec[x].SubscriberUniqueKey.Equals(subscriberUniqueKey))
-				{
-					vec.RemoveAt(x);
-					found = true;
-					break;
-				}
-			}
-
-			if (!found)
-			{
-				Debug.WriteLine("RemoveSubscriber: {0} for {1} not found", msgName, subscriberUniqueKey);
-			}
-		}
-
-		public void Publish(TwoPartName8 messageName)
-		{
-			var msg = new SimpleMessage() { Name = messageName };
+			var msg = new SimpleMessage() { MsgName = messageName };
 			Publish(msg);
 		}
 
-		public void Publish(TwoPartName8 messageName, Variant16 arg)
+		public void Publish(in String10 messageName, in Variant16 arg)
 		{
-			var msg = new SimpleMessage() { Name = messageName, Arg = arg };
+			var msg = new SimpleMessage() { MsgName = messageName, Arg = arg };
 			Publish(msg);
 		}
 
-		public void Publish(TwoPartName8 messageName, Variant16 arg, object data)
+		public void Publish(in String10 messageName, in Variant16 arg, object data)
 		{
-			var msg = new SimpleMessage() { Name = messageName, Arg = arg, Data = data };
+			var msg = new SimpleMessage() { MsgName = messageName, Arg = arg, Data = data };
 			Publish(msg);
 		}
 
-		public void Publish(TwoPartName8 messageName, object data)
+		public void Publish(in String10 messageName, object data)
 		{
-			var msg = new SimpleMessage() { Name = messageName, Data = data };
+			var msg = new SimpleMessage() { MsgName = messageName, Data = data };
 			Publish(msg);
 		}
 
-		private void Publish(SimpleMessage msg)
+		public void Publish(in SimpleMessage msg)
 		{
-			if (!_subscriptions.ContainsKey(msg.Name))
+			if (!_subscriptions.ContainsKey(msg.MsgName))
 			{
 #if UNITY_5_3_OR_NEWER
 				UnityEngine.Debug.LogWarning("MessageDispatcher.Publish: No listener for " + msg.Name);
 #else
-				Debug.WriteLine("MessageDispatcher.Publish: No listener for " + msg.Name);
+				Debug.WriteLine("MessageDispatcher.Publish: No listener for " + msg.MsgName);
 #endif
 				return;
 			}
@@ -195,7 +79,7 @@ namespace Portland.Threading
 					continue;
 				}
 
-				var subs = _subscriptions[msg.Name];
+				var subs = _subscriptions[msg.MsgName];
 				int sendCount = 0;
 
 				for (int x = 0; x < subs.Count; x++)
@@ -223,13 +107,13 @@ namespace Portland.Threading
 #if UNITY_5_3_OR_NEWER
 					UnityEngine.Debug.LogWarning("MessageBusService: No listeners for " + msg.Name);
 #else
-					Debug.WriteLine($"MessageBusService: No listeners for {msg.Name}");
+					Debug.WriteLine($"MessageBusService: No listeners for {msg.MsgName}");
 #endif
 				}
 			}
 		}
 
-		private void RunCallback(Subscription sub, SimpleMessage msg)
+		private void RunCallback(Subscription<SimpleMessage> sub, SimpleMessage msg)
 		{
 			_threadPool.QueueWorkItem(() => sub.Callback(msg));
 		}
@@ -244,6 +128,122 @@ namespace Portland.Threading
 		public void Start()
 		{
 			_thread.Start();
+		}
+
+		public void StopAcceptingNewMessageDefinitions()
+		{
+			_lockNewMessages = true;
+		}
+
+		/// <summary>
+		/// Called to dispatch message, should run Subscription.Callback(SimpleMessage)
+		/// </summary>
+		public void SetMessageMarshaller(Action<Subscription<SimpleMessage>, SimpleMessage> runner)
+		{
+			_marshaller = runner;
+		}
+
+		/// <summary>
+		/// Note, SetMessageMarshaller() removes observers
+		/// </summary>
+		public void AddMessageObserver(Action<Subscription<SimpleMessage>, SimpleMessage> observer)
+		{
+			_marshaller += observer;
+		}
+
+		public void DefineMessage(in String10 msgName)
+		{
+			if (_lockNewMessages)
+			{
+				throw new Exception(msgName + " cannot add, locked");
+			}
+			if (!_subscriptions.ContainsKey(msgName))
+			{
+				_subscriptions.TryAdd(msgName, new List<Subscription<SimpleMessage>>());
+			}
+		}
+
+		public void Subscribe
+		(
+			string subscriberUniqueKeyForRemove,
+			in String10 msgName,
+			Action<SimpleMessage> action,
+			MessageExecContext ctx = MessageExecContext.BACKGROUND
+		)
+		{
+			if (!_subscriptions.ContainsKey(msgName))
+			{
+				if (_lockNewMessages)
+				{
+					throw new Exception(msgName + " cannot add, locked");
+				}
+				_subscriptions.TryAdd(msgName, new List<Subscription<SimpleMessage>>());
+			}
+
+			_subscriptions[msgName].Add
+			(
+				new Subscription<SimpleMessage>()
+				{
+					SubscriberUniqueKey = subscriberUniqueKeyForRemove,
+					MessageName = msgName,
+					ThreadContext = ctx,
+					Callback = action
+				}
+			);
+		}
+
+		public void RemoveSubscriber(string subrUniqueKey)
+		{
+			foreach (var service in _subscriptions.Keys)
+			{
+				var vec = _subscriptions[service];
+
+				for (int x = 0; x < vec.Count; x++)
+				{
+					if (x < vec.Count && vec[x].SubscriberUniqueKey.Equals(subrUniqueKey))
+					{
+						vec.RemoveAt(x);
+						break;
+					}
+				}
+			}
+		}
+
+		public void UnSubscribe(string subscriberUniqueKey, in String10 msgName)
+		{
+			if (!_subscriptions.ContainsKey(msgName))
+			{
+				return;
+			}
+
+			bool found = false;
+			var vec = _subscriptions[msgName];
+
+			for (int x = 0; x < vec.Count; x++)
+			{
+				if (x < vec.Count && vec[x].SubscriberUniqueKey.Equals(subscriberUniqueKey))
+				{
+					vec.RemoveAt(x);
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				Debug.WriteLine("RemoveSubscriber: {0} for {1} not found", msgName, subscriberUniqueKey);
+			}
+		}
+
+		public MessageBusService(IThreadPool threadPool, in String10 shutdownMessage)
+		{
+			_shutdownMessage = shutdownMessage;
+			_marshaller = RunCallback;
+
+			_threadPool = threadPool;
+
+			_thread = new ThreadService(nameof(MessageBusService), RunServiceOne);
+			_thread.WaitTime = 1000;
 		}
 	}
 }

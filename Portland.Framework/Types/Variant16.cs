@@ -46,7 +46,7 @@ namespace Portland
 			public int AsInt3;
 
 			[FieldOffset(0)]
-			public Vector3h AsVector3;
+			public Vector3 AsVector3;
 
 			[FieldOffset(0)]
 			public String8 AsString;
@@ -181,22 +181,56 @@ namespace Portland
 			Set(ch);
 		}
 
-		public Variant16(Vector3h vec)
+		public Variant16(in Vector3 vec)
 		{
 			_value = Zero._value;
 			Set(vec);
 		}
 
-		public Variant16(Vector3i vec)
+		public Variant16(in Vector3i vec)
 		{
 			_value = Zero._value;
 			Set(vec);
 		}
 
-		public Variant16(Vector3 vec)
+		public Variant16(in Vector3h vec)
 		{
 			_value = Zero._value;
-			Set(new Vector3h(vec));
+			Set(new Vector3(vec.X, vec.Y, vec.Z));
+		}
+
+		public Variant16(in Variant8 v)
+		{
+			_value = Zero._value;
+			switch (v.TypeIs)
+			{
+				case VariantType.Null:
+					break;
+				case VariantType.Int:
+					Set(v.Int);
+					break;
+				case VariantType.Float:
+					Set(v.Float);
+					break;
+				case VariantType.StringIntern:
+					Set(v.ToString());
+					break;
+				case VariantType.Vec3:
+					Set(v.ToVector3());
+					break;
+				case VariantType.Bool:
+					Set(v.Bool);
+					break;
+				case VariantType.String:
+					Set(v.ToString());
+					break;
+				case VariantType.Vec3i:
+					Set(v.ToVector3i());
+					break;
+				case VariantType.Long:
+					Set(v.ToInt());
+					break;
+			}
 		}
 
 		/// <summary>In-place update</summary>
@@ -207,21 +241,21 @@ namespace Portland
 		}
 
 		/// <summary>In-place update</summary>
-		public void Set(long i)
+		public void Set(in long i)
 		{
 			_value.TypeIs = VariantType.Long;
 			_value.AsLong = i;
 		}
 
 		/// <summary>In-place update</summary>
-		public void Set(ulong i)
+		public void Set(in ulong i)
 		{
 			_value.TypeIs = VariantType.Long;
 			_value.AsULong = i;
 		}
 
 		/// <summary>In-place update</summary>
-		public void Set(double f)
+		public void Set(in double f)
 		{
 			_value.TypeIs = VariantType.Float;
 			_value.AsFloat = f;
@@ -287,7 +321,7 @@ namespace Portland
 			_value = Parse(_value.TypeIs, value)._value;
 		}
 
-		public void Set(in Vector3h v)
+		public void Set(in Vector3 v)
 		{
 			_value.TypeIs = VariantType.Vec3;
 			_value.AsVector3 = v;
@@ -320,7 +354,7 @@ namespace Portland
 					Set(new String8());
 					break;
 				case VariantType.Vec3:
-					Set(Vector3h.Zero);
+					Set(Vector3.zero);
 					break;
 				case VariantType.Vec3i:
 					Set(new Vector3i(0, 0, 0));
@@ -396,7 +430,7 @@ namespace Portland
 		}
 
 		/// <summary>No conversion or type checking</summary>
-		public Vector3h Vector
+		public Vector3 Vector
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get { return _value.AsVector3; }
@@ -495,14 +529,14 @@ namespace Portland
 			return 0f;
 		}
 
-		public Vector3h ToVector3d()
+		public Vector3 ToVector3()
 		{
 			if (_value.TypeIs == VariantType.Vec3)
 			{
 				return _value.AsVector3;
 			}
 
-			return Vector3h.Zero;
+			return Vector3.zero;
 		}
 
 		public Vector3i ToVector3i()
@@ -558,7 +592,7 @@ namespace Portland
 					case VariantType.StringIntern:
 						return _value.AsString[idx];
 					case VariantType.Vec3:
-						return idx == 0 ? (int)_value.AsVector3.X : idx == 1 ? (int)_value.AsVector3.Y : idx == 2 ? (int)_value.AsVector3.Z : Int32.MinValue;
+						return idx == 0 ? (int)_value.AsVector3.x : idx == 1 ? (int)_value.AsVector3.y : idx == 2 ? (int)_value.AsVector3.z : Int32.MinValue;
 					case VariantType.Vec3i:
 						return idx == 0 ? (int)Vectori.X : idx == 1 ? (int)Vectori.Y : idx == 2 ? (int)Vectori.Z : Int32.MinValue;
 					case VariantType.String:
@@ -796,7 +830,7 @@ namespace Portland
 					break;
 				case VariantType.Vec3i:
 					var vec = ParseVector3(value);
-					v.Set(new Vector3i((int)vec.X, (int)vec.Y, (int)vec.Z));
+					v.Set(new Vector3i((int)vec.x, (int)vec.y, (int)vec.z));
 					break;
 				case VariantType.Bool:
 					v.Set(ParseBool(value));
@@ -877,9 +911,9 @@ namespace Portland
 			return false;
 		}
 
-		private static Vector3h ParseVector3(string val)
+		private static Vector3 ParseVector3(string val)
 		{
-			Vector3h v = Vector3h.Zero;
+			Vector3 v = Vector3.zero;
 
 			if (String.IsNullOrWhiteSpace(val))
 			{
@@ -888,17 +922,17 @@ namespace Portland
 
 			SimpleLex lex = new SimpleLex(val);
 			lex.Next();
-			if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+			if (lex.Token == SimpleLex.TokenType.PUNCT)
 			{
 				lex.Next();
 			}
-			v.X = (Half)Single.Parse(lex.Lexum.ToString());
+			v.x = (Half)Single.Parse(lex.Lexum.ToString());
 			lex.Next();
 			lex.Next();
-			v.Y = (Half)Single.Parse(lex.Lexum.ToString());
+			v.y = (Half)Single.Parse(lex.Lexum.ToString());
 			lex.Next();
 			lex.Next();
-			v.Z = (Half)Single.Parse(lex.Lexum.ToString());
+			v.z = (Half)Single.Parse(lex.Lexum.ToString());
 
 			return v;
 		}
@@ -933,14 +967,14 @@ namespace Portland
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(in Variant16 s1, String8 s)
+		public static bool operator ==(in Variant16 s1, in String8 s)
 		{
 			return s1._value.AsString == s;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(in Variant16 s1, String8 s)
+		public static bool operator !=(in Variant16 s1, in String8 s)
 		{
 			return s1._value.AsString != s;
 		}
@@ -961,14 +995,14 @@ namespace Portland
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(in Variant16 s1, double i)
+		public static bool operator ==(in Variant16 s1, in double i)
 		{
 			return s1.ToFloat() == i;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(in Variant16 s1, double i)
+		public static bool operator !=(in Variant16 s1, in double i)
 		{
 			return s1.ToFloat() != i;
 		}
@@ -1003,30 +1037,30 @@ namespace Portland
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(in Variant16 s1, in Vector3h i)
-		{
-			return s1.ToVector3d() == i;
-		}
-
-		/// <summary>==</summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(in Variant16 s1, in Vector3h i)
-		{
-			return s1.ToVector3d() != i;
-		}
-
-		/// <summary>==</summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Variant16 s1, in Vector3 i)
 		{
-			return s1.ToVector3d().Equals(i);
+			return s1.ToVector3() == i;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Variant16 s1, in Vector3 i)
 		{
-			return !s1.ToVector3d().Equals(i);
+			return s1.ToVector3() != i;
+		}
+
+		/// <summary>==</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(in Variant16 s1, in Vector3h i)
+		{
+			return s1.ToVector3().Equals((Vector3)i);
+		}
+
+		/// <summary>==</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(in Variant16 s1, in Vector3h i)
+		{
+			return !s1.ToVector3().Equals((Vector3)i);
 		}
 
 		/// <summary>==</summary>
@@ -1060,7 +1094,7 @@ namespace Portland
 			}
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return new Variant16(v1.ToVector3d() + v2.ToVector3d());
+				return new Variant16(v1.ToVector3() + v2.ToVector3());
 			}
 
 			return v1.ToString() + v2.ToString();
@@ -1079,7 +1113,7 @@ namespace Portland
 			}
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return new Variant16(v1.ToVector3d() - v2.ToVector3d());
+				return new Variant16(v1.ToVector3() - v2.ToVector3());
 			}
 
 			return v1.ToInt() - v2.ToInt();
@@ -1090,7 +1124,7 @@ namespace Portland
 		{
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Float)
 			{
-				return new Variant16(v1.ToVector3d() * (float)v2.ToFloat());
+				return new Variant16(v1.ToVector3() * (float)v2.ToFloat());
 			}
 			if (v1._value.TypeIs == VariantType.Long || v2._value.TypeIs == VariantType.Long)
 			{
@@ -1113,7 +1147,7 @@ namespace Portland
 		{
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Float)
 			{
-				return new Variant16(v1.ToVector3d() / (float)v2.ToFloat());
+				return new Variant16(v1.ToVector3() / (float)v2.ToFloat());
 			}
 			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
 			{
@@ -1207,6 +1241,13 @@ namespace Portland
 			return false;
 		}
 
+		/// <summary>Implicit Variant16 to Variant8 cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Variant8(in Variant16 v) => new Variant8(v);
+		/// <summary>Implicit Varint8 to Variant16 cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Variant16(in Variant8 x) => new Variant16(x);
+
 		/// <summary>Implicit Variant to string cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator string(in Variant16 v) => v.ToString();
@@ -1251,7 +1292,14 @@ namespace Portland
 
 		/// <summary>cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator Vector3h(in Variant16 v) => v.ToVector3d();
+		public static implicit operator Vector3(in Variant16 v) => v.ToVector3();
+		/// <summary>cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Variant16(in Vector3 x) => new Variant16(x);
+
+		/// <summary>cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector3h(in Variant16 v) => v.ToVector3();
 		/// <summary>cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Variant16(in Vector3h x) => new Variant16(x);

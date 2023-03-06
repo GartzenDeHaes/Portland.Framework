@@ -140,7 +140,7 @@ namespace Portland.AI.Semantics
 			{
 				char op = '+';
 
-				if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+				if (lex.Token == SimpleLex.TokenType.PUNCT)
 				{
 					op = lex.Lexum[0];
 					lex.Next();

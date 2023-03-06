@@ -25,5 +25,23 @@ namespace Portland.Text
 
 			return true;
 		}
+
+		public static bool IsEqualToIgnoreCase(this StringBuilder buf, string str)
+		{
+			int len = buf.Length;
+			if (len != str.Length)
+			{
+				return false;
+			}
+			for (int x = 0; x < len; x++)
+			{
+				if (Char.ToUpperInvariant(buf[x]) != Char.ToUpperInvariant(str[x]))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
 	}
 }

@@ -6,33 +6,37 @@ using Portland.Text;
 
 namespace Portland.Threading
 {
-	public class MessageBusNull : IMessageBus
+	public sealed class MessageBusNull : IMessageBus<SimpleMessage>
 	{
-		public void AddMessageObserver(Action<Subscription, SimpleMessage> observer)
+		public void AddMessageObserver(Action<Subscription<SimpleMessage>, SimpleMessage> observer)
 		{
 		}
 
-		public void DefineMessage(TwoPartName8 name)
+		public void DefineMessage(in String10 name)
 		{
 		}
 
-		public void Publish(TwoPartName8 msgName)
+		public void Publish(in SimpleMessage msg)
 		{
 		}
 
-		public void Publish(TwoPartName8 msgName, Variant16 arg)
+		public void Publish(in String10 msgName)
 		{
 		}
 
-		public void Publish(TwoPartName8 msgName, object data)
+		public void Publish(in String10 msgName, in Variant16 arg)
 		{
 		}
 
-		public void Publish(TwoPartName8 msgName, Variant16 arg, object data)
+		public void Publish(in String10 msgName, object data)
 		{
 		}
 
-		public void RemoveSubscriber(string subrUniqueKey, TwoPartName8 msgName)
+		public void Publish(in String10 msgName, in Variant16 arg, object data)
+		{
+		}
+
+		public void UnSubscribe(string subrUniqueKey, in String10 msgName)
 		{
 		}
 
@@ -40,7 +44,7 @@ namespace Portland.Threading
 		{
 		}
 
-		public void SetMessageMarshaller(Action<Subscription, SimpleMessage> runner)
+		public void SetMessageMarshaller(Action<Subscription<SimpleMessage>, SimpleMessage> runner)
 		{
 		}
 
@@ -56,7 +60,7 @@ namespace Portland.Threading
 		{
 		}
 
-		public void Subscribe(string subrUniqueKey, TwoPartName8 msgName, Action<SimpleMessage> action, MessageExecContext ctx = MessageExecContext.BACKGROUND)
+		public void Subscribe(string subrUniqueKey, in String10 msgName, Action<SimpleMessage> action, MessageExecContext ctx = MessageExecContext.BACKGROUND)
 		{
 		}
 	}

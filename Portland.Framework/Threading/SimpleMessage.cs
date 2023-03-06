@@ -16,7 +16,7 @@ namespace Portland.Threading
 {
 	public sealed class SimpleMessage
 	{
-		public TwoPartName8 Name;
+		public String10 MsgName;
 		public Variant16 Arg;
 		public object Data;
 	}

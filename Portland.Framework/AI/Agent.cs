@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Portland.AI.Utility;
-using Portland.Collections;
-using Portland.ComponentModel;
-using Portland.Framework.AI;
 using Portland.Interp;
 using Portland.RPG;
 using Portland.Types;
@@ -14,6 +10,10 @@ namespace Portland.AI
 {
 	public sealed class Agent : ICommandRunner
 	{
+		static readonly PropertyDefinition _classPropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Class", TypeName = "string", PropertyId = "agent_class" };
+		static readonly PropertyDefinition _shortNamePropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Name", TypeName = "string", PropertyId = "agent_name" };
+		static readonly PropertyDefinition _longNamePropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Full Name", TypeName = "string", PropertyId = "agent_full_name" };
+
 		public AgentStateFlags Flags;
 		public readonly String AgentId;
 		public readonly String Class;
@@ -24,6 +24,7 @@ namespace Portland.AI
 		public readonly CharacterSheet Character;
 		public readonly IBlackboard<String> Facts;
 		public readonly ExecutionContext ScriptCtx;
+		public int RuntimeIndex;
 
 		public Action Alerts;
 
@@ -42,6 +43,7 @@ namespace Portland.AI
 			Dictionary<SubSig, IFunction> globalFuncs,
 			IUtilityFactory utility,
 			ICharacterManager charMan,
+			IBlackboard<String> globalFacts,
 			in String cls, 
 			in String agentId,
 			in string shortName,
@@ -60,8 +62,12 @@ namespace Portland.AI
 
 			UtilitySet = utility.CreateAgentInstance(cls, agentId);
 
-			Facts = new Blackboard<String>();
+			Facts = new Blackboard<String>(globalFacts);
 			Facts.Add("objective", UtilitySet.CurrentObjective);
+
+			Facts.Add(_classPropDef.PropertyId, new PropertyValue(_classPropDef) { Value = classEffectGrp });
+			Facts.Add(_shortNamePropDef.PropertyId, new PropertyValue(_shortNamePropDef) { Value = shortName });
+			Facts.Add(_longNamePropDef.PropertyId, new PropertyValue(_longNamePropDef) { Value = longName });
 
 			Character = charMan.CreateCharacter(cls, raceEffectGrp, classEffectGrp, faction, UtilitySet, ScriptCtx);
 

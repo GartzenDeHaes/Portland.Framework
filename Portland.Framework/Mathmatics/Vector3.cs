@@ -979,13 +979,13 @@ namespace Portland.Mathmatics
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder(32);
-			sb.Append("{X:");
+			sb.Append("(");
 			sb.Append(this.x);
-			sb.Append(" Y:");
+			sb.Append(",");
 			sb.Append(this.y);
-			sb.Append(" Z:");
+			sb.Append(",");
 			sb.Append(this.z);
-			sb.Append("}");
+			sb.Append(")");
 			return sb.ToString();
 		}
 

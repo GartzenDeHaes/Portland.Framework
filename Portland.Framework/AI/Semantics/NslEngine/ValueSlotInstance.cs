@@ -71,7 +71,7 @@ namespace Portland.AI.Semantics
 
 		public Vector3h AsVector3()
 		{
-			return _value.ToVector3d();
+			return _value.ToVector3();
 		}
 
 		public Variant8 AsVariant()

@@ -68,7 +68,12 @@ namespace Portland.Text
 				return '\0';
 			}
 
-			return _text[_textPos++];
+			char ch = _text[_textPos++];
+			if (ch == '\n')
+			{
+				_lineNum++;
+			}
+			return ch;
 		}
 
 		private void UnGetCh()
@@ -113,6 +118,9 @@ namespace Portland.Text
 			return Next();
 		}
 
+		/// <summary>
+		/// Match <tag>
+		/// </summary>
 		public bool MatchTagStart(string name)
 		{
 			if (Token != XmlLexToken.TAG_START)

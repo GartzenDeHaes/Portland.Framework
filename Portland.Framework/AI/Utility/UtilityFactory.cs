@@ -301,7 +301,11 @@ namespace Portland.AI.Utility
 		public void ParseLoad(string xml)
 		{
 			XmlLex lex = new XmlLex(xml);
+			ParseLoad(lex);
+		}
 
+		public void ParseLoad(XmlLex lex)
+		{
 			lex.MatchTag("utility");
 
 			lex.MatchTag("utility_properties");

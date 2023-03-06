@@ -50,10 +50,10 @@ namespace Portland.Text
 		/// <summary></summary>
 		public int LineNum;
 		/// <summary></summary>
-		public TokenType TypeIs;
+		public TokenType Token;
 
-		public bool IsEOF { get { return TypeIs == SimpleLex.TokenType.EOF; } }
-		public bool IsEOL { get { return TypeIs == SimpleLex.TokenType.EOF || TypeIs == SimpleLex.TokenType.CR || TypeIs == SimpleLex.TokenType.LF; } }
+		public bool IsEOF { get { return Token == SimpleLex.TokenType.EOF; } }
+		public bool IsEOL { get { return Token == SimpleLex.TokenType.EOF || Token == SimpleLex.TokenType.CR || Token == SimpleLex.TokenType.LF; } }
 
 		private enum State
 		{
@@ -82,13 +82,21 @@ namespace Portland.Text
 
 			if (String.IsNullOrWhiteSpace(txt))
 			{
-				TypeIs = TokenType.EOF;
+				Token = TokenType.EOF;
 			}
+		}
+
+		public void Reset(string txt)
+		{
+			_text = txt;
+			_textPos = 0;
+			LineNum = 0;
+			Token = TokenType.BOF;
 		}
 
 		public bool Match(TokenType tt)
 		{
-			if (tt != TypeIs)
+			if (tt != Token)
 			{
 				throw new ParseException($"Expected {tt} on line {LineNum}");
 			}
@@ -126,17 +134,72 @@ namespace Portland.Text
 			return Next();
 		}
 
+		public void ReadToEol()
+		{
+			ReadToEolOrChar('\n');
+		}
+
+		public void ReadToEolOrChar(char stop)
+		{
+			Token = TokenType.STRING;
+
+			char ch;
+			while (_textPos < _text.Length)
+			{
+				ch = _text[_textPos];
+				if (ch == stop || ch == '\n' || ch == '\r')
+				{
+					break;
+				}
+				Lexum.Append(ch);
+				_textPos++;
+			}
+		}
+
+		public void NextLine()
+		{
+			if (Token == TokenType.CR || Token == TokenType.LF) 
+			{
+				Next();
+			}
+			if (Token == TokenType.CR || Token == TokenType.LF)
+			{
+				Next();
+			}
+		}
+
+		public void SkipWhitespace()
+		{
+			if (IsEOL)
+			{
+				Lexum.Length = 0;
+				char ch = _text[_textPos];
+
+				while (Char.IsWhiteSpace(ch) && _textPos < _text.Length)
+				{
+					ch = _text[_textPos++];
+				}
+
+				if (_textPos < _text.Length)
+				{
+					_textPos--;
+				}
+
+				Next();
+			}
+		}
+
 		/// <summary>Return false on EOF</summary>
 		public bool Next()
 		{
 			Lexum.Length = 0;
 
-			if (TypeIs == TokenType.EOF)
+			if (Token == TokenType.EOF)
 			{
 				return false;
 			}
 
-			TypeIs = TokenType.EOF;
+			Token = TokenType.EOF;
 
 			if (_textPos >= _text.Length)
 			{
@@ -167,13 +230,13 @@ namespace Portland.Text
 							case CharClass.WHITESPACE:
 								if (ch == '\n')
 								{
-									TypeIs = TokenType.LF;
+									Token = TokenType.LF;
 									LineNum++;
 									return true;
 								}
 								if (ch == '\r')
 								{
-									TypeIs = TokenType.CR;
+									Token = TokenType.CR;
 									return true;
 								}
 								break;
@@ -181,14 +244,14 @@ namespace Portland.Text
 								if (ch == '\'')
 								{
 									state = State.STRING;
-									TypeIs = TokenType.STRING;
+									Token = TokenType.STRING;
 									delim = ch;
 									break; ;
 								}
 								if (ch == '"')
 								{
 									state = State.STRING;
-									TypeIs = TokenType.STRING;
+									Token = TokenType.STRING;
 									delim = ch;
 									break;
 								}
@@ -199,17 +262,17 @@ namespace Portland.Text
 									break;
 								}
 								Lexum.Append(ch);
-								TypeIs = TokenType.PUNCT;
+								Token = TokenType.PUNCT;
 								return true;
 							case CharClass.NUM:
 								state = State.NUM;
 								Lexum.Append(ch);
-								TypeIs = TokenType.INTEGER;
+								Token = TokenType.INTEGER;
 								break;
 							case CharClass.ALPHA:
 								Lexum.Append(ch);
 								state = State.ID;
-								TypeIs = TokenType.ID;
+								Token = TokenType.ID;
 								break;
 							default:
 								throw new ParseException("Internal error in SimpleLex " + _text);
@@ -225,7 +288,7 @@ namespace Portland.Text
 						else
 						{
 							_textPos--;
-							TypeIs = TokenType.ID;
+							Token = TokenType.ID;
 							return true;
 						}
 					case State.NUM:
@@ -238,13 +301,13 @@ namespace Portland.Text
 						{
 							Lexum.Append(ch);
 							state = State.FLOAT;
-							TypeIs = TokenType.FLOAT;
+							Token = TokenType.FLOAT;
 							break;
 						}
 						else
 						{
 							_textPos--;
-							TypeIs = TokenType.INTEGER;
+							Token = TokenType.INTEGER;
 							return true;
 						}
 					case State.FLOAT:
@@ -280,7 +343,7 @@ namespace Portland.Text
 				}
 			}
 
-			return TypeIs != TokenType.EOF;
+			return Token != TokenType.EOF;
 		}
 
 		/// <summary></summary>

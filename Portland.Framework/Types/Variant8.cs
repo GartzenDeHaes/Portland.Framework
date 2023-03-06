@@ -223,6 +223,40 @@ namespace Portland
 			Set(new Vector3h(vec));
 		}
 
+		public Variant8(in Variant16 v)
+		{
+			_value = Zero._value;
+			switch (v.TypeIs)
+			{
+				case VariantType.Null:
+					break;
+				case VariantType.Int:
+					Set(v.Int);
+					break;
+				case VariantType.Float:
+					Set((float)v.Float);
+					break;
+				case VariantType.StringIntern:
+					Set(v.ToString());
+					break;
+				case VariantType.Vec3:
+					Set(v.ToVector3());
+					break;
+				case VariantType.Bool:
+					Set(v.Bool);
+					break;
+				case VariantType.String:
+					Set(v.ToString());
+					break;
+				case VariantType.Vec3i:
+					Set(v.ToVector3i());
+					break;
+				case VariantType.Long:
+					Set(v.ToInt());
+					break;
+			}
+		}
+
 		/// <summary>In-place update</summary>
 		public void Set(int i)
 		{
@@ -465,7 +499,7 @@ namespace Portland
 			return 0f;
 		}
 
-		public Vector3h ToVector3d()
+		public Vector3h ToVector3()
 		{
 			if (_value.TypeIs == VariantType.Vec3)
 			{
@@ -573,7 +607,7 @@ namespace Portland
 			}
 			if (_value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return ToVector3d() == v2.ToVector3d();
+				return ToVector3() == v2.ToVector3();
 			}
 
 			return Equals(v2.ToString());
@@ -591,7 +625,7 @@ namespace Portland
 			}
 			if (_value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return ToVector3d() == v2.ToVector3d();
+				return ToVector3() == v2.ToVector3();
 			}
 
 			return Equals(v2.ToString());
@@ -872,7 +906,7 @@ namespace Portland
 
 			SimpleLex lex = new SimpleLex(val);
 			lex.Next();
-			if (lex.TypeIs == SimpleLex.TokenType.PUNCT)
+			if (lex.Token == SimpleLex.TokenType.PUNCT)
 			{
 				lex.Next();
 			}
@@ -990,28 +1024,28 @@ namespace Portland
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Variant8 s1, in Vector3h i)
 		{
-			return s1.ToVector3d() == i;
+			return s1.ToVector3() == i;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Variant8 s1, in Vector3h i)
 		{
-			return s1.ToVector3d() != i;
+			return s1.ToVector3() != i;
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(in Variant8 s1, in Vector3 i)
 		{
-			return s1.ToVector3d().Equals(i);
+			return s1.ToVector3().Equals(i);
 		}
 
 		/// <summary>==</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(in Variant8 s1, in Vector3 i)
 		{
-			return !s1.ToVector3d().Equals(i);
+			return !s1.ToVector3().Equals(i);
 		}
 
 		/// <summary>==</summary>
@@ -1041,7 +1075,7 @@ namespace Portland
 			}
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return new Variant8(v1.ToVector3d() + v2.ToVector3d());
+				return new Variant8(v1.ToVector3() + v2.ToVector3());
 			}
 
 			return v1.ToString() + v2.ToString();
@@ -1056,7 +1090,7 @@ namespace Portland
 			}
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Vec3)
 			{
-				return new Variant8(v1.ToVector3d() - v2.ToVector3d());
+				return new Variant8(v1.ToVector3() - v2.ToVector3());
 			}
 
 			return v1.ToInt() - v2.ToInt();
@@ -1067,7 +1101,7 @@ namespace Portland
 		{
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Float)
 			{
-				return new Variant8(v1.ToVector3d() * v2.ToFloat());
+				return new Variant8(v1.ToVector3() * v2.ToFloat());
 			}
 			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
 			{
@@ -1086,7 +1120,7 @@ namespace Portland
 		{
 			if (v1._value.TypeIs == VariantType.Vec3 && v2._value.TypeIs == VariantType.Float)
 			{
-				return new Variant8(v1.ToVector3d() / v2.ToFloat());
+				return new Variant8(v1.ToVector3() / v2.ToFloat());
 			}
 			if (v1._value.TypeIs == VariantType.Float || v2._value.TypeIs == VariantType.Float)
 			{
@@ -1191,7 +1225,7 @@ namespace Portland
 
 		/// <summary>cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator Vector3h(in Variant8 v) => v.ToVector3d();
+		public static implicit operator Vector3h(in Variant8 v) => v.ToVector3();
 		/// <summary>cast</summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Variant8(in Vector3h x) => new Variant8(x);
