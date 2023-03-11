@@ -10,21 +10,21 @@ namespace Portland.RPG.Dialogue
 	public sealed class DialogueCommand
 	{
 		/// <summary>END the dialogue</summary>
-		public readonly static AsciiId4 CommandNameStop = "STOP";
+		public readonly static String10 CommandNameStop = "STOP";
 		/// <summary>Wait in seconds before continuing executing comamands</summary>
-		public readonly static AsciiId4 CommandNameWait = "WAIT";
+		public readonly static String10 CommandNameWait = "WAIT";
 		/// <summary>Send an event/message</summary>
-		public readonly static AsciiId4 CommandNameSend = "SEND";
+		public readonly static String10 CommandNameSend = "SEND";
 		/// <summary>Set a blackboard value</summary>
-		public readonly static AsciiId4 CommandNameVarSet = "SET";
+		public readonly static String10 CommandNameVarSet = "SET";
 		/// <summary>Clear a blackboard value</summary>
-		public readonly static AsciiId4 CommandNameVarClear = "CLR";
+		public readonly static String10 CommandNameVarClear = "CLEAR";
 		/// <summary>Add to a blackboard value, creating it (as zero) if it doesn't exist</summary>
-		public readonly static AsciiId4 CommandNameAdd = "ADD";
+		public readonly static String10 CommandNameAdd = "ADD";
 		/// <summary>Load a new node</summary>
-		public readonly static AsciiId4 CommandNameGoto = "JUMP";
+		public readonly static String10 CommandNameGoto = "JUMP";
 
-		public AsciiId4 CommandName;
+		public String10 CommandName;
 		public string ArgS;
 		public Variant8 ArgV;
 	}

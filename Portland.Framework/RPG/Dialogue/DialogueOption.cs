@@ -128,9 +128,9 @@ namespace Portland.RPG.Dialogue
 			return true;
 		}
 
-		public void Activate(IBlackboard<string> blackboard)
+		public void Activate(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 		{
-			CurrentText = Text.Get(blackboard);
+			CurrentText = Text.Get(globalFacts, agentsById);
 		}
 
 		public void RecalcPriority()

@@ -51,13 +51,18 @@ namespace Portland.RPG.Dialogue
 			in IDictionary<string, Agent> agentsById
 		);
 
-		protected string Process(IBlackboard<string> speakerBlackboard, TextTemplate tt)
+		protected string Process
+		(
+			in IBlackboard<string> globalFacts,
+			in IDictionary<string, Agent> agentsById, 
+			TextTemplate tt
+		)
 		{
 			StringBuilder buf = new StringBuilder();
 
 			for (int i = 0; i < tt.Texts.Count; i++)
 			{
-				buf.Append(tt.Texts[i].Get(speakerBlackboard));
+				buf.Append(tt.Texts[i].Get(globalFacts, agentsById));
 			}
 
 			return buf.ToString();

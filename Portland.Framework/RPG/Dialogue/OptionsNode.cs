@@ -14,6 +14,7 @@ namespace Portland.RPG.Dialogue
 		public DialogueOption[] Options;
 
 		public DialogueOption[] Active;
+		public int ActiveCount;
 
 		public OptionsNode(int maxActiveChoices)
 		: base(NodeType.Choice)
@@ -28,6 +29,7 @@ namespace Portland.RPG.Dialogue
 			in IDictionary<string, Agent> agentsById
 		)
 		{
+			ActiveCount = 0;
 			int activePos = 0;
 			DialogueOption choice;
 
@@ -37,16 +39,18 @@ namespace Portland.RPG.Dialogue
 
 				if (Options.Length <= Active.Length)
 				{
-					choice.Activate(agentsById[AgentId].Facts);
+					choice.Activate(globalFacts, agentsById);
 					Active[activePos++] = choice;
+					ActiveCount++;
 				}
 				else
 				{
 					if (choice.TryMatch(worldFlags, globalFacts, agentsById))
 					{
-						choice.Activate(agentsById[AgentId].Facts);
+						choice.Activate(globalFacts, agentsById);
 
 						Active[activePos++] = choice;
+						ActiveCount++;
 
 						if (activePos >= Active.Length)
 						{

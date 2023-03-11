@@ -93,7 +93,7 @@ namespace Portland.RPG.Dialogue
 				_running.Dequeue();
 			}
 
-			if (_running.Count > 0 && _waitTime < 0.0001f)
+			while (_running.Count > 0 && _waitTime < 0.0001f)
 			{
 				RunOne();
 			}
@@ -105,12 +105,13 @@ namespace Portland.RPG.Dialogue
 
 			if (cmd.CommandName == DialogueCommand.CommandNameWait)
 			{
-				_waitTime = cmd.ArgV;
+				_waitTime = Single.Parse(cmd.ArgS);
 
-				if (_waitTime > 0f)
+				if (_waitTime <= 0f)
 				{
-					return;
+					_running.Dequeue();
 				}
+				return;
 			}
 
 			_running.Dequeue();
@@ -213,11 +214,25 @@ namespace Portland.RPG.Dialogue
 			if (ParseVarName(name, out var agentId, out var varName))
 			{
 				var agent = _agentsById[agentId];
-				agent.Facts.Set(varName, value);
+				SetVariable(agent.Facts, varName, value);
 			}
 			else
 			{
-				_globalFacts.Set(varName, value);
+				SetVariable(_globalFacts, varName, value);
+			}
+		}
+
+		void SetVariable(IBlackboard<string> facts, string varName, in Variant8 value)
+		{
+			if (facts.ContainsKey(varName))
+			{
+				facts.Set(varName, value);
+			}
+			else
+			{
+				var prop = new PropertyValue(new PropertyDefinition { PropertyId = varName, IsGlobalValue = true, TypeName = "variant" });
+				prop.Value = value;
+				facts.Add(varName, prop);
 			}
 		}
 
@@ -232,8 +247,13 @@ namespace Portland.RPG.Dialogue
 		{
 			Debug.Assert(Current != null);
 			Debug.Assert(Current.DialogueType == DialogueNode.NodeType.Choice);
-			
-			var choice = ((OptionsNode)Current).Options[choiceNum];
+		
+			if (choiceNum >= ((OptionsNode)Current).ActiveCount)
+			{
+				throw new Exception($"Invalid choice number for {Current.NodeId} of {choiceNum} ({((OptionsNode)Current).ActiveCount} choices active)");
+			}
+
+			var choice = ((OptionsNode)Current).Active[choiceNum];
 			choice.Used = true;
 
 			EnqueueCommands(Current.PostActions);
@@ -427,7 +447,7 @@ more_expr	::= ":" <expr> <more_expr>
 				lex.Match(SimpleLex.TokenType.ID);
 				string value = string.Empty;
 
-				if (lex.Token == SimpleLex.TokenType.PUNCT)
+				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] != '#')
 				{
 					lex.Match(":");
 					value = lex.Lexum.ToString();
@@ -464,6 +484,8 @@ more_expr	::= ":" <expr> <more_expr>
 					&& cmd.CommandName != DialogueCommand.CommandNameStop
 					&& cmd.CommandName != DialogueCommand.CommandNameAdd
 					&& cmd.CommandName != DialogueCommand.CommandNameSend
+					&& cmd.CommandName != DialogueCommand.CommandNameVarSet
+					&& cmd.CommandName != DialogueCommand.CommandNameVarClear
 				)
 				{
 					throw new Exception($"Unknown command {cmd.CommandName} on line {lex.LineNum}");
@@ -569,7 +591,7 @@ more_expr	::= ":" <expr> <more_expr>
 			}
 
 			node.Options = choices.ToArray();
-			Array.Sort(node.Options, (x, y) => { return x.Priority - y.Priority; });
+			Array.Sort(node.Options, (x, y) => { return y.Priority - x.Priority; });
 		}
 
 		public void ParseNodeText_Condition(SimpleLex lex, DialogueOption node) 

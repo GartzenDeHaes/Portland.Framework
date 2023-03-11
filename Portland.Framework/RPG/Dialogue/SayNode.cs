@@ -27,7 +27,7 @@ namespace Portland.RPG.Dialogue
 			in IDictionary<string, Agent> agentsById
 		)
 		{
-			CurrentText = Process(agentsById[AgentId].Facts, Text);
+			CurrentText = Process(globalFacts, agentsById, Text);
 		}
 	}
 }

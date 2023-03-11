@@ -15,7 +15,7 @@ namespace Portland.RPG.Dialogue
 	{
 		public interface ITextItem
 		{
-			string Get(IBlackboard<string> blackboard);
+			string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById);
 		}
 
 		public sealed class TextItem : ITextItem
@@ -27,7 +27,7 @@ namespace Portland.RPG.Dialogue
 				Text = txt;
 			}
 
-			public string Get(IBlackboard<string> blackboard)
+			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 			{
 				return Text;
 			}
@@ -35,16 +35,35 @@ namespace Portland.RPG.Dialogue
 
 		public sealed class TextVariable : ITextItem
 		{
+			public string AgentId;
 			public string PropertyId;
 
 			public TextVariable(string propId)
 			{
-				PropertyId = propId;
+				int pos = propId.IndexOf('.');
+				if (pos < 0)
+				{
+					AgentId = String.Empty;
+					PropertyId = propId;
+				}
+				else
+				{
+					AgentId = propId.Substring(0, pos);
+					PropertyId = propId.Substring(pos + 1);
+				}
 			}
 
-			public string Get(IBlackboard<string> blackboard)
+			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 			{
-				return blackboard.Get(PropertyId).ToString();
+				if (AgentId == String.Empty)
+				{
+					return globalFacts.Get(PropertyId).ToString();
+
+				}
+				else
+				{
+					return agentsById[AgentId].Facts.Get(PropertyId).ToString();
+				}
 			}
 		}
 
@@ -59,13 +78,13 @@ namespace Portland.RPG.Dialogue
 			Texts.Add(new TextItem(text));
 		}
 
-		public string Get(IBlackboard<string> blackboard)
+		public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 		{
 			StringBuilder buf = new StringBuilder();
 
 			for (int i = 0; i < Texts.Count; i++)
 			{
-				buf.Append(Texts[i].Get(blackboard));
+				buf.Append(Texts[i].Get(globalFacts, agentsById));
 			}
 
 			return buf.ToString();

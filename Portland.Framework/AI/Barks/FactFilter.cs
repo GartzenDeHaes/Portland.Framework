@@ -33,22 +33,22 @@ namespace Portland.AI.Barks
 				switch (Op)
 				{
 					case ComparisionOp.Equals:
-						ret = Value == fvalue.Value;
+						ret = fvalue.Value == Value;
 						break;
 					case ComparisionOp.NotEquals:
-						ret = Value != fvalue.Value;
+						ret = fvalue.Value != Value;
 						break;
 					case ComparisionOp.GreaterThan:
-						ret = Value > fvalue.Value;
+						ret = fvalue.Value > Value;
 						break;
 					case ComparisionOp.GreaterThenEquals:
-						ret = Value >= fvalue.Value;
+						ret = fvalue.Value >= Value;
 						break;
 					case ComparisionOp.LessThan:
-						ret = Value < fvalue.Value;
+						ret = fvalue.Value < Value;
 						break;
 					case ComparisionOp.LessThanOrEquals:
-						ret = Value <= fvalue.Value;
+						ret = fvalue.Value <= Value;
 						break;
 					case ComparisionOp.Exists:
 						ret = true;

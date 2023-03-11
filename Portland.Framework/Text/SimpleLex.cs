@@ -261,6 +261,12 @@ namespace Portland.Text
 									state = State.ID;
 									break;
 								}
+								if (ch == '-')
+								{
+									Lexum.Append(ch);
+									state = State.NUM;
+									break;
+								}
 								Lexum.Append(ch);
 								Token = TokenType.PUNCT;
 								return true;
@@ -303,6 +309,12 @@ namespace Portland.Text
 							state = State.FLOAT;
 							Token = TokenType.FLOAT;
 							break;
+						}
+						else if (Lexum.Length == 1 && Lexum[0] == '-')
+						{
+							_textPos--;
+							Token = TokenType.PUNCT;
+							return true;
 						}
 						else
 						{
