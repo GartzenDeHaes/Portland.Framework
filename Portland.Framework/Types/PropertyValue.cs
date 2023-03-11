@@ -69,5 +69,10 @@ namespace Portland.Types
 				Set(Value + timeDelta * Definition.ChangePerSec);
 			}
 		}
+
+		public override string ToString()
+		{
+			return Value.ToString();
+		}
 	}
 }

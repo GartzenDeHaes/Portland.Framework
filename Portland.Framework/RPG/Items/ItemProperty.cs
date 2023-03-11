@@ -385,7 +385,7 @@ namespace Portland.RPG
 			return PropertyId.ToString();
 		}
 
-		public ItemProperty CloneAsTemplate()
+		public ItemProperty Clone()
 		{
 			var ret = new ItemProperty(PropertyId, PropertyType);
 			ret.Value = Value;

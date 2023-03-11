@@ -47,6 +47,7 @@ namespace Portland.RPG.Dialogue
 		public DialogueNode Current;
 
 		public int NodeCount { get { return _nodesById.Count; } }
+		public int PendingCommandCount { get { return _running.Count; } }
 
 		public DialogueManager
 		(
@@ -148,7 +149,8 @@ namespace Portland.RPG.Dialogue
 		{
 			Debug.Assert(Current != null);
 
-			EnqueueCommands(Current.PostActions);
+			// Continue and Choose run post actions
+			//EnqueueCommands(Current.PostActions);
 
 			Current = _nodesById[nodeId];
 
@@ -219,16 +221,28 @@ namespace Portland.RPG.Dialogue
 			}
 		}
 
+		public void Continue()
+		{
+			Debug.Assert(Current.DialogueType == DialogueNode.NodeType.Text);
+
+			EnqueueCommands(Current.PostActions);
+		}
+
 		public void ChooseOption(int choiceNum)
 		{
 			Debug.Assert(Current != null);
 			Debug.Assert(Current.DialogueType == DialogueNode.NodeType.Choice);
-
+			
 			var choice = ((OptionsNode)Current).Options[choiceNum];
+			choice.Used = true;
 
+			EnqueueCommands(Current.PostActions);
 			EnqueueCommands(choice.PostActions);
 		}
 
+		/// <summary>
+		/// Loads a new dialog without consideration of existing state (post-actions are not ran)
+		/// </summary>
 		public void StartDialog(string nodeId)
 		{
 			if (Current != null)
@@ -440,8 +454,20 @@ more_expr	::= ":" <expr> <more_expr>
 
 				cmd = new DialogueCommand();
 
-				cmd.CommandName = lex.Lexum.ToString();
+				cmd.CommandName = lex.Lexum.ToString().ToUpper();
 				lex.Match(SimpleLex.TokenType.ID);
+
+				if 
+				(
+					cmd.CommandName != DialogueCommand.CommandNameGoto 
+					&& cmd.CommandName != DialogueCommand.CommandNameWait
+					&& cmd.CommandName != DialogueCommand.CommandNameStop
+					&& cmd.CommandName != DialogueCommand.CommandNameAdd
+					&& cmd.CommandName != DialogueCommand.CommandNameSend
+				)
+				{
+					throw new Exception($"Unknown command {cmd.CommandName} on line {lex.LineNum}");
+				}
 
 				if (lex.Lexum[0] != ')')
 				{
@@ -530,10 +556,14 @@ more_expr	::= ":" <expr> <more_expr>
 
 				lex.Next();
 
-				if (lex.Lexum[0] == '#')
+				if (! lex.IsEOL && lex.Lexum[0] == '#')
 				{
 					ParseTags(lex, choice.Tags);
 				}
+				
+				lex.NextLine();
+
+				ParseActions(lex, choice.PostActions);
 
 				choice.RecalcPriority();
 			}

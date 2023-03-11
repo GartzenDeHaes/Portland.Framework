@@ -228,7 +228,7 @@ namespace Portland.RPG
 			ItemProperty[] props = new ItemProperty[Properties.Length];
 			for (int i = 0; i < Properties.Length; i++)
 			{
-				props[i] = Properties[i].CloneAsTemplate();
+				props[i] = Properties[i].Clone();
 			}
 
 			ItemStack item = new ItemStack (_stackCount, newCollectionIndex, Definition, props);

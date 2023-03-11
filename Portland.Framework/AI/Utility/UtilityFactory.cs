@@ -12,12 +12,10 @@ namespace Portland.AI.Utility
 	{
 		IClock _clock;
 		float _clockLastUpdate;
-		//Dictionary<String, PropertyValue> _globalProperties = new Dictionary<String, PropertyValue>();
 
 		IBlackboard<string> _globalProperties;
 
 		IPropertyManager _propertyDefs;
-		//Dictionary<string, PropertyDefinition> _propertyDefs = new Dictionary<string, PropertyDefinition>();
 		Dictionary<string, Objective> _objectives = new Dictionary<string, Objective>();
 		Dictionary<string, UtilitySetDefinition> _setsByType = new Dictionary<string, UtilitySetDefinition>();
 		Dictionary<string, UtilitySetDefinition> _setsByName = new Dictionary<string, UtilitySetDefinition>();
@@ -143,10 +141,6 @@ namespace Portland.AI.Utility
 			}
 		}
 
-		#region CREATE PROPERTY DEFINITIONS
-
-		#endregion
-
 		public ObjectiveBuilder CreateObjective(string name)
 		{
 			var objective = new Objective() { Name = name, Priority = 99, Interruptible = true, Cooldown = 120f };
@@ -257,7 +251,6 @@ namespace Portland.AI.Utility
 				type = 'base'
 				logging='off'
 				history='10' 
-				sec_between_evals='0.5' 
 				movementSpeed='50' 
 			>
 				<objectives>
@@ -308,52 +301,61 @@ namespace Portland.AI.Utility
 		{
 			lex.MatchTag("utility");
 
-			lex.MatchTag("utility_properties");
-
-			_propertyDefs.LoadPropertyDefinitions(lex);
-			//while (lex.Token == XmlLex.XmlLexToken.TAG_START)
-			//{
-			//	lex.MatchTagStart("property");
-
-			//	ParseProperty(lex);
-
-			//	lex.Match(XmlLex.XmlLexToken.TAG_END);
-			//}
-			lex.MatchTagClose("utility_properties");
-
-			lex.MatchTag("objectives");
-			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+			while (lex.Token != XmlLex.XmlLexToken.CLOSE) 
 			{
-				lex.MatchTagStart("objective");
+				if (lex.Lexum.IsEqualTo("utility_properties"))
+				{
+					lex.MatchTag("utility_properties");
 
-				ParseObjective(lex);
+					_propertyDefs.ParsePropertyDefinitions(lex);
 
-				lex.Match(XmlLex.XmlLexToken.CLOSE);
+					lex.MatchTagClose("utility_properties");
+				}
+				else if (lex.Lexum.IsEqualTo("objectives"))
+				{
+					lex.MatchTag("objectives");
+					while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+					{
+						lex.MatchTagStart("objective");
+
+						ParseObjective(lex);
+
+						lex.Match(XmlLex.XmlLexToken.CLOSE);
+					}
+					lex.MatchTagClose("objectives");
+				}
+				else if (lex.Lexum.IsEqualTo("agenttypes"))
+				{
+					lex.MatchTag("agenttypes");
+					while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+					{
+						lex.MatchTagStart("agenttype");
+
+						ParseAgentType(lex);
+
+						lex.Match(XmlLex.XmlLexToken.CLOSE);
+					}
+					lex.MatchTagClose("agenttypes");
+				}
+
+				else if (lex.Lexum.IsEqualTo("agents"))
+				{
+					lex.MatchTag("agents");
+					while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+					{
+						lex.MatchTagStart("agent");
+
+						ParseAgent(lex);
+
+						lex.Next();
+					}
+					lex.MatchTagClose("agents");
+				}
+				else
+				{
+					throw new Exception($"Unknown utility section {lex.Lexum} on line {lex.LineNum}");
+				}
 			}
-			lex.MatchTagClose("objectives");
-
-			lex.MatchTag("agenttypes");
-			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
-			{
-				lex.MatchTagStart("agenttype");
-
-				ParseAgentType(lex);
-
-				lex.Match(XmlLex.XmlLexToken.CLOSE);
-			}
-			lex.MatchTagClose("agenttypes");
-
-			lex.MatchTag("agents");
-			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
-			{
-				lex.MatchTagStart("agent");
-
-				ParseAgent(lex);
-
-				lex.Next();
-			}
-			lex.MatchTagClose("agents");
-
 			lex.MatchTagClose("utility");
 		}
 
@@ -452,10 +454,10 @@ namespace Portland.AI.Utility
 			//{
 			//	agent.HistorySize = Int16.Parse(lex.MatchProperty("history"));
 			//}
-			if (lex.Lexum.IsEqualTo("sec_between_evals"))
-			{
-				agent.SecBetweenEvals = Single.Parse(lex.MatchProperty("sec_between_evals"));
-			}
+			//if (lex.Lexum.IsEqualTo("sec_between_evals"))
+			//{
+			//	agent.SecBetweenEvals = Single.Parse(lex.MatchProperty("sec_between_evals"));
+			//}
 			//if (lex.Lexum.IsEqualTo("movementSpeed"))
 			//{
 			//	agent.MovementSpeed = Single.Parse(lex.MatchProperty("movementSpeed"));
@@ -771,13 +773,13 @@ namespace Portland.AI.Utility
 			//	return this;
 			//}
 
-			public AgentTypeBuilder SecondsBetweenEvals(float seconds)
-			{
-				Debug.Assert(seconds >= 0f);
+			//public AgentTypeBuilder SecondsBetweenEvals(float seconds)
+			//{
+			//	Debug.Assert(seconds >= 0f);
 
-				AgentType.SecBetweenEvals = seconds;
-				return this;
-			}
+			//	AgentType.SecBetweenEvals = seconds;
+			//	return this;
+			//}
 
 			//public AgentTypeBuilder MovementSpeed(float mps)
 			//{

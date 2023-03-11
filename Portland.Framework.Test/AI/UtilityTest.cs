@@ -82,10 +82,7 @@ namespace Portland.AI.Utility
 	</objective>
 </objectives>
 <agenttypes>
-	<agenttype
-		type = 'base'
-		sec_between_evals='0.5' 
-	>
+	<agenttype type = 'base'>
 		<objectives>
 			<eat_at_restaurant /><eat_at_home /><get_supplies /><watch_movie /><sleep /><shower /><drink_coffee />
 		</objectives>

@@ -16,7 +16,7 @@ namespace Portland.AI
 
 		public AgentStateFlags Flags;
 		public readonly String AgentId;
-		public readonly String Class;
+		public readonly String StatUtilitySetId;
 		public readonly string ShortName;
 		public readonly string LongName;
 		//public TextTableToken Location;
@@ -44,7 +44,7 @@ namespace Portland.AI
 			IUtilityFactory utility,
 			ICharacterManager charMan,
 			IBlackboard<String> globalFacts,
-			in String cls, 
+			in String charIdUtilId, 
 			in String agentId,
 			in string shortName,
 			in string longName,
@@ -54,13 +54,13 @@ namespace Portland.AI
 		)
 		{
 			AgentId = agentId;
-			Class = cls;
+			StatUtilitySetId = charIdUtilId;
 			ShortName = shortName;
 			LongName = longName;
 
 			ScriptCtx = new ExecutionContext(globalFuncs, this, null);
 
-			UtilitySet = utility.CreateAgentInstance(cls, agentId);
+			UtilitySet = utility.CreateAgentInstance(charIdUtilId, agentId);
 
 			Facts = new Blackboard<String>(globalFacts);
 			Facts.Add("objective", UtilitySet.CurrentObjective);
@@ -69,7 +69,7 @@ namespace Portland.AI
 			Facts.Add(_shortNamePropDef.PropertyId, new PropertyValue(_shortNamePropDef) { Value = shortName });
 			Facts.Add(_longNamePropDef.PropertyId, new PropertyValue(_longNamePropDef) { Value = longName });
 
-			Character = charMan.CreateCharacter(cls, raceEffectGrp, classEffectGrp, faction, UtilitySet, ScriptCtx);
+			Character = charMan.CreateCharacter(charIdUtilId, raceEffectGrp, classEffectGrp, faction, UtilitySet, ScriptCtx);
 
 			Character.SetupBlackboard(Facts);
 

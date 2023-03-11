@@ -6,6 +6,101 @@ using System.Threading.Tasks;
 
 namespace Portland.RPG
 {
+	public class ItemPropertyBuilder
+	{
+		ItemPropertySetting _prop;
+
+		public ItemPropertyBuilder(ItemPropertySetting prop)
+		{
+			_prop = prop;
+		}
+
+		public ItemPropertyBuilder DefaultValue(string value)
+		{
+			switch (_prop.TemplateProperty.PropertyType)
+			{
+				case ItemPropertyType.Bool:
+					_prop.TemplateProperty.SetDefault(Boolean.Parse(value) ? 1 : 0);
+					break;
+				case ItemPropertyType.Int:
+				case ItemPropertyType.IntRange:
+					_prop.TemplateProperty.SetDefault(Int32.Parse(value));
+					break;
+				case ItemPropertyType.RandomInt:
+					throw new Exception($"Invalid default for RandomInt '{value}'");
+				case ItemPropertyType.Float:
+				case ItemPropertyType.FloatRange:
+				case ItemPropertyType.RandomFloat:
+					_prop.TemplateProperty.SetDefault(Single.Parse(value));
+					break;
+				case ItemPropertyType.Flag:
+				case ItemPropertyType.String:
+				case ItemPropertyType.Sound:
+				case ItemPropertyType.DiceRoll:
+					_prop.TemplateProperty.SetDefault(value);
+					break;
+			}
+			return this;
+		}
+
+		public ItemPropertyBuilder Range(string min, string max)
+		{
+			switch (_prop.TemplateProperty.PropertyType)
+			{
+				case ItemPropertyType.Flag:
+				case ItemPropertyType.Bool:
+				case ItemPropertyType.Int:
+				case ItemPropertyType.String:
+				case ItemPropertyType.Sound:
+				case ItemPropertyType.DiceRoll:
+					throw new Exception($"Range not allowed for {_prop.Definition.PropertyType}");
+				case ItemPropertyType.IntRange:
+				case ItemPropertyType.RandomInt:
+					_prop.TemplateProperty.SetRange(Int32.Parse(min), Int32.Parse(max));
+					break;
+				case ItemPropertyType.Float:
+					_prop.TemplateProperty.SetRange(Single.Parse(min), Single.Parse(max));
+					break;
+				case ItemPropertyType.FloatRange:
+					_prop.TemplateProperty.SetRange(Single.Parse(min), Single.Parse(max));
+					break;
+				case ItemPropertyType.RandomFloat:
+					_prop.TemplateProperty.SetRange(Single.Parse(min), Single.Parse(max));
+					break;
+			}
+			return this;
+		}
+
+		public ItemPropertyBuilder Current(string value)
+		{
+			switch (_prop.TemplateProperty.PropertyType)
+			{
+				case ItemPropertyType.Bool:
+					_prop.TemplateProperty.Set(Boolean.Parse(value));
+					break;
+				case ItemPropertyType.Int:
+				case ItemPropertyType.IntRange:
+					_prop.TemplateProperty.Set(Int32.Parse(value));
+					break;
+				case ItemPropertyType.RandomInt:
+				case ItemPropertyType.RandomFloat:
+				case ItemPropertyType.Flag:
+				case ItemPropertyType.Sound:
+				case ItemPropertyType.DiceRoll:
+					throw new Exception($"Invalid current for {_prop.Definition.PropertyId}");
+				case ItemPropertyType.Float:
+				case ItemPropertyType.FloatRange:
+					_prop.TemplateProperty.Set(Single.Parse(value));
+					break;
+				case ItemPropertyType.String:
+					_prop.TemplateProperty.Set(String8.From(value));
+					break;
+			}
+			return this;
+		}
+
+	}
+
 	public class ItemDefinitionBuilder
 	{
 		ItemDefinition _itemdef;
@@ -84,6 +179,14 @@ namespace Portland.RPG
 		//	_stats.Add(statId);
 		//	return this;
 		//}
+
+		public ItemPropertyBuilder BuildProperty(in String propId)
+		{
+			ItemPropertySetting template = new ItemPropertySetting { Definition = _factory.GetItemPropertyDefinition(propId) };
+			template.TemplateProperty = new ItemProperty(template.Definition);
+			_props.Add(template);
+			return new ItemPropertyBuilder(template);
+		}
 
 		public ItemDefinitionBuilder AddProperty(in String propId)
 		{

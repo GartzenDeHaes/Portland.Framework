@@ -28,9 +28,32 @@ namespace Portland.RPG
 		}
 
 		[Test]
+		public void ParseLocationTest()
+		{
+			string xml = @"<world><locations><location name='Vannah Rooftop'/></locations></world>";
+			var world = World.Parse(xml);
+			Assert.That(world.Locations.Count, Is.EqualTo(1));
+			Assert.That(world.Locations[0], Is.EqualTo("Vannah Rooftop"));
+		}
+
+		[Test]
 		public void ParseEmptyutilityTest()
 		{
-			string xml = @"<world><utilities></utilities></world>";
+			string xml = @"<world><utility></utility></world>";
+			var world = World.Parse(xml);
+		}
+
+		[Test]
+		public void ParseEmptyPropertiesTest()
+		{
+			string xml = @"<world><properties></properties></world>";
+			var world = World.Parse(xml);
+		}
+
+		[Test]
+		public void ParseEmptyPropertySetsTest()
+		{
+			string xml = @"<world><property_sets></property_sets></world>";
 			var world = World.Parse(xml);
 		}
 
@@ -45,7 +68,7 @@ namespace Portland.RPG
 		[Test]
 		public void ParseEmptyWithMinutesPerDayTest()
 		{
-			string xml = @"<world minutesPerDay=24></world>";
+			string xml = @"<world minutes_per_day=24></world>";
 			var world = World.Parse(xml);
 			Assert.That(world.Clock.SecondsPerHour, Is.AtLeast(60f).And.AtMost(61f));
 		}
@@ -53,29 +76,30 @@ namespace Portland.RPG
 		[Test]
 		public void ParseEmptyWithDateAndMinutesTest()
 		{
-			string xml = @"<world date='1/1/2000 11:00 AM' minutesPerDay=24></world>";
+			string xml = @"<world date='1/1/2000 11:00 AM' minutes_per_day=24></world>";
 			var world = World.Parse(xml);
 			Assert.That(world.Clock.Now, Is.EqualTo(DateTime.Parse("1/1/2000 11:00 AM")));
 			Assert.That(world.Clock.SecondsPerHour, Is.AtLeast(60f).And.AtMost(61f));
 		}
 
 		[Test]
-		public void ParseLocationTest()
+		public void ParseEmptyCharacterDefTest()
 		{
-			string xml = @"<world><locations><location name='Vannah Rooftop'/></locations></world>";
+			string xml = @"<world><character_types></character_types></world>";
 			var world = World.Parse(xml);
-			Assert.That(world.Locations.Count, Is.EqualTo(1));
-			Assert.That(world.Locations[0], Is.EqualTo("Vannah Rooftop"));
+		}
+
+		[Test]
+		public void ParseEmptyCharactersTest()
+		{
+			string xml = @"<world><characters></characters></world>";
+			var world = World.Parse(xml);
 		}
 
 		[Test]
 		public void ParseDialogueEmpty()
 		{
-			string xml = @"<world>
-<dialogues>
-</dialogues>
-</world>
-";
+			string xml = @"<world><dialogues></dialogues></world>";
 			var world = World.Parse(xml);
 		}
 
@@ -94,12 +118,6 @@ CharacterId: This is a line of test dialogue.
 			var world = World.Parse(xml);
 			Assert.That(world.DialogueMan.NodeCount, Is.EqualTo(1));
 			Assert.Null(world.DialogueMan.Current);
-
-			//world.DialogueMan.StartDialog("Start");
-			//Assert.NotNull(world.DialogueMan.Current);
-
-			//Assert.That(world.DialogueMan.Current, Is.TypeOf<SayNode>());
-			//Assert.That(((SayNode)world.DialogueMan.Current).CurrentText, Is.EqualTo("This is a line of test dialogue."));
 		}
 	}
 }

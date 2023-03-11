@@ -64,21 +64,23 @@ namespace Portland.RPG
 					"STR", "CON", "CHR", "INT",
 					"HP", "LV", "XP", "XPMOD", "ATTACK", "DEFENSE", "CARRY",
 					"EDGED", "BLUNT", "PROJ"
-				});
+					},
+				statsRecalc.ToString()
+			);
 
-			DefineCharacter(playerCharId, statsRecalc.ToString(), InventoryType.Test);
+			DefineCharacter(playerCharId, InventoryType.Test);
 
 			return this;
 		}
 
-		void DefineCharacter(string playerCharId, string statUpdateBas, InventoryType invType)
+		void DefineCharacter(string playerCharId, InventoryType invType)
 		{
 			if (invType == InventoryType.Test)
 			{
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
 					.AutoCountInventory(true)
-					.SetOnChangeScriptBas(statUpdateBas)
+					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 4, 1)
 					.AddInventorySection("MAIN", 1, false, 9, 1)
 					.AddInventorySection("ARMOR", 2, false, 1, 1)
@@ -92,7 +94,7 @@ namespace Portland.RPG
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
 					.AutoCountInventory(true)
-					.SetOnChangeScriptBas(statUpdateBas)
+					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 6, 1)
 					.AddInventorySection("MAIN", 1, false, 6, 4)
 					.AddInventorySection("HEAD", 2, false, 1, 1)
@@ -108,7 +110,7 @@ namespace Portland.RPG
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
 					.AutoCountInventory(true)
-					.SetOnChangeScriptBas(statUpdateBas)
+					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 9, 1)
 					.AddInventorySection("MAIN", 1, false, 9, 3)
 					.AddInventorySection("HEAD", 2, false, 1, 1)
@@ -331,7 +333,7 @@ namespace Portland.RPG
 			AddDndSkill("SWORD", "Weapon Sword");
 			proplist.Add("SWORD");
 
-			_props.DefinePropertySet("CHAR", proplist.ToArray());
+			_props.DefinePropertySet("CHAR", proplist.ToArray(), statsRecalc.ToString());
 
 			// Race Effects
 
@@ -423,7 +425,7 @@ namespace Portland.RPG
 			_manager.CreateCharacterDefinition("PLAYER")
 				.PropertyGroupId("CHAR")
 				.AutoCountInventory(true)
-				.SetOnChangeScriptBas(statsRecalc.ToString())
+				//.SetOnChangeScriptBas(statsRecalc.ToString())
 				.AddInventorySection("HOTBAR", 0, false, 4, 1)
 				.AddInventorySection("MAIN", 1, false, 9, 1)
 				.AddInventorySection("ARMOR", 2, false, 1, 1)

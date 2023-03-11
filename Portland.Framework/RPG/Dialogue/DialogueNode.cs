@@ -34,10 +34,10 @@ namespace Portland.RPG.Dialogue
 		public List<Tag> Tags;
 
 		// Entry actions
-		public List<DialogueCommand> PreActions;
+		public List<DialogueCommand> PreActions = new List<DialogueCommand>();
 
 		// Post actions
-		public List<DialogueCommand> PostActions;
+		public List<DialogueCommand> PostActions = new List<DialogueCommand>();
 
 		protected DialogueNode(NodeType type)
 		{

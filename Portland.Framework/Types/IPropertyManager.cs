@@ -9,12 +9,13 @@ namespace Portland.Types
 	public interface IPropertyManager
 	{
 		PropertySet CreatePropertySet(in string setId, UtilitySet utilityProps);
-		void DefinePropertySet(in string setName, string[] propIds);
+		void DefinePropertySet(in string setName, string[] propIds, string onUpdateScript);
+		bool TryGetDefinitionSet(in string setId, out PropertyDefinitionSet def);
 		bool HasPropertyDefined(in string statName);
-		void LoadDefinitionSets(string xml);
-		void LoadDefinitionSets(XmlLex lex);
+		void ParseDefinitionSets(string xml);
+		void ParseDefinitionSets(XmlLex lex);
 		void LoadPropertyDefinitions(string xml);
-		void LoadPropertyDefinitions(XmlLex lex);
+		void ParsePropertyDefinitions(XmlLex lex);
 		bool TryGetDefinition(in string id, out PropertyDefinition def);
 
 		IBlackboard<string> GetGlobalProperties();

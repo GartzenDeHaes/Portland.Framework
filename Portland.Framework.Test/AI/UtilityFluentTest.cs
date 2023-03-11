@@ -63,7 +63,7 @@ namespace Portland.AI.Utility
 				.Transform(Consideration.TransformFunc.ClampCenter);
 
 			factory.CreateAgentType(String.Empty, "human")
-				.SecondsBetweenEvals(10f)
+				//.SecondsBetweenEvals(10f)
 				.AddObjective("eat")
 				.AddObjective("idle");
 

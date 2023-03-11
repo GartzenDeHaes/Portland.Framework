@@ -1,6 +1,7 @@
 ﻿using Portland.AI;
 using Portland.AI.Utility;
 using Portland.Interp;
+using Portland.Text;
 using Portland.Types;
 
 namespace Portland.RPG
@@ -19,5 +20,7 @@ namespace Portland.RPG
 		bool HasCharacterDefinition(in string charId);
 		bool HasEffect(in string name);
 		bool HasStatDefined(in string statName);
+
+		void Parse(XmlLex lex);
 	}
 }

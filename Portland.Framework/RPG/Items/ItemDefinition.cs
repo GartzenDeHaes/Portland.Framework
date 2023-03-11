@@ -9,7 +9,7 @@ using Portland.Types;
 
 namespace Portland.RPG
 {
-	public struct ItemPropertySetting
+	public class ItemPropertySetting
 	{
 		public ItemProperty TemplateProperty;
 		public ItemPropertyDefinition Definition;
@@ -43,7 +43,7 @@ namespace Portland.RPG
 			{
 				if (Properties[i].Definition.IsInstancedPerItem)
 				{
-					props.Add(Properties[i].TemplateProperty.CloneAsTemplate());
+					props.Add(Properties[i].TemplateProperty.Clone());
 				}
 			}
 

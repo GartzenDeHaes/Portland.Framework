@@ -9,7 +9,6 @@ using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Interp;
 using Portland.Mathmatics;
-using Portland.Mathmatics.Geometry;
 using Portland.RPG;
 using Portland.RPG.Dialogue;
 using Portland.Text;
@@ -17,7 +16,7 @@ using Portland.Types;
 
 namespace Portland.AI
 {
-    public sealed class World
+	public sealed class World
 	{
 		public readonly IClock Clock;
 		public readonly IPropertyManager PropertyMan;
@@ -50,6 +49,7 @@ namespace Portland.AI
 		{
 			Clock.Update(deltaTimeInSeconds);
 			Flags.Daylight = !Clock.IsNightTime;
+
 			UtilitySystem.TickAgents();
 
 			for (int i = 0; i < _agents.Count; i++)
@@ -58,7 +58,7 @@ namespace Portland.AI
 			}
 
 			BarkEngine.Update();
-			
+
 			DialogueMan.Update(deltaTimeInSeconds);
 
 			Events.Poll();
@@ -68,7 +68,7 @@ namespace Portland.AI
 		{
 			Clock = clock;
 			//Strings = strings;
-			
+
 			PropertyMan = new PropertyManager();
 			UtilitySystem = new UtilityFactory(clock, PropertyMan);
 			BarkEngine = new BarkRuleEngine(this, rnd);
@@ -76,7 +76,7 @@ namespace Portland.AI
 			CharacterManager = new CharacterManager(PropertyMan, Items);
 			_globalBasFuncs = LoadBasFunctions();
 
-			DialogueMan = new DialogueManager(Flags, GlobalFacts, _agentsById, Events); 
+			DialogueMan = new DialogueManager(Flags, GlobalFacts, _agentsById, Events);
 		}
 
 		public World(DateTime epoc, float minutesPerDay = 1440f)
@@ -84,24 +84,24 @@ namespace Portland.AI
 		{
 		}
 
-		public Agent CreateAgent(in String className, in String agentId, string shortName, string longName)
+		public Agent CreateAgent(in String charIdUtilId, in String agentId, string shortName, string longName)
 		{
-			return CreateAgent(className, agentId, shortName, longName, String.Empty, String.Empty, String.Empty);
+			return CreateAgent(charIdUtilId, agentId, shortName, longName, String.Empty, String.Empty, String.Empty);
 		}
 
-		public Agent CreateAgent(in String className, in String agentId)
+		public Agent CreateAgent(in String charIdUtilId, in String agentId)
 		{
-			return CreateAgent(className, agentId, agentId, agentId, String.Empty, String.Empty, String.Empty);
+			return CreateAgent(charIdUtilId, agentId, agentId, agentId, String.Empty, String.Empty, String.Empty);
 		}
 
 		public Agent CreateAgent
 		(
-			in String className, 
-			in String agentId, 
+			in String charIdUtilId,
+			in String agentId,
 			string shortName,
 			string longName,
-			in String raceEffectGrp, 
-			in String classEffectGrp, 
+			in String raceEffectGrp,
+			in String classEffectGrp,
 			in String faction
 		)
 		{
@@ -111,12 +111,12 @@ namespace Portland.AI
 				UtilitySystem,
 				CharacterManager,
 				GlobalFacts,
-				className,
+				charIdUtilId,
 				agentId,
 				shortName,
 				longName,
-				raceEffectGrp, 
-				classEffectGrp, 
+				raceEffectGrp,
+				classEffectGrp,
 				faction
 			);
 
@@ -158,7 +158,7 @@ namespace Portland.AI
 			{
 				_agentsById.Remove(agentId);
 				_agents.RemoveAt(agent.RuntimeIndex);
-				
+
 				UtilitySystem.DestroyInstance(agentId);
 				//BarkEngine.RemoveRules(agentId);
 				//DialogueMgr.RemoveRules(agentId);
@@ -292,7 +292,8 @@ namespace Portland.AI
 			.AddAllBuiltin()
 			// Get the current value of a stat
 			// float: STAT("HP")
-			.Add("STAT", 1, (ExecutionContext ctx) => {
+			.Add("STAT", 1, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetValue(name.ToString(), out float value))
@@ -307,7 +308,8 @@ namespace Portland.AI
 			})
 			// Set the current value of a stat
 			// STAT("STR", STAT("STR") + 1)
-			.Add("STAT", 2, (ExecutionContext ctx) => {
+			.Add("STAT", 2, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (!chr.Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
@@ -318,7 +320,8 @@ namespace Portland.AI
 			})
 			// Returns the maximum range for a stat
 			// float: STATMAX("HP")
-			.Add("STATMAX", 1, (ExecutionContext ctx) => {
+			.Add("STATMAX", 1, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetMaximum(name.ToString(), out float value))
@@ -333,7 +336,8 @@ namespace Portland.AI
 			})
 			// Set the maximum value for a stat, use for XP, HP
 			// STATMAX("HP", STATMAX("HP") + STATROLL("HP"))
-			.Add("STATMAX", 2, (ExecutionContext ctx) => {
+			.Add("STATMAX", 2, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (!chr.Stats.TrySetMaximum(name.ToString(), ctx.Context["b"]))
@@ -344,7 +348,8 @@ namespace Portland.AI
 			})
 			// Returns the probability set for a stat in dice notation (3d8)
 			// string: STATDICE("HP")
-			.Add("STATDICE", 1, (ExecutionContext ctx) => {
+			.Add("STATDICE", 1, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
@@ -377,7 +382,8 @@ namespace Portland.AI
 			//})
 			// Dice roll for the probability set for a stat
 			// float: STATROLL("HP")
-			.Add("STATROLL", 1, (ExecutionContext ctx) => {
+			.Add("STATROLL", 1, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
 				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
@@ -392,7 +398,8 @@ namespace Portland.AI
 			})
 			// Random number based on dice roll
 			// float: ROLLDICE("1d4+2")
-			.Add("ROLLDICE", 1, (ExecutionContext ctx) => {
+			.Add("ROLLDICE", 1, (ExecutionContext ctx) =>
+			{
 				string dicetxt = ctx.Context["a"];
 				if (DiceTerm.TryParse(dicetxt, out var dice))
 				{
@@ -406,12 +413,14 @@ namespace Portland.AI
 			})
 			// Returns the selected inventory slot number
 			// int: SELECTED()
-			.Add("SELECTED", 0, (ctx) => {
+			.Add("SELECTED", 0, (ctx) =>
+			{
 				ctx.SetReturnValue(((CharacterSheet)ctx.UserData).InventoryWindow.SelectedSlot);
 			})
 			// Sum all of the named properties in a window area grid, fe DEFENCE in the equipment armor grid to calcuate AC
 			// INVENTORY("SUM", "WINDOW AREA NAME", "PROPERTY NAME")
-			.Add("INVENTORY", 3, (ExecutionContext ctx) => {
+			.Add("INVENTORY", 3, (ExecutionContext ctx) =>
+			{
 				var chr = (CharacterSheet)ctx.UserData;
 				string op = ctx.Context["a"];
 				var window = ctx.Context["b"];
@@ -500,8 +509,8 @@ namespace Portland.AI
 
 			public WorldBuilder SetupSimplePlayer
 			(
-				in String playerCharId, 
-				in String playerRace
+				in String playerCharId,
+				in String playerUtilityClass
 			)
 			{
 				//
@@ -509,7 +518,7 @@ namespace Portland.AI
 				// 
 
 				_world.CharacterManager.GetBuilder().DefineSimpleCharacter(playerCharId, CharacterManagerBuilder.InventoryType.Test);
-	
+
 				// Define alerts that set flags in the agent for use by the bark system
 
 				_world.DefineAlertHealthFlag("HP", 10);
@@ -533,7 +542,7 @@ namespace Portland.AI
 				// Weapon skill type: BOW, SWORD
 				_world.Items.DefineProperty("TYPE", ItemPropertyType.String, "Weapon Skill Type", false);
 				// AC modifer
-				_world.Items.DefineProperty("DEFENSE", ItemPropertyType.Int, "Defense Modifer", false);				
+				_world.Items.DefineProperty("DEFENSE", ItemPropertyType.Int, "Defense Modifer", false);
 				// damage on hit, fe 1d8
 				_world.Items.DefineProperty("DAMAGE", ItemPropertyType.DiceRoll, "Weapon Damage Roll", false);
 				// Item weight
@@ -559,10 +568,10 @@ namespace Portland.AI
 
 				// Define an "agenct" that can be used to specialize an objective set
 
-				_world.UtilitySystem.CreateAgentType("player", playerRace)
+				_world.UtilitySystem.CreateAgentType("player", playerUtilityClass)
 					.AddObjectiveIdle();
 
-				_world.UtilitySystem.CreateAgent(playerRace, playerCharId);
+				_world.UtilitySystem.CreateAgent(playerUtilityClass, playerCharId);
 
 				return this;
 
@@ -621,6 +630,7 @@ namespace Portland.AI
 		public static World Parse(string xml)
 		{
 			XmlLex lex = new XmlLex(xml);
+			lex.SkipComments = true;
 
 			DateTime dt = DateTime.Now;
 			float minutesPerDay = 1440f;
@@ -640,9 +650,9 @@ namespace Portland.AI
 						string sdt = lex.MatchProperty("date");
 						dt = DateTime.Parse(sdt);
 					}
-					else if (lex.Lexum.IsEqualTo("minutesPerDay"))
+					else if (lex.Lexum.IsEqualTo("minutes_per_day"))
 					{
-						minutesPerDay = Single.Parse(lex.MatchProperty("minutesPerDay"));
+						minutesPerDay = Single.Parse(lex.MatchProperty("minutes_per_day"));
 					}
 					else
 					{
@@ -657,7 +667,15 @@ namespace Portland.AI
 
 			while (lex.Token == XmlLex.XmlLexToken.TAG)
 			{
-				if (lex.Lexum.IsEqualTo("locations"))
+				if (lex.Lexum.IsEqualTo("properties"))
+				{
+					world.PropertyMan.ParsePropertyDefinitions(lex);
+				}
+				else if (lex.Lexum.IsEqualTo("property_sets"))
+				{
+					world.PropertyMan.ParseDefinitionSets(lex);
+				}
+				else if (lex.Lexum.IsEqualTo("locations"))
 				{
 					lex.MatchTag("locations");
 					ParseLocations(world, lex);
@@ -669,11 +687,21 @@ namespace Portland.AI
 					ParseDialogues(world, lex);
 					lex.MatchTagClose("dialogues");
 				}
-				else if (lex.Lexum.IsEqualTo("utilities"))
+				else if (lex.Lexum.IsEqualTo("utility"))
 				{
-					lex.MatchTag("utilities");
-					ParseUtility(world, lex);
-					lex.MatchTagClose("utilities");
+					world.UtilitySystem.ParseLoad(lex);
+				}
+				else if (lex.Lexum.IsEqualTo("items"))
+				{
+					world.Items.Parse(lex);
+				}
+				else if (lex.Lexum.IsEqualTo("character_types"))
+				{
+					world.CharacterManager.Parse(lex);
+				}
+				else if (lex.Lexum.IsEqualTo("characters"))
+				{
+					ParseCharacters(world, lex);
 				}
 				else
 				{
@@ -718,12 +746,78 @@ namespace Portland.AI
 			world.DialogueMan.Parse(yarnish);
 		}
 
-		static void ParseUtility(World world, XmlLex lex)
+		static void ParseCharacters(World world, XmlLex lex)
 		{
-			if (lex.Lexum.IsEqualTo("utility"))
+			if (! lex.Lexum.IsEqualTo("characters"))
 			{
-				world.UtilitySystem.ParseLoad(lex);
+				return;
 			}
+
+			lex.MatchTag("characters");
+
+			while (lex.Lexum.IsEqualTo("character"))
+			{
+				lex.MatchTagStart("character");
+
+				string agentId = String.Empty;
+				string statUtilSetId = String.Empty;
+				string raceGrp = String.Empty;
+				string clsGrp = String.Empty;
+				string faction = String.Empty;
+				string shortName = String.Empty;
+				string longName = String.Empty;
+
+				while (lex.Token == XmlLex.XmlLexToken.STRING)
+				{
+					if (lex.Lexum.IsEqualTo("agent_id"))
+					{
+						agentId = lex.MatchProperty("agent_id");
+					}
+					else if (lex.Lexum.IsEqualTo("char_util_id"))
+					{
+						statUtilSetId = lex.MatchProperty("char_util_id");
+					}
+					else if (lex.Lexum.IsEqualTo("race"))
+					{
+						raceGrp = lex.MatchProperty("race");
+					}
+					else if (lex.Lexum.IsEqualTo("class"))
+					{
+						clsGrp = lex.MatchProperty("class");
+					}
+					else if (lex.Lexum.IsEqualTo("faction"))
+					{
+						faction = lex.MatchProperty("faction");
+					}
+					else if (lex.Lexum.IsEqualTo("short_name"))
+					{
+						shortName = lex.MatchProperty("short_name");
+					}
+					else if (lex.Lexum.IsEqualTo("long_name"))
+					{
+						longName = lex.MatchProperty("long_name");
+					}
+					else
+					{
+						throw new Exception($"Unexpected property {lex.Lexum} on line {lex.LineNum}");
+					}
+				}
+
+				lex.MatchTagEnd();
+
+				if (shortName == String.Empty)
+				{
+					shortName = agentId;
+				}
+				if (longName == String.Empty)
+				{
+					longName = agentId;
+				}
+
+				world.CreateAgent(statUtilSetId, agentId, shortName, longName, raceGrp, clsGrp, faction);
+			}
+
+			lex.MatchTagClose("characters");
 		}
 	}
 }

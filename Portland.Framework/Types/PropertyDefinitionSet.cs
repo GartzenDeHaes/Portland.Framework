@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Portland.Types
 {
-	public struct PropertyDefinitionSet
+	public class PropertyDefinitionSet
 	{
 		public string SetId;
 		public PropertyDefinition[] Properties;
+		public string OnUpdateScript = String.Empty;
 	}
 }

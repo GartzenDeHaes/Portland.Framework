@@ -28,13 +28,13 @@ namespace Portland.RPG
 		{
 			var items = new ItemFactory();
 			var props = new PropertyManager();
-			var mgr = new CharacterManager(props, items);
+			var cmgr = new CharacterManager(props, items);
 			
 			var basCtx = new ExecutionContext(World.LoadBasFunctions(), new CommandRunnerFails(), null);
 
-			mgr.GetBuilder().SetupDnDTest(false);
+			cmgr.GetBuilder().SetupDnDTest(false);
 
-			var noclass = mgr.CreateCharacter("PLAYER", "HUMAN", "", "", null, basCtx);
+			var noclass = cmgr.CreateCharacter("PLAYER", "HUMAN", "", "", null, basCtx);
 
 			Assert.That(noclass.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(noclass.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -57,7 +57,7 @@ namespace Portland.RPG
 			Assert.That(noclass.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(noclass.Stats.GetValue("SWORD"), Is.EqualTo(1f));
 
-			var figher = mgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null, basCtx);
+			var figher = cmgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null, basCtx);
 
 			Assert.That(figher.Stats.GetValue("STR"), Is.EqualTo(8f));
 			Assert.That(figher.Stats.GetValue("INT"), Is.EqualTo(8f));
@@ -80,7 +80,7 @@ namespace Portland.RPG
 			Assert.That(figher.Stats.GetValue("SNEEK"), Is.EqualTo(1f));
 			Assert.That(figher.Stats.GetValue("SWORD"), Is.EqualTo(2f));
 
-			var elfa = mgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null, basCtx);
+			var elfa = cmgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null, basCtx);
 
 			Assert.That(elfa.Stats.GetValue("STR"), Is.EqualTo(7f));
 			Assert.That(elfa.Stats.GetValue("INT"), Is.EqualTo(9f));

@@ -67,13 +67,17 @@ namespace Portland.Text
 
 		public string ReadToAny(params char[] tokens)
 		{
+			string token;
 			var i = _s.IndexOfAny(tokens, _position);
 			if (i < 0)
 			{
-				throw new InvalidOperationException($"String '{_s}' after position {_position} does not contain {string.Join(", ", tokens.Select(t => "'" + t + "'"))}!");
+				//throw new InvalidOperationException($"String '{_s}' after position {_position} does not contain {string.Join(", ", tokens.Select(t => "'" + t + "'"))}!");
+				token = _s.Substring(_position);
+				_position = _s.Length;
+				return token;
 			}
 
-			var token = _s.Substring(_position, i - _position);
+			token = _s.Substring(_position, i - _position);
 			_position += token.Length;
 			return token;
 		}

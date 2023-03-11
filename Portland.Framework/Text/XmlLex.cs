@@ -5,6 +5,7 @@ using System.Xml.Linq;
 
 namespace Portland.Text
 {
+	// TODO: <!--#include file="filename.html"-->
 	public sealed class XmlLex : IDisposable
 	{
 		public enum XmlLexToken
@@ -119,7 +120,7 @@ namespace Portland.Text
 		}
 
 		/// <summary>
-		/// Match <tag>
+		/// Match <name
 		/// </summary>
 		public bool MatchTagStart(string name)
 		{
@@ -136,6 +137,9 @@ namespace Portland.Text
 			return Next();
 		}
 
+		/// <summary>
+		/// Match <name>
+		/// </summary>
 		public bool MatchTag(string name)
 		{
 			if (Token != XmlLexToken.TAG)
@@ -151,6 +155,9 @@ namespace Portland.Text
 			return Next();
 		}
 
+		/// <summary>
+		/// Match </name>
+		/// </summary>
 		public bool MatchTagClose(string name)
 		{
 			if (!Lexum.IsEqualTo(name))
@@ -161,6 +168,9 @@ namespace Portland.Text
 			return Match(XmlLexToken.CLOSE);
 		}
 
+		/// <summary>
+		/// Match />
+		/// </summary>
 		public bool MatchTagClose()
 		{
 			if (Lexum.Length != 0)
@@ -171,6 +181,9 @@ namespace Portland.Text
 			return Match(XmlLexToken.CLOSE);
 		}
 
+		/// <summary>
+		/// Match >
+		/// </summary>
 		public bool MatchTagEnd()
 		{
 			return Match(XmlLexToken.TAG_END);

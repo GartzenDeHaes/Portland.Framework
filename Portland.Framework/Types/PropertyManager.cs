@@ -36,9 +36,13 @@ namespace Portland.Types
 			return false;
 		}
 
-		public void DefinePropertySet(in string setName, string[] propIds)
+		public void DefinePropertySet(in string setName, string[] propIds, string onUpdateScript)
 		{
-			var set = new PropertyDefinitionSet { SetId = setName, Properties = new PropertyDefinition[propIds.Length] };
+			var set = new PropertyDefinitionSet { 
+				SetId = setName, 
+				Properties = new PropertyDefinition[propIds.Length],
+				OnUpdateScript = onUpdateScript
+			};
 
 			for (int i = 0; i < propIds.Length; i++)
 			{
@@ -55,7 +59,7 @@ namespace Portland.Types
 			_defSets.Add(set);
 		}
 
-		bool TryGetSetDef(in string setId, out PropertyDefinitionSet setDef)
+		public bool TryGetDefinitionSet(in string setId, out PropertyDefinitionSet setDef)
 		{
 			for (int i = 0; i < _defSets.Count; i++)
 			{
@@ -72,7 +76,7 @@ namespace Portland.Types
 
 		PropertyValue[] CreatePropertySetValues(in string setId, UtilitySet utilityProps)
 		{
-			if (!TryGetSetDef(setId, out var setDef))
+			if (!TryGetDefinitionSet(setId, out var setDef))
 			{
 				throw new Exception($"Definition for set {setId} not found");
 			}
@@ -93,7 +97,9 @@ namespace Portland.Types
 					}
 					else
 					{
-						throw new Exception($"RPG utility property {def.PropertyId} not found in utility set");
+						uval = new PropertyValue(def);
+						values[i] = uval;
+						utilityProps.AddProperty(uval);
 					}
 				}
 				else
@@ -107,7 +113,7 @@ namespace Portland.Types
 
 		public PropertySet CreatePropertySet(in string setId, UtilitySet utilityProps)
 		{
-			if (!TryGetSetDef(setId, out var setDef))
+			if (!TryGetDefinitionSet(setId, out var setDef))
 			{
 				throw new Exception($"Definition for set {setId} not found");
 			}
@@ -118,7 +124,6 @@ namespace Portland.Types
 		{
 			return _globalProperties;
 		}
-
 
 		public PropertyManager()
 		{
@@ -220,12 +225,12 @@ namespace Portland.Types
 			;
 		}
 
-		public void LoadDefinitionSets(string xml)
+		public void ParseDefinitionSets(string xml)
 		{
-			LoadDefinitionSets(new XmlLex(xml));
+			ParseDefinitionSets(new XmlLex(xml));
 		}
 
-		public void LoadDefinitionSets(XmlLex lex)
+		public void ParseDefinitionSets(XmlLex lex)
 		{
 			lex.MatchTag("property_sets");
 
@@ -258,18 +263,28 @@ namespace Portland.Types
 				}
 			}
 
-			_defSets.Add(new PropertyDefinitionSet { SetId = setId, Properties = defs.ToArray() });
+			var set = new PropertyDefinitionSet { SetId = setId, Properties = defs.ToArray() };
+			_defSets.Add(set);
 
-			lex.Match(XmlLex.XmlLexToken.TAG_END);
+			if (lex.Token == XmlLex.XmlLexToken.TAG_END)
+			{
+				lex.Match(XmlLex.XmlLexToken.TAG_END);
+				return;
+			}
+
+			lex.Match(XmlLex.XmlLexToken.CLOSE);
+			lex.NextText();
+			set.OnUpdateScript = lex.Lexum.ToString();
+			lex.Next();
+			lex.MatchTagClose("set");
 		}
-
 
 		public void LoadPropertyDefinitions(string xml)
 		{
-			LoadPropertyDefinitions(new XmlLex(xml));
+			ParsePropertyDefinitions(new XmlLex(xml));
 		}
 
-		public void LoadPropertyDefinitions(XmlLex lex)
+		public void ParsePropertyDefinitions(XmlLex lex)
 		{
 			lex.MatchTag("properties");
 			while (lex.Token == XmlLex.XmlLexToken.TAG_START)
@@ -312,6 +327,8 @@ namespace Portland.Types
 						prop.DefaultRandomize = Boolean.Parse(val); break;
 					case "change_per_hour":
 						prop.ChangePerSec = Single.Parse(val) / 60f / 60f; break;
+					case "change_per_sec":
+						prop.ChangePerSec = Single.Parse(val); break;
 					case "from_utility":
 						prop.GetFromUtility = Boolean.Parse(val); break;
 					case "prob":
@@ -327,8 +344,10 @@ namespace Portland.Types
 			{
 				lex.Match(XmlLex.XmlLexToken.CLOSE);
 
-				ParseAlerts(lex, prop);
-
+				if (lex.Token != XmlLex.XmlLexToken.CLOSE)
+				{
+					ParseAlerts(lex, prop);
+				}
 				lex.MatchTagClose("property");
 			}
 			else

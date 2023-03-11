@@ -90,7 +90,7 @@ namespace Portland.Types
 		}
 	}
 
-	public struct PropertyDefinitionBuilder
+	public class PropertyDefinitionBuilder
 	{
 		internal PropertyDefinition Property;
 		internal IBlackboard<string> GlobalProperties;

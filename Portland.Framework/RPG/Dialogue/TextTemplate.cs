@@ -85,8 +85,6 @@ namespace Portland.RPG.Dialogue
 
 			while (!lex.IsEOF)
 			{
-				lex.SkipWhitespace();
-
 				if (lex.PeekChar() == '{')
 				{
 					lex.Match("{");
@@ -101,9 +99,9 @@ namespace Portland.RPG.Dialogue
 				{
 					t.Texts.Add(new TextItem(lex.ReadToAny('{')));
 				}
-			}
 
-			var parts = txt.Split(new char[] { '{', '}' });
+				lex.SkipWhitespace();
+			}
 
 			return t;
 		}

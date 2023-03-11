@@ -20,7 +20,7 @@ namespace Portland.AI.Utility
 		//public bool Logging;
 		///// <summary>Not used, ???</summary>
 		//public short HistorySize;
-		public float SecBetweenEvals;
+		//public float SecBetweenEvals;
 		//public float MovementSpeed;
 
 		public List<Objective> Objectives = new List<Objective>();

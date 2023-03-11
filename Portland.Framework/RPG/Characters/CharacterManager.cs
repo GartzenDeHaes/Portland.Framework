@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Portland.AI;
 using Portland.AI.Utility;
 using Portland.Interp;
+using Portland.Text;
 using Portland.Types;
 
 namespace Portland.RPG
@@ -25,7 +26,7 @@ namespace Portland.RPG
 			_items = items;
 
 			_effectGroupByName.Add(String.Empty, new EffectGroup { Effects = Array.Empty<Effect>() });
-			_props.DefinePropertySet(String.Empty, Array.Empty<String>());
+			_props.DefinePropertySet(String.Empty, Array.Empty<String>(), String.Empty);
 		}
 
 		public bool HasStatDefined(in string statName)
@@ -102,7 +103,7 @@ namespace Portland.RPG
 			CharacterDefinition def = new CharacterDefinition() { CharId = charId };
 			_charDefs.Add(charId, def);
 
-			return new CharacterDefinitionBuilder(def, _effectGroupByName);
+			return new CharacterDefinitionBuilder(def, _props, _effectGroupByName);
 		}
 
 		public bool HasCharacterDefinition(in String charId)
@@ -190,47 +191,164 @@ namespace Portland.RPG
 
 		#endregion
 
-		//#region Properties
+		public void Parse(XmlLex lex)
+		{
+			if (!lex.Lexum.IsEqualTo("character_types"))
+			{
+				return;
+			}
 
-		//public PropertyDefinitionBuilder DefineProperty(in String id, string displayName, string category)
-		//{
-		//	return _props.DefineProperty(id, displayName, category);
-		//}
+			lex.MatchTag("character_types");
 
-		//public void DefinePropertySet(in String setId, in String[] propertyIds)
-		//{
-		//	_props.DefinePropertySet(setId, propertyIds);
-		//}
+			while (lex.Lexum.IsEqualTo("character_def"))
+			{
+				lex.MatchTagStart("character_def");
 
-		//#endregion
+				var builder = CreateCharacterDefinition(lex.MatchProperty("char_id"))
+					.PropertyGroupId(lex.MatchProperty("property_set"))
+					.AutoCountInventory(true);
+				lex.MatchTagClose();
 
-		//#region Items
+				while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+				{
+					if (lex.Lexum.IsEqualTo("inventory"))
+					{
+						ParseInventory(lex, builder);
+					}
+					else if (lex.Lexum.IsEqualTo("items"))
+					{
+						ParseItems(lex, builder);
+					}
+					else
+					{
+						throw new Exception($"Unknown section characters/character_def/{lex.Lexum} on line {lex.LineNum}");
+					}
+				}
 
-		//public void DefineItemCategory(in String category)
-		//{
-		//	_items.DefineCategory(category);
-		//}
+				lex.MatchTagClose("character_def");
+			}
 
-		//public bool HasItemPropertyDefined(in String itemPropertyId)
-		//{
-		//	return _items.HasProperty(itemPropertyId);
-		//}
+			lex.MatchTagClose("character_types");
+		}
 
-		//public void DefineItemProperty(in String itemPropertyId, ItemPropertyType type, string description, bool instancePerItem)
-		//{
-		//	_items.DefineProperty(itemPropertyId, type, description, instancePerItem);
-		//}
+		void ParseInventory(XmlLex lex, CharacterDefinitionBuilder builder)
+		{
+			lex.MatchTag("inventory");
 
-		//public bool HasItemDefined(in String itemTypeId)
-		//{
-		//	return _items.HasItemDefined(itemTypeId);
-		//}
+			while (lex.Lexum.IsEqualTo("section"))
+			{
+				lex.MatchTagStart("section");
 
-		//public ItemDefinitionBuilder DefineItemType(string category, in String itemTypeId)
-		//{
-		//	return _items.DefineItem(category, itemTypeId);
-		//}
+				string name = String.Empty;
+				int sectionTypeId = 0;
+				bool isReadOnly = false;
+				int width = 1;
+				int height = 1;
 
-		//#endregion
+				while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+				{
+					if (lex.Lexum.IsEqualTo("name"))
+					{
+						name = lex.MatchProperty("name");
+					}
+					else if (lex.Lexum.IsEqualTo("type_id"))
+					{
+						sectionTypeId = Int32.Parse(lex.MatchProperty("type_id"));
+					}
+					else if (lex.Lexum.IsEqualTo("width"))
+					{
+						width = Int32.Parse(lex.MatchProperty("width"));
+					}
+					else if (lex.Lexum.IsEqualTo("height"))
+					{
+						height = Int32.Parse(lex.MatchProperty("height"));
+					}
+					else if (lex.Lexum.IsEqualTo("readonly"))
+					{
+						isReadOnly = Boolean.Parse(lex.MatchProperty("readonly"));
+					}
+					else
+					{
+						throw new Exception($"Unknown inventory window property {lex.Lexum} on line {lex.LineNum}");
+					}
+				}
+
+				builder.AddInventorySection(name, sectionTypeId, isReadOnly, width, height);
+
+				lex.MatchTagClose();
+			}
+
+			lex.MatchTagClose("inventory");
+		}
+
+		void ParseItems(XmlLex lex, CharacterDefinitionBuilder builder)
+		{
+			lex.MatchTag("items");
+
+			while (lex.Lexum.IsEqualTo("default_item"))
+			{
+				lex.MatchTagStart("default_item");
+
+				string raceOrClass = String.Empty;
+				string itemId = String.Empty;
+				int count = 1;
+				string windowSectionName = String.Empty;
+				int windowSectionIndex = 0;
+
+				while (lex.Token != XmlLex.XmlLexToken.TAG_END && !lex.IsEOF)
+				{
+					if (lex.Lexum.IsEqualTo("race_or_class"))
+					{
+						raceOrClass = lex.MatchProperty("race_or_class");
+					}
+					else if (lex.Lexum.IsEqualTo("item_id"))
+					{
+						itemId = lex.MatchProperty("item_id");
+					}
+					else if (lex.Lexum.IsEqualTo("count"))
+					{
+						count = Int32.Parse(lex.MatchProperty("count"));
+					}
+					else if (lex.Lexum.IsEqualTo("window_section"))
+					{
+						windowSectionName = lex.MatchProperty("window_section");
+					}
+					else if (lex.Lexum.IsEqualTo("window_index"))
+					{
+						windowSectionIndex = Int32.Parse(lex.MatchProperty("window_index"));
+					}
+					else
+					{
+						throw new Exception($"Unknown default_item property {lex.Lexum} on line {lex.LineNum}");
+					}
+				}
+
+				lex.MatchTagEnd();
+
+				List<ItemPropertyDefault> props = new List<ItemPropertyDefault>();
+
+				while (lex.Lexum.IsEqualTo("property"))
+				{
+					lex.MatchTagStart("property");
+
+					props.Add(new ItemPropertyDefault { PropId = lex.MatchProperty("property_id"), Default = Variant8.Parse(lex.MatchProperty("default")) });
+
+					lex.MatchTagEnd();
+				}
+
+				builder.AddDefaultItem(raceOrClass, new DefaultItemSpec
+				{
+					ItemId = itemId,
+					Count = count,
+					WindowSectionName = windowSectionName,
+					WindowSectionIndex = windowSectionIndex,
+					Properties = props.ToArray()
+				});
+
+				lex.MatchTagClose("default_item");
+			}
+
+			lex.MatchTagClose("items");
+		}
 	}
 }

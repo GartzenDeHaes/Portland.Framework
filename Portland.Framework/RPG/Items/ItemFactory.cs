@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Mathmatics;
+using Portland.Text;
 using Portland.Types;
 
 namespace Portland.RPG
@@ -98,6 +101,162 @@ namespace Portland.RPG
 		{
 			//_stats = stats;
 			//_itemDefinitions.Add("Empty", ItemDefinitionBuilder.Empty);
+		}
+
+		public void Parse(XmlLex lex)
+		{
+			if (! lex.Lexum.IsEqualTo("items"))
+			{
+				return;
+			}
+
+			lex.MatchTag("items");
+
+			while (lex.Token != XmlLex.XmlLexToken.CLOSE)
+			{
+				if (lex.Lexum.IsEqualTo("categories"))
+				{
+					lex.MatchTag("categories");
+					while (lex.Token == XmlLex.XmlLexToken.TAG_START)
+					{
+						lex.MatchTagStart("category");
+
+						DefineCategory(lex.MatchProperty("name"));
+
+						lex.Match(XmlLex.XmlLexToken.CLOSE);
+					}
+					lex.MatchTagClose("categories");
+				}
+				else if (lex.Lexum.IsEqualTo("properties"))
+				{
+					lex.MatchTag("properties");
+
+					ParseProperties(lex);
+
+					lex.MatchTagClose("properties");
+				}
+				else if (lex.Lexum.IsEqualTo("definitions"))
+				{
+					lex.MatchTag("definitions");
+
+					ParseItemDefinitions(lex);
+
+					lex.MatchTagClose("definitions");
+				}
+				else
+				{
+					throw new Exception($"Unknown item section {lex.Lexum} on line {lex.LineNum}");
+				}
+			}
+
+			lex.MatchTagClose("items");
+		}
+
+		void ParseProperties(XmlLex lex)
+		{
+			while (lex.Lexum.IsEqualTo("property"))
+			{
+				lex.MatchTagStart("property");
+
+				ItemPropertyDefinition def = null;
+
+				while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+				{
+					if (lex.Lexum.IsEqualTo("id"))
+					{
+						def = new ItemPropertyDefinition { PropertyId = lex.Lexum.ToString(), IsInstancedPerItem = true };
+						_propertyDefinitions.Add(def.PropertyId, def);
+					}
+					else if (lex.Lexum.IsEqualTo("type"))
+					{
+						def.PropertyType = Enum.Parse<ItemPropertyType>(lex.Lexum.ToString());
+					}
+					else if (lex.Lexum.IsEqualTo("name"))
+					{
+						def.DisplayName = lex.Lexum.ToString();
+					}
+					else if (lex.Lexum.IsEqualTo("instanced"))
+					{
+						def.IsInstancedPerItem = Boolean.Parse(lex.Lexum.ToString());
+					}
+					else
+					{
+						throw new Exception($"Unknown item property xml property {lex.Lexum} on line {lex.LineNum}");
+					}
+				}
+
+				lex.MatchTagClose();
+			}
+		}
+
+		void ParseItemDefinitions(XmlLex lex)
+		{
+			while (lex.Lexum.IsEqualTo("item_def"))
+			{
+				lex.MatchTagStart("item_def");
+
+				ItemDefinitionBuilder builder = null;
+				string category = String.Empty;
+				string itemId = String.Empty;
+
+				while (lex.Token == XmlLex.XmlLexToken.STRING)
+				{
+					if (lex.Lexum.IsEqualTo("category"))
+					{
+						category = lex.MatchProperty("category");
+						Debug.Assert(builder == null);
+						if (itemId != String.Empty)
+						{
+							builder = DefineItem(category, itemId);
+						}
+					}
+					else if (lex.Lexum.IsEqualTo("item_id"))
+					{
+						itemId = lex.MatchProperty("item_id");
+						Debug.Assert(builder == null);
+						if (category != String.Empty)
+						{
+							builder = DefineItem(category, itemId);
+						}
+					}
+					else if (lex.Lexum.IsEqualTo("desc"))
+					{
+						builder.DisplayName(lex.MatchProperty("desc"));
+					}
+					else if (lex.Lexum.IsEqualTo("stack_size"))
+					{
+						builder.MaxStackCapacity(Int32.Parse(lex.MatchProperty("stack_size")));
+					}
+				}
+
+				lex.MatchTagClose();
+
+				while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+				{
+					lex.MatchTagStart("property");
+
+					ItemPropertyBuilder propb = builder.BuildProperty(lex.MatchProperty("prop_id"));
+					
+					if (lex.Lexum.IsEqualTo("default"))
+					{
+						propb.DefaultValue(lex.MatchProperty("default"));
+					}
+					else if (lex.Lexum.IsEqualTo("min"))
+					{
+						propb.Range(lex.MatchProperty("min"), lex.MatchProperty("max"));
+					}
+					else if (lex.Lexum.IsEqualTo("current"))
+					{
+						propb.Current(lex.MatchProperty("current"));
+					}
+					else
+					{
+						throw new Exception($"Unknown item property attribute {lex.Lexum}");
+					}
+				}
+
+				lex.MatchTagClose("item-def");
+			}
 		}
 	}
 }

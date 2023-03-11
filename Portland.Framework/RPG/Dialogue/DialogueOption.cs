@@ -39,7 +39,7 @@ namespace Portland.RPG.Dialogue
 		public List<DialogueNode.Tag> Tags = new List<DialogueNode.Tag>();
 
 		// Choice specific Post actions
-		public List<DialogueCommand> PostActions;
+		public List<DialogueCommand> PostActions = new List<DialogueCommand>();
 
 		public string CurrentText;
 
