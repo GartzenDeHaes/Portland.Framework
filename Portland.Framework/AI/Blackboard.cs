@@ -30,6 +30,11 @@ namespace Portland.AI
 			return _parent?.Get(key) ?? null;
 		}
 
+		public float GetMaximum(in TKEY key)
+		{
+			return Get(key).Max;
+		}
+
 		public void Set(in TKEY key, in Variant8 value)
 		{
 			_facts[key].Set(value);
@@ -99,6 +104,6 @@ namespace Portland.AI
 		//		public bool IsNightTime { get { return SceneContext.Instance.IsNightTime; } } //!< Set by GameClockManager on SceneManagers object
 		//		public bool IsWeekend { get { return SceneContext.Instance.IsWeekend; } }		//!< Set by GameClockManager on SceneManagers object
 
-		List<string> _keys = new List<string>();
+		//List<string> _keys = new List<string>();
 	}
 }

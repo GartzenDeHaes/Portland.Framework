@@ -79,6 +79,7 @@ namespace Portland.RPG
 			{
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
+					.UtilitySetId(playerCharId)
 					.AutoCountInventory(true)
 					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 4, 1)
@@ -93,6 +94,7 @@ namespace Portland.RPG
 			{
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
+					.UtilitySetId(playerCharId)
 					.AutoCountInventory(true)
 					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 6, 1)
@@ -109,6 +111,7 @@ namespace Portland.RPG
 			{
 				_manager.CreateCharacterDefinition(playerCharId)
 					.PropertyGroupId(playerCharId)
+					.UtilitySetId(playerCharId)
 					.AutoCountInventory(true)
 					//.SetOnChangeScriptBas(statUpdateBas)
 					.AddInventorySection("HOTBAR", 0, false, 9, 1)
@@ -424,6 +427,7 @@ namespace Portland.RPG
 
 			_manager.CreateCharacterDefinition("PLAYER")
 				.PropertyGroupId("CHAR")
+				.UtilitySetId("CHAR")
 				.AutoCountInventory(true)
 				//.SetOnChangeScriptBas(statsRecalc.ToString())
 				.AddInventorySection("HOTBAR", 0, false, 4, 1)
@@ -436,6 +440,7 @@ namespace Portland.RPG
 
 			_manager.CreateCharacterDefinition("MONSTER")
 				.PropertyGroupId("CHAR")
+				.UtilitySetId("CHAR")
 				.AutoCountInventory(true)
 				.AddInventorySection("WEAPON", 0, false, 1, 1)
 				.AddInventorySection("MAIN", 1, false, 3, 1)
@@ -447,7 +452,7 @@ namespace Portland.RPG
 						ItemId = "ORKSKIN",
 						Count = 1,
 						WindowSectionName = "ARMOR",
-						WindowSectionIndex = 0,
+						//WindowSectionIndex = 0,
 						Properties = new ItemPropertyDefault[] {
 							new ItemPropertyDefault { PropId = "WEIGHT", Default = 1 },
 							new ItemPropertyDefault { PropId = "DEFENSE", Default = 4 },
@@ -458,7 +463,7 @@ namespace Portland.RPG
 						ItemId = "CLUB6",
 						Count = 1,
 						WindowSectionName = "WEAPON",
-						WindowSectionIndex = 0,
+						//WindowSectionIndex = 0,
 						Properties = new ItemPropertyDefault[] {
 						new ItemPropertyDefault { PropId = "WEIGHT", Default = 2 },
 						new ItemPropertyDefault { PropId = "TYPE", Default = "BLUNT" },

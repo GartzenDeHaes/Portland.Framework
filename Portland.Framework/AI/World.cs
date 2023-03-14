@@ -38,6 +38,8 @@ namespace Portland.AI
 
 		public EventBus Events = new EventBus();
 
+		public IFactionManager Factions = new FactionManager();
+
 		//List<Action<Agent>> _alertsToAddToActor = new List<Action<Agent>>();
 		//string _actorUtilityObjectiveFactName;
 
@@ -296,7 +298,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (chr.Stats.TryGetValue(name.ToString(), out float value))
+				if (chr.TryGetStat(name.ToString(), out float value))
 				{
 					ctx.SetReturnValue(value);
 				}
@@ -312,7 +314,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (!chr.Stats.TrySetValue(name.ToString(), ctx.Context["b"]))
+				if (!chr.TrySetStat(name.ToString(), ctx.Context["b"]))
 				{
 					ctx.SetError($"{"STAT"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
 					ctx.SetReturnValue(ctx.Context["b"]);
@@ -324,7 +326,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (chr.Stats.TryGetMaximum(name.ToString(), out float value))
+				if (chr.TryGetMaximum(name.ToString(), out float value))
 				{
 					ctx.SetReturnValue(value);
 				}
@@ -340,7 +342,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (!chr.Stats.TrySetMaximum(name.ToString(), ctx.Context["b"]))
+				if (!chr.TrySetMaximum(name.ToString(), ctx.Context["b"]))
 				{
 					ctx.SetError($"{"STATMAX"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
 					ctx.SetReturnValue(0f);
@@ -352,7 +354,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
+				if (chr.TryGetProbability(name.ToString(), out var value))
 				{
 					ctx.SetReturnValue(value.ToString());
 				}
@@ -386,7 +388,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (chr.Stats.TryGetProbability(name.ToString(), out var value))
+				if (chr.TryGetProbability(name.ToString(), out var value))
 				{
 					ctx.SetReturnValue(value.Roll(MathHelper.Rnd));
 				}
@@ -699,9 +701,17 @@ namespace Portland.AI
 				{
 					world.CharacterManager.Parse(lex);
 				}
+				else if (lex.Lexum.IsEqualTo("effects"))
+				{
+					world.CharacterManager.Parse(lex);
+				}
 				else if (lex.Lexum.IsEqualTo("characters"))
 				{
 					ParseCharacters(world, lex);
+				}
+				else if (lex.Lexum.IsEqualTo("factions"))
+				{
+					ParseFactions(world, lex);
 				}
 				else
 				{
@@ -746,6 +756,66 @@ namespace Portland.AI
 			world.DialogueMan.Parse(yarnish);
 		}
 
+		static void ParseFactions(World world, XmlLex lex)
+		{
+			lex.MatchTag("factions");
+
+			while (lex.Lexum.IsEqualTo("faction"))
+			{
+				lex.MatchTagStart("faction");
+
+				string id = String.Empty;
+				string desc = String.Empty;
+				string alignment = "NN";
+				string grouping = "";
+
+				while (lex.Token == XmlLex.XmlLexToken.STRING)
+				{
+					if (lex.Lexum.IsEqualTo("faction_id"))
+					{
+						id = lex.MatchProperty("faction_id");
+					}
+					if (lex.Lexum.IsEqualTo("desc"))
+					{
+						desc = lex.MatchProperty("desc");
+					}
+					if (lex.Lexum.IsEqualTo("alignment"))
+					{
+						desc = lex.MatchProperty("alignment");
+					}
+					if (lex.Lexum.IsEqualTo("grouping"))
+					{
+						desc = lex.MatchProperty("grouping");
+					}
+				}
+
+				world.Factions.DefineFaction(id, desc, alignment, grouping);
+
+				if (lex.Token == XmlLex.XmlLexToken.TAG_END)
+				{
+					lex.MatchTagEnd();
+				}
+				else
+				{
+					lex.MatchTagClose();
+
+					while (lex.Lexum.IsEqualTo("relation"))
+					{
+						lex.MatchTagStart("relation");
+						var otherFactionId = lex.MatchProperty("faction_id");
+						var relation = Single.Parse(lex.MatchProperty("relation"));
+						lex.MatchTagEnd();
+
+						world.Factions.SetFactionRelation(id, otherFactionId, relation);
+					}
+
+					lex.MatchTagClose("faction");
+				}
+			}
+
+			lex.MatchTagClose("factions");
+		}
+
 		static void ParseCharacters(World world, XmlLex lex)
 		{
 			if (! lex.Lexum.IsEqualTo("characters"))
@@ -760,7 +830,7 @@ namespace Portland.AI
 				lex.MatchTagStart("character");
 
 				string agentId = String.Empty;
-				string statUtilSetId = String.Empty;
+				string charId = String.Empty;
 				string raceGrp = String.Empty;
 				string clsGrp = String.Empty;
 				string faction = String.Empty;
@@ -773,9 +843,9 @@ namespace Portland.AI
 					{
 						agentId = lex.MatchProperty("agent_id");
 					}
-					else if (lex.Lexum.IsEqualTo("char_util_id"))
+					else if (lex.Lexum.IsEqualTo("char_id"))
 					{
-						statUtilSetId = lex.MatchProperty("char_util_id");
+						charId = lex.MatchProperty("char_id");
 					}
 					else if (lex.Lexum.IsEqualTo("race"))
 					{
@@ -803,8 +873,6 @@ namespace Portland.AI
 					}
 				}
 
-				lex.MatchTagEnd();
-
 				if (shortName == String.Empty)
 				{
 					shortName = agentId;
@@ -814,7 +882,76 @@ namespace Portland.AI
 					longName = agentId;
 				}
 
-				world.CreateAgent(statUtilSetId, agentId, shortName, longName, raceGrp, clsGrp, faction);
+				var agent = world.CreateAgent(charId, agentId, shortName, longName, raceGrp, clsGrp, faction);
+
+				if (lex.Token == XmlLex.XmlLexToken.TAG_END)
+				{
+					lex.MatchTagEnd();
+				}
+				else
+				{
+					lex.MatchTagClose();
+
+					while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+					{
+						if (lex.Lexum.IsEqualTo("override"))
+						{
+							lex.MatchTagStart("override");
+
+							while (lex.Token == XmlLex.XmlLexToken.STRING)
+							{
+								string propId = lex.Lexum.ToString();
+								lex.Match(XmlLex.XmlLexToken.STRING);
+								lex.Match(XmlLex.XmlLexToken.EQUAL);
+								string value = lex.Lexum.ToString();
+								lex.Next();
+
+								agent.Facts.Set(propId, Variant8.Parse(value));
+							}
+
+							lex.MatchTagEnd();
+						}
+						else if (lex.Lexum.IsEqualTo("item"))
+						{
+							lex.MatchTagStart("item");
+
+							string itemId = String.Empty;
+							string windowSection = String.Empty;
+							int count = 1;
+
+							while (lex.Token != XmlLex.XmlLexToken.TAG_END && !lex.IsEOF)
+							{
+								if (lex.Lexum.IsEqualTo("item_id"))
+								{
+									itemId = lex.MatchProperty("item_id");
+								}
+								else if (lex.Lexum.IsEqualTo("count"))
+								{
+									count = Int32.Parse(lex.MatchProperty("count"));
+								}
+								else if (lex.Lexum.IsEqualTo("window_section"))
+								{
+									windowSection = lex.MatchProperty("window_section");
+								}
+								else
+								{
+									throw new Exception($"Unknown property {lex.Lexum} on line {lex.LineNum}");
+								}
+							}
+
+							var item = world.Items.CreateItem(0, itemId, count);
+							agent.Character.InventoryWindow.TryMergSectionItem(windowSection, item);
+
+							lex.MatchTagEnd();
+						}
+						else
+						{
+							throw new Exception($"Unexpected property {lex.Lexum} on line {lex.LineNum}");
+						}
+					}
+
+					lex.MatchTagClose("character");
+				}
 			}
 
 			lex.MatchTagClose("characters");

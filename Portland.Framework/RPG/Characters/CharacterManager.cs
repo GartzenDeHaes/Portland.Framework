@@ -60,23 +60,34 @@ namespace Portland.RPG
 			in String classEffectGroup,
 			in String factionEffectGroup,
 			UtilitySet utilityProperties,
+			IBlackboard<string> facts,
 			ExecutionContext basCtx
 		)
 		{
 			var def = _charDefs[charId];
 
+			_props.CreatePropertySet(def.PropertyGroupId, utilityProperties).AddToBlackBoard(facts);
+
 			CharacterSheet chr = new CharacterSheet
 			(
 				def,
-				_props.CreatePropertySet(def.PropertyGroupId, utilityProperties),
+				facts,
 				basCtx,
 				_effectGroupByName[raceEffectGroup],
 				_effectGroupByName[classEffectGroup],
 				_effectGroupByName[factionEffectGroup]
 			);
 
-			CreateDefaultItems(def, raceEffectGroup, chr);
-			CreateDefaultItems(def, classEffectGroup, chr);
+			CreateDefaultItems(def, String.Empty, chr);
+
+			if (!String.IsNullOrWhiteSpace(raceEffectGroup))
+			{
+				CreateDefaultItems(def, raceEffectGroup, chr);
+			}
+			if (!String.IsNullOrWhiteSpace(classEffectGroup))
+			{
+				CreateDefaultItems(def, classEffectGroup, chr);
+			}
 
 			return chr;
 		}
@@ -90,10 +101,17 @@ namespace Portland.RPG
 					var itemdef = items[i];
 					var item = _items.CreateItem(0, itemdef.ItemId, itemdef.Count);
 
-					if (!chr.InventoryWindow.TrySetSectionItem(itemdef.WindowSectionName, itemdef.WindowSectionIndex, item))
+					if (chr.InventoryWindow.TryGetWindowSection(itemdef.WindowSectionName, out var section))
 					{
-						throw new Exception($"Window section {itemdef.WindowSectionName} not found, or invalid window index {itemdef.WindowSectionIndex}");
+						if (-1 != section.MoveOrMergeItem(item))
+						{
+							continue;
+						}
+
+						throw new Exception($"No space in {itemdef.WindowSectionName} for {itemdef.ItemId}");
 					}
+
+					throw new Exception($"Window section {itemdef.WindowSectionName} not found");
 				}
 			}
 		}
@@ -109,6 +127,11 @@ namespace Portland.RPG
 		public bool HasCharacterDefinition(in String charId)
 		{
 			return _charDefs.ContainsKey(charId);
+		}
+
+		public CharacterDefinition GetCharacterDefinition(in string charId)
+		{
+			return _charDefs[charId];
 		}
 
 		#endregion
@@ -193,42 +216,132 @@ namespace Portland.RPG
 
 		public void Parse(XmlLex lex)
 		{
-			if (!lex.Lexum.IsEqualTo("character_types"))
+			if (lex.Lexum.IsEqualTo("character_types"))
 			{
-				return;
-			}
+				lex.MatchTag("character_types");
 
-			lex.MatchTag("character_types");
-
-			while (lex.Lexum.IsEqualTo("character_def"))
-			{
-				lex.MatchTagStart("character_def");
-
-				var builder = CreateCharacterDefinition(lex.MatchProperty("char_id"))
-					.PropertyGroupId(lex.MatchProperty("property_set"))
-					.AutoCountInventory(true);
-				lex.MatchTagClose();
-
-				while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+				while (lex.Lexum.IsEqualTo("character_def"))
 				{
-					if (lex.Lexum.IsEqualTo("inventory"))
+					lex.MatchTagStart("character_def");
+
+					var builder = CreateCharacterDefinition(lex.MatchProperty("char_id"))
+						.PropertyGroupId(lex.MatchProperty("property_set"))
+						.UtilitySetId(lex.MatchProperty("utility_set"))
+						.AutoCountInventory(true);
+
+					//while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+					//{
+					//	if (lex.Lexum.IsEqualTo("race"))
+					//	{
+					//		builder.
+					//	}
+					//}
+
+					lex.MatchTagClose();
+
+					while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
 					{
-						ParseInventory(lex, builder);
+						if (lex.Lexum.IsEqualTo("inventory"))
+						{
+							ParseInventory(lex, builder);
+						}
+						else if (lex.Lexum.IsEqualTo("items"))
+						{
+							ParseItems(lex, builder);
+						}
+						else
+						{
+							throw new Exception($"Unknown section characters/character_def/{lex.Lexum} on line {lex.LineNum}");
+						}
 					}
-					else if (lex.Lexum.IsEqualTo("items"))
-					{
-						ParseItems(lex, builder);
-					}
-					else
-					{
-						throw new Exception($"Unknown section characters/character_def/{lex.Lexum} on line {lex.LineNum}");
-					}
+
+					lex.MatchTagClose("character_def");
 				}
 
-				lex.MatchTagClose("character_def");
+				lex.MatchTagClose("character_types");
 			}
+			else if (lex.Lexum.IsEqualTo("effects"))
+			{
+				lex.MatchTag("effects");
 
-			lex.MatchTagClose("character_types");
+				if (lex.Lexum.IsEqualTo("definitions"))
+				{
+					lex.MatchTag("definitions");
+
+					while (lex.Lexum.IsEqualTo("effect"))
+					{
+						lex.MatchTagStart("effect");
+
+						string effectId = String.Empty;
+						string propId = String.Empty;
+						Variant8 value = Variant8.Zero;
+						EffectValueType effectType = EffectValueType.CurrentDelta;
+						float duration = 0f;
+
+						while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+						{
+							if (lex.Lexum.IsEqualTo("id"))
+							{
+								effectId = lex.MatchProperty("id");
+							}
+							if (lex.Lexum.IsEqualTo("applies_to_stat"))
+							{
+								propId = lex.MatchProperty("applies_to_stat");
+							}
+							if (lex.Lexum.IsEqualTo("value"))
+							{
+								value = Variant8.Parse(lex.MatchProperty("value"));
+							}
+							if (lex.Lexum.IsEqualTo("type"))
+							{
+								effectType = Enum.Parse<EffectValueType>(lex.MatchProperty("type"));
+							}
+							if (lex.Lexum.IsEqualTo("duration"))
+							{
+								duration = Single.Parse(lex.MatchProperty("duration"));
+							}
+						}
+
+						lex.MatchTagEnd();
+
+						DefineEffect(effectId, propId, value, duration, effectType, Array.Empty<PropertyRequirement>());
+					}
+
+					lex.MatchTagClose("definitions");
+				}
+
+				if (lex.Lexum.IsEqualTo("groups"))
+				{
+					lex.MatchTag("groups");
+
+					List<string> effects = new List<string>();
+
+					while (lex.Lexum.IsEqualTo("group"))
+					{
+						lex.MatchTagStart("group");
+
+						effects.Clear();
+
+						string groupId = lex.MatchProperty("id");
+
+						while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+						{
+							lex.Match(XmlLex.XmlLexToken.STRING);
+							lex.Match(XmlLex.XmlLexToken.EQUAL);
+							effects.Add(lex.Lexum.ToString());
+							lex.Match(XmlLex.XmlLexToken.STRING);
+						}
+
+						lex.MatchTagEnd();
+
+						DefineEffectGroup(groupId, effects.ToArray());
+					}
+
+					lex.MatchTagClose("groups");
+				}
+
+				lex.MatchTagClose("effects");
+			}
 		}
 
 		void ParseInventory(XmlLex lex, CharacterDefinitionBuilder builder)
@@ -245,7 +358,7 @@ namespace Portland.RPG
 				int width = 1;
 				int height = 1;
 
-				while (lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
+				while (lex.Token != XmlLex.XmlLexToken.TAG_END && !lex.IsEOF)
 				{
 					if (lex.Lexum.IsEqualTo("name"))
 					{
@@ -275,7 +388,7 @@ namespace Portland.RPG
 
 				builder.AddInventorySection(name, sectionTypeId, isReadOnly, width, height);
 
-				lex.MatchTagClose();
+				lex.MatchTagEnd();
 			}
 
 			lex.MatchTagClose("inventory");
@@ -285,6 +398,8 @@ namespace Portland.RPG
 		{
 			lex.MatchTag("items");
 
+			int windowSectionIndex = -1;
+
 			while (lex.Lexum.IsEqualTo("default_item"))
 			{
 				lex.MatchTagStart("default_item");
@@ -293,9 +408,11 @@ namespace Portland.RPG
 				string itemId = String.Empty;
 				int count = 1;
 				string windowSectionName = String.Empty;
-				int windowSectionIndex = 0;
+				windowSectionIndex++;
 
-				while (lex.Token != XmlLex.XmlLexToken.TAG_END && !lex.IsEOF)
+				List<ItemPropertyDefault> props = new List<ItemPropertyDefault>();
+
+				while (lex.Token != XmlLex.XmlLexToken.TAG_END && lex.Token != XmlLex.XmlLexToken.CLOSE && !lex.IsEOF)
 				{
 					if (lex.Lexum.IsEqualTo("race_or_class"))
 					{
@@ -323,17 +440,24 @@ namespace Portland.RPG
 					}
 				}
 
-				lex.MatchTagEnd();
-
-				List<ItemPropertyDefault> props = new List<ItemPropertyDefault>();
-
-				while (lex.Lexum.IsEqualTo("property"))
+				if (lex.Token == XmlLex.XmlLexToken.TAG_END)
 				{
-					lex.MatchTagStart("property");
-
-					props.Add(new ItemPropertyDefault { PropId = lex.MatchProperty("property_id"), Default = Variant8.Parse(lex.MatchProperty("default")) });
-
 					lex.MatchTagEnd();
+				}
+				else
+				{
+					lex.MatchTagClose();
+
+					while (lex.Lexum.IsEqualTo("property"))
+					{
+						lex.MatchTagStart("property");
+
+						props.Add(new ItemPropertyDefault { PropId = lex.MatchProperty("property_id"), Default = Variant8.Parse(lex.MatchProperty("default")) });
+
+						lex.MatchTagEnd();
+					}
+
+					lex.MatchTagClose("default_item");
 				}
 
 				builder.AddDefaultItem(raceOrClass, new DefaultItemSpec
@@ -341,11 +465,9 @@ namespace Portland.RPG
 					ItemId = itemId,
 					Count = count,
 					WindowSectionName = windowSectionName,
-					WindowSectionIndex = windowSectionIndex,
+					//WindowSectionIndex = windowSectionIndex,
 					Properties = props.ToArray()
 				});
-
-				lex.MatchTagClose("default_item");
 			}
 
 			lex.MatchTagClose("items");

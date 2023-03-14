@@ -123,7 +123,7 @@ namespace Portland.RPG
 
 						DefineCategory(lex.MatchProperty("name"));
 
-						lex.Match(XmlLex.XmlLexToken.CLOSE);
+						lex.Match(XmlLex.XmlLexToken.TAG_END);
 					}
 					lex.MatchTagClose("categories");
 				}
@@ -164,20 +164,20 @@ namespace Portland.RPG
 				{
 					if (lex.Lexum.IsEqualTo("id"))
 					{
-						def = new ItemPropertyDefinition { PropertyId = lex.Lexum.ToString(), IsInstancedPerItem = true };
+						def = new ItemPropertyDefinition { PropertyId = lex.MatchProperty("id"), IsInstancedPerItem = true };
 						_propertyDefinitions.Add(def.PropertyId, def);
 					}
 					else if (lex.Lexum.IsEqualTo("type"))
 					{
-						def.PropertyType = Enum.Parse<ItemPropertyType>(lex.Lexum.ToString());
+						def.PropertyType = Enum.Parse<ItemPropertyType>(lex.MatchProperty("type"));
 					}
 					else if (lex.Lexum.IsEqualTo("name"))
 					{
-						def.DisplayName = lex.Lexum.ToString();
+						def.DisplayName = lex.MatchProperty("name");
 					}
 					else if (lex.Lexum.IsEqualTo("instanced"))
 					{
-						def.IsInstancedPerItem = Boolean.Parse(lex.Lexum.ToString());
+						def.IsInstancedPerItem = Boolean.Parse(lex.MatchProperty("instanced"));
 					}
 					else
 					{
@@ -185,7 +185,7 @@ namespace Portland.RPG
 					}
 				}
 
-				lex.MatchTagClose();
+				lex.MatchTagEnd();
 			}
 		}
 
@@ -231,31 +231,37 @@ namespace Portland.RPG
 
 				lex.MatchTagClose();
 
-				while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+				while (lex.Lexum.IsEqualTo("property"))
 				{
-					lex.MatchTagStart("property");
+					while (lex.Token != XmlLex.XmlLexToken.TAG_END)
+					{
+						lex.MatchTagStart("property");
 
-					ItemPropertyBuilder propb = builder.BuildProperty(lex.MatchProperty("prop_id"));
-					
-					if (lex.Lexum.IsEqualTo("default"))
-					{
-						propb.DefaultValue(lex.MatchProperty("default"));
+						ItemPropertyBuilder propb = builder.BuildProperty(lex.MatchProperty("prop_id"));
+
+						if (lex.Lexum.IsEqualTo("default"))
+						{
+							propb.DefaultValue(lex.MatchProperty("default"));
+						}
+						else if (lex.Lexum.IsEqualTo("min"))
+						{
+							propb.Range(lex.MatchProperty("min"), lex.MatchProperty("max"));
+						}
+						else if (lex.Lexum.IsEqualTo("current"))
+						{
+							propb.Current(lex.MatchProperty("current"));
+						}
+						else
+						{
+							throw new Exception($"Unknown item property attribute {lex.Lexum}");
+						}
 					}
-					else if (lex.Lexum.IsEqualTo("min"))
-					{
-						propb.Range(lex.MatchProperty("min"), lex.MatchProperty("max"));
-					}
-					else if (lex.Lexum.IsEqualTo("current"))
-					{
-						propb.Current(lex.MatchProperty("current"));
-					}
-					else
-					{
-						throw new Exception($"Unknown item property attribute {lex.Lexum}");
-					}
+					lex.MatchTagEnd();
 				}
 
-				lex.MatchTagClose("item-def");
+				builder.Build();
+
+				lex.MatchTagClose("item_def");
 			}
 		}
 	}

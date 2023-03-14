@@ -14,7 +14,7 @@ namespace Portland.RPG
 		public String ItemId;
 		public int Count;
 		public String WindowSectionName;
-		public int WindowSectionIndex;
+		//public int WindowSectionIndex;
 		public ItemPropertyDefault[] Properties;
 	}
 
@@ -39,10 +39,11 @@ namespace Portland.RPG
 
 		public String CharId;
 		public String PropertyGroupId = String.Empty;
+		public String UtilitySetId = String.Empty;
 
-		//public string OnStatChangeBas = String.Empty;
-		public BasicProgram OnStatChangeRun = new BasicProgram();
-		//public string OnEquipChangeBas;
+		public BasicProgram OnInventoryChangeRun = new BasicProgram();
+		public BasicProgram OnLevelChangeRun = new BasicProgram();
+		public BasicProgram OnEffectRun = new BasicProgram();
 
 		public Vector<EffectGroup> EffectGroups = new Vector<EffectGroup>(4);
 
@@ -99,6 +100,12 @@ namespace Portland.RPG
 		public CharacterDefinitionBuilder PropertyGroupId(in String id)
 		{
 			Character.PropertyGroupId = id;
+			return this;
+		}
+
+		public CharacterDefinitionBuilder UtilitySetId(in String id)
+		{
+			Character.UtilitySetId = id;
 			return this;
 		}
 
@@ -159,11 +166,11 @@ namespace Portland.RPG
 
 		public void PrepareProgram()
 		{
-			var prog = Character.OnStatChangeRun;
-
 			if (_props.TryGetDefinitionSet(Character.PropertyGroupId, out var grp))
 			{
-				prog.Parse(grp.OnUpdateScript);
+				Character.OnLevelChangeRun.Parse(grp.OnLevelScript);
+				Character.OnInventoryChangeRun.Parse(grp.OnInventoryScript);
+				Character.OnEffectRun.Parse(grp.OnEffectScript);
 			}
 			else
 			{

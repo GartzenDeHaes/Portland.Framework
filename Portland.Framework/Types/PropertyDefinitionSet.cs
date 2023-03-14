@@ -10,6 +10,8 @@ namespace Portland.Types
 	{
 		public string SetId;
 		public PropertyDefinition[] Properties;
-		public string OnUpdateScript = String.Empty;
+		public string OnLevelScript = String.Empty;
+		public string OnInventoryScript = String.Empty;
+		public string OnEffectScript = String.Empty;
 	}
 }

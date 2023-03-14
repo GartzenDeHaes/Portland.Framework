@@ -11,9 +11,13 @@ namespace Portland.RPG
 	{
 		InventoryWindowGrid[] _windowAreas;
 
+		public Action<int> OnSelectionChanged;
+
 		public readonly int WindowTypeId;
 		public readonly int WindowInstanceId;
 		public readonly string WindowTitle;
+
+		int _selected;
 
 		public int SlotCount
 		{
@@ -30,7 +34,12 @@ namespace Portland.RPG
 
 		public int SelectedSlot
 		{
-			get; set;
+			get { return _selected; }
+			set 
+			{
+				_selected = value;
+				OnSelectionChanged?.Invoke(value);
+			}
 		}
 
 		public ItemStack this[int index]
@@ -97,6 +106,7 @@ namespace Portland.RPG
 			}
 
 			area.MoveOrMergeItem(item);
+
 			return item.StackCount == 0;
 		}
 
@@ -124,6 +134,17 @@ namespace Portland.RPG
 					grid[winIndex] = item;
 					return true;
 				}
+			}
+
+			return false;
+		}
+
+		public bool TryMergSectionItem(string winGridName, ItemStack item)
+		{
+			if (TryGetWindowSection(winGridName, out var grid))
+			{
+				grid.MoveOrMergeItem(item);
+				return true;
 			}
 
 			return false;

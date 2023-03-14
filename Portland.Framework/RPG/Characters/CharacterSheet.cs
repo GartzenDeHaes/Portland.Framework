@@ -5,6 +5,7 @@ using Portland.AI;
 using Portland.Basic;
 using Portland.Collections;
 using Portland.Interp;
+using Portland.Mathmatics;
 using Portland.Types;
 
 namespace Portland.RPG
@@ -12,15 +13,18 @@ namespace Portland.RPG
 	[Serializable]
 	public sealed class CharacterSheet : ICommandRunner
 	{
-		public PropertySet Stats;
-		
+		//public PropertySet Stats;
+		IBlackboard<string> _stats;
+
 		public ItemCollection Inventory;
 		public InventoryWindow InventoryWindow;
 
 		// derived stats (AP, AC, Carry Weight, HP, Melee Damage, Companion Nerve, UnArmed Damage, Weapon Damage)
 		// https://fallout.fandom.com/wiki/Fallout:_New_Vegas_SPECIAL#Derived_statistics
 		public ExecutionContext BasCtx;
-		public BasicProgram BasOnChange;
+		//public BasicProgram BasOnInventory;
+		//public BasicProgram BasOnLevel;
+		//public BasicProgram BasOnEffect;
 
 		// blackboard
 		// achivements
@@ -34,24 +38,31 @@ namespace Portland.RPG
 		public readonly EffectGroup ClassEffectGroup;
 		public readonly EffectGroup FactionEffectGroup;
 
+		readonly string _levelStatId;
+		readonly string _xpStatId;
+
 		public CharacterSheet
 		(
 			CharacterDefinition def, 
-			PropertySet props,
+			IBlackboard<string> props,
 			ExecutionContext basctx,
 			EffectGroup raceEffectGroup,
 			EffectGroup classEffectGroup,
-			EffectGroup factionEffectGroup
+			EffectGroup factionEffectGroup,
+			string levelStatId = "LV",
+			string xpStatId = "XP"
 		)
 		{
 			Definition = def;
-			Stats = props;
+			_stats = props;
 			RaceEffectGroup = raceEffectGroup;
 			ClassEffectGroup = classEffectGroup;
 			FactionEffectGroup = factionEffectGroup;
 			BasCtx = basctx;
-
 			BasCtx.UserData = this;
+
+			_levelStatId = levelStatId;
+			_xpStatId = xpStatId;
 
 			Inventory = new ItemCollection("MAIN", def.TotalInventorySlots);
 			
@@ -67,8 +78,94 @@ namespace Portland.RPG
 			AddEffectGroup(classEffectGroup);
 			AddEffectGroup(factionEffectGroup);
 
-			BasOnChange = def.OnStatChangeRun;
-			BasOnChange.Execute(BasCtx);
+			Inventory.OnCollectionChanged += OnInventoryChanged;
+			InventoryWindow.OnSelectionChanged += OnInventoryChanged;
+
+			Definition.OnLevelChangeRun.Execute(BasCtx);
+			Definition.OnEffectRun.Execute(BasCtx);
+		}
+
+		public float GetStat(string propId)
+		{
+			return _stats.Get(propId).Value;
+		}
+
+		public bool TryGetStat(string propId, out float value)
+		{
+			if (_stats.TryGetValue(propId, out var prop))
+			{
+				value = prop.Value;
+				return true;
+			}
+			value = 0;
+			return false;
+		}
+
+		public bool TrySetStat(string propId, float value)
+		{
+			if (_stats.TryGetValue(propId, out var prop))
+			{
+				prop.Set(value);
+
+				if (propId == _xpStatId)
+				{
+					if (prop.Value == prop.Max)
+					{
+						if (_stats.TryGetValue(_levelStatId, out var lvProp))
+						{
+							lvProp.Value = lvProp.Value + 1;
+
+							prop.Value = prop.Definition.Minimum;
+
+							Definition.OnLevelChangeRun.Execute(BasCtx);
+						}
+					}
+				}
+				else if (propId == _levelStatId)
+				{
+					Definition.OnLevelChangeRun.Execute(BasCtx);
+				}
+
+				return true;
+			}
+			return false;
+		}
+
+		public float GetMaximum(string propId)
+		{
+			return _stats.Get(propId).Max;
+		}
+
+		public bool TryGetMaximum(string propId, out float value)
+		{
+			if (_stats.TryGetValue(propId, out var prop))
+			{
+				value = prop.Max;
+				return true;
+			}
+			value = 0;
+			return false;
+		}
+
+		public bool TrySetMaximum(string propId, float value)
+		{
+			if (_stats.TryGetValue(propId, out var prop))
+			{
+				prop.Max = value;
+				return true;
+			}
+			return false;
+		}
+
+		public bool TryGetProbability(string propId, out DiceTerm value)
+		{
+			if (_stats.TryGetValue(propId, out var prop))
+			{
+				value = prop.Definition.Probability;
+				return true;
+			}
+			value = default(DiceTerm);
+			return false;
 		}
 
 		public void AddEffectGroup(EffectGroup effectGroup)
@@ -100,26 +197,28 @@ namespace Portland.RPG
 
 		void EffectApply(Effect effect)
 		{
-			Debug.Assert(Stats.HasProperty(effect.PropertyId));
+			Debug.Assert(_stats.ContainsKey(effect.PropertyId));
 
 			switch (effect.Op)
 			{
 				case EffectValueType.CurrentDelta:
-					Stats.TrySetValue(effect.PropertyId, Stats.GetValue(effect.PropertyId) + effect.Value);
+					TrySetStat(effect.PropertyId, _stats.Get(effect.PropertyId).Value + effect.Value);
 					break;
 				case EffectValueType.CurrentAbs:
-					Stats.TrySetValue(effect.PropertyId, effect.Value);
+					TrySetStat(effect.PropertyId, effect.Value);
 					break;
 				case EffectValueType.MaxDelta:
-					Stats.TrySetMaximum(effect.PropertyId, Stats.GetMaximum(effect.PropertyId) + effect.Value);
+					TrySetMaximum(effect.PropertyId, _stats.GetMaximum(effect.PropertyId) + effect.Value);
 					break;
 				case EffectValueType.MaxAbs:
-					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
+					TrySetMaximum(effect.PropertyId, effect.Value);
 					break;
 				//case EffectValueType.Probability:
 				//	Stats.TrySetProbability(effect.PropertyId, DiceTerm.Parse(effect.Value.ToString()));
 				//	break;
 			}
+
+			Definition.OnEffectRun.Execute(BasCtx);
 		}
 
 		void EffectRemove(Effect effect)
@@ -127,23 +226,25 @@ namespace Portland.RPG
 			switch (effect.Op)
 			{
 				case EffectValueType.CurrentDelta:
-					Stats.TrySetValue(effect.PropertyId, Stats.GetValue(effect.PropertyId) - effect.Value);
+					TrySetStat(effect.PropertyId, _stats.Get(effect.PropertyId).Value - effect.Value);
 					break;
 				case EffectValueType.CurrentAbs:
-					Stats.TrySetValue(effect.PropertyId, effect.Value);
+					TrySetStat(effect.PropertyId, effect.Value);
 					break;
 				case EffectValueType.MaxDelta:
-					Stats.TrySetMaximum(effect.PropertyId, Stats.GetMaximum(effect.PropertyId) - effect.Value);
+					TrySetMaximum(effect.PropertyId, _stats.GetMaximum(effect.PropertyId) - effect.Value);
 					break;
 				case EffectValueType.MaxAbs:
-					Stats.TrySetMaximum(effect.PropertyId, effect.Value);
+					TrySetMaximum(effect.PropertyId, effect.Value);
 					break;
 			}
+
+			Definition.OnEffectRun.Execute(BasCtx);
 		}
 
-		public void SetupBlackboard(IBlackboard<string> bb)
+		void OnInventoryChanged(int index)
 		{
-			Stats.AddToBlackBoard(bb);
+			Definition.OnInventoryChangeRun.Execute(BasCtx);
 		}
 	}
 }

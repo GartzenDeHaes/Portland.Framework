@@ -47,12 +47,12 @@ namespace Portland.RPG
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player'>
+	<character_def char_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_util_id='Player'/>
-	<character agent_id='Player' char_util_id='Player'/>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
 Title: Start
@@ -92,7 +92,7 @@ Coach: This is a line of test dialogue.
 		}
 
 		[Test]
-		public void BBaseChoiceTest()
+		public void BChoiceTest()
 		{
 			const string xml = @"<world>
 <utility>
@@ -124,12 +124,12 @@ Coach: This is a line of test dialogue.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player'>
+	<character_def char_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_util_id='Player'/>
-	<character agent_id='Player' char_util_id='Player'/>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
 Title: Start
@@ -218,7 +218,7 @@ Coach: HP is {$Player.HP}.
 		}
 
 		[Test]
-		public void CBaseActionTest()
+		public void CActionTest()
 		{
 			const string xml = @"<world>
 <utility>
@@ -250,12 +250,12 @@ Coach: HP is {$Player.HP}.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player'>
+	<character_def char_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_util_id='Player'/>
-	<character agent_id='Player' char_util_id='Player'/>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
 Title: Start
@@ -333,7 +333,7 @@ Coach: One was selected.
 		}
 
 		[Test]
-		public void DBaseDConditionsTest()
+		public void DConditionsTest()
 		{
 			const string xml = @"<world>
 <utility>
@@ -355,7 +355,7 @@ Coach: One was selected.
 		</agenttype>
 	</agenttypes>
 	<agents>
-		<agent type='base' name='Player' />
+		<agent type='base' name='IdleOnly' />
 	</agents>
 </utility>
 <properties>
@@ -367,12 +367,12 @@ Coach: One was selected.
 	<set id='Player' STR INT HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player'>
+	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_util_id='Player'/>
-	<character agent_id='Player' char_util_id='Player'/>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
 Title: Start

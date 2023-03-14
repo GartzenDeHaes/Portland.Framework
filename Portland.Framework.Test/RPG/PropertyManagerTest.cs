@@ -184,7 +184,9 @@ namespace Portland.RPG
 <property category='none' name='int' desc='intellegence' min='0' max='100' />
 </properties><property_sets>
 <set id='npc' str int>
+<script event='on_level'>
 REM === BAS SCRIPT ===
+</script>
 </set>
 </property_sets>";
 
@@ -202,7 +204,7 @@ REM === BAS SCRIPT ===
 
 			Assert.True(pman.TryGetDefinitionSet("npc", out var setdef));
 			Assert.That(setdef.Properties.Count, Is.EqualTo(2));
-			Assert.That(setdef.OnUpdateScript.Substring(0, 4), Is.EqualTo("REM "));
+			Assert.That(setdef.OnLevelScript.Substring(0, 4), Is.EqualTo("REM "));
 		}
 
 		[Test]
@@ -214,10 +216,13 @@ REM === BAS SCRIPT ===
 <property category='STATS' name='health' desc='Health' start='100' min='0' max='100' change_per_sec='0.05'>
 <alert flag='ALERT_HEALTH' type='Below' value='20' />
 </property>
-</properties><property_sets>
-<set id='npc' health>
+</properties>
+<property_sets>
+	<set id='npc' health>
+<script event='on_level'>
 REM === BAS SCRIPT ===
-</set>
+</script>
+	</set>
 </property_sets>";
 
 			XmlLex lex = new XmlLex(xml);

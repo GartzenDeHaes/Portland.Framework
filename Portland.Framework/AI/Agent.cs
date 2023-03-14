@@ -44,7 +44,7 @@ namespace Portland.AI
 			IUtilityFactory utility,
 			ICharacterManager charMan,
 			IBlackboard<String> globalFacts,
-			in String charIdUtilId, 
+			in String charId, 
 			in String agentId,
 			in string shortName,
 			in string longName,
@@ -54,13 +54,13 @@ namespace Portland.AI
 		)
 		{
 			AgentId = agentId;
-			StatUtilitySetId = charIdUtilId;
+			StatUtilitySetId = charId;
 			ShortName = shortName;
 			LongName = longName;
 
 			ScriptCtx = new ExecutionContext(globalFuncs, this, null);
 
-			UtilitySet = utility.CreateAgentInstance(charIdUtilId, agentId);
+			UtilitySet = utility.CreateAgentInstance(charMan.GetCharacterDefinition(charId).UtilitySetId, agentId);
 
 			Facts = new Blackboard<String>(globalFacts);
 			Facts.Add("objective", UtilitySet.CurrentObjective);
@@ -69,9 +69,9 @@ namespace Portland.AI
 			Facts.Add(_shortNamePropDef.PropertyId, new PropertyValue(_shortNamePropDef) { Value = shortName });
 			Facts.Add(_longNamePropDef.PropertyId, new PropertyValue(_longNamePropDef) { Value = longName });
 
-			Character = charMan.CreateCharacter(charIdUtilId, raceEffectGrp, classEffectGrp, faction, UtilitySet, ScriptCtx);
+			Character = charMan.CreateCharacter(charId, raceEffectGrp, classEffectGrp, faction, UtilitySet, Facts, ScriptCtx);
 
-			Character.SetupBlackboard(Facts);
+			//Character.SetupBlackboard(Facts);
 
 			foreach (var prop in UtilitySet.Properties.Values)
 			{

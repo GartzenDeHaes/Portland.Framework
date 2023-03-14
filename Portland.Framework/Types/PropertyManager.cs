@@ -41,7 +41,7 @@ namespace Portland.Types
 			var set = new PropertyDefinitionSet { 
 				SetId = setName, 
 				Properties = new PropertyDefinition[propIds.Length],
-				OnUpdateScript = onUpdateScript
+				OnLevelScript = onUpdateScript
 			};
 
 			for (int i = 0; i < propIds.Length; i++)
@@ -273,9 +273,32 @@ namespace Portland.Types
 			}
 
 			lex.Match(XmlLex.XmlLexToken.CLOSE);
-			lex.NextText();
-			set.OnUpdateScript = lex.Lexum.ToString();
-			lex.Next();
+
+			while (lex.Lexum.IsEqualTo("script"))
+			{
+				lex.MatchTagStart("script");
+				string onEvent = lex.MatchProperty("event");
+				lex.MatchTagClose();
+
+				lex.NextText();
+
+				if (onEvent.Equals("on_inventory"))
+				{
+					set.OnInventoryScript = lex.Lexum.ToString();
+				}
+				else if (onEvent.Equals("on_effect"))
+				{
+					set.OnEffectScript = lex.Lexum.ToString();
+				}
+				else if (onEvent.Equals("on_level"))
+				{
+					set.OnLevelScript = lex.Lexum.ToString();
+
+				}
+				lex.Next();
+
+				lex.MatchTagClose("script");
+			}
 			lex.MatchTagClose("set");
 		}
 

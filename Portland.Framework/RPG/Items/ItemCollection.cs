@@ -50,6 +50,7 @@ namespace Portland.RPG
 			{
 				ClearSlot(index);
 			}
+			OnCollectionChanged?.Invoke(index);
 		}
 
 		public ItemCollection(string name, int numSlots)
