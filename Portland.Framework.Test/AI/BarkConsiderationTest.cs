@@ -61,7 +61,8 @@ namespace Portland.AI.Barks
 			//StringTable strings = new StringTable();
 			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), new RandMin());
 
-			world.CharacterManager.CreateCharacterDefinition("human");
+			world.CharacterManager.CreateCharacterDefinition("human")
+				.UtilitySetId("human");
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddTestObjectives();

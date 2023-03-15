@@ -15,6 +15,8 @@ using Portland.Text;
 using Portland.Threading;
 using Portland.Types;
 
+using static Portland.Network.TcpConnection;
+
 namespace Portland.RPG.Dialogue
 {
 	public sealed class DialogueManager
@@ -318,12 +320,6 @@ namespace Portland.RPG.Dialogue
 			return _nodesById.ContainsKey(nodeId);
 		}
 
-		void AddNode(DialogueNode node)
-		{
-			//node.RuntimeId = _nodes.AddAndGetIndex(node);
-			_nodesById.Add(node.NodeId, node);
-		}
-
 		//string Parse_ReadLine(SimpleLex lex)
 		//{
 		//	lex.ReadToEol();
@@ -521,16 +517,28 @@ more_expr	::= ":" <expr> <more_expr>
 			if (lex.Lexum[0] == '-' || lex.Lexum[0] == '[')
 			{
 				OptionsNode cnode = new OptionsNode(_maxChoices) { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
-				AddNode(cnode);
+				_nodesById.Add(cnode.NodeId, cnode);
 
 				ParseNodeText_Choices(lex, cnode);
 			}
 			else
 			{
 				SayNode node = new SayNode() { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
-				AddNode(node);
 
 				ParseNodeText_Single(lex, node);
+
+				if (lex.Lexum[0] == '-' || lex.Lexum[0] == '[')
+				{
+					OptionsNode cnode = new OptionsNode(_maxChoices) { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
+					cnode.PostActions = node.PostActions;
+					cnode.Text = node.Text;
+					_nodesById.Add(cnode.NodeId, cnode);
+					ParseNodeText_Choices(lex, cnode);
+				}
+				else
+				{
+					_nodesById.Add(node.NodeId, node);
+				}
 			}
 		}
 

@@ -49,6 +49,8 @@ namespace Portland.AI.Utility
 			GetGlobalProperty("time").Set(_clock.TimeOfDayNormalized01);
 
 			propMan.DefineProperty_HourOfDay("hour", true);
+
+			_setsByName.Add(String.Empty, new UtilitySetDefinition() { AgentName = String.Empty, BaseObjectiveSetName = String.Empty });
 		}
 
 		public PropertyValue GetGlobalProperty(in String name)

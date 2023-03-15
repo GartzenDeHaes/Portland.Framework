@@ -419,7 +419,9 @@ DO
 			//world.Flags.IsUserFlag03 = true;
 			//world.Flags.IsUserFlag04 = true;
 
-			world.CharacterManager.CreateCharacterDefinition("human");
+			world.CharacterManager.CreateCharacterDefinition("human")
+				.UtilitySetId("human");
+
 			world.CreateAgent("human", "COACH");
 			world.CreateAgent("human", "ELLIS");
 			world.CreateAgent("human", "NICK");

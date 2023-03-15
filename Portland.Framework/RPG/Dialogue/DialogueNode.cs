@@ -31,6 +31,10 @@ namespace Portland.RPG.Dialogue
 		public string AgentId;
 		public NodeType DialogueType;
 
+		public TextTemplate Text;
+
+		public string CurrentText = String.Empty;
+
 		public List<Tag> Tags;
 
 		// Entry actions
@@ -44,12 +48,15 @@ namespace Portland.RPG.Dialogue
 			DialogueType = type;
 		}
 
-		public abstract void Activate
+		public virtual void Activate
 		(
 			in WorldStateFlags? worldFlags,
 			in IBlackboard<string> globalFacts,
 			in IDictionary<string, Agent> agentsById
-		);
+		)
+		{
+			CurrentText = Process(globalFacts, agentsById, Text);
+		}
 
 		protected string Process
 		(
@@ -58,6 +65,11 @@ namespace Portland.RPG.Dialogue
 			TextTemplate tt
 		)
 		{
+			if (tt == null)
+			{
+				return String.Empty;
+			}
+
 			StringBuilder buf = new StringBuilder();
 
 			for (int i = 0; i < tt.Texts.Count; i++)

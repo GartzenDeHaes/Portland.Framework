@@ -29,6 +29,8 @@ namespace Portland.RPG.Dialogue
 			in IDictionary<string, Agent> agentsById
 		)
 		{
+			base.Activate(worldFlags, globalFacts, agentsById);
+
 			ActiveCount = 0;
 			int activePos = 0;
 			DialogueOption choice;
