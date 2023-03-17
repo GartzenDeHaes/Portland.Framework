@@ -311,7 +311,7 @@ Coach: One was selected.
 			Assert.That(msgLog.ToString().Trim(), Is.EqualTo("1;"));
 
 			world.Update(1f);
-			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(3));
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(2));
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
 			Assert.That(msgLog.ToString().Trim(), Is.EqualTo("1;2;3;"));
@@ -321,9 +321,9 @@ Coach: One was selected.
 			world.DialogueMan.ChooseOption(0);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(3));
 			world.Update(1f);
-			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(3));
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(2));
 			world.Update(1f);
-			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(3));
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(2));
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
 
@@ -569,7 +569,7 @@ Coach: Chose 1.
 	<character agent_id='Nick' char_id='Player'/>
 </characters>
 <dialogues>
-Bark: Bare_Test
+Bark: Bare_Test 100%
 ---
 Coach: Text line.
 ===

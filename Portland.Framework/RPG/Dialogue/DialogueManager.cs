@@ -483,11 +483,18 @@ more_expr	::= ":" <expr> <more_expr>
 		void ParseBarks(SimpleLex lex, List<DialogueOption> barks)
 		{
 			//List<DialogueCommand> preActions = new List<DialogueCommand>();
+			float probability = 1f;
 
 			lex.MatchIgnoreCase("Bark");
 			lex.Match(":");
 			string nodeId = lex.Lexum.ToString();
 			lex.Match(SimpleLex.TokenType.ID);
+			if (lex.Token == SimpleLex.TokenType.INTEGER || lex.Token == SimpleLex.TokenType.FLOAT)
+			{
+				probability = Math.Clamp(Single.Parse(lex.Lexum.ToString()) / 100f, 0, 1f);
+				lex.Next();
+				lex.Match("%");
+			}
 			lex.NextLine();
 
 			if (lex.Lexum.IsEqualToIgnoreCase("Agent"))
