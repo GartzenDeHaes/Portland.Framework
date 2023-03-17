@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Portland.AI;
+using Portland.AI.Barks;
 using Portland.RPG.Dialogue;
 
 namespace Portland.RPG
@@ -55,7 +56,7 @@ namespace Portland.RPG
 	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
-Title: Start
+Node: Start
 Tags: #tag1 #tag:two
 ---
 Coach: This is a line of test dialogue.
@@ -132,12 +133,12 @@ Coach: This is a line of test dialogue.
 	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
-Title: Start
+Node: Start
 ---
 Coach: This is a line of test dialogue.
 	(jump Choose01)
 ===
-Title: Choose01
+Node: Choose01
 ---
 -> Option 1
 	(jump ResultOf01)
@@ -146,11 +147,11 @@ Title: Choose01
 -> Goodbye
 	(stop)
 ===
-Title: ResultOf01
+Node: ResultOf01
 ---
 Coach: One was selected.
 ===
-Title: ResultOf02
+Node: ResultOf02
 ---
 Coach: HP is {$Player.HP}.
 ===
@@ -258,7 +259,7 @@ Coach: HP is {$Player.HP}.
 	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
-Title: Start
+Node: Start
 ---
 (send 'LOG' 1)
 (set 'Player.MyVar' 42)
@@ -267,7 +268,7 @@ Coach: This is a line of test dialogue.
 	(send 'LOG' '2')
 	(jump Choose01)
 ===
-Title: Choose01
+Node: Choose01
 ---
 (send 'LOG' '3')
 (clear 'Player.MyVar')
@@ -276,7 +277,7 @@ Title: Choose01
 	(send 'LOG' '4')
 	(jump ResultOf01)
 ===
-Title: ResultOf01
+Node: ResultOf01
 ---
 (add 'Player.HP' -20)
 (set 'test_var' 'bob')
@@ -375,7 +376,7 @@ Coach: One was selected.
 	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
-Title: Start
+Node: Start
 ---
 [Player.INT LESS THAN 5] -> No smart.
 	(jump ResultOf01)
@@ -388,19 +389,19 @@ Title: Start
 -> Goodbye
 	(stop)
 ===
-Title: ResultOf01
+Node: ResultOf01
 ---
 Coach: Dum dum.
 ===
-Title: ResultOf02
+Node: ResultOf02
 ---
 Coach: INT is {$Player.INT}.
 ===
-Title: ResultOf03
+Node: ResultOf03
 ---
 Coach: INT okay.
 ===
-Title: ResultOf04
+Node: ResultOf04
 ---
 Coach: Something else.
 ===
@@ -494,7 +495,7 @@ Coach: Something else.
 	<character agent_id='Player' char_id='Player'/>
 </characters>
 <dialogues>
-Title: Start
+Node: Start
 ---
 Coach: This is text.
 -> Choice 1.
@@ -502,7 +503,7 @@ Coach: This is text.
 -> Goodbye
 	(stop)
 ===
-Title: ResultOf01
+Node: ResultOf01
 ---
 Coach: Chose 1.
 ===
@@ -524,8 +525,95 @@ Coach: Chose 1.
 			Assert.That(((OptionsNode)world.DialogueMan.Current).Active[1].CurrentText, Is.EqualTo("Goodbye"));
 			Assert.That(((OptionsNode)world.DialogueMan.Current).CurrentText, Is.EqualTo("This is text."));
 
+			world.DialogueMan.EndDialog();
+		}
+
+		[Test]
+		public void FBarkTest()
+		{
+			const string xml = @"<world>
+<utility>
+	<utility_properties>
+		<properties>
+			<property name='const30%' type='float' global='true' min='0' max='1' start='0.3' start_rand='false' change_per_hour='0' />
+			<property name='weekend' type='bool' global='true' min='0' max='1' start_rand='false' />
+			<property name='daylight' type='bool' global='true' min='0' max='1' start='0' start_rand='false' />
+		</properties>
+	</utility_properties>
+	<objectives>
+		<objective name='idle' time='20' priority='3' interruptible='true' cooldown='0'>
+			<consideration property='const30%' weight='1' func='normal' />
+		</objective>
+	</objectives>
+	<agenttypes>
+		<agenttype type='base'>
+			<objectives><idle /></objectives>
+		</agenttype>
+	</agenttypes>
+	<agents>
+		<agent type='base' name='IdleOnly' />
+	</agents>
+</utility>
+<properties>
+	<property name='HP' type='float' category='VITALS' min='0' max='100' start='100' change_per_sec='0.1' from_utility='true'></property>
+</properties>
+<property_sets>
+	<set id='Player' HP />
+</property_sets>
+<character_types>
+	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	</character_def>
+</character_types>
+<characters>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Nick' char_id='Player'/>
+</characters>
+<dialogues>
+Bark: Bare_Test
+---
+Coach: Text line.
+===
+Bark: See_Barrel
+---
+[Coach.IS_DEAD NOT SET]
+Coach: This is text.
+(duration 2)
+===
+</dialogues>
+</world>";
+			var world = World.Parse(xml);
+
+			world.Update(1f);
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
+			Assert.That(world.DialogueMan.Current, Is.Null);
+
+			world.DialogueMan.QueryBarkEvent(new BarkEvent { Concept = "Idle" });
+
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
+			Assert.That(world.DialogueMan.Current, Is.Null);
+
+			world.DialogueMan.QueryBarkEvent(new BarkEvent { Concept = "Bare_Test" });
+			Assert.NotNull(world.DialogueMan.Current);
+			Assert.That(world.DialogueMan.Current, Is.TypeOf<OptionsNode>());
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
 
 			world.DialogueMan.EndDialog();
+
+			world.Update(1f);
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
+
+			world.DialogueMan.QueryBarkEvent(new BarkEvent { Concept = "See_Barrel" });
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(1));
+			Assert.That(world.DialogueMan.Current, Is.TypeOf<OptionsNode>());
+			Assert.That(((OptionsNode)world.DialogueMan.Current).Active[0].CurrentText, Is.EqualTo("This is text."));
+
+			world.Update(1f);
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
+			Assert.That(world.DialogueMan.Current, Is.Not.Null);
+
+			world.Update(2f);
+			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
+			Assert.That(world.DialogueMan.Current, Is.Null);
 		}
 	}
 }

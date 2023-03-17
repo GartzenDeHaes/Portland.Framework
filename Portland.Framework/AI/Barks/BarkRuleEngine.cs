@@ -55,7 +55,7 @@ namespace Portland.AI.Barks
 				else
 				{
 					// arg1 is the object
-					TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Actor = cmd.Rule.ObserverName });
+					TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Agent = cmd.Rule.ObserverName });
 				}
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameSetVar)
@@ -87,7 +87,7 @@ namespace Portland.AI.Barks
 			}
 			else if (cmd.CommandName == BarkCommand.CommandConcept)
 			{
-				TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Actor = cmd.Rule.ObserverName });
+				TryMatch(new ThematicEvent { Action = ThematicEvent.ActionSay, Concept = cmd.Arg1, Agent = cmd.Rule.ObserverName });
 			}
 			else if (cmd.CommandName == BarkCommand.CommandNameDontSay)
 			{
@@ -203,7 +203,7 @@ namespace Portland.AI.Barks
 					continue;
 				}
 
-				if (!String.IsNullOrEmpty(rule.ActorName) && rule.ActorName != happened.Actor)
+				if (!String.IsNullOrEmpty(rule.ActorName) && rule.ActorName != happened.Agent)
 				{
 					continue;
 				}

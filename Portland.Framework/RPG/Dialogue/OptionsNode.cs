@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Portland.AI;
+using Portland.AI.Barks;
 using Portland.Collections;
+using Portland.Text;
 
 namespace Portland.RPG.Dialogue
 {
@@ -20,6 +22,37 @@ namespace Portland.RPG.Dialogue
 		: base(NodeType.Choice)
 		{
 			Active = new DialogueOption[maxActiveChoices];
+		}
+
+		public bool Query
+		(
+			in WorldStateFlags? worldFlags,
+			in IBlackboard<string> globalFacts,
+			in IDictionary<string, Agent> agentsById,
+			in BarkEvent tevent
+		)
+		{
+			//base.Activate(worldFlags, globalFacts, agentsById);
+
+			ActiveCount = 0;
+			Active[0] = null;
+			DialogueOption choice;
+
+			for (int i = 0; i < Options.Length; i++)
+			{
+				choice = Options[i];
+
+				if (choice.TryMatch(worldFlags, globalFacts, agentsById, tevent))
+				{
+					choice.Activate(globalFacts, agentsById);
+
+					Active[0] = choice;
+					ActiveCount = 1;
+
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public override void Activate

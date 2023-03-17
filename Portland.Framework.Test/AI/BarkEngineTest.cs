@@ -106,7 +106,7 @@ DO
 			{
 				Action = ThematicEvent.ActionSee,
 				Concept = "barrel",
-				Actor = "XBOT"
+				Agent = "XBOT"
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(ruleId, Is.EqualTo("saw_barrel_01"));

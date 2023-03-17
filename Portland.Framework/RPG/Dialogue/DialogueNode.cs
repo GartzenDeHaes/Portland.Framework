@@ -23,7 +23,8 @@ namespace Portland.RPG.Dialogue
 		public enum NodeType
 		{
 			Text = 0,
-			Choice = 1
+			Choice = 1,
+			Bark = 2
 		}
 
 		public string NodeId;

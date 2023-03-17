@@ -108,7 +108,7 @@ namespace Portland.RPG
 		{
 			string xml = @"<world>
 <dialogues>
-Title: Start
+Node: Start
 ---
 CharacterId: This is a line of test dialogue.
 ===

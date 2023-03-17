@@ -10,6 +10,7 @@ using Portland.AI.Barks;
 using Portland.AI.NLP;
 using Portland.Collections;
 using Portland.Mathmatics;
+using Portland.Text;
 
 namespace Portland.RPG.Dialogue
 {
@@ -36,6 +37,10 @@ namespace Portland.RPG.Dialogue
 		public float Probability = 1f;
 		public bool NoRetryIfProbablityFails;
 
+		public string Concept;
+		/// <summary>Actor of event for filtering</summary>
+		public string AgentCharId;
+
 		public List<DialogueNode.Tag> Tags = new List<DialogueNode.Tag>();
 
 		// Choice specific Post actions
@@ -46,6 +51,25 @@ namespace Portland.RPG.Dialogue
 		public DialogueOption(int optionNum)
 		{
 			OptionNum = optionNum;
+		}
+
+		public bool TryMatch
+		(
+			in WorldStateFlags? worldFlags,
+			in IBlackboard<string> globalFacts,
+			in IDictionary<string, Agent> agentsById,
+			in BarkEvent tevent 
+		)
+		{
+			if 
+			(
+				StringHelper.LikeOrNullOrEmpty(Concept, tevent.Concept) && 
+				StringHelper.LikeOrNullOrEmpty(AgentCharId, tevent.Agent)
+			)
+			{
+				return TryMatch(worldFlags, globalFacts, agentsById);
+			}
+			return false;
 		}
 
 		public bool TryMatch
@@ -136,11 +160,13 @@ namespace Portland.RPG.Dialogue
 		public void RecalcPriority()
 		{
 			Priority = WorldFlagsSet.Bits.NumberOfBitsSet() +
-				 WorldFlagsClear.Bits.NumberOfBitsSet() +
-				 //(PlayerClass == "*" ? 0 : 1) +
-				 PlayerFlags.Count +
-				 WorldFilters.Count +
-				 PlayerFilters.Count;// +
+				WorldFlagsClear.Bits.NumberOfBitsSet() +
+				//(PlayerClass == "*" ? 0 : 1) +
+				PlayerFlags.Count +
+				WorldFilters.Count +
+				PlayerFilters.Count +
+				((String.IsNullOrEmpty(AgentCharId) || AgentCharId == "*") ? 0 : 1)
+				;// +
 											//(Probability < 1f ? 1 : 0);
 		}
 	}

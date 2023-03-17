@@ -9,13 +9,12 @@ using System.Xml.Linq;
 
 using Portland.AI;
 using Portland.AI.Barks;
+using Portland.AI.BehaviorTree;
 using Portland.AI.NLP;
 using Portland.Collections;
 using Portland.Text;
 using Portland.Threading;
 using Portland.Types;
-
-using static Portland.Network.TcpConnection;
 
 namespace Portland.RPG.Dialogue
 {
@@ -31,6 +30,10 @@ namespace Portland.RPG.Dialogue
 		public static readonly String10 MessageName_DoChooseOption = new String10("DLG.DO_SEL");
 		public static readonly String10 MessageName_DoEndDialog = new String10("DLG.DO_END");
 
+		public static readonly String10 MessageName_DoQueryBark = new String10("BARK.EVENT");
+		public static readonly String10 MessageName_OnStartBark = new String10("BARK.SHOW");
+		public static readonly String10 MessageName_OnEndBark = new String10("BARK.END");
+
 		Queue<DialogueCommand> _running = new Queue<DialogueCommand>();
 
 		WorldStateFlags? _worldState;
@@ -43,6 +46,8 @@ namespace Portland.RPG.Dialogue
 
 		/// <summary>Nodes by nodeId</summary>
 		Dictionary<String, DialogueNode> _nodesById = new Dictionary<String, DialogueNode>();
+
+		OptionsNode _barks = new(1) { NodeId = "BARKS", DialogueType = DialogueNode.NodeType.Bark };
 
 		int _maxChoices;
 
@@ -71,13 +76,18 @@ namespace Portland.RPG.Dialogue
 			_bus.DefineMessage(MessageName_OnNextTextDialog);
 			_bus.DefineMessage(MessageName_OnNextChoiceDialog);
 			_bus.DefineMessage(MessageName_OnEndDialog);
+			_bus.DefineMessage(MessageName_DoQueryBark);
+			_bus.DefineMessage(MessageName_OnStartBark);
+			_bus.DefineMessage(MessageName_OnEndBark);
 
 			_bus.Subscribe(nameof(DialogueManager), MessageName_DoStartDialog, (msg) => { StartDialog(msg.Arg); });
 			_bus.Subscribe(nameof(DialogueManager), MessageName_DoEndDialog, (msg) => { EndDialog(); });
 			_bus.Subscribe(nameof(DialogueManager), MessageName_DoChooseOption, (msg) => { ChooseOption(msg.Arg); });
+			_bus.Subscribe(nameof(DialogueManager), MessageName_DoQueryBark, (msg) => { QueryBarkEvent((BarkEvent)msg.Data); });
 		}
 
 		float _waitTime;
+		DialogueCommand _runningCmd;
 
 		public void Update(float deltaTime)
 		{
@@ -90,9 +100,10 @@ namespace Portland.RPG.Dialogue
 					return;
 				}
 
-				Debug.Assert(_running.Peek().CommandName == DialogueCommand.CommandNameWait);
-
-				_running.Dequeue();
+				if (_runningCmd.CommandName == DialogueCommand.CommandNameDuration)
+				{
+					EndDialog();
+				}
 			}
 
 			while (_running.Count > 0 && _waitTime < 0.0001f)
@@ -103,48 +114,49 @@ namespace Portland.RPG.Dialogue
 
 		void RunOne()
 		{
-			var cmd = _running.Peek();
+			_runningCmd = _running.Dequeue();
 
-			if (cmd.CommandName == DialogueCommand.CommandNameWait)
+			if (_runningCmd.CommandName == DialogueCommand.CommandNameWait || _runningCmd.CommandName == DialogueCommand.CommandNameDuration)
 			{
-				_waitTime = Single.Parse(cmd.ArgS);
-
-				if (_waitTime <= 0f)
-				{
-					_running.Dequeue();
-				}
-				return;
+				_waitTime = Single.Parse(_runningCmd.ArgS);
 			}
-
-			_running.Dequeue();
-
-			if (cmd.CommandName == DialogueCommand.CommandNameStop)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameStop)
 			{
 				EndDialog();
 			}
-			else if (cmd.CommandName == DialogueCommand.CommandNameSend)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameSend)
 			{
-				_bus.Publish(new SimpleMessage() { MsgName = cmd.ArgS, Arg = cmd.ArgV });
+				_bus.Publish(new SimpleMessage() { MsgName = _runningCmd.ArgS, Arg = _runningCmd.ArgV });
 			}
-			else if (cmd.CommandName == DialogueCommand.CommandNameVarSet)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameVarSet)
 			{
-				SetVariable(cmd.ArgS, cmd.ArgV);
+				SetVariable(_runningCmd.ArgS, _runningCmd.ArgV);
 			}
-			else if (cmd.CommandName == DialogueCommand.CommandNameVarClear)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameVarClear)
 			{
-				SetVariable(cmd.ArgS, new Variant8());
+				SetVariable(_runningCmd.ArgS, new Variant8());
 			}
-			else if (cmd.CommandName == DialogueCommand.CommandNameAdd)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameAdd)
 			{
-				AddToVariable(cmd.ArgS, cmd.ArgV);
+				AddToVariable(_runningCmd.ArgS, _runningCmd.ArgV);
 			}
-			else if (cmd.CommandName == DialogueCommand.CommandNameGoto)
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameGoto)
 			{
-				JumpToNode(cmd.ArgS);
+				JumpToNode(_runningCmd.ArgS);
+			}
+			else if (_runningCmd.CommandName == DialogueCommand.CommandNameConcept)
+			{
+				_bus.Publish
+				(
+				new SimpleMessage {
+					MsgName = MessageName_DoQueryBark,
+					Arg = String.Empty,
+					Data = new ThematicEvent { Action = ThematicEvent.ActionSay, Agent = ((OptionsNode)Current).AgentId, Concept  = _runningCmd.ArgS }
+				});
 			}
 			else
 			{
-				throw new Exception($"Unknown dialog command {cmd.CommandName}");
+				throw new Exception($"Unknown dialog command {_runningCmd.CommandName}");
 			}
 		}
 
@@ -307,12 +319,39 @@ namespace Portland.RPG.Dialogue
 			_bus.Publish
 			(
 			new SimpleMessage { 
-				MsgName = MessageName_OnEndDialog, 
+				MsgName = Current == _barks ? MessageName_OnEndBark : MessageName_OnEndDialog, 
 				Arg = Current.NodeId, 
 				Data = Current 
 			});
 
 			Current = null;
+		}
+
+		public void QueryBarkEvent(in BarkEvent evnt)
+		{
+			if (Current != null)
+			{
+				return;
+			}
+
+			if (_barks.Query(_worldState, _globalFacts, _agentsById, evnt))
+			{
+				var choice = _barks.Active[0];
+				choice.Used = true;
+
+				Current = _barks;
+
+				EnqueueCommands(choice.PostActions);
+
+				_bus.Publish
+				(
+				new SimpleMessage
+				{
+					MsgName = MessageName_OnStartBark,
+					Arg = choice.Concept,
+					Data = choice
+				});
+			}
 		}
 
 		public bool HasDialog(string nodeId)
@@ -344,7 +383,8 @@ namespace Portland.RPG.Dialogue
 				 <node_text>
 				 "===" EOL
 
-<node_header>	::= TITLE ":" ID_NodeId EOL <more_node_header>
+<node_header>	::= NODE ":" ID_NodeId EOL <more_node_header>
+					| BARK ":" ID_Concept EOL <more_node_header>
 
 <more_node_header>	::= TAGS ":" <tags>
 						 | <empty>
@@ -384,25 +424,41 @@ more_expr	::= ":" <expr> <more_expr>
 
 		public void Parse(string yarnish)
 		{
+			List<DialogueOption> barks = new();
+
 			SimpleLex lex = new SimpleLex(yarnish);
 			lex.Next();
 
 			while (!lex.IsEOF)
 			{
-				ParseNode(lex);
+				ParseNode(lex, barks);
 			}
+
+			_barks.Options = barks.ToArray();
+			Array.Sort(_barks.Options, (x, y) => { return y.Priority - x.Priority; });
 		}
 
-		void ParseNode(SimpleLex lex)
+		void ParseNode(SimpleLex lex, List<DialogueOption> barks)
 		{
-			List<DialogueNode.Tag> tags = new List<DialogueNode.Tag>();
-			List<DialogueCommand> preActions = new List<DialogueCommand>();
+			if (lex.Lexum.IsEqualToIgnoreCase("Bark"))
+			{
+				ParseBarks(lex, barks);
+				return;
+			}
 
-			lex.MatchIgnoreCase("Title");
+			lex.MatchIgnoreCase("Node");
 			lex.Match(":");
 			string nodeId = lex.Lexum.ToString();
 			lex.Match(SimpleLex.TokenType.ID);
 			lex.NextLine();
+
+			ParseNodeMore(lex, nodeId);
+		}
+
+		void ParseNodeMore(SimpleLex lex, string nodeId)
+		{
+			List<DialogueNode.Tag> tags = new List<DialogueNode.Tag>();
+			List<DialogueCommand> preActions = new List<DialogueCommand>();
 
 			if (lex.Lexum.IsEqualToIgnoreCase("Tags"))
 			{
@@ -414,10 +470,44 @@ more_expr	::= ":" <expr> <more_expr>
 			lex.Match("-");
 			lex.Match("-");
 			lex.SkipWhitespace();
-
 			ParseActions(lex, preActions);
 
 			ParseNodeText(lex, nodeId, tags, preActions);
+
+			lex.Match("=");
+			lex.Match("=");
+			lex.Match("=");
+			lex.SkipWhitespace();
+		}
+
+		void ParseBarks(SimpleLex lex, List<DialogueOption> barks)
+		{
+			//List<DialogueCommand> preActions = new List<DialogueCommand>();
+
+			lex.MatchIgnoreCase("Bark");
+			lex.Match(":");
+			string nodeId = lex.Lexum.ToString();
+			lex.Match(SimpleLex.TokenType.ID);
+			lex.NextLine();
+
+			if (lex.Lexum.IsEqualToIgnoreCase("Agent"))
+			{
+				lex.MatchIgnoreCase("Agent");
+				lex.Match(":");
+
+			}
+
+			lex.Match("-");
+			lex.Match("-");
+			lex.Match("-");
+			lex.SkipWhitespace();
+			//ParseActions(lex, preActions);
+
+			var bnode = new DialogueOption(0) { Concept = nodeId };
+
+			ParseNodeText_Bark(lex, bnode);
+
+			barks.Add(bnode);
 
 			lex.Match("=");
 			lex.Match("=");
@@ -482,6 +572,8 @@ more_expr	::= ":" <expr> <more_expr>
 					&& cmd.CommandName != DialogueCommand.CommandNameSend
 					&& cmd.CommandName != DialogueCommand.CommandNameVarSet
 					&& cmd.CommandName != DialogueCommand.CommandNameVarClear
+					&& cmd.CommandName != DialogueCommand.CommandNameConcept
+					&& cmd.CommandName != DialogueCommand.CommandNameDuration
 				)
 				{
 					throw new Exception($"Unknown command {cmd.CommandName} on line {lex.LineNum}");
@@ -540,6 +632,28 @@ more_expr	::= ":" <expr> <more_expr>
 					_nodesById.Add(node.NodeId, node);
 				}
 			}
+		}
+
+		public void ParseNodeText_Bark(SimpleLex lex, DialogueOption bnode)
+		{
+			if (lex.Lexum[0] == '[')
+			{
+				ParseNodeText_Condition(lex, bnode);
+			}
+
+			bnode.AgentCharId = lex.Lexum.ToString();
+			lex.Match(SimpleLex.TokenType.ID);
+			lex.Match(":");
+			lex.ReadToEol();
+			string txt = lex.Lexum.ToString();
+			lex.Next();
+			lex.NextLine();
+
+			ParseActions(lex, bnode.PostActions);
+
+			bnode.Text = TextTemplate.Parse(txt);
+
+			bnode.RecalcPriority();
 		}
 
 		public void ParseNodeText_Single(SimpleLex lex, SayNode node)
@@ -640,6 +754,8 @@ more_expr	::= ":" <expr> <more_expr>
 					{
 						node.PlayerFlags.Add(new AgentStateFilter() { ActorName = agentId, Not = isNot, FlagName = varName });
 					}
+
+					lex.MatchIgnoreCase("SET");
 				}
 				else if (lex.Lexum.IsEqualToIgnoreCase("EQUAL"))
 				{
@@ -722,6 +838,7 @@ more_expr	::= ":" <expr> <more_expr>
 			}
 
 			lex.Match("]");
+			lex.SkipWhitespace();
 		}
 
 		void ParseVarReg(SimpleLex lex, out string agentId, out string varName)

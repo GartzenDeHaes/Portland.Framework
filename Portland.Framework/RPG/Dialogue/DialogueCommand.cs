@@ -23,6 +23,10 @@ namespace Portland.RPG.Dialogue
 		public readonly static String10 CommandNameAdd = "ADD";
 		/// <summary>Load a new node</summary>
 		public readonly static String10 CommandNameGoto = "JUMP";
+		/// <summary>Waits, then stops</summary>
+		public readonly static String10 CommandNameDuration = "DURATION";
+		/// <summary>Queries the bark system</summary>
+		public readonly static String10 CommandNameConcept = "CONCEPT";
 
 		public String10 CommandName;
 		public string ArgS;
