@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,9 @@ namespace Portland.RPG.Dialogue
 			Active = new DialogueOption[maxActiveChoices];
 		}
 
+		/// <summary>
+		/// Query for barks
+		/// </summary>
 		public bool Query
 		(
 			in WorldStateFlags? worldFlags,
@@ -33,6 +37,7 @@ namespace Portland.RPG.Dialogue
 		)
 		{
 			//base.Activate(worldFlags, globalFacts, agentsById);
+			Debug.Assert(DialogueType == NodeType.Bark);
 
 			ActiveCount = 0;
 			Active[0] = null;

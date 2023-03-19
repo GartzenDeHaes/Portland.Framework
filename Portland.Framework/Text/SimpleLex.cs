@@ -189,6 +189,15 @@ namespace Portland.Text
 			}
 		}
 
+		public void SkipToNextLine()
+		{
+			while(! IsEOL && !IsEOF)
+			{
+				Next();
+			}
+			NextLine();
+		}
+
 		/// <summary>Return false on EOF</summary>
 		public bool Next()
 		{

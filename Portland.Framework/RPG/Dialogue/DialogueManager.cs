@@ -12,9 +12,12 @@ using Portland.AI.Barks;
 using Portland.AI.BehaviorTree;
 using Portland.AI.NLP;
 using Portland.Collections;
+using Portland.Mathmatics;
 using Portland.Text;
 using Portland.Threading;
 using Portland.Types;
+
+using static Portland.Network.TcpConnection;
 
 namespace Portland.RPG.Dialogue
 {
@@ -290,13 +293,29 @@ namespace Portland.RPG.Dialogue
 
 			EnqueueCommands(Current.PreActions);
 
-			_bus.Publish
-			(
-			new SimpleMessage { 
-					MsgName = Current.DialogueType == DialogueNode.NodeType.Text ? MessageName_OnStartTextDialog : MessageName_OnStartChoiceDialog, 
-					Arg = nodeId,
-					Data = Current 
-			});
+			if (Current.DialogueType == DialogueNode.NodeType.Index)
+			{
+				var nidx = Current as IndexNode;
+				if (nidx == null)
+				{
+					throw new Exception($"No matching options for {Current.NodeId}");
+				}
+
+				nidx.ActiveOption.Used = true;
+
+				EnqueueCommands(Current.PostActions);
+				EnqueueCommands(nidx.ActiveOption.PostActions);
+			}
+			else
+			{
+				_bus.Publish
+				(
+				new SimpleMessage { 
+						MsgName = Current.DialogueType == DialogueNode.NodeType.Text ? MessageName_OnStartTextDialog : MessageName_OnStartChoiceDialog, 
+						Arg = nodeId,
+						Data = Current 
+				});
+			}
 		}
 
 		void EnqueueCommands(List<DialogueCommand> cmds)
@@ -385,6 +404,7 @@ namespace Portland.RPG.Dialogue
 
 <node_header>	::= NODE ":" ID_NodeId EOL <more_node_header>
 					| BARK ":" ID_Concept EOL <more_node_header>
+					| INDEX ":" ID_NodeId EOL <more_node_Header>
 
 <more_node_header>	::= TAGS ":" <tags>
 						 | <empty>
@@ -419,7 +439,7 @@ more_expr	::= ":" <expr> <more_expr>
 		 | ID (SET|NOT SET|EXISTS|NOT EXISTS)
 		 | 
 
-<op>	::= EQUAL TO| GREATER THAN | LESS THAN
+<op>	::= EQUAL TO| GREATER THAN | LESS THAN | BETWEEN
 	  */
 
 		public void Parse(string yarnish)
@@ -443,16 +463,21 @@ more_expr	::= ":" <expr> <more_expr>
 			if (lex.Lexum.IsEqualToIgnoreCase("Bark"))
 			{
 				ParseBarks(lex, barks);
-				return;
 			}
+			else if (lex.Lexum.IsEqualToIgnoreCase("Index"))
+			{
+				ParseIndex(lex);
+			}
+			else
+			{
+				lex.MatchIgnoreCase("Node");
+				lex.Match(":");
+				string nodeId = lex.Lexum.ToString();
+				lex.Match(SimpleLex.TokenType.ID);
+				lex.NextLine();
 
-			lex.MatchIgnoreCase("Node");
-			lex.Match(":");
-			string nodeId = lex.Lexum.ToString();
-			lex.Match(SimpleLex.TokenType.ID);
-			lex.NextLine();
-
-			ParseNodeMore(lex, nodeId);
+				ParseNodeMore(lex, nodeId);
+			}
 		}
 
 		void ParseNodeMore(SimpleLex lex, string nodeId)
@@ -469,7 +494,9 @@ more_expr	::= ":" <expr> <more_expr>
 			lex.Match("-");
 			lex.Match("-");
 			lex.Match("-");
-			lex.SkipWhitespace();
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
+
 			ParseActions(lex, preActions);
 
 			ParseNodeText(lex, nodeId, tags, preActions);
@@ -477,7 +504,61 @@ more_expr	::= ":" <expr> <more_expr>
 			lex.Match("=");
 			lex.Match("=");
 			lex.Match("=");
-			lex.SkipWhitespace();
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
+		}
+
+		void ParseIndex(SimpleLex lex)
+		{
+			float probability = 1f;
+
+			lex.MatchIgnoreCase("Index");
+			lex.Match(":");
+			string nodeId = lex.Lexum.ToString();
+			lex.Match(SimpleLex.TokenType.ID);
+			if (lex.Token == SimpleLex.TokenType.INTEGER || lex.Token == SimpleLex.TokenType.FLOAT)
+			{
+				probability = Math.Clamp(Single.Parse(lex.Lexum.ToString()) / 100f, 0, 1f);
+				lex.Next();
+				lex.Match("%");
+			}
+			lex.NextLine();
+
+			lex.Match("-");
+			lex.Match("-");
+			lex.Match("-");
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
+			//ParseActions(lex, preActions);
+
+			var node = new IndexNode() { NodeId = nodeId };
+			_nodesById.Add(node.NodeId, node);
+			List<DialogueOption> options = new();
+
+			while (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '[')
+			{
+				DialogueOption option = new DialogueOption(0);
+				options.Add(option);
+
+				ParseNodeText_Condition(lex, option);
+
+				lex.Match("-");
+				lex.Match(">");
+
+				ParseActions(lex, option.PostActions);
+
+				option.RecalcPriority();
+
+				lex.NextLine();
+			}
+			
+			node.Options = options.ToArray();
+
+			lex.Match("=");
+			lex.Match("=");
+			lex.Match("=");
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
 		}
 
 		void ParseBarks(SimpleLex lex, List<DialogueOption> barks)
@@ -507,7 +588,8 @@ more_expr	::= ":" <expr> <more_expr>
 			lex.Match("-");
 			lex.Match("-");
 			lex.Match("-");
-			lex.SkipWhitespace();
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
 			//ParseActions(lex, preActions);
 
 			var bnode = new DialogueOption(0) { Concept = nodeId };
@@ -519,7 +601,8 @@ more_expr	::= ":" <expr> <more_expr>
 			lex.Match("=");
 			lex.Match("=");
 			lex.Match("=");
-			lex.SkipWhitespace();
+			//lex.SkipWhitespace();
+			lex.SkipToNextLine();
 		}
 
 		void ParseTagsHeader(SimpleLex lex, List<DialogueNode.Tag> tags)
@@ -828,6 +911,27 @@ more_expr	::= ":" <expr> <more_expr>
 					ComparisionOp op = isNot ? ComparisionOp.NotExists : ComparisionOp.Exists;
 
 					FactFilter filter = new FactFilter() { ActorName = agentId, FactName = varName, Op = op, Value = new Variant8() };
+
+					if (String.IsNullOrEmpty(agentId))
+					{
+						node.WorldFilters.Add(filter);
+					}
+					else
+					{
+						node.PlayerFilters.Add(filter);
+					}
+				}
+				else if (lex.Lexum.IsEqualToIgnoreCase("BETWEEN"))
+				{
+					lex.MatchIgnoreCase("BETWEEN");
+
+					ComparisionOp op = isNot ? ComparisionOp.NotBetween : ComparisionOp.Between;
+
+					float x = Single.Parse(lex.Lexum.ToString());
+					lex.Next();
+					float y = Single.Parse(lex.Lexum.ToString());
+					lex.Next();
+					FactFilter filter = new FactFilter() { ActorName = agentId, FactName = varName, Op = op, Value = new Variant8(new Vector3h(x, y, 0f)) };
 
 					if (String.IsNullOrEmpty(agentId))
 					{

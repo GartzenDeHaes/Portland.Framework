@@ -14,7 +14,9 @@ namespace Portland.AI.Barks
 		LessThanOrEquals,
 		Exists,
 		NotExists,
-		PaternMatch
+		PaternMatch,
+		Between,
+		NotBetween
 	}
 
 	public sealed class FactFilter
@@ -23,6 +25,11 @@ namespace Portland.AI.Barks
 		public string FactName;
 		public ComparisionOp Op;
 		public Variant8 Value;
+
+		bool Between(float value, float low, float high)
+		{
+			return value >= low && value <= high;
+		}
 
 		public bool IsMatch(IBlackboard<String> facts)
 		{
@@ -58,6 +65,12 @@ namespace Portland.AI.Barks
 						break;
 					case ComparisionOp.PaternMatch:
 						ret = StringHelper.Like(fvalue.ToString(), Value.ToString());
+						break;
+					case ComparisionOp.Between:
+						ret = Between(fvalue.Value.ToFloat(), Value.ToVector3().X, Value.ToVector3().Y);
+						break;
+					case ComparisionOp.NotBetween:
+						ret = ! Between(fvalue.Value.ToFloat(), Value.ToVector3().X, Value.ToVector3().Y);
 						break;
 				}
 			}

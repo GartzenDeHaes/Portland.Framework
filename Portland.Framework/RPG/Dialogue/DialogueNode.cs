@@ -18,7 +18,8 @@ namespace Portland.RPG.Dialogue
 		{
 			Text = 0,
 			Choice = 1,
-			Bark = 2
+			Bark = 2,
+			Index = 3
 		}
 
 		public string NodeId;
