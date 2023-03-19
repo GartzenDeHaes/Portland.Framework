@@ -247,7 +247,7 @@ namespace Portland.RPG
 			{
 				for (int i = 0; i < Properties.Length; i++)
 				{
-					if (Properties[i].CurrentVariant != item.Properties[i].CurrentVariant)
+					if (Properties[i].CurrentVariant() != item.Properties[i].CurrentVariant())
 					{
 						return false;
 					}

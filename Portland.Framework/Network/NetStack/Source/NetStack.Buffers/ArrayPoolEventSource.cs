@@ -60,8 +60,9 @@ namespace NetStack.Buffers
 
 	internal static class Log
 	{
+#if !UNITY_2019_4_OR_NEWER
 		private static readonly NLog.Logger _Log = NLog.LogManager.GetCurrentClassLogger();
-
+#endif
 		private static string Output(string module, string message)
 		{
 			return DateTime.Now.ToString("[HH:mm:ss]") + " [NetStack." + module + "] " + message;
@@ -69,12 +70,20 @@ namespace NetStack.Buffers
 
 		public static void Info(string module, string message)
 		{
+#if UNITY_2019_4_OR_NEWER
+			Debug.Log(Output(module, message));
+#else
 			_Log.Info(Output(module, message));
+#endif
 		}
 
 		public static void Warning(string module, string message)
 		{
+#if UNITY_2019_4_OR_NEWER
+			Debug.LogWarning(Output(module, message));
+#else
 			_Log.Warn(Output(module, message));
+#endif
 		}
 	}
 }

@@ -105,7 +105,7 @@ namespace Portland.ComponentModel
 
 		public void RemoveSubscriber(string subscriberKey)
 		{
-			var rmfn = (Subscription<SimpleMessage> s) => { return s.SubscriberUniqueKey == subscriberKey; };
+			Func<Subscription<SimpleMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey; };
 
 			foreach(var vec in _subscriptions.Values)
 			{
@@ -116,7 +116,7 @@ namespace Portland.ComponentModel
 		public void UnSubscribe(string subscriberKey, in String10 eventName)
 		{
 			var msgName = eventName;
-			var rmfn = (Subscription<SimpleMessage> s) => { return s.SubscriberUniqueKey == subscriberKey && s.MessageName == msgName; };
+			Func<Subscription<SimpleMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey && s.MessageName == msgName; };
 
 			foreach (var vec in _subscriptions.Values)
 			{

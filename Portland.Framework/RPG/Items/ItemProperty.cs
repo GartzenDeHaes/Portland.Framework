@@ -9,6 +9,8 @@ using Portland.Types;
 using UnityEngine;
 #endif
 
+using Debug = System.Diagnostics.Debug;
+
 namespace Portland.RPG
 {
 	[Serializable]

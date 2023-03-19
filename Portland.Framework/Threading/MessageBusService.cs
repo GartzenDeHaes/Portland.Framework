@@ -51,7 +51,7 @@ namespace Portland.Threading
 			if (!_subscriptions.ContainsKey(msg.MsgName))
 			{
 #if UNITY_5_3_OR_NEWER
-				UnityEngine.Debug.LogWarning("MessageDispatcher.Publish: No listener for " + msg.Name);
+				UnityEngine.Debug.LogWarning("MessageDispatcher.Publish: No listener for " + msg.MsgName);
 #else
 				Debug.WriteLine("MessageDispatcher.Publish: No listener for " + msg.MsgName);
 #endif

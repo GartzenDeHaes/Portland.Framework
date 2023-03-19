@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.AccessControl;
 using System.Text;
-using System.Threading.Tasks;
 
 using Portland.AI;
-using Portland.AI.Barks;
-using Portland.Collections;
 
 namespace Portland.RPG.Dialogue
 {

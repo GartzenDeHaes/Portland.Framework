@@ -9,6 +9,8 @@ using Portland;
 using Portland.Mathmatics;
 using Portland.Mathmatics.Geometry;
 
+using Debug = System.Diagnostics.Debug;
+
 namespace ProceduralToolkit.Skeleton
 {
     /// <summary>

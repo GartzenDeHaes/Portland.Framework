@@ -1,6 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+
+#if UNITY_2019_4_OR_NEWER
+using UnityEngine;
+#else
 using System.Diagnostics;
+#endif
 
 namespace Portland.AI.BehaviorTree
 {
