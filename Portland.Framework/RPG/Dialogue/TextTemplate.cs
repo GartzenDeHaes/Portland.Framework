@@ -16,6 +16,7 @@ namespace Portland.RPG.Dialogue
 		public interface ITextItem
 		{
 			string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById);
+			string RawText { get; }
 		}
 
 		public sealed class TextItem : ITextItem
@@ -24,13 +25,22 @@ namespace Portland.RPG.Dialogue
 
 			public TextItem(string txt)
 			{
-				Text = txt;
+				if (txt.IndexOf("\\n") > -1)
+				{
+					Text = txt.Replace("\\n", "\n");
+				}
+				else
+				{
+					Text = txt;
+				}
 			}
 
 			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 			{
 				return Text;
 			}
+
+			public string RawText { get { return Text; } }
 		}
 
 		public sealed class TextVariable : ITextItem
@@ -65,6 +75,8 @@ namespace Portland.RPG.Dialogue
 					return agentsById[AgentId].Facts.Get(PropertyId).ToString();
 				}
 			}
+
+			public string RawText { get { return AgentId + "." + PropertyId; } }
 		}
 
 		public Vector<ITextItem> Texts = new Vector<ITextItem>(3);
@@ -117,45 +129,11 @@ namespace Portland.RPG.Dialogue
 				else
 				{
 					t.Texts.Add(new TextItem(lex.ReadToAny('{')));
+					lex.SkipWhitespace();
 				}
-
-				lex.SkipWhitespace();
 			}
 
 			return t;
 		}
-
-		//public static TextTemplate Parse(XmlLex lex)
-		//{
-		//	TextTemplate t = new TextTemplate();
-
-		//	while (!lex.IsEOF && lex.Token != XmlLex.XmlLexToken.TAG_START)
-		//	{
-		//		switch (lex.Token)
-		//		{
-		//			case XmlLex.XmlLexToken.EOF:
-		//				return t;
-		//			case XmlLex.XmlLexToken.STRING:
-		//				lex.NextText();
-		//				t._texts.Add(new TextItem { Text = lex.Lexum.ToString() });
-		//				lex.Match(XmlLex.XmlLexToken.TEXT);
-		//				break;
-		//			case XmlLex.XmlLexToken.CODE_START:
-		//				lex.Next();
-		//				if (lex.Token == XmlLex.XmlLexToken.EQUAL)
-		//				{
-		//					lex.Next();
-		//					t._texts.Add(new TextVariable { PropertyId = lex.Lexum.ToString().Substring(0, lex.Lexum.Length - 2) });
-		//					lex.Match(XmlLex.XmlLexToken.STRING);
-		//					lex.Match(XmlLex.XmlLexToken.CLOSE);
-		//				}
-		//				break;
-		//			default:
-		//				throw new Exception($"XML parser error on line {lex.LineNum}: '{lex.Lexum.ToString()}'");
-		//		}
-		//	}
-
-		//	return t;
-		//}
 	}
 }

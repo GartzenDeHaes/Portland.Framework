@@ -12,6 +12,7 @@ using Portland.Mathmatics;
 using Portland.RPG;
 using Portland.RPG.Dialogue;
 using Portland.Text;
+using Portland.Threading;
 using Portland.Types;
 
 namespace Portland.AI
@@ -36,7 +37,7 @@ namespace Portland.AI
 		Dictionary<String, Agent> _agentsById = new Dictionary<String, Agent>();
 		readonly Vector<Agent> _agents = new Vector<Agent>();
 
-		public EventBus Events = new EventBus();
+		public IMessageBus<SimpleMessage> Events;
 
 		public IFactionManager Factions = new FactionManager();
 
@@ -66,10 +67,11 @@ namespace Portland.AI
 			Events.Poll();
 		}
 
-		public World(IClock clock, IRandom rnd)
+		public World(IClock clock, IRandom rnd, IMessageBus<SimpleMessage> eventBus)
 		{
 			Clock = clock;
 			//Strings = strings;
+			Events = eventBus;
 
 			PropertyMan = new PropertyManager();
 			UtilitySystem = new UtilityFactory(clock, PropertyMan);
@@ -82,7 +84,12 @@ namespace Portland.AI
 		}
 
 		public World(DateTime epoc, float minutesPerDay = 1440f)
-		: this(new Clock(epoc, minutesPerDay), MathHelper.Rnd)
+		: this(new Clock(epoc, minutesPerDay), MathHelper.Rnd, new EventBus())
+		{
+		}
+
+		public World(DateTime epoc, IMessageBus<SimpleMessage> bus, float minutesPerDay = 1440f)
+		: this(new Clock(epoc, minutesPerDay), MathHelper.Rnd, bus)
 		{
 		}
 
@@ -631,6 +638,11 @@ namespace Portland.AI
 
 		public static World Parse(string xml)
 		{
+			return Parse(xml, new EventBus());
+		}
+
+		public static World Parse(string xml, IMessageBus<SimpleMessage> bus)
+		{
 			XmlLex lex = new XmlLex(xml);
 			lex.SkipComments = true;
 
@@ -665,7 +677,7 @@ namespace Portland.AI
 				lex.MatchTagClose();
 			}
 
-			World world = new World(dt, minutesPerDay);
+			World world = new World(dt, bus, minutesPerDay);
 
 			while (lex.Token == XmlLex.XmlLexToken.TAG)
 			{

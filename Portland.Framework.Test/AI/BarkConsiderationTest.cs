@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 using Portland.Collections;
+using Portland.ComponentModel;
 
 namespace Portland.AI.Barks
 {
@@ -16,7 +17,7 @@ namespace Portland.AI.Barks
 		public void FullSetupBaseTest()
 		{
 			//StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), new RandMax());
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMax(), new EventBus());
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddTestObjectives();
@@ -59,7 +60,7 @@ namespace Portland.AI.Barks
 		public void HealthAlertTest()
 		{
 			//StringTable strings = new StringTable();
-			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), new RandMin());
+			World world = new World(new Clock(new DateTime(2001, 01, 03, 9, 0, 0), 1440), new RandMin(), new EventBus());
 
 			world.CharacterManager.CreateCharacterDefinition("human")
 				.UtilitySetId("human");

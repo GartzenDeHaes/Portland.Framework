@@ -22,6 +22,7 @@ namespace Portland.Threading
 		void StopAcceptingNewMessageDefinitions();
 		void DefineMessage(in String10 name);
 
+		void Poll();
 		//void SetMessageMarshaller(Action<Subscription<TMSG>, TMSG> runner);
 		//void AddMessageObserver(Action<Subscription<TMSG>, TMSG> observer);
 	}

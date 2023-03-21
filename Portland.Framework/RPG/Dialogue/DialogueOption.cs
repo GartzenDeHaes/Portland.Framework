@@ -21,7 +21,7 @@ namespace Portland.RPG.Dialogue
 		public int OptionNum;
 		public TextTemplate Text;
 		public bool Used;
-		public bool CanReuse;
+		public bool CanReuse = true;
 
 		// Preconditions
 

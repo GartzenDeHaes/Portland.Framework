@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Portland.Text
 {
@@ -17,9 +14,24 @@ namespace Portland.Text
 		private readonly string _s;
 		private int _position;
 
+		bool IsSubstringEqual(in string s, in int position, string token)
+		{
+			int i;
+			for (i = 0; i < s.Length && i < token.Length; i++)
+			{
+				if (s[i + position] != token[i])
+				{
+					return false;
+				}
+			}
+
+			return i == token.Length;
+		}
+
 		public bool TryRead(string token)
 		{
-			if (_position + token.Length > _s.Length || _s.Substring(_position, token.Length) != token)
+			//if (_position + token.Length > _s.Length || _s.Substring(_position, token.Length) != token)
+			if (_position + token.Length > _s.Length || !IsSubstringEqual(_s, _position, token))
 			{
 				return false;
 			}

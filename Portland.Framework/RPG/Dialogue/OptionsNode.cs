@@ -77,14 +77,14 @@ namespace Portland.RPG.Dialogue
 			{
 				choice = Options[i];
 
-				if (Options.Length <= Active.Length)
-				{
-					choice.Activate(globalFacts, agentsById);
-					Active[activePos++] = choice;
-					ActiveCount++;
-				}
-				else
-				{
+				//if (Options.Length <= Active.Length)
+				//{
+				//	choice.Activate(globalFacts, agentsById);
+				//	Active[activePos++] = choice;
+				//	ActiveCount++;
+				//}
+				//else
+				//{
 					if (choice.TryMatch(worldFlags, globalFacts, agentsById))
 					{
 						choice.Activate(globalFacts, agentsById);
@@ -97,7 +97,7 @@ namespace Portland.RPG.Dialogue
 							break;
 						}
 					}
-				}
+				//}
 			}
 
 			while (activePos < Active.Length)

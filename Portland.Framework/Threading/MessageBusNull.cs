@@ -63,5 +63,9 @@ namespace Portland.Threading
 		public void Subscribe(string subrUniqueKey, in String10 msgName, Action<SimpleMessage> action, MessageExecContext ctx = MessageExecContext.BACKGROUND)
 		{
 		}
+
+		public void Poll()
+		{
+		}
 	}
 }

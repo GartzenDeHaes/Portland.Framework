@@ -235,6 +235,11 @@ namespace Portland.Threading
 			}
 		}
 
+		public void Poll()
+		{
+			throw new NotImplementedException();
+		}
+
 		public MessageBusService(IThreadPool threadPool, in String10 shutdownMessage)
 		{
 			_shutdownMessage = shutdownMessage;

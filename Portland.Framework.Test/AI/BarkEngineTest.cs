@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Portland.Collections;
+using Portland.ComponentModel;
 using Portland.Mathmatics;
 
 namespace Portland.AI.Barks
@@ -22,7 +23,7 @@ WHEN ACTION IS SEE, OBJECT IS barrel
 DO COACH SAYS thats_a_barrel ""COACH: That's a barrel"".";
 
 			//StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), new RandMin());
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMin(), new EventBus());
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(DemoRuleText_BasicRule);
@@ -78,7 +79,7 @@ DO
 .
 ";
 			//StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440), new RandMax());
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMax(), new EventBus());
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
 			world.BarkEngine.SetRules(rulePack);
@@ -193,7 +194,7 @@ DO
 .
 ";
 			//StringTable strings = new StringTable();
-			World world = new World(new Clock(DateTime.Now, 1440),  new RandMax());
+			World world = new World(new Clock(DateTime.Now, 1440),  new RandMax(), new EventBus());
 
 			world.Flags.Daylight = true;
 			//world.Flags.IsCharacter01Alive = true;
@@ -390,7 +391,7 @@ DO
 ";
 			//StringTable strings = new StringTable();
 
-			World world = new World(new Clock(DateTime.Now, 1440), new RandMin());
+			World world = new World(new Clock(DateTime.Now, 1440), new RandMin(), new EventBus());
 
 			world.UtilitySystem.CreateObjectiveSetBuilder("living")
 				.AddTestObjectives();

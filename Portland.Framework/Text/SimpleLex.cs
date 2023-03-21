@@ -158,14 +158,14 @@ namespace Portland.Text
 
 		public void NextLine()
 		{
-			if (Token == TokenType.CR || Token == TokenType.LF) 
+			while (Token == TokenType.CR || Token == TokenType.LF) 
 			{
 				Next();
 			}
-			if (Token == TokenType.CR || Token == TokenType.LF)
-			{
-				Next();
-			}
+			//if (Token == TokenType.CR || Token == TokenType.LF)
+			//{
+			//	Next();
+			//}
 		}
 
 		public void SkipWhitespace()

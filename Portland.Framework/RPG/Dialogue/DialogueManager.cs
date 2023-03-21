@@ -510,18 +510,18 @@ more_expr	::= ":" <expr> <more_expr>
 
 		void ParseIndex(SimpleLex lex)
 		{
-			float probability = 1f;
+			//float probability = 1f;
 
 			lex.MatchIgnoreCase("Index");
 			lex.Match(":");
 			string nodeId = lex.Lexum.ToString();
 			lex.Match(SimpleLex.TokenType.ID);
-			if (lex.Token == SimpleLex.TokenType.INTEGER || lex.Token == SimpleLex.TokenType.FLOAT)
-			{
-				probability = Math.Clamp(Single.Parse(lex.Lexum.ToString()) / 100f, 0, 1f);
-				lex.Next();
-				lex.Match("%");
-			}
+			//if (lex.Token == SimpleLex.TokenType.INTEGER || lex.Token == SimpleLex.TokenType.FLOAT)
+			//{
+			//	probability = Math.Clamp(Single.Parse(lex.Lexum.ToString()) / 100f, 0, 1f);
+			//	lex.Next();
+			//	lex.Match("%");
+			//}
 			lex.NextLine();
 
 			lex.Match("-");
@@ -673,6 +673,13 @@ more_expr	::= ":" <expr> <more_expr>
 				{
 					cmd.ArgS = lex.Lexum.ToString();
 					lex.Next();
+				}
+
+				if (lex.Lexum[0] == '.')
+				{
+					lex.Next();
+					cmd.ArgS += "." + lex.Lexum.ToString();
+					lex.Match(SimpleLex.TokenType.ID);
 				}
 
 				if (lex.Lexum[0] != ')')
