@@ -519,6 +519,7 @@ Coach: Chose 1.
 
 			world.DialogueMan.StartDialog("Start");
 			Assert.That(world.DialogueMan.Current.DialogueType, Is.EqualTo(DialogueNode.NodeType.Choice));
+			Assert.That(world.DialogueMan.Current.AgentId, Is.EqualTo("Coach"));
 
 			Assert.That(((OptionsNode)world.DialogueMan.Current).ActiveCount, Is.EqualTo(2));
 			Assert.That(((OptionsNode)world.DialogueMan.Current).Active[0].CurrentText, Is.EqualTo("Choice 1."));
@@ -606,6 +607,8 @@ Coach: This is text.
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(1));
 			Assert.That(world.DialogueMan.Current, Is.TypeOf<OptionsNode>());
 			Assert.That(((OptionsNode)world.DialogueMan.Current).Active[0].CurrentText, Is.EqualTo("This is text."));
+			Assert.That(((OptionsNode)world.DialogueMan.Current).Active[0].AgentCharId, Is.EqualTo("Coach"));
+			Assert.Null(world.DialogueMan.Current.AgentId);
 
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
@@ -692,6 +695,7 @@ Node: Coach_Greet_Main
 			Assert.That(world.DialogueMan.Current.DialogueType, Is.EqualTo(DialogueNode.NodeType.Text));
 			Assert.That(world.DialogueMan.Current.NodeId, Is.EqualTo("Coach_Greet_Main"));
 			Assert.That(((SayNode)world.DialogueMan.Current).CurrentText, Is.EqualTo("They call me Coach."));
+			Assert.That(world.DialogueMan.Current.AgentId, Is.EqualTo("Coach"));
 
 			world.DialogueMan.EndDialog();
 			Assert.Null(world.DialogueMan.Current);
@@ -718,6 +722,7 @@ Node: Coach_Greet_Main
 			Assert.That(world.DialogueMan.Current.DialogueType, Is.EqualTo(DialogueNode.NodeType.Text));
 			Assert.That(world.DialogueMan.Current.NodeId, Is.EqualTo("Coach_Greet_Dying"));
 			Assert.That(((SayNode)world.DialogueMan.Current).CurrentText, Is.EqualTo("They put the hurt on me."));
+			Assert.That(world.DialogueMan.Current.AgentId, Is.EqualTo("Coach"));
 
 			world.DialogueMan.EndDialog();
 			Assert.Null(world.DialogueMan.Current);
@@ -784,6 +789,7 @@ Coach: 3
 				Assert.That(world.DialogueMan.Current, Is.TypeOf<SayNode>());
 				Assert.That(world.DialogueMan.Current.DialogueType, Is.EqualTo(DialogueNode.NodeType.Text));
 				Assert.That(((SayNode)world.DialogueMan.Current).CurrentText, Is.AnyOf("1", "2", "3"));
+				Assert.That(world.DialogueMan.Current.AgentId, Is.EqualTo("Coach"));
 
 				if (((SayNode)world.DialogueMan.Current).CurrentText == "1")
 				{

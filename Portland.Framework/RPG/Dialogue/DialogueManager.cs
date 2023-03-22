@@ -446,7 +446,7 @@ more_expr	::= ":" <expr> <more_expr>
 		{
 			List<DialogueOption> barks = new();
 
-			SimpleLex lex = new SimpleLex(yarnish);
+			SimpleLex lex = new SimpleLex(yarnish) { AllowDashInID = true };
 			lex.Next();
 
 			while (!lex.IsEOF)
@@ -721,7 +721,7 @@ more_expr	::= ":" <expr> <more_expr>
 
 				if (lex.Lexum[0] == '-' || lex.Lexum[0] == '[')
 				{
-					OptionsNode cnode = new OptionsNode(_maxChoices) { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
+					OptionsNode cnode = new OptionsNode(_maxChoices) { NodeId = nodeId, AgentId = node.AgentId, PreActions = preActions, Tags = nodeTags };
 					cnode.PostActions = node.PostActions;
 					cnode.Texts = node.Texts;
 					_nodesById.Add(cnode.NodeId, cnode);
@@ -781,8 +781,11 @@ more_expr	::= ":" <expr> <more_expr>
 
 		public void ParseNodeText_Choices(SimpleLex lex, OptionsNode node)
 		{
-			node.AgentId = "Player";
-			
+			if (String.IsNullOrWhiteSpace(node.AgentId))
+			{
+				node.AgentId = "Player";
+			}
+
 			List<DialogueOption> choices = new List<DialogueOption>();
 
 			while (!lex.IsEOL && (lex.Lexum[0] == '-' || lex.Lexum[0] == '['))

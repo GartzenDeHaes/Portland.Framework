@@ -72,6 +72,8 @@ namespace Portland.Text
 			ALPHA = 3
 		}
 
+		public bool AllowDashInID;
+
 		private string _text;
 		private int _textPos = 0;
 
@@ -295,7 +297,7 @@ namespace Portland.Text
 
 						break;
 					case State.ID:
-						if (chcls > 1 || ch == '_')
+						if (chcls > 1 || ch == '_' || (ch == '-' && AllowDashInID))
 						{
 							Lexum.Append(ch);
 							break;
