@@ -811,5 +811,68 @@ Coach: 3
 			Assert.That(two, Is.Not.Zero);
 			Assert.That(three, Is.Not.Zero);
 		}
+
+		[Test]
+		public void BChoiceOnceTest()
+		{
+			const string xml = @"<world>
+<utility>
+	<utility_properties>
+		<properties>
+			<property name='const30%' type='float' global='true' min='0' max='1' start='0.3' start_rand='false' change_per_hour='0' />
+			<property name='weekend' type='bool' global='true' min='0' max='1' start_rand='false' />
+			<property name='daylight' type='bool' global='true' min='0' max='1' start='0' start_rand='false' />
+		</properties>
+	</utility_properties>
+	<objectives>
+		<objective name='idle' time='20' priority='3' interruptible='true' cooldown='0'>
+			<consideration property='const30%' weight='1' func='normal' />
+		</objective>
+	</objectives>
+	<agenttypes>
+		<agenttype type='base'>
+			<objectives><idle /></objectives>
+		</agenttype>
+	</agenttypes>
+	<agents>
+		<agent type='base' name='Player' />
+	</agents>
+</utility>
+<properties>
+	<property name='HP' type='float' category='HEALTH' min='0' max='100' start='100' change_per_sec='0.1' from_utility='true'></property>
+</properties>
+<property_sets>
+	<set id='Player' HP />
+</property_sets>
+<character_types>
+	<character_def char_id='Player' property_set='Player' utility_set='Player'>
+	</character_def>
+</character_types>
+<characters>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Player' char_id='Player'/>
+</characters>
+<dialogues>
+Node: Start
+---
+[ONCE] -> Option 1
+	(stop)
+===
+</dialogues>
+</world>";
+			var world = World.Parse(xml);
+
+			world.DialogueMan.StartDialog("Start");
+			Assert.That(((OptionsNode)world.DialogueMan.Current).CurrentText, Is.EqualTo(String.Empty));
+			Assert.That(((OptionsNode)world.DialogueMan.Current).ActiveCount, Is.EqualTo(1));
+			Assert.True(((OptionsNode)world.DialogueMan.Current).Active[0].Used);
+			Assert.False(((OptionsNode)world.DialogueMan.Current).Active[0].CanReuse);
+
+			world.DialogueMan.EndDialog();
+			Assert.That(world.DialogueMan.Current, Is.Null);
+
+			world.DialogueMan.StartDialog("Start");
+			Assert.That(((OptionsNode)world.DialogueMan.Current).ActiveCount, Is.EqualTo(0));
+		}
 	}
 }

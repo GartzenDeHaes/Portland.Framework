@@ -148,6 +148,7 @@ namespace Portland.RPG.Dialogue
 
 		public void Activate(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
 		{
+			Used = true;
 			CurrentText = Text?.Get(globalFacts, agentsById) ?? String.Empty;
 		}
 

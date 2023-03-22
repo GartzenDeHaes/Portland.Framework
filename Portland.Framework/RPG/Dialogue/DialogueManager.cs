@@ -1,23 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 using Portland.AI;
 using Portland.AI.Barks;
-using Portland.AI.BehaviorTree;
-using Portland.AI.NLP;
-using Portland.Collections;
 using Portland.Mathmatics;
 using Portland.Text;
 using Portland.Threading;
 using Portland.Types;
-
-using static Portland.Network.TcpConnection;
 
 namespace Portland.RPG.Dialogue
 {
@@ -834,6 +824,13 @@ more_expr	::= ":" <expr> <more_expr>
 				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == ':')
 				{
 					lex.Match(":");
+				}
+
+				if (lex.Lexum.IsEqualToIgnoreCase("ONCE"))
+				{
+					lex.MatchIgnoreCase("ONCE");
+					node.CanReuse = false;
+					continue;
 				}
 
 				ParseVarReg(lex, out var agentId, out var varName);
