@@ -154,7 +154,7 @@ namespace Portland.RPG.Dialogue
 				new SimpleMessage {
 					MsgName = MessageName_DoQueryBark,
 					Arg = String.Empty,
-					Data = new ThematicEvent { Action = ThematicEvent.ActionSay, Agent = ((OptionsNode)Current).AgentId, Concept  = _runningCmd.ArgS }
+					Data = Current
 				});
 			}
 			else
