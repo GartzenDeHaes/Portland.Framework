@@ -714,13 +714,16 @@ more_expr	::= ":" <expr> <more_expr>
 			{
 				SayNode node = new SayNode() { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
 
-				ParseNodeText_Single(lex, node);
+				if (lex.Token == SimpleLex.TokenType.ID)
+				{
+					ParseNodeText_Single(lex, node);
+				}
 
 				if (lex.Lexum[0] == '-' || lex.Lexum[0] == '[')
 				{
 					OptionsNode cnode = new OptionsNode(_maxChoices) { NodeId = nodeId, PreActions = preActions, Tags = nodeTags };
 					cnode.PostActions = node.PostActions;
-					cnode.Text = node.Text;
+					cnode.Texts = node.Texts;
 					_nodesById.Add(cnode.NodeId, cnode);
 					ParseNodeText_Choices(lex, cnode);
 				}
@@ -757,19 +760,23 @@ more_expr	::= ":" <expr> <more_expr>
 		{
 			node.PostActions = new List<DialogueCommand>();
 
-			node.AgentId = lex.Lexum.ToString();
-			lex.Match(SimpleLex.TokenType.ID);
-			lex.Match(":");
+			while (lex.Token == SimpleLex.TokenType.ID)
+			{
+				node.AgentId = lex.Lexum.ToString();
+				lex.Match(SimpleLex.TokenType.ID);
+				lex.Match(":");
 
-			lex.ReadToEol();
+				lex.ReadToEol();
 
-			string txt = lex.Lexum.ToString();
-			lex.Next();
-			lex.NextLine();
+				string txt = lex.Lexum.ToString();
+				lex.Next();
+				lex.NextLine();
+
+				node.Texts.Add(TextTemplate.Parse(txt));
+			}
 
 			ParseActions(lex, node.PostActions);
 
-			node.Text = TextTemplate.Parse(txt);
 		}
 
 		public void ParseNodeText_Choices(SimpleLex lex, OptionsNode node)

@@ -722,5 +722,88 @@ Node: Coach_Greet_Main
 			world.DialogueMan.EndDialog();
 			Assert.Null(world.DialogueMan.Current);
 		}
+
+		[Test]
+		public void HRandomTextNodeTest()
+		{
+			const string xml = @"<world>
+<utility>
+	<utility_properties>
+		<properties>
+			<property name='const30%' type='float' global='true' min='0' max='1' start='0.3' start_rand='false' change_per_hour='0' />
+			<property name='weekend' type='bool' global='true' min='0' max='1' start_rand='false' />
+			<property name='daylight' type='bool' global='true' min='0' max='1' start='0' start_rand='false' />
+		</properties>
+	</utility_properties>
+	<objectives>
+		<objective name='idle' time='20' priority='3' interruptible='true' cooldown='0'>
+			<consideration property='const30%' weight='1' func='normal' />
+		</objective>
+	</objectives>
+	<agenttypes>
+		<agenttype type='base'>
+			<objectives><idle /></objectives>
+		</agenttype>
+	</agenttypes>
+	<agents>
+		<agent type='base' name='IdleOnly' />
+	</agents>
+</utility>
+<properties>
+	<property name='HP' type='float' category='VITALS' min='0' max='100' start='100' change_per_sec='0.1' from_utility='true'></property>
+</properties>
+<property_sets>
+	<set id='Player' HP />
+</property_sets>
+<character_types>
+	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	</character_def>
+</character_types>
+<characters>
+	<character agent_id='Coach' char_id='Player'/>
+	<character agent_id='Nick' char_id='Player'/>
+</characters>
+<dialogues>
+Node: Start
+---
+Coach: 1
+Coach: 2
+Coach: 3
+===
+</dialogues>
+</world>";
+			var world = World.Parse(xml);
+
+			int one = 0;
+			int two = 0;
+			int three = 0;
+
+			for (int i = 0; i < 10; i++)
+			{
+				world.DialogueMan.StartDialog("Start");
+				Assert.That(world.DialogueMan.Current, Is.TypeOf<SayNode>());
+				Assert.That(world.DialogueMan.Current.DialogueType, Is.EqualTo(DialogueNode.NodeType.Text));
+				Assert.That(((SayNode)world.DialogueMan.Current).CurrentText, Is.AnyOf("1", "2", "3"));
+
+				if (((SayNode)world.DialogueMan.Current).CurrentText == "1")
+				{
+					one++;
+				}
+				else if (((SayNode)world.DialogueMan.Current).CurrentText == "2")
+				{
+					two++;
+				}
+				else if (((SayNode)world.DialogueMan.Current).CurrentText == "3")
+				{
+					three++;
+				}
+
+				world.DialogueMan.EndDialog();
+			}
+
+			Assert.That(one, Is.Not.Zero);
+			Assert.That(two, Is.Not.Zero);
+			Assert.That(three, Is.Not.Zero);
+		}
 	}
 }

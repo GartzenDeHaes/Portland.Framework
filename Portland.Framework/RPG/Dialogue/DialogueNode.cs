@@ -27,7 +27,7 @@ namespace Portland.RPG.Dialogue
 		public string AgentId;
 		public NodeType DialogueType;
 
-		public TextTemplate Text;
+		public List<TextTemplate> Texts = new List<TextTemplate>();
 
 		public string CurrentText = String.Empty;
 
@@ -51,7 +51,14 @@ namespace Portland.RPG.Dialogue
 			in IDictionary<string, Agent> agentsById
 		)
 		{
-			CurrentText = Process(globalFacts, agentsById, Text);
+			if (Texts.Count == 0)
+			{
+				CurrentText = String.Empty;
+			}
+			else
+			{
+				CurrentText = Process(globalFacts, agentsById, Texts.RandomItem());
+			}
 		}
 
 		protected string Process

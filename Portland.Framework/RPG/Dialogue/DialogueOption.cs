@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Portland.AI;
 using Portland.AI.Barks;
-using Portland.AI.NLP;
-using Portland.Collections;
 using Portland.Mathmatics;
 using Portland.Text;
 
