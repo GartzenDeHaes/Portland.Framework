@@ -865,10 +865,17 @@ Node: Start
 			world.DialogueMan.StartDialog("Start");
 			Assert.That(((OptionsNode)world.DialogueMan.Current).CurrentText, Is.EqualTo(String.Empty));
 			Assert.That(((OptionsNode)world.DialogueMan.Current).ActiveCount, Is.EqualTo(1));
-			Assert.True(((OptionsNode)world.DialogueMan.Current).Active[0].Used);
+			Assert.False(((OptionsNode)world.DialogueMan.Current).Active[0].Used);
 			Assert.False(((OptionsNode)world.DialogueMan.Current).Active[0].CanReuse);
 
 			world.DialogueMan.EndDialog();
+			Assert.That(world.DialogueMan.Current, Is.Null);
+
+			world.DialogueMan.StartDialog("Start");
+			Assert.That(((OptionsNode)world.DialogueMan.Current).ActiveCount, Is.EqualTo(1));
+			world.DialogueMan.ChooseOption(0);
+			world.Update(1f);
+
 			Assert.That(world.DialogueMan.Current, Is.Null);
 
 			world.DialogueMan.StartDialog("Start");
