@@ -8,25 +8,11 @@ using Portland.Threading;
 
 namespace Portland.ComponentModel
 {
-	//public struct EventMessage
-	//{
-	//	public String10 EventName;
-	//	public String ArgS;
-	//	public Variant8 ArgV;
-	//}
-
 	/// <summary>
 	/// EventBus is a polled, non-threaded message bus
 	/// </summary>
 	public sealed class EventBus : IMessageBus<SimpleMessage>
 	{
-		//public struct Subscription
-		//{
-		//	public String10 EventName;
-		//	public Action<EventMessage> Callback;
-		//	public string SubscriberKey;
-		//}
-
 		Dictionary<String10, Vector<Subscription<SimpleMessage>>> _subscriptions = new Dictionary<String10, Vector<Subscription<SimpleMessage>>>();
 		Vector<SimpleMessage> _pending = new Vector<SimpleMessage>(5);
 		bool _acceptNewMessageTypes = true;
@@ -42,7 +28,19 @@ namespace Portland.ComponentModel
 
 				for (int i = 0; i < vec.Count; i++)
 				{
-					vec[i].Callback(msg);
+					try
+					{
+						vec[i].Callback(msg);
+					}
+					catch (Exception ex)
+					{
+#if UNITY_2019_4_OR_NEWER
+						Debug.LogException(ex);
+#else
+						// TODO: Log this
+						Debug.WriteLine(ex);
+#endif
+					}
 				}
 			}
 
@@ -117,6 +115,16 @@ namespace Portland.ComponentModel
 		{
 			var msgName = eventName;
 			Func<Subscription<SimpleMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey && s.MessageName == msgName; };
+
+			foreach (var vec in _subscriptions.Values)
+			{
+				vec.RemoveWhen(rmfn);
+			}
+		}
+
+		public void UnSubscribe(string subscriberKey)
+		{
+			Func<Subscription<EventMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey; };
 
 			foreach (var vec in _subscriptions.Values)
 			{

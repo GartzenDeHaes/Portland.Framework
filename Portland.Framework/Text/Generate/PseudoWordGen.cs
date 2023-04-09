@@ -2,10 +2,6 @@
 //"""A Random Word Generator that uses a built-in algorithm that follows the syllable rules
 //in the English language. Useful for finding a creative name for a business or app."""
 
-using Portland.AI.NLP;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
 using System;
 
 public class PseudoRandomWord

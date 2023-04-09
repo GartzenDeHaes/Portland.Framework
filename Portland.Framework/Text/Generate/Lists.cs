@@ -4,12 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Portland.AI.Barks;
-using Portland.AI.NLP;
-using Portland.CheckedEvents;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Net.WebRequestMethods;
-
 namespace Portland.Text.Generate
 {
 	public static class Lists
