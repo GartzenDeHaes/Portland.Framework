@@ -124,7 +124,7 @@ namespace Portland.ComponentModel
 
 		public void UnSubscribe(string subscriberKey)
 		{
-			Func<Subscription<EventMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey; };
+			Func<Subscription<SimpleMessage>, bool> rmfn = (s) => { return s.SubscriberUniqueKey == subscriberKey; };
 
 			foreach (var vec in _subscriptions.Values)
 			{

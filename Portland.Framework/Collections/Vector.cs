@@ -48,6 +48,13 @@ namespace Portland.Collections
 			}
 		}
 
+		public bool TryTake(out T value)
+		{
+			bool returnValue = m_used > 0;
+			value = Pop();
+			return returnValue;
+		}
+
 		/// <summary>
 		/// Bottom of stack, first element in list
 		/// </summary>
