@@ -123,13 +123,13 @@ namespace Portland.Collections
 		{
 			if (m_used >= m_data.Length)
 			{
-				int space = m_data.Length;
-				while (m_used >= space)
-				{
-					//space <<= 1;
-					space += space / 3;
-				}
-				T[] array2 = new T[space];
+				//int space = m_data.Length;
+				//while (m_used >= space)
+				//{
+				//	//space <<= 1;
+				//	space += space / 3;
+				//}
+				T[] array2 = new T[m_data.Length + m_data.Length / 3 + 1];
 				int i;
 				for (i = 0; (i < m_used); i++)
 				{

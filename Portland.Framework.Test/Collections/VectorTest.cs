@@ -12,6 +12,20 @@ namespace Portland.Collections
 	public class VectorTest
 	{
 		[Test]
+		public void SmallVectorMustAutoIncreaseSize()
+		{
+			Vector<int> vec = new Vector<int>(1);
+
+			Assert.That(vec.Count, Is.EqualTo(0));
+			vec.Add(1);
+			Assert.That(vec.Count, Is.EqualTo(1));
+			vec.Add(2);
+			Assert.That(vec.Count, Is.EqualTo(2));
+			vec.Add(3);
+			Assert.That(vec.Count, Is.EqualTo(3));
+		}
+
+		[Test]
 		public void RemoveWhenTest()
 		{
 			Vector<int> vector = new Vector<int>();
