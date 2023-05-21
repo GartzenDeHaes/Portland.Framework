@@ -137,7 +137,7 @@ namespace Portland.Automata
 				if (this.StateMachine.DebuggingEnabled)
 				{
 #if UNITY_5_3_OR_NEWER
-					Debug.Log($"[{TriggerName}] StateTransition is complete");
+					UnityEngine.Debug.Log($"[{TriggerName}] StateTransition is complete");
 #else
 					Debug.WriteLine($"[{TriggerName}] StateTransition is complete");
 #endif
@@ -202,7 +202,7 @@ namespace Portland.Automata
 				if (DebuggingEnabled)
 				{
 #if UNITY_5_3_OR_NEWER
-					Debug.Log($"{StateMachineName} Trigger '{triggerName}' not found for current active state '{currentStateTag}'");
+					UnityEngine.Debug.Log($"{StateMachineName} Trigger '{trigger}' not found for current active state '{currentStateTag}'");
 #else
 					Debug.WriteLine($"{StateMachineName} Trigger '{trigger}' not found for current active state '{currentStateTag}'");
 #endif
