@@ -39,8 +39,6 @@ namespace Portland
 			bool updateOff = false;
 			bool updateOn = false;
 
-			stateMachine.AddStates();
-
 			stateMachine.BuildState(LightState.Off)
 				.OnEnter(() => enteredOff = true)
 				.OnExit(() => exitOff = true)

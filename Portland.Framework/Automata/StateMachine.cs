@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Portland.Collections;
+
 namespace Portland.Automata
 {
 	public sealed class StateMachine<STATE, EVENT> where STATE : struct, Enum where EVENT : struct, Enum
@@ -147,10 +149,11 @@ namespace Portland.Automata
 
 		public string StateMachineName = "[StateMachine]";
 
-		Dictionary<STATE, State> States = new();
-		List<StateTransition> StateTransitions = new List<StateTransition>();
+		//Dictionary<STATE, State> _states = new();
+		State[] _states;
+		Vector<StateTransition> StateTransitions = new ();
 
-		public State StartState;
+		public STATE StartState;
 		public State CurrentState;
 		public State NextState;
 
@@ -160,17 +163,29 @@ namespace Portland.Automata
 
 		public StateMachine()
 		{
+			var states = Enum.GetValues<STATE>();
+			_states = new State[states.Length];
+
+			for (int i = 0; i < states.Length; i++)
+			{
+				_states[i] = new State() { StateId = states[i] };
+			}
+
+			CurrentState = _states[0];
 		}
 
 		public StateMachine(string name)
+		: this()
 		{
 			StateMachineName = name;
 		}
 
 		public StateMachine(STATE start)
+		: this()
 		{
-			CreateState(start);
-			SetStartState(start);
+			StartState = start;
+
+			CurrentState = _states[Convert.ToInt32(start)];
 		}
 
 		public StateMachine(string name, STATE start)
@@ -189,8 +204,20 @@ namespace Portland.Automata
 				CurrentTransition = null;
 			}
 
-			//StateTransition triggerTransition = this.StateTransitions.Find(transition => transition.EntryState.StateId == CurrentState.StateId && transition.TriggerName == trigger);
-			StateTransition triggerTransition = StateTransitions.Find(transition => EqualityComparer<STATE>.Default.Equals(transition.EntryState.StateId, currentStateTag) && EqualityComparer<EVENT>.Default.Equals(transition.TriggerName, trigger));
+			//StateTransition triggerTransition = StateTransitions.Find(transition => EqualityComparer<STATE>.Default.Equals(transition.EntryState.StateId, currentStateTag) && EqualityComparer<EVENT>.Default.Equals(transition.TriggerName, trigger));
+
+			StateTransition triggerTransition = null;
+
+			for (int i = 0; i < StateTransitions.Count; i++)
+			{
+				var transition = StateTransitions[i];
+
+				if (EqualityComparer<STATE>.Default.Equals(transition.EntryState.StateId, currentStateTag) && EqualityComparer<EVENT>.Default.Equals(transition.TriggerName, trigger))
+				{
+					triggerTransition = transition;
+					break;
+				}
+			}
 
 			if (triggerTransition != null)
 			{
@@ -228,123 +255,30 @@ namespace Portland.Automata
 			CurrentState.OnLateUpdate?.Invoke();
 		}
 
-		public StateBuilder CreateState(STATE stateId)
-		{
-			if (HasState(stateId))
-			{
-				throw new Exception($"{StateMachineName} already has state {stateId}");
-			}
-			var state = new State() { StateId = stateId };
-			States.Add(stateId, state);
-			return new StateBuilder(state, this);
-		}
-
 		public StateBuilder BuildState(STATE stateId)
 		{
-			if (TryGetState(stateId, out var state))
-			{
-				return new StateBuilder(state, this);
-			}
-			else
-			{
-				return CreateState(stateId);
-			}
+			return new StateBuilder(_states[Convert.ToInt32(stateId)], this);
 		}
 
 		public void SetStartState(STATE name)
 		{
-			if (!HasState(name))
-			{
-				throw new Exception($"{StateMachineName} Start state {name} not found.");
-			}
+			StartState = name;
+			CurrentState = _states[Convert.ToInt32(name)];
+		}
 
-			State state = GetState(name);
-			StartState = state;
+		public void GoToState(STATE state)
+		{
+			CurrentState = _states[Convert.ToInt32(state)];
+		}
+
+		public void GoToState(State state)
+		{
 			CurrentState = state;
 		}
 
-		public void GoToState(State state) => CurrentState = state;
-
-		//public void AddTransition(STATE entryState, STATE exitState, EVENT triggerName, float transitionDuration = 0)
-		//{
-		//	if (this.StateTransitions.Any(transition => EqualityComparer<EVENT>.Default.Equals(transition.TriggerName, triggerName)))
-		//	{
-		//		throw new Exception($"{StateMachineName} Error adding state transition {triggerName}. State transition with this trigger name already exist in StateMachine.");
-		//	}
-
-		//	this.StateTransitions.Add(new StateTransition(this, GetState(entryState), GetState(exitState), triggerName, transitionDuration));
-		//}
-
-//		public void AddState(State stateInstance)
-//		{
-//			var name = stateInstance.StateId;
-
-//			if (this.States.ContainsKey(name))
-//			{
-//				throw new Exception($"{StateMachineName} State {name} already exists in the StateMachine.");
-//			}
-//			else
-//			{
-//				if (this.DebuggingEnabled)
-//				{
-//#if UNITY_5_3_OR_NEWER
-//					Debug.Log($"{StateMachineName} Adding state {name} to the StateMachine.");
-//#else
-//					Debug.WriteLine($"{StateMachineName} Adding state {name} to the StateMachine.");
-//#endif
-//				}
-
-//				this.States.Add(name, stateInstance);
-//			}
-//		}
-
 		public State GetState(STATE name)
 		{
-			if (States.ContainsKey(name))
-			{
-				return States[name];
-			}
-
-			throw new Exception(name + " state alread exists in the StateMachine.");
-		}
-
-		public bool TryGetState(STATE tag, out State stateInstance)
-		{
-			stateInstance = default(State);
-
-			if (States.ContainsKey(tag))
-			{
-				stateInstance = States[tag];
-				return true;
-			}
-
-			return false;
-		}
-
-		//public string GetStateTag<T>() where T : State => this.States.FirstOrDefault(pair => pair.Key == typeof(T).Name).Key;
-
-		//public string GetStateTag(State stateInstance) => this.States.FirstOrDefault(pair => pair.Value == stateInstance).Key;
-
-		public bool HasState(STATE name)
-		{
-			return States.ContainsKey(name);
-		}
-
-		public void AddState(STATE state)
-		{
-			CreateState(state);
-		}
-
-		public void AddStates()
-		{
-			var states = Enum.GetValues<STATE>();
-			for (int i = 0; i < states.Length; i++)
-			{
-				if (!HasState(states[i]))
-				{
-					CreateState(states[i]);
-				}
-			}
+			return _states[Convert.ToInt32(name)];
 		}
 
 		public void ClearCurrentTransition() => CurrentTransition = null;
