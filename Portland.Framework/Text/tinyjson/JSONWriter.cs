@@ -185,9 +185,13 @@ namespace TinyJson
 				PropertyInfo[] propertyInfo = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 				for (int i = 0; i < propertyInfo.Length; i++)
 				{
-					if (!propertyInfo[i].CanRead || propertyInfo[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
+					if (!propertyInfo[i].CanRead || !propertyInfo[i].CanWrite || propertyInfo[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
 						continue;
 
+					if (propertyInfo[i].GetGetMethod().GetParameters().Length > 0)
+					{
+						continue;
+					}
 					object value = propertyInfo[i].GetValue(item, null);
 					if (value != null)
 					{
