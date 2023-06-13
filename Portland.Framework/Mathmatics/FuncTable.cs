@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Portland.Mathmatics
 {
-	public class FuncTablef
+	public sealed class FuncTablef
 	{
 		float _domainMin;
 		float _domainMax;
@@ -44,7 +44,7 @@ namespace Portland.Mathmatics
 		}
 	}
 
-	public class FuncTablef2D
+	public sealed class FuncTablef2D
 	{
 		float _domainMin;
 		float _domainMax;
@@ -93,7 +93,7 @@ namespace Portland.Mathmatics
 		}
 	}
 
-	public class FuncTabled
+	public sealed class FuncTabled
 	{
 		double _domainMin;
 		double _domainMax;

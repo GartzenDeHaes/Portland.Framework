@@ -5,7 +5,7 @@ using Portland.Mathmatics;
 
 namespace Portland.PGC
 {
-	public class HeightMap : IIndexedArray2DWrap<float>
+	public sealed class HeightMap : IIndexedArray2DWrap<float>
 	{
 		readonly float[] _cells;
 		public readonly int Width;

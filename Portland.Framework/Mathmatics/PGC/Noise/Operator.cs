@@ -13,7 +13,7 @@ namespace Portland.PGC
 		Power
 	}
 
-	public class Operator : NoiseGen
+	public sealed class Operator : NoiseGen
 	{
 		public INoise PrimaryNoise { get; set; }
 		public INoise SecondaryNoise { get; set; }
