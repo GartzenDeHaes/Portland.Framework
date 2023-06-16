@@ -17,8 +17,8 @@ namespace Portland.Mathmatics
 			{
 				float a = x - _domainMin;
 				float step = a / _step;
-				int pos = (int)step;
-				return _cells[pos % (Count+1)];
+				//int pos = (int)step;
+				return _cells[(int)step % (Count+1)];
 			}
 		}
 
@@ -36,11 +36,16 @@ namespace Portland.Mathmatics
 			float dsize = domainMax - domainMin;
 			_step = dsize / cols;
 
-			for (int x = 0; x < cols; x++)
+			SetTable(0, cols, func);
+		}
+
+		public void SetTable(int start, int length, Func<float, float> func)
+		{
+			for (int x = start; x < length; x++)
 			{
-				_cells[x] = func(domainMin + _step * x);
+				_cells[x] = func(_domainMin + _step * x);
 			}
-			_cells[cols] = func(domainMax);
+			_cells[length] = func(_domainMax);
 		}
 	}
 
@@ -68,7 +73,7 @@ namespace Portland.Mathmatics
 		}
 
 		int _size;
-		public int Width { get { return _size; } }
+		public int Count { get { return _size; } }
 		public float DomainMin { get { return _domainMin; } }
 		public float DomainMax { get { return _domainMax; } }
 

@@ -1,11 +1,8 @@
-﻿using NUnit.Framework;
+﻿using System;
 
-using Portland.Mathmatics;
 using Portland.PGC;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NUnit.Framework;
 
 namespace Portland.Mathmatics
 {
@@ -51,7 +48,7 @@ namespace Portland.Mathmatics
 		{
 			FuncTablef2D fn = new FuncTablef2D(16, 0, 16f, (x,y) => (float)PerlinImproved.Perlin(x,y,1f));
 
-			Assert.That(fn.Width, Is.EqualTo(16));
+			Assert.That(fn.Count, Is.EqualTo(16));
 
 			Assert.That(fn[0, 0], Is.EqualTo((float)PerlinImproved.Perlin(0f, 0f, 1f)));
 			Assert.That(fn[1, 1], Is.EqualTo((float)PerlinImproved.Perlin(1f, 1f, 1f)));
