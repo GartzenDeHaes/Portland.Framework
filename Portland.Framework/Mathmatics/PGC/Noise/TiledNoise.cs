@@ -2,7 +2,7 @@
 
 namespace Portland.PGC
 {
-	public class TiledNoise : INoise
+	public sealed class TiledNoise : INoise
 	{
 		const double _simplexDensity = 0.015f;
 		const double offset = 1f;

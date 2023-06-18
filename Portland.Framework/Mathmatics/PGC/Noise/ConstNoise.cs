@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace Portland.PGC
 {
-	public class ConstNoise : NoiseGen
+	public sealed class ConstNoise : NoiseGen
 	{
 		double _value;
 
 		public ConstNoise(double value)
 		{
-			Debug.Assert(value >= 0f);
-			Debug.Assert(value <= 1f);
-
 			_value = value;
 		}
 

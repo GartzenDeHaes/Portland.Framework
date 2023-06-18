@@ -7,9 +7,9 @@ namespace Portland.PGC
 {
 	public sealed class ClampNoiseConst : NoiseGen
 	{
-		public INoise Noise { get; set; }
-		public double MinValue { get; set; }
-		public double MaxValue { get; set; }
+		INoise Noise;
+		double MinValue;
+		double MaxValue;
 
 		public ClampNoiseConst(INoise noise, double min = 0.0, double max = 1.0)
 		{

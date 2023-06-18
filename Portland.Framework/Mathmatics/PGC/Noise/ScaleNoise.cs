@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Portland.PGC
 {
-	public class ScaledNoise : NoiseGen
+	public sealed class ScaledNoise : NoiseGen
     {
         public NoiseGen Noise { get; set; }
         public double Bias { get; set; }

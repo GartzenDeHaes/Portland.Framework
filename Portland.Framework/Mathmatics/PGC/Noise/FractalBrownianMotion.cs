@@ -5,20 +5,20 @@ using System.Text;
 
 namespace Portland.PGC
 {
-	public class FractalBrownianMotion : NoiseGen
+	public sealed class FractalBrownianMotion : NoiseGen
 	{
-		public INoise Noise { get; set; }
-		private int OctaveCount;
-		public double Persistance { get; set; }
-		public double Lacunarity { get; set; }
-		private double[] SpectralWeights { get; set; }
+		INoise Noise;
+		int OctaveCount;
+		double Persistance;
+		double Lacunarity;
+		double[] SpectralWeights;
 
 		public FractalBrownianMotion(INoise Noise)
 		{
 			this.Noise = Noise;
-			this.Octaves = 2;
 			this.Persistance = 1;
 			this.Lacunarity = 2;
+			this.Octaves = 2;
 		}
 
 		public int Octaves
@@ -40,7 +40,7 @@ namespace Portland.PGC
 
 		public override double Value2D(double X, double Y)
 		{
-			SpectralWeights = new double[Octaves];
+			//SpectralWeights = new double[Octaves];
 
 			double Total = 0.0;
 			double _X = X;
@@ -56,7 +56,7 @@ namespace Portland.PGC
 
 		public override double Value3D(double X, double Y, double Z)
 		{
-			SpectralWeights = new double[Octaves];
+			//SpectralWeights = new double[Octaves];
 
 			double Total = 0.0;
 			double _X = X;

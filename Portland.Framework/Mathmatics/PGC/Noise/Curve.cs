@@ -14,8 +14,8 @@ namespace Portland.PGC
 
 		public Curve(INoise input, FuncTabled func)
 		{
-			Debug.Assert(func.DomainMin == 0f || func.DomainMin == -1f);
-			Debug.Assert(func.DomainMax == 1f);
+			//Debug.Assert(func.DomainMin == 0f || func.DomainMin == -1f);
+			//Debug.Assert(func.DomainMax == 1f);
 
 			_input = input;
 			_func = func;

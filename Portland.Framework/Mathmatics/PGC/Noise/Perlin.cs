@@ -6,25 +6,26 @@ using System.Text;
 namespace Portland.PGC
 {
 	//Perlin Noise implemented using http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
-	public class Perlin : NoiseGen
+	public sealed class Perlin : NoiseGen
 	{
-		public int Seed { get; set; }
-		public int Octaves { get; set; }
-		public double Amplitude { get; set; }
-		public double Persistance { get; set; }
-		public double Frequency { get; set; }
-		public double Lacunarity { get; set; }
+		int Seed;
+		public int Octaves;
+		public double Amplitude;
+		double Persistance;
+		public double Frequency;
+		public double Lacunarity;
+
 		public InterpolateType Interpolation { get; set; }
 
 		public Perlin(int seed)
 		{
-			this.Seed = seed;
-			this.Octaves = 2;
-			this.Amplitude = 2;
-			this.Persistance = 1;
-			this.Frequency = 1;
-			this.Lacunarity = 2;
-			this.Interpolation = InterpolateType.COSINE;
+			Seed = seed;
+			Octaves = 2;
+			Amplitude = 2;
+			Persistance = 1;
+			Frequency = 1;
+			Lacunarity = 2;
+			Interpolation = InterpolateType.COSINE;
 		}
 
 		/*

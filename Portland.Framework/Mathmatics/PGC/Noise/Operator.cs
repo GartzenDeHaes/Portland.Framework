@@ -15,9 +15,9 @@ namespace Portland.PGC
 
 	public sealed class Operator : NoiseGen
 	{
-		public INoise PrimaryNoise { get; set; }
-		public INoise SecondaryNoise { get; set; }
-		public NoiseOperation Modifier { get; set; }
+		INoise PrimaryNoise;
+		INoise SecondaryNoise;
+		NoiseOperation Modifier;
 
 		public Operator(INoise primaryNoise, INoise secondaryNoise, NoiseOperation modifier = NoiseOperation.Add)
 		{
@@ -40,7 +40,8 @@ namespace Portland.PGC
 					return PrimaryNoise.Value2D(x, y) - SecondaryNoise.Value2D(x, y);
 				default:
 					//This is unreachable.
-					return PrimaryNoise.Value2D(x, y) + SecondaryNoise.Value2D(x, y);
+					//return PrimaryNoise.Value2D(x, y) + SecondaryNoise.Value2D(x, y);
+					return 0;
 			}
 		}
 
@@ -58,7 +59,8 @@ namespace Portland.PGC
 					return PrimaryNoise.Value3D(x, y, z) - SecondaryNoise.Value3D(x, y, z);
 				default:
 					//This is unreachable.
-					return PrimaryNoise.Value3D(x, y, z) + SecondaryNoise.Value3D(x, y, z);
+					//return PrimaryNoise.Value3D(x, y, z) + SecondaryNoise.Value3D(x, y, z);
+					return 0;
 			}
 		}
 	}

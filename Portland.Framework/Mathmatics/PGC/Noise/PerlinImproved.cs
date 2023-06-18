@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Portland.PGC
 {
-	public class PerlinImproved : NoiseGen
+	public sealed class PerlinImproved : NoiseGen
 	{
 		public override double Value2D(double x, double y)
 		{

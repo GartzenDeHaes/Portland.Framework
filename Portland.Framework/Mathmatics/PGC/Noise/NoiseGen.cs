@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Portland.PGC
 {
@@ -29,7 +30,8 @@ namespace Portland.PGC
 			return map;
 		}
 
-		public int Floor(double value)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected int Floor(double value)
 		{
 			return (value >= 0.0 ? (int)value : (int)value - 1);
 		}
@@ -65,12 +67,13 @@ namespace Portland.PGC
 		//	return E * Math.Pow(t, 3) + F * Math.Pow(t, 2) + G * t + H;
 		//}
 
-		private static double LinearInterpolate(double pointA, double pointB, double t)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static double LinearInterpolate(double pointA, double pointB, double t)
 		{
 			return pointA * (1 - t) + pointB * t;
 		}
 
-		public static double BiLinearInterpolate(double x, double y, double point00, double point01, double point10, double point11)
+		protected static double BiLinearInterpolate(double x, double y, double point00, double point01, double point10, double point11)
 		{
 			double Point0 = LinearInterpolate(point00, point10, x);
 			double Point1 = LinearInterpolate(point01, point11, x);
@@ -78,7 +81,7 @@ namespace Portland.PGC
 			return LinearInterpolate(Point0, Point1, y);
 		}
 
-		public static double TriLinearInterpolate(double x, double y, double z,
+		protected static double TriLinearInterpolate(double x, double y, double z,
 			 double point000, double point001, double point010,
 			 double point100, double point011, double point101,
 			 double point110, double point111)

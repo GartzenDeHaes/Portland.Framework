@@ -6,7 +6,7 @@ using Portland.Mathmatics;
 
 namespace Portland.PGC
 {
-	public class Voronoi : NoiseGen
+	public sealed class Voronoi : NoiseGen
 	{
 		#region Fields
 

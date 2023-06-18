@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Portland.Collections
 {
-	public sealed class ArrayFlat2D<T>
+	public sealed class ArrayFlat2D<T> : IIndexed<T>, IIndexed2D<T>
 	{
 		T[] _cells;
 		int _width;
