@@ -210,6 +210,8 @@ namespace Portland.Threading
 			_thread.SignalRunState();
 		}
 
+		float _lastErrorMessageTime;
+
 		private void RunServiceOne()
 		{
 			if (_queue.Count == 0)
@@ -235,13 +237,17 @@ namespace Portland.Threading
 
 					//Log.Trace("Running job {0} at {1}s.", witem.JobName, now);
 
-					if (now - witem.NextRuntimeInSeconds() > 10f)
+					if (now - witem.NextRuntimeInSeconds() > 20f)
 					{
+						if (now - _lastErrorMessageTime > 3f)
+						{
+							_lastErrorMessageTime = now;
 #if !UNITY_5_3_OR_NEWER
-						Log.Warn($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
+							Log.Warn($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
 #else
-						UnityEngine.Debug.LogWarning($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
+							UnityEngine.Debug.LogWarning($"Scheduler job {witem.JobName} {now - witem.NextRuntimeInSeconds()}s late");
 #endif
+						}
 					}
 
 					witem.IsRunning = true;
