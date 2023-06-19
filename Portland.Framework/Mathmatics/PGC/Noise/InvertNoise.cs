@@ -5,22 +5,23 @@ using System.Text;
 
 namespace Portland.PGC
 {
-	public class InvertNoise : NoiseGen
-    {
-        public INoise Noise { get; set; }
-        public InvertNoise(INoise Noise)
-        {
-            this.Noise = Noise;
-        }
-    
-        public override double  Value2D(double X, double Y)
-        {
-            return -Noise.Value2D(X, Y);
-        }
+	public sealed class InvertNoise : NoiseGen
+	{
+		INoise Noise;
 
-        public override double  Value3D(double X, double Y, double Z)
-        {
-            return -Noise.Value3D(X, Y, Z);
-        }
-    }
+		public InvertNoise(INoise Noise)
+		{
+			this.Noise = Noise;
+		}
+
+		public override double Value2D(double X, double Y)
+		{
+			return 1.0 - Noise.Value2D(X, Y);
+		}
+
+		public override double Value3D(double X, double Y, double Z)
+		{
+			return 1.0 - Noise.Value3D(X, Y, Z);
+		}
+	}
 }
