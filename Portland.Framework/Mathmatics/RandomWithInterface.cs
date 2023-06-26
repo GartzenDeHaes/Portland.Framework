@@ -4,6 +4,15 @@ namespace Portland.Mathmatics
 {
 	public class RandomWithInterface : Random, IRandom
 	{
+		public RandomWithInterface()
+		{
+		}
+
+		public RandomWithInterface(int seed)
+		: base(seed)
+		{
+		}
+
 		public bool NextBool()
 		{
 			return NextFloat() > 0.5f;
