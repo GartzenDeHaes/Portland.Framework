@@ -25,13 +25,14 @@ namespace Portland.Collections
 		{
 			get
 			{
-				_lock.Wait();
+				return Volatile.Read(ref _count);
+				//_lock.Wait();
 
-				int count = _count;
+				//int count = _count;
 
-				_lock.Release();
+				//_lock.Release();
 
-				return count;
+				//return count;
 			}
 		}
 

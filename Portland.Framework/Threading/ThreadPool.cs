@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Threading;
 
 using Portland.Collections;
 
@@ -11,9 +12,8 @@ namespace Portland.Threading
 	/// </summary>
 	public sealed class SystemThreadPool : IThreadPool
 	{
-#if !UNITY_5_3_OR_NEWER
 		private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-#endif
+
 		public int TotalQueueLength { get { return 0; } }
 
 		public SystemThreadPool(int maxThreads, int maxIoThreads)
@@ -59,11 +59,7 @@ namespace Portland.Threading
 			}
 			catch (Exception ex)
 			{
-#if !UNITY_5_3_OR_NEWER
 				Log.Error(ex);
-#else
-				UnityEngine.Debug.LogException(ex);
-#endif
 			}
 		}
 
@@ -144,7 +140,8 @@ namespace Portland.Threading
 	{
 		public int TotalQueueLength { get { return Work.Count; } }
 
-		ConcurrentListSem<ThreadWorker> Ready = new ConcurrentListSem<ThreadWorker>();
+		//ConcurrentVectorSlim<ThreadRunner> Ready = new ConcurrentVectorSlim<ThreadRunner>(Environment.ProcessorCount);
+		ConcurrentVectorSpin<ThreadRunner> Ready = new ConcurrentVectorSpin<ThreadRunner>(Environment.ProcessorCount);
 		ConcurrentQueueSpin<ThreadActions> Work = new ConcurrentQueueSpin<ThreadActions>();
 
 		public int MaxThreads
@@ -166,7 +163,7 @@ namespace Portland.Threading
 
 			for (int x = 0; x < MaxThreads; x++)
 			{
-				Ready.Add(new ThreadWorker(false) { OnWorkComplete = OnThreadWorkDone });
+				Ready.Add(new ThreadRunner(true) { OnWorkComplete = OnThreadWorkDone });
 			}
 
 			//Start();
@@ -185,14 +182,22 @@ namespace Portland.Threading
 #endif
 		}
 
-		void OnThreadWorkDone(ThreadWorker t)
+		void OnThreadWorkDone(ThreadRunner t)
 		{
-			Ready.Add(t);
+			if (Work.TryDequeue(out var work))
+			{
+				t.EnqueueWork(work.Work, work.OnWorkDone, work.OnError);
+			}
+			else
+			{
+				Ready.Add(t);
+				//Debug.Assert(Ready.Count < MaxThreads);
+			}
 
 			//Debug.Assert(Ready.Count <= MaxThreads);
 
 			//SignalRunState();
-			RunServiceOne();
+			//RunServiceOne();
 		}
 
 		public bool QueueWorkItem(Action work, Action oncomplete, Action<Exception> onError)

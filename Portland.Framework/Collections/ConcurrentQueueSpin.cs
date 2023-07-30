@@ -15,13 +15,15 @@ namespace Portland.Collections
 
 	public sealed class ConcurrentQueueSpin<T>
 	{
-		SpinLock _lock;
+		SpinLock _lock = new SpinLock();
+		//readonly SemaphoreSlim _lock = new SemaphoreSlim(1);
+
 		readonly ListNodeDouble<T> _head = new ListNodeDouble<T>();
 		readonly ListNodeDouble<T> _tail = new ListNodeDouble<T>();
 
 		int _count;
 
-		public int Count { get { return _count; } }
+		public int Count { get { return Volatile.Read(ref _count); } }
 
 		public ConcurrentQueueSpin()
 		{
@@ -34,16 +36,19 @@ namespace Portland.Collections
 			//Debug.Assert(_head.Prev == null);
 			//Debug.Assert(_tail.Next == null);
 
+			var node = new ListNodeDouble<T>() { Item = item, Next = _tail, Prev = _tail.Prev };
+
 			bool gotlock = false;
 			_lock.Enter(ref gotlock);
+			//_lock.Wait();
 
-			var node = new ListNodeDouble<T>() { Item = item, Next = _tail, Prev = _tail.Prev };
 			_tail.Prev.Next = node;
 			_tail.Prev = node;
 
 			_count++;
 
-			if (gotlock) { _lock.Exit(); }
+			if (gotlock) { _lock.Exit(false); }
+			//_lock.Release();
 		}
 
 		public bool TryDequeue(out T item)
@@ -52,8 +57,10 @@ namespace Portland.Collections
 			//Debug.Assert(_tail.Next == null);
 
 			bool found = true;
+
 			bool gotlock = false;
 			_lock.Enter(ref gotlock);
+			//_lock.Wait();
 
 			if (_head.Next == _tail)
 			{
@@ -69,7 +76,8 @@ namespace Portland.Collections
 				_count--;
 			}
 
-			if (gotlock) { _lock.Exit(); }
+			if (gotlock) { _lock.Exit(false); }
+			//_lock.Release();
 
 			return found;
 		}
@@ -78,12 +86,14 @@ namespace Portland.Collections
 		{
 			bool gotlock = false;
 			_lock.Enter(ref gotlock);
+			//_lock.Wait();
 
 			_head.Next = _tail;
 			_tail.Prev = _head;
 			_count = 0;
 
-			if (gotlock) { _lock.Exit(); }
+			if (gotlock) { _lock.Exit(false); }
+			//_lock.Release();
 		}
 	}
 }

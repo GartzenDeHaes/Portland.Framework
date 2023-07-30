@@ -15,9 +15,8 @@ namespace Portland.Threading
 			public Action<Exception> OnError;
 		}
 
-#if !UNITY_5_3_OR_NEWER
 		private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-#endif
+
 		public Action<ThreadWorker> OnWorkComplete;
 
 		ConcurrentQueueSpin<WorkItem> _workToDo = new ConcurrentQueueSpin<WorkItem>();
@@ -36,7 +35,7 @@ namespace Portland.Threading
 			{
 				_thread = new ThreadService(nameof(ThreadWorker), RunServiceOne);
 			}
-			_thread.WaitTime = 5000;
+			//_thread.WaitTime = 5000;
 			_thread.Start();
 		}
 
@@ -60,11 +59,7 @@ namespace Portland.Threading
 				}
 				catch (Exception ex)
 				{
-#if !UNITY_5_3_OR_NEWER
 					Log.Error(ex);
-#else
-					UnityEngine.Debug.LogException(ex);
-#endif
 					work.OnError?.Invoke(ex);
 				}
 			}
