@@ -9,8 +9,4 @@
     <None Remove="**\*.meta" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NLog" Version="5.0.5" />
-  </ItemGroup>
-
 </Project>
