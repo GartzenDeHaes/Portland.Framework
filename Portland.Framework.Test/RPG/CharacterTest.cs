@@ -243,7 +243,7 @@ CALL STAT('CARRY', INVENTORY('SUM', '*', 'WEIGHT'))
 		<property id='WEIGHT' type='Float' name='Weight' instanced='false' />
 	</properties>
 	<definitions>
-		<item_def category='Resource' item_id='STICK' desc='A woooden stick.' stack_size='6'>
+		<item_def category='Resource' item_id='STICK' name='stick' desc='A woooden stick.' stack_size='6'>
 			<property prop_id='WEIGHT' default='1' />
 		</item_def>
 		<item_def category='Melee' item_id='CLUB6' desc='A woooden club.' stack_size='1'>

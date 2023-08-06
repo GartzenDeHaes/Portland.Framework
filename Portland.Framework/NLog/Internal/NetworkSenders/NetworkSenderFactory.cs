@@ -110,24 +110,6 @@ namespace NLog.Internal.NetworkSenders
                 };
             }
 
-            if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-            {
-                return new HttpNetworkSender(url)
-                {
-                    MaxQueueSize = maxQueueSize,
-                    OnQueueOverflow = onQueueOverflow,
-                };
-            }
-
-            if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                return new HttpNetworkSender(url)
-                {
-                    MaxQueueSize = maxQueueSize,
-                    OnQueueOverflow = onQueueOverflow,
-                };
-            }
-
             throw new ArgumentException("Unrecognized network address", nameof(url));
         }
     }

@@ -14,7 +14,7 @@ namespace Portland.RPG
 	public class ItemFactory
 	{
 		Dictionary<String, ItemPropertyDefinition> _propertyDefinitions = new Dictionary<String, ItemPropertyDefinition>();
-		Dictionary<String, ItemDefinition> _itemDefinitions = new Dictionary<String, ItemDefinition>();
+		Dictionary<String8, ItemDefinition> _itemDefinitions = new Dictionary<String8, ItemDefinition>();
 		//StatFactory _stats;
 		List<String> _categories = new List<String>();
 
@@ -23,7 +23,7 @@ namespace Portland.RPG
 			return _itemDefinitions.ContainsKey(itemId);
 		}
 
-		public ItemStack CreateItem(int collectionIndex, in String itemId, int stackCount = 1)
+		public ItemStack CreateItem(int collectionIndex, in String8 itemId, int stackCount = 1)
 		{
 			if (_itemDefinitions.TryGetValue(itemId, out var def))
 			{
@@ -82,7 +82,7 @@ namespace Portland.RPG
 			//}
 		}
 
-		public ItemDefinitionBuilder DefineItem(string itemCategory, in String itemId)
+		public ItemDefinitionBuilder DefineItem(string itemCategory, in String8 itemId)
 		{
 			if (!HasCategory(itemCategory))
 			{
@@ -197,7 +197,7 @@ namespace Portland.RPG
 
 				ItemDefinitionBuilder builder = null;
 				string category = String.Empty;
-				string itemId = String.Empty;
+				string itemId = String8.Empty;
 
 				while (lex.Token == XmlLex.XmlLexToken.STRING)
 				{
@@ -205,7 +205,7 @@ namespace Portland.RPG
 					{
 						category = lex.MatchProperty("category");
 						Debug.Assert(builder == null);
-						if (itemId != String.Empty)
+						if (itemId != String8.Empty)
 						{
 							builder = DefineItem(category, itemId);
 						}
@@ -221,11 +221,19 @@ namespace Portland.RPG
 					}
 					else if (lex.Lexum.IsEqualTo("desc"))
 					{
-						builder.DisplayName(lex.MatchProperty("desc"));
+						builder.Description(lex.MatchProperty("desc"));
 					}
 					else if (lex.Lexum.IsEqualTo("stack_size"))
 					{
 						builder.MaxStackCapacity(Int32.Parse(lex.MatchProperty("stack_size")));
+					}
+					else if (lex.Lexum.IsEqualTo("name"))
+					{
+						builder.DisplayName(lex.MatchProperty("name"));
+					}
+					else
+					{
+						throw new Exception($"Unknown attribute '{lex.Lexum}' on line {lex.LineNum}");
 					}
 				}
 

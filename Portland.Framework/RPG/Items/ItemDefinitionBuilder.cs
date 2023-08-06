@@ -109,7 +109,7 @@ namespace Portland.RPG
 		List<ItemPropertySetting> _props = new List<ItemPropertySetting>();
 		List<Effect> _effects = new List<Effect>();
 
-		public ItemDefinitionBuilder(ItemFactory factory, string category, in String itemId)
+		public ItemDefinitionBuilder(ItemFactory factory, string category, in String8 itemId)
 		{
 			_factory = factory;
 			_itemdef = new ItemDefinition();
@@ -312,7 +312,7 @@ namespace Portland.RPG
 
 		public static readonly ItemDefinition Empty = new ItemDefinition
 		{
-			ItemId = String.Empty,
+			ItemId = String8.Empty,
 			Category = String.Empty,
 			Name = String.Empty,
 			Description = String.Empty,

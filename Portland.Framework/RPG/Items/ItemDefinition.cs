@@ -17,7 +17,7 @@ namespace Portland.RPG
 
 	public class ItemDefinition
 	{
-		public String ItemId;
+		public String8 ItemId;
 		public String Category;
 		public string Name;
 		public string Description;
