@@ -9,7 +9,7 @@ namespace Maximum
 	/// similar to an intrinsic type (e.g. decimal or double).
 	/// </summary>
 	[Serializable]
-	public class Money : IComparable
+	public struct Money : IComparable
 	{
 		#region Members
 		decimal m_amt;
@@ -21,13 +21,14 @@ namespace Maximum
 		/// </summary>
 		public Money()
 		{
+			m_amt = 0;
 		}
 
 		/// <summary>
 		/// Construct from a Money type
 		/// </summary>
 		/// <param name="m"></param>
-		public Money(Money m)
+		public Money(in Money m)
 		{
 			m_amt = m.m_amt;
 		}
@@ -36,7 +37,7 @@ namespace Maximum
 		/// Construct from a decimal value
 		/// </summary>
 		/// <param name="decAmt"></param>
-		public Money(decimal decAmt)
+		public Money(in decimal decAmt)
 		{
 			m_amt = decAmt;
 			Round();
@@ -46,7 +47,7 @@ namespace Maximum
 		/// Construct from a decimal value
 		/// </summary>
 		/// <param name="decAmt"></param>
-		public Money(double amount)
+		public Money(in double amount)
 		{
 			m_amt = (decimal)amount;
 			Round();
@@ -56,28 +57,32 @@ namespace Maximum
 		/// Construct from string (string must be in correct format or exception will be thrown)
 		/// </summary>
 		/// <param name="samt"></param>
-		public static Money Parse(object oamt)
+		public static bool TryParse(object oamt, out Money m)
 		{
+			m = default;
+
 			if (oamt is DBNull)
 			{
-				return null;
+				return false;
 			}
 			if (null == oamt)
 			{
-				return null;
+				return false;
 			}
-			if (oamt is decimal)
+			if (oamt is decimal d)
 			{
-				return new Money((decimal)oamt);
+				m = new Money(d);
+				return true;
 			}
 
 			string samt = oamt.ToString();
-			if (string.IsNullOrEmpty(samt))
+			if (String.IsNullOrEmpty(samt))
 			{
-				return null;
+				return false;
 			}
 
-			return new Money(Decimal.Parse(samt, NumberStyles.Currency));
+			m = new Money(Decimal.Parse(samt, NumberStyles.Currency));
+			return true;
 		}
 		#endregion Ctors
 
@@ -125,12 +130,16 @@ namespace Maximum
 		/// </summary>
 		public override bool Equals(object o)
 		{
-			var m = o as Money;
-			if (m != null)
+			if (o is Money m)
 			{
 				return m.m_amt == m_amt;
 			}
 			return false;
+		}
+
+		public bool Equals(in Money m)
+		{
+			return m.m_amt == m_amt;
 		}
 
 		/// <summary>
@@ -138,7 +147,7 @@ namespace Maximum
 		/// </summary>
 		public override int GetHashCode()
 		{
-			return m_amt.GetHashCode();
+			return (int)m_amt;
 		}
 
 		/// <summary>
@@ -180,6 +189,7 @@ namespace Maximum
 			
 			return amt.ToString("c", moneyFormat);
 		}
+
 		/// <summary>
 		/// Format a decimal number as a money string with or without trailing zeros
 		/// </summary>
@@ -469,7 +479,7 @@ namespace Maximum
 		/// <returns></returns>
 		public static implicit operator decimal(Money m)
 		{
-			return null == m ? 0 : m.m_amt;
+			return m.m_amt;
 		}
 
 		/// <summary>

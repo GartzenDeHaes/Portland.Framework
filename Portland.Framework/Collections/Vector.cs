@@ -8,7 +8,7 @@ using Portland.Mathmatics;
 namespace Portland.Collections
 {
 	[Serializable]
-	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>, IList<T>
+	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>, IList<T>, IReadOnlyList<T>
 	{
 		T[] m_data;
 		int m_used;

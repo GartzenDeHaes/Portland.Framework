@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 
+using Maximum;
+
 using Portland.Text;
 
 namespace Portland
@@ -9,15 +11,15 @@ namespace Portland
 	/// Date with no time
 	/// </summary>
 	[Serializable]
-	public class Date : IComparable
+	public struct Date : IComparable
 	{
 		private static readonly int[] m_daysPerMonth = new int[] { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 		private static Date m_minDate = new Date(Int32.MinValue, 1, 1);
 		private static Date m_maxDate = new Date(Int32.MaxValue, 12, 31);
 
-		private int m_year;
-		private int m_month;
-		private int m_day;
+		private short m_year;
+		private sbyte m_month;
+		private sbyte m_day;
 
 		/// <summary>
 		/// Initialize to current date.
@@ -25,7 +27,11 @@ namespace Portland
 		public Date()
 		{
 			DateTime now = DateTime.Now;
-			Init(now.Year, now.Month, now.Day);
+			m_year = (short)now.Year;
+			m_month = (sbyte)now.Month;
+			m_day = (sbyte)now.Day;
+
+			Validate(now.Year, now.Month, now.Day);
 		}
 
 		/// <summary>
@@ -34,22 +40,32 @@ namespace Portland
 		/// <param name="dt"></param>
 		public Date(DateTime dt)
 		{
-			Init(dt.Year, dt.Month, dt.Day);
+			m_year = (short)dt.Year;
+			m_month = (sbyte)dt.Month;
+			m_day = (sbyte)dt.Day;
+
+			Validate(dt.Year, dt.Month, dt.Day);
 		}
 
 		public Date(object date)
 		{
 			if (null == date || date is DBNull)
 			{
-				Init(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day);
+				m_year = (short)DateTime.MinValue.Year;
+				m_month = (sbyte)DateTime.MinValue.Month;
+				m_day = (sbyte)DateTime.MinValue.Day;
 			}
-			else if (date is DateTime)
+			else if (date is DateTime dtm)
 			{
-				Init(((DateTime)date).Year, ((DateTime)date).Month, ((DateTime)date).Day);
+				m_year = (short)dtm.Year;
+				m_month = (sbyte)dtm.Month;
+				m_day = (sbyte)dtm.Day;
 			}
-			else if (date is Date)
+			else if (date is Date dt)
 			{
-				Init(((Date)date).Year, ((Date)date).Month, ((Date)date).Day);
+				m_year = (short)dt.Year;
+				m_month = (sbyte)dt.Month;
+				m_day = (sbyte)dt.Day;
 			}
 			else
 			{
@@ -66,7 +82,11 @@ namespace Portland
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public Date(int year, int month, int day)
 		{
-			Init(year, month, day);
+			m_year = (short)year;
+			m_month = (sbyte)month;
+			m_day = (sbyte)day;
+
+			Validate(year, month, day);
 		}
 
 		/// <summary>
@@ -75,9 +95,9 @@ namespace Portland
 		/// <param name="revdate"></param>
 		public Date(int revdate)
 		{
-			m_year = revdate / 10000;
-			m_month = (revdate - (m_year * 10000)) / 100;
-			m_day = ((revdate - (m_year * 10000)) - (m_month * 100));
+			m_year = (short)(revdate / 10000);
+			m_month = (sbyte)((revdate - (m_year * 10000)) / 100);
+			m_day = (sbyte)((revdate - (m_year * 10000)) - (m_month * 100));
 
 			if (!IsDate(m_year, m_month, m_day))
 			{
@@ -533,10 +553,7 @@ namespace Portland
 			return m_month.ToString("00") + "/" + m_day.ToString("00") + "/" + m_year.ToString();
 		}
 
-		/// <summary>
-		/// Init
-		/// </summary>
-		private void Init(int year, int month, int day)
+		private void Validate(in int year, in int month, in int day)
 		{
 			if (0 != year || 0 != month || 0 != day)
 			{
@@ -549,9 +566,6 @@ namespace Portland
 					throw new ArgumentOutOfRangeException("Invalid date (" + month + "/" + day + "/" + year + ")");
 				}
 			}
-			m_year = year;
-			m_month = month;
-			m_day = day;
 		}
 
 		/// <summary>
@@ -967,7 +981,7 @@ namespace Portland
 		/// <returns>Returns true if successful.</returns>
 		public static bool TryParse(string value, out Date date)
 		{
-			date = null;
+			date = default;
 			if (IsDate(value))
 			{
 				date = Parse(value);
@@ -985,7 +999,7 @@ namespace Portland
 		{
 			if (null == o || o is DBNull)
 			{
-				return null;
+				return default;
 			}
 			if (o is string)
 			{
@@ -999,7 +1013,7 @@ namespace Portland
 			{
 				if (!((DateTime?)o).HasValue)
 				{
-					return null;
+					return default;
 				}
 				return new Date(((DateTime?)o).Value);
 			}
@@ -1012,7 +1026,7 @@ namespace Portland
 				// Tandem reverse int date
 				if ((int)o == 0)
 				{
-					return null;
+					return default;
 				}
 				return new Date((int)o);
 			}
@@ -1030,7 +1044,7 @@ namespace Portland
 			{
 				return new Date(dtm.Value);
 			}
-			return null;
+			return default;
 		}
 
 		/// <summary>
@@ -1116,7 +1130,7 @@ namespace Portland
 			if (dt == "0" || String.IsNullOrEmpty(dt))
 			{
 				// For parsing Tandem dates.
-				return null;
+				return default;
 			}
 			if (StringHelper.IsInt(dt) && dt.Length == 8)
 			{
@@ -1155,15 +1169,7 @@ namespace Portland
 		/// </summary>
 		public static bool IsDate(string dt)
 		{
-			try
-			{
-				Date _dt = Parse(dt);
-				return _dt != null;
-			}
-			catch (FormatException)
-			{
-				return false;
-			}
+			return TryParse(dt, out Date date);
 		}
 
 		/// <summary>

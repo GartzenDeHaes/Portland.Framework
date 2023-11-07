@@ -4,7 +4,7 @@ using System.Diagnostics;
 #if !UNITY_2017_1_OR_NEWER
 namespace Portland
 {
-	public sealed class Time : ITime
+	public sealed class FrameTime : ITime
 	{
 		Stopwatch _timer;
 		float _frameLast;
@@ -71,7 +71,7 @@ namespace Portland
 		//	get { return _simulationStart + (new TimeSpan((long)(_timer.ElapsedTicks * _simulationTimeScale))); }
 		//}
 
-		public Time()
+		public FrameTime()
 		{
 			_timer = Stopwatch.StartNew();
 			Reset();
