@@ -544,14 +544,14 @@ namespace Portland
 		/// <param name="value">Date string</param>
 		/// <param name="date">The parsed date</param>
 		/// <returns>Returns true if successful.</returns>
-		public static bool TryParse(string value, out Date date)
+		public static bool TryParse(string value, out ShortDateTime date)
 		{
-			date = default;
-			if (IsDate(value))
+			if (DateTime.TryParse(value, out DateTime dtm))
 			{
-				date = Parse(value);
+				date = new ShortDateTime(dtm);
 				return true;
 			}
+			date = default;
 			return false;
 		}
 
@@ -560,11 +560,11 @@ namespace Portland
 		/// </summary>
 		/// <param name="dtm">Can be null</param>
 		/// <returns>A Date or null.</returns>
-		public static Date Parse(DateTime? dtm)
+		public static ShortDateTime Parse(DateTime? dtm)
 		{
 			if (dtm.HasValue)
 			{
-				return new Date(dtm.Value);
+				return new ShortDateTime(dtm.Value);
 			}
 			return default;
 		}
@@ -572,118 +572,13 @@ namespace Portland
 		/// <summary>
 		/// Parse the date string.
 		/// </summary>
-		public static Date Parse(string dt)
+		public static ShortDateTime Parse(string dt)
 		{
-			int mo, dy, yr;
-			string[] parts;
-
-			if (dt.IndexOf('-') > -1)
+			if (TryParse(dt, out ShortDateTime date))
 			{
-				parts = dt.Split(new char[] { '-' });
-				if (parts.Length != 3)
-				{
-					throw new FormatException("Invalid European format, should be YYYY-MM-DD.");
-				}
-				if (!StringHelper.IsInt(parts[0]))
-				{
-					throw new FormatException("Invalid European format year.");
-				}
-				if (!StringHelper.IsInt(parts[1]))
-				{
-					throw new FormatException("Invalid European format month.");
-				}
-				if (!StringHelper.IsInt(parts[2]))
-				{
-					throw new FormatException("Invalid European format day.");
-				}
-				return new Date(Int32.Parse(parts[0]), Int32.Parse(parts[1]), Int32.Parse(parts[2]));
+				return date;
 			}
-
-			if (dt.IndexOf(',') > -1)
-			{
-				switch (dt.Substring(0, 3))
-				{
-					case "Jan":
-						mo = 1;
-						break;
-					case "Feb":
-						mo = 2;
-						break;
-					case "Mar":
-						mo = 3;
-						break;
-					case "Apr":
-						mo = 4;
-						break;
-					case "May":
-						mo = 5;
-						break;
-					case "Jun":
-						mo = 6;
-						break;
-					case "Jul":
-						mo = 7;
-						break;
-					case "Aug":
-						mo = 8;
-						break;
-					case "Sep":
-						mo = 9;
-						break;
-					case "Oct":
-						mo = 10;
-						break;
-					case "Nov":
-						mo = 11;
-						break;
-					case "Dec":
-						mo = 12;
-						break;
-					default:
-						throw new FormatException();
-				}
-				int pos = dt.IndexOf(' ') + 1;
-				int cmaidx = dt.IndexOf(',');
-				dy = Int32.Parse(StringHelper.MidStr(dt, pos, cmaidx));
-				yr = Int32.Parse(dt.Substring(cmaidx + 1));
-
-				return new Date(yr, mo, dy);
-			}
-			if (dt == "0" || String.IsNullOrEmpty(dt))
-			{
-				// For parsing Tandem dates.
-				return default;
-			}
-			if (StringHelper.IsInt(dt) && dt.Length == 8)
-			{
-				// Tandem reverse int format
-				string day = dt.Substring(6);
-				if (day == "00")
-				{
-					// Tandem data is crap.
-					day = "01";
-				}
-				return new Date(Int32.Parse(dt.Substring(0, 4)), Int32.Parse(dt.Substring(4, 2)), Int32.Parse(day));
-			}
-			if (StringHelper.CountOccurancesOf(dt, '/') != 2)
-			{
-				throw new FormatException();
-			}
-
-			parts = dt.Split(new char[] { '/' });
-			if (!Int32.TryParse(parts[0], out mo))
-			{
-				throw new FormatException();
-			}
-			if (!Int32.TryParse(parts[1], out dy))
-			{
-				throw new FormatException();
-			}
-			if (!Int32.TryParse(parts[2], out yr))
-			{
-				throw new FormatException();
-			}
-			return new Date(yr, mo, dy);
+			return default;
 		}
 
 		/// <summary>
@@ -691,7 +586,7 @@ namespace Portland
 		/// </summary>
 		public static bool IsDate(string dt)
 		{
-			return TryParse(dt, out Date date);
+			return TryParse(dt, out var date);
 		}
 
 		/// <summary>

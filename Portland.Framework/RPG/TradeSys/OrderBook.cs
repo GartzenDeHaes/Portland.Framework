@@ -35,8 +35,8 @@ namespace Portland.RPG.Economics
 	public struct Order
 	{
 		public int OrderId;
-		public int AgentId;
-		public AsciiId4 LocationId;
+		public String10 ItemId;
+		public AsciiId4 LocationCode;
 		public TimeInForce TIF;
 		public OrderAction BuyOrSell;
 		public OrderType OrderType;
@@ -44,11 +44,13 @@ namespace Portland.RPG.Economics
 		public int LimitPrice;
 		public Date ExpireDate;
 		public OrderStatus Status;
-		public Date CreatedDate;
+		public int AgentId;
+		public ShortDateTime CreatedDate;
 	}
 
-	public struct ExecutedOrder
+	public struct ItemTransation
 	{
+		public String10 ItemId;
 		public DateTime When;
 		public int Bid;
 		public int BidAgentId;
@@ -56,6 +58,25 @@ namespace Portland.RPG.Economics
 		public int AskAgentId;
 		public int Price;
 		public int Size;
+	}
+
+	public class ExchangeLocation
+	{
+		public AsciiId4 LocationCode;
+
+		public Vector<OrderBook> OrderBooks = new();
+	}
+
+	public class ExchangeManager
+	{
+		Vector<Order> _orders = new();
+		Dictionary<AsciiId4, ExchangeLocation> _exchangeLocations = new();
+
+		public ExchangeManager()
+		{
+
+		}
+
 	}
 
 	public class OrderBook
@@ -69,7 +90,7 @@ namespace Portland.RPG.Economics
 		// ordered by offer desc, lowest price LAST 
 		Vector<int> SellOrders = new();
 
-		Vector<ExecutedOrder> ExecutionResults = new();
+		Vector<ItemTransation> ExecutionResults = new();
 
 		Vector<Order> Orders = new();
 
@@ -79,7 +100,7 @@ namespace Portland.RPG.Economics
 
 
 
-		int SellOrderBy(int aId, int bId)
+		int SellInsertSortOrder(int aId, int bId)
 		{
 			ref Order soa = ref Orders.ElementAtRef(aId);
 			ref Order sob = ref Orders.ElementAtRef(bId);
@@ -100,7 +121,7 @@ namespace Portland.RPG.Economics
 			return (int)(sob.LimitPrice - soa.LimitPrice);
 		}
 
-		int BuyOrderBy(int aId, int bId)
+		int BuyInsertSortOrder(int aId, int bId)
 		{
 			ref Order boa = ref Orders.ElementAtRef(aId);
 			if (boa.OrderType == OrderType.Market)
