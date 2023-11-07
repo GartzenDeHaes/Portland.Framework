@@ -23,7 +23,7 @@ namespace Portland.Text
 	public sealed class SimpleLex : IDisposable
 	{
 		/// <summary></summary>
-		public enum TokenType : short
+		public enum TokenType
 		{
 			/// <summary></summary>
 			BOF,
@@ -38,9 +38,7 @@ namespace Portland.Text
 			/// <summary></summary>
 			PUNCT,
 			/// <summary></summary>
-			CR,
-			/// <summary></summary>
-			LF,
+			NEWLINE,
 			/// <summary></summary>
 			EOF
 		}
@@ -53,7 +51,7 @@ namespace Portland.Text
 		public TokenType Token;
 
 		public bool IsEOF { get { return Token == SimpleLex.TokenType.EOF; } }
-		public bool IsEOL { get { return Token == SimpleLex.TokenType.EOF || Token == SimpleLex.TokenType.CR || Token == SimpleLex.TokenType.LF; } }
+		public bool IsEOL { get { return Token == SimpleLex.TokenType.EOF || Token == SimpleLex.TokenType.NEWLINE; } }
 
 		private enum State
 		{
@@ -149,6 +147,13 @@ namespace Portland.Text
 			while (_textPos < _text.Length)
 			{
 				ch = _text[_textPos];
+				if (ch == '\r')
+				{
+					if (_textPos < _text.Length - 1 && _text[_textPos] == '\n')
+					{
+						_textPos++;
+					}
+				}
 				if (ch == stop || ch == '\n' || ch == '\r')
 				{
 					break;
@@ -160,33 +165,16 @@ namespace Portland.Text
 
 		public void NextLine()
 		{
-			while (Token == TokenType.CR || Token == TokenType.LF) 
+			while (Token == TokenType.NEWLINE) 
 			{
 				Next();
 			}
-			//if (Token == TokenType.CR || Token == TokenType.LF)
-			//{
-			//	Next();
-			//}
 		}
 
 		public void SkipWhitespace()
 		{
-			if (IsEOL)
+			while (IsEOL)
 			{
-				Lexum.Length = 0;
-				char ch = _text[_textPos];
-
-				while (Char.IsWhiteSpace(ch) && _textPos < _text.Length)
-				{
-					ch = _text[_textPos++];
-				}
-
-				if (_textPos < _text.Length)
-				{
-					_textPos--;
-				}
-
 				Next();
 			}
 		}
@@ -239,15 +227,20 @@ namespace Portland.Text
 						switch ((CharClass)chcls)
 						{
 							case CharClass.WHITESPACE:
-								if (ch == '\n')
+								if (ch == '\r')
 								{
-									Token = TokenType.LF;
+									if (_textPos < _text.Length - 1 && _text[_textPos] == '\n')
+									{
+										_textPos++;
+									}
+									Token = TokenType.NEWLINE;
 									LineNum++;
 									return true;
 								}
-								if (ch == '\r')
+								if (ch == '\n')
 								{
-									Token = TokenType.CR;
+									Token = TokenType.NEWLINE;
+									LineNum++;
 									return true;
 								}
 								break;

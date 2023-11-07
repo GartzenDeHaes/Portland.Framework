@@ -87,8 +87,7 @@ namespace Portland.AI.Barks
 			while
 			(
 				lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/'
-				|| lex.Token == SimpleLex.TokenType.CR 
-				|| lex.Token == SimpleLex.TokenType.LF
+				|| lex.Token == SimpleLex.TokenType.NEWLINE
 			)
 			{
 				if (lex.Token == SimpleLex.TokenType.PUNCT && lex.Lexum[0] == '/')
@@ -101,15 +100,15 @@ namespace Portland.AI.Barks
 						lex.Next();
 					}
 				}
-				if (lex.Token == SimpleLex.TokenType.CR || lex.Token == SimpleLex.TokenType.LF)
+				if (lex.Token == SimpleLex.TokenType.NEWLINE)
 				{
-					while (lex.Token == SimpleLex.TokenType.CR || lex.Token == SimpleLex.TokenType.LF)
+					while (lex.Token == SimpleLex.TokenType.NEWLINE)
 					{
 						lex.Next();
 					}
 					if (lex.Lexum.Length == 1 && lex.Lexum[0] == '#')
 					{
-						while (lex.Token != SimpleLex.TokenType.CR && lex.Token != SimpleLex.TokenType.LF && !lex.IsEOF)
+						while (lex.Token != SimpleLex.TokenType.NEWLINE && !lex.IsEOF)
 						{
 							lex.Next();
 						}
