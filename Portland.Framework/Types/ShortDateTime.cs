@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using Maximum;
 
@@ -601,5 +602,12 @@ namespace Portland
 		{
 			get { return new ShortDateTime(DateTime.UtcNow); }
 		}
+
+		/// <summary>Implicit String8 to string cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator ShortDateTime(in DateTime dtm) => new ShortDateTime(dtm);
+		/// <summary>Implicit string to String8 cast</summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator DateTime(ShortDateTime sdt) => sdt.ToDateTime();
 	}
 }

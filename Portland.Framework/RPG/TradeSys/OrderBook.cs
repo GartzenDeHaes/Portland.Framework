@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Portland.AI;
 using Portland.Collections;
+using Portland.Threading;
 
 namespace Portland.RPG.Economics
 {
@@ -67,16 +69,72 @@ namespace Portland.RPG.Economics
 		public Vector<OrderBook> OrderBooks = new();
 	}
 
+	public struct MsgExchangeOrderDoCreate
+	{
+		public String10 ItemId;
+		public AsciiId4 LocationCode;
+		public TimeInForce TIF;
+		public OrderAction BuyOrSell;
+		public OrderType OrderType;
+		public int Size;
+		public int LimitPrice;
+		public Date ExpireDate;
+		public int AgentId;
+	}
+
 	public class ExchangeManager
 	{
 		Vector<Order> _orders = new();
 		Dictionary<AsciiId4, ExchangeLocation> _exchangeLocations = new();
+		IMessageBusTyped _bus;
+		IClock _clock;
 
-		public ExchangeManager()
+		public ExchangeManager(IClock clock, IMessageBusTyped bus)
 		{
+			_bus = bus;
+			_clock = clock;
+
+			bus.Subscribe<MsgExchangeOrderDoCreate>(DoOrderCreate);
+		}
+
+		public void Shutdown()
+		{
+			_bus.Unsubscribe<MsgExchangeOrderDoCreate>(DoOrderCreate);
+		}
+
+		void DoOrderCreate(MsgExchangeOrderDoCreate msg)
+		{
+			int id = _orders.Count;
+			_orders.Add(new Order { 
+				OrderId = id, 
+				ItemId = msg.ItemId, 
+				LocationCode = msg.LocationCode, 
+				TIF = msg.TIF, 
+				BuyOrSell = msg.BuyOrSell, 
+				OrderType = msg.OrderType, 
+				Size = msg.Size, 
+				LimitPrice = msg.LimitPrice, 
+				ExpireDate = msg.ExpireDate, 
+				Status = OrderStatus.Open, 
+				AgentId = msg.AgentId, 
+				CreatedDate = _clock.Now
+			});
+
+			var location = GetOrCreateLocation(msg.LocationCode);
 
 		}
 
+		ExchangeLocation GetOrCreateLocation(AsciiId4 locationCode)
+		{
+			if (_exchangeLocations.TryGetValue(locationCode, out var location))
+			{
+				return location;
+			}
+
+			location = new ExchangeLocation() { LocationCode = locationCode };
+			_exchangeLocations.Add(locationCode, location);
+			return location;
+		}
 	}
 
 	public class OrderBook

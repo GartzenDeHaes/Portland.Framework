@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Portland.Threading
 {
-	public class MessageBusTyped
+	public sealed class EventBusTyped : IMessageBusTyped
 	{
 		/// <summary>
 		/// Holds every message which is send through this messagebus mapped to there actions                           
@@ -13,7 +13,7 @@ namespace Portland.Threading
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public MessageBusTyped()
+		public EventBusTyped()
 		{
 		}
 
