@@ -11,60 +11,65 @@ using Portland.Mathmatics;
 
 namespace Portland.RPG.Accounting
 {
-	public enum TransactionType : short
+	public enum TransactionType
 	{
-		Error = 0,
-		Credit,
-		Debit
+		Credit = 1,
+		Debit = -1
 	}
 
-	public struct AccountType
+	public enum AccountTransactionType
 	{
-		public AsciiId4 AccountTypeCode;
-		public TransactionType TransactionTypeCode;
-		public Money Fee;
-	}
-
-	public enum AccountTransactionType : short
-	{
-		Error = 0,
-		AdjustCr,
-		AdjustDr,
-		Deposit,
-		Withdrawl,
-		Fee
+		Error = 'E',
+		AdjustCr = 'A',
+		AdjustDr = 'a',
+		Deposit = 'D',
+		Withdrawl = 'W',
+		WithdrawlAtm = 'w',
+		Fee = 'F'
 	}
 
 	public struct AccountTransaction
 	{
-		public int LedgerId;
+		public int TransactionId;
 		public DateTime Dts;
 		public TransactionType TransactionTypeCode;
 		public AccountTransactionType LedgerTransactionTypeCode;
-		public int AccountId;
-		public Money Amount;
+		public int Amount;
 	}
 
 	public class Account
 	{
-		public Int64Guid OwnerId;
+		public int OwnerAgentId;
 		public int AccountId;
 		public AsciiId4 AccountTypeCode;
-		public Vector<AccountTransaction> AccountTransactions = new(16);
+		public Vector<AccountBook> AccountBooks = new();
+	}
+
+	public class AccountBook
+	{
+		public String10 ItemId;
+		public Vector<AccountTransaction> Transactions = new();
+	}
+
+	public class AccountBookStatement
+	{
+		public String10 ItemId;
+		public int ClosingBalance;
+		public int TotalDebit;
+		public int TotalCredit;
 	}
 
 	public class AccountStatement
 	{
 		public int AccountId;
-		public Date Date;
-		public Money ClosingBalance;
-		public Money TotalDebit;
-		public Money TotalCredit;
+		public ShortDateTime Created;
+		public Vector<AccountBookStatement> ItemStatements = new();
 	}
 
-	public enum LedgerType : short
+	public enum LedgerType
 	{
 		Error = 0,
+		Trade,
 		Asset,
 		Liability,
 		Revenue,
@@ -75,15 +80,18 @@ namespace Portland.RPG.Accounting
 
 	public struct LedgerTransaction
 	{
-		public int LedgerIdCr;
+		public int DrAccountId;
+		public int DrTransactionId;
+		public int CrAccountId;
+		public int CrTransactionId;
+		public int Amount;
 		public DateTime Dts;
-		public int LedgerIdDr;
-		public Money Amount;
 	}
 
 	public class Ledger
 	{
 		public int LedgerId;
+		public String10 ItemId;
 		public LedgerType LedgerTypeCode;
 
 		public Vector<LedgerTransaction> LedgerTransactions = new(16);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Portland.AI;
 using Portland.Collections;
+using Portland.RPG.Accounting;
 using Portland.Threading;
 
 namespace Portland.RPG.Economics
@@ -29,47 +30,32 @@ namespace Portland.RPG.Economics
 
 	public enum OrderStatus
 	{
+		Empty = 0,
 		Open,
 		Filled,
 		Canceled
-	}
-
-	public struct Order
-	{
-		public int OrderId;
-		public String10 ItemId;
-		public AsciiId4 LocationCode;
-		public TimeInForce TIF;
-		public OrderAction BuyOrSell;
-		public OrderType OrderType;
-		public int Size;
-		public int LimitPrice;
-		public Date ExpireDate;
-		public OrderStatus Status;
-		public int AgentId;
-		public ShortDateTime CreatedDate;
-	}
-
-	public struct ItemTransation
-	{
-		public String10 ItemId;
-		public DateTime When;
-		public int Bid;
-		public int BidAgentId;
-		public int Ask;
-		public int AskAgentId;
-		public int Price;
-		public int Size;
 	}
 
 	public class ExchangeLocation
 	{
 		public AsciiId4 LocationCode;
 
-		public Vector<OrderBook> OrderBooks = new();
+		public Dictionary<String10, OrderBook> OrderBooks = new();
+
+		public OrderBook GetOrCreateOrderBood(in String10 itemId)
+		{
+			if (OrderBooks.TryGetValue(itemId, out var orderBook))
+			{
+				return orderBook;
+			}
+
+			orderBook = new OrderBook() { ItemId = itemId };
+			OrderBooks.Add(itemId, orderBook);
+			return orderBook;
+		}
 	}
 
-	public struct MsgExchangeOrderDoCreate
+	public struct MsgResourceOrderDoCreate
 	{
 		public String10 ItemId;
 		public AsciiId4 LocationCode;
@@ -82,27 +68,37 @@ namespace Portland.RPG.Economics
 		public int AgentId;
 	}
 
-	public class ExchangeManager
+	public class ResourceManager
 	{
+		Vector<Account> _accounts = new();
+		Dictionary<int, int[]> _accountsByAgentId = new();
+		Dictionary<String10, Ledger> _ledgers = new();
 		Vector<Order> _orders = new();
+		Vector<int> _orderPool = new();
 		Dictionary<AsciiId4, ExchangeLocation> _exchangeLocations = new();
 		IMessageBusTyped _bus;
 		IClock _clock;
 
-		public ExchangeManager(IClock clock, IMessageBusTyped bus)
+		public ResourceManager(IClock clock, IMessageBusTyped bus)
 		{
 			_bus = bus;
 			_clock = clock;
 
-			bus.Subscribe<MsgExchangeOrderDoCreate>(DoOrderCreate);
+			for (int i = 0; i < 10; ++i)
+			{
+				_orders.Add(new Order { OrderId = i, Status = OrderStatus.Empty });
+				_orderPool.Add(i);
+			}
+
+			bus.Subscribe<MsgResourceOrderDoCreate>(DoOrderCreate);
 		}
 
 		public void Shutdown()
 		{
-			_bus.Unsubscribe<MsgExchangeOrderDoCreate>(DoOrderCreate);
+			_bus.Unsubscribe<MsgResourceOrderDoCreate>(DoOrderCreate);
 		}
 
-		void DoOrderCreate(MsgExchangeOrderDoCreate msg)
+		void DoOrderCreate(MsgResourceOrderDoCreate msg)
 		{
 			int id = _orders.Count;
 			_orders.Add(new Order { 
@@ -121,6 +117,8 @@ namespace Portland.RPG.Economics
 			});
 
 			var location = GetOrCreateLocation(msg.LocationCode);
+			var orderBook = location.GetOrCreateOrderBood(msg.ItemId);
+			var orderId = GetOrCreateOrder();
 
 		}
 
@@ -135,12 +133,48 @@ namespace Portland.RPG.Economics
 			_exchangeLocations.Add(locationCode, location);
 			return location;
 		}
+
+		int GetOrCreateOrder()
+		{
+			if (_orderPool.Count > 0)
+			{
+				return _orderPool.Pop();
+			}
+
+			return _orders.AddAndGetIndex(new Order { OrderId = _orders.Count, Status = OrderStatus.Empty });
+		}
+	}
+
+	public struct Order
+	{
+		public int OrderId;
+		public String10 ItemId;
+		public AsciiId4 LocationCode;
+		public TimeInForce TIF;
+		public OrderAction BuyOrSell;
+		public OrderType OrderType;
+		public int Size;
+		public int LimitPrice;
+		public Date ExpireDate;
+		public OrderStatus Status;
+		public int AgentId;
+		public ShortDateTime CreatedDate;
+	}
+
+	public struct OrderTransation
+	{
+		public String10 ItemId;
+		public DateTime When;
+		public int Bid;
+		public int BidAgentId;
+		public int Ask;
+		public int AskAgentId;
+		public int Price;
+		public int Size;
 	}
 
 	public class OrderBook
 	{
-		public event Action OnOrderExecution;
-
 		public String10 ItemId;
 
 		// ordered by bid asc, highest bid LAST
@@ -148,7 +182,7 @@ namespace Portland.RPG.Economics
 		// ordered by offer desc, lowest price LAST 
 		Vector<int> SellOrders = new();
 
-		Vector<ItemTransation> ExecutionResults = new();
+		Vector<OrderTransation> ExecutionResults = new();
 
 		Vector<Order> Orders = new();
 
