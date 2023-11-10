@@ -11,17 +11,16 @@ using Portland.Types;
 namespace Portland.RPG
 {
 	[Serializable]
-	public sealed class CharacterSheet : ICommandRunner
+	public sealed class CharacterSheet //: ICommandRunner
 	{
 		//public PropertySet Stats;
-		IBlackboard<string> _stats;
+		//IBlackboard<string> _stats;
 
 		public ItemCollection Inventory;
 		public InventoryWindow InventoryWindow;
 
 		// derived stats (AP, AC, Carry Weight, HP, Melee Damage, Companion Nerve, UnArmed Damage, Weapon Damage)
 		// https://fallout.fandom.com/wiki/Fallout:_New_Vegas_SPECIAL#Derived_statistics
-		public ExecutionContext BasCtx;
 		//public BasicProgram BasOnInventory;
 		//public BasicProgram BasOnLevel;
 		//public BasicProgram BasOnEffect;
@@ -41,11 +40,18 @@ namespace Portland.RPG
 		readonly string _levelStatId;
 		readonly string _xpStatId;
 
+		public Agent Agent { get; private set; }
+
+		public IBlackboard<String> Facts { get { return Agent.Facts; } }
+
+		public ExecutionContext BasCtx { get { return Agent.ScriptCtx; } }
+
+		public AgentStateFlags Flags { get { return Agent.Flags; } }
+
 		public CharacterSheet
 		(
-			CharacterDefinition def, 
-			IBlackboard<string> props,
-			ExecutionContext basctx,
+			CharacterDefinition def,
+			Agent agent,
 			EffectGroup raceEffectGroup,
 			EffectGroup classEffectGroup,
 			EffectGroup factionEffectGroup,
@@ -54,18 +60,20 @@ namespace Portland.RPG
 		)
 		{
 			Definition = def;
-			_stats = props;
+			Agent = agent;
+
+			//_stats = props;
 			RaceEffectGroup = raceEffectGroup;
 			ClassEffectGroup = classEffectGroup;
 			FactionEffectGroup = factionEffectGroup;
-			BasCtx = basctx;
+			//BasCtx = basctx;
 			BasCtx.UserData = this;
 
 			_levelStatId = levelStatId;
 			_xpStatId = xpStatId;
 
 			Inventory = new ItemCollection("MAIN", def.TotalInventorySlots);
-			
+
 			InventoryWindow = def.CreateInventoryWindow(Inventory);
 			InventoryWindow.SelectedSlot = def.DefaultSelectedInventorySlot;
 
@@ -87,12 +95,12 @@ namespace Portland.RPG
 
 		public float GetStat(string propId)
 		{
-			return _stats.Get(propId).Value;
+			return Facts.Get(propId).Value;
 		}
 
 		public bool TryGetStat(string propId, out float value)
 		{
-			if (_stats.TryGetValue(propId, out var prop))
+			if (Facts.TryGetValue(propId, out var prop))
 			{
 				value = prop.Value;
 				return true;
@@ -103,7 +111,7 @@ namespace Portland.RPG
 
 		public bool TrySetStat(string propId, float value)
 		{
-			if (_stats.TryGetValue(propId, out var prop))
+			if (Facts.TryGetValue(propId, out var prop))
 			{
 				prop.Set(value);
 
@@ -111,7 +119,7 @@ namespace Portland.RPG
 				{
 					if (prop.Value == prop.Max)
 					{
-						if (_stats.TryGetValue(_levelStatId, out var lvProp))
+						if (Facts.TryGetValue(_levelStatId, out var lvProp))
 						{
 							lvProp.Value = lvProp.Value + 1;
 
@@ -133,12 +141,12 @@ namespace Portland.RPG
 
 		public float GetMaximum(string propId)
 		{
-			return _stats.Get(propId).Max;
+			return Facts.Get(propId).Max;
 		}
 
 		public bool TryGetMaximum(string propId, out float value)
 		{
-			if (_stats.TryGetValue(propId, out var prop))
+			if (Facts.TryGetValue(propId, out var prop))
 			{
 				value = prop.Max;
 				return true;
@@ -149,7 +157,7 @@ namespace Portland.RPG
 
 		public bool TrySetMaximum(string propId, float value)
 		{
-			if (_stats.TryGetValue(propId, out var prop))
+			if (Facts.TryGetValue(propId, out var prop))
 			{
 				prop.Max = value;
 				return true;
@@ -159,7 +167,7 @@ namespace Portland.RPG
 
 		public bool TryGetProbability(string propId, out DiceTerm value)
 		{
-			if (_stats.TryGetValue(propId, out var prop))
+			if (Facts.TryGetValue(propId, out var prop))
 			{
 				value = prop.Definition.Probability;
 				return true;
@@ -190,25 +198,25 @@ namespace Portland.RPG
 			EffectApply(effect);
 		}
 
-		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
-		{
-			throw new NotImplementedException();
-		}
+		//public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		void EffectApply(Effect effect)
 		{
-			Debug.Assert(_stats.ContainsKey(effect.PropertyId));
+			Debug.Assert(Facts.ContainsKey(effect.PropertyId));
 
 			switch (effect.Op)
 			{
 				case EffectValueType.CurrentDelta:
-					TrySetStat(effect.PropertyId, _stats.Get(effect.PropertyId).Value + effect.Value);
+					TrySetStat(effect.PropertyId, Facts.Get(effect.PropertyId).Value + effect.Value);
 					break;
 				case EffectValueType.CurrentAbs:
 					TrySetStat(effect.PropertyId, effect.Value);
 					break;
 				case EffectValueType.MaxDelta:
-					TrySetMaximum(effect.PropertyId, _stats.GetMaximum(effect.PropertyId) + effect.Value);
+					TrySetMaximum(effect.PropertyId, Facts.GetMaximum(effect.PropertyId) + effect.Value);
 					break;
 				case EffectValueType.MaxAbs:
 					TrySetMaximum(effect.PropertyId, effect.Value);
@@ -226,13 +234,13 @@ namespace Portland.RPG
 			switch (effect.Op)
 			{
 				case EffectValueType.CurrentDelta:
-					TrySetStat(effect.PropertyId, _stats.Get(effect.PropertyId).Value - effect.Value);
+					TrySetStat(effect.PropertyId, Facts.Get(effect.PropertyId).Value - effect.Value);
 					break;
 				case EffectValueType.CurrentAbs:
 					TrySetStat(effect.PropertyId, effect.Value);
 					break;
 				case EffectValueType.MaxDelta:
-					TrySetMaximum(effect.PropertyId, _stats.GetMaximum(effect.PropertyId) - effect.Value);
+					TrySetMaximum(effect.PropertyId,	Facts.GetMaximum(effect.PropertyId) - effect.Value);
 					break;
 				case EffectValueType.MaxAbs:
 					TrySetMaximum(effect.PropertyId, effect.Value);

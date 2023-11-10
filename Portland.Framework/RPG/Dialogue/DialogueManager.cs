@@ -31,7 +31,7 @@ namespace Portland.RPG.Dialogue
 
 		WorldStateFlags? _worldState;
 		IBlackboard<string> _globalFacts;
-		IDictionary<string, Agent> _agentsById;
+		IDictionary<string, CharacterSheet> _agentsById;
 		IMessageBus<SimpleMessage> _bus;
 
 		/// <summary>Dialog nodes indexed by RuntimeId</summary>
@@ -53,7 +53,7 @@ namespace Portland.RPG.Dialogue
 		(
 			 WorldStateFlags? worldState,
 			 IBlackboard<string> globalFacts,
-			 IDictionary<string, Agent> agentsById,
+			 IDictionary<string, CharacterSheet> agentsById,
 			 IMessageBus<SimpleMessage> bus,
 			 int maxChoices = 3
 		)

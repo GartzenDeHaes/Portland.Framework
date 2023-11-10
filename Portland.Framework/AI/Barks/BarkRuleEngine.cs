@@ -5,6 +5,7 @@ using Portland.CheckedEvents;
 using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Mathmatics;
+using Portland.RPG;
 using Portland.Types;
 
 namespace Portland.AI.Barks
@@ -67,7 +68,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					if (_world.TryGetAgent(cmd.ActorName, out var actor))
+					if (_world.TryGetCharacter(cmd.ActorName, out var actor))
 					{
 						SetVars(actor.Facts, cmd);
 					}
@@ -102,7 +103,7 @@ namespace Portland.AI.Barks
 				}
 				else
 				{
-					if (_world.TryGetAgent(cmd.ActorName, out var actor))
+					if (_world.TryGetCharacter(cmd.ActorName, out var actor))
 					{
 						AddToVar(actor.Facts, cmd);
 					}
@@ -215,8 +216,8 @@ namespace Portland.AI.Barks
 				{
 					var flagf = rule.ActorFlags[i];
 
-					Agent actor;
-					if (!_world.TryGetAgent(flagf.ActorName, out actor))
+					CharacterSheet actor;
+					if (!_world.TryGetCharacter(flagf.ActorName, out actor))
 					{
 						throw new Exception($"Actor '{flagf.ActorName}' not found");
 					}
@@ -251,8 +252,8 @@ namespace Portland.AI.Barks
 				for (int i = 0; i < rule.ActorFilters.Count; i++)
 				{
 					var filter = rule.ActorFilters[i];
-					Agent actor;
-					if (!_world.TryGetAgent(filter.ActorName, out actor))
+					CharacterSheet actor;
+					if (!_world.TryGetCharacter(filter.ActorName, out actor))
 					{
 						throw new Exception($"Actor '{filter.ActorName}' not found");
 					}

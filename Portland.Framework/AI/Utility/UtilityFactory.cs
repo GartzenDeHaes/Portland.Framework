@@ -73,8 +73,12 @@ namespace Portland.AI.Utility
 			return _objectives.ContainsKey(objectiveName);
 		}
 
-		public UtilitySet CreateAgentInstance(string agentTypeName, string name)
+		public IUtilitySet CreateAgentInstance(string agentTypeName, string name)
 		{
+			if (String.IsNullOrWhiteSpace(agentTypeName))
+			{
+				return new UtilitySet("Empty", new UtilitySetDefinition());
+			}
 			var definition = _setsByName[agentTypeName];
 			var inst = new UtilitySet(name, definition);
 			_instances.Add(inst.Name, inst);

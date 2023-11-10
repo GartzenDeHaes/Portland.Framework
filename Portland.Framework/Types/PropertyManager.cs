@@ -74,7 +74,7 @@ namespace Portland.Types
 			return false;
 		}
 
-		PropertyValue[] CreatePropertySetValues(in string setId, UtilitySet utilityProps)
+		PropertyValue[] CreatePropertySetValues(in string setId, IUtilitySet utilityProps)
 		{
 			if (!TryGetDefinitionSet(setId, out var setDef))
 			{
@@ -111,7 +111,7 @@ namespace Portland.Types
 			return values;
 		}
 
-		public PropertySet CreatePropertySet(in string setId, UtilitySet utilityProps)
+		public PropertySet CreatePropertySet(in string setId, IUtilitySet utilityProps)
 		{
 			if (!TryGetDefinitionSet(setId, out var setDef))
 			{

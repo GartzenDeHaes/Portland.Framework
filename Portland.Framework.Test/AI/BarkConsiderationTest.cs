@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Portland.Collections;
 using Portland.ComponentModel;
+using Portland.RPG;
 
 namespace Portland.AI.Barks
 {
@@ -39,7 +40,7 @@ namespace Portland.AI.Barks
 			world.BarkEngine.SetRules(rulePack);
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateAgent("human", "COACH");
+			world.CreateCharacter("human", "COACH", "Coach");
 
 			string saidText = String.Empty;
 			world.BarkEngine.OnSay.Listeners += (cmd, rule) => { saidText = cmd.DefaultTexts.RandomElement(); };
@@ -104,11 +105,11 @@ namespace Portland.AI.Barks
 
 			world.BarkEngine.SetRules(rulePack);
 
-			world.CreateAgent("human", "COACH");
+			world.CreateCharacter("human", "COACH", "Coach");
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 
-			Agent coach;
-			Assert.True(world.TryGetAgent("COACH", out coach));
+			CharacterSheet coach;
+			Assert.True(world.TryGetCharacter("COACH", out coach));
 
 			//Assert.That(world.Flags.IsCharacter01Alive, Is.True);
 			Assert.That((string)coach.Facts.Get("objective").Value, Is.EqualTo(String.Empty));

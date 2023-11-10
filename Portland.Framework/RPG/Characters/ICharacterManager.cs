@@ -1,4 +1,6 @@
-﻿using Portland.AI;
+﻿using System;
+
+using Portland.AI;
 using Portland.AI.Utility;
 using Portland.Interp;
 using Portland.Text;
@@ -8,15 +10,13 @@ namespace Portland.RPG
 {
 	public interface ICharacterManager
 	{
-		CharacterSheet CreateCharacter
+		public CharacterSheet CreateCharacter
 		(
-			in string charId, 
-			in string raceEffectGroup, 
-			in string classEffectGroup, 
-			in string factionEffectGroup, 
-			UtilitySet utilityProperties, 
-			IBlackboard<string> facts,
-			ExecutionContext basCtx
+			in String uniqueCharName,
+			in String charTypeId,
+			in String raceEffectGroup,
+			in String classEffectGroup,
+			in String factionEffectGroup
 		);
 		CharacterDefinitionBuilder CreateCharacterDefinition(in string charId);
 		void DefineAlertForStatDefinition(in string propertyId, PropertyDefinition.AlertType type, in Variant8 value, string flagName);

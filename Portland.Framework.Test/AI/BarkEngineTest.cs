@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Portland.Collections;
 using Portland.ComponentModel;
 using Portland.Mathmatics;
+using Portland.RPG;
 
 namespace Portland.AI.Barks
 {
@@ -89,8 +90,8 @@ DO
 			world.UtilitySystem.CreateAgent("base", "bot");
 
 			world.CharacterManager.CreateCharacterDefinition("bot");
-			world.CreateAgent("bot", "XBOT");
-			world.CreateAgent("bot", "YBOT");
+			world.CreateCharacter("bot", "XBOT", "XBOT");
+			world.CreateCharacter("bot", "YBOT", "YBOT");
 
 			string ruleId = String.Empty;
 			string lastDoSayText = String.Empty;
@@ -213,10 +214,10 @@ DO
 			world.UtilitySystem.CreateAgent("human", "human");
 
 			world.CharacterManager.CreateCharacterDefinition("human");
-			world.CreateAgent("human", "BILL");
-			world.CreateAgent("human", "FRANCIS");
-			world.CreateAgent("human", "LOUIS");
-			world.CreateAgent("human", "ZOEY");
+			world.CreateCharacter("human", "BILL", "Bill");
+			world.CreateCharacter("human", "FRANCIS", "Francis");
+			world.CreateCharacter("human", "LOUIS", "Louis");
+			world.CreateCharacter("human", "ZOEY", "Zoey");
 
 			RulePack rulePack = new RulePack();
 			rulePack.Parse(barkScript);
@@ -279,8 +280,8 @@ DO
 			};
 			Assert.True(world.BarkEngine.TryMatch(sentence));
 			Assert.That(world.BarkEngine.DelayingCount, Is.EqualTo(1));
-			Agent zoey;
-			Assert.True(world.TryGetAgent("ZOEY", out zoey));
+			CharacterSheet zoey;
+			Assert.True(world.TryGetCharacter("ZOEY", out zoey));
 			Assert.That(zoey.Facts.Get("ceda_trailers_seen").Value.ToInt(), Is.EqualTo(1));
 
 			world.Clock.Update(6f);
@@ -423,18 +424,18 @@ DO
 			world.CharacterManager.CreateCharacterDefinition("human")
 				.UtilitySetId("human");
 
-			world.CreateAgent("human", "COACH");
-			world.CreateAgent("human", "ELLIS");
-			world.CreateAgent("human", "NICK");
-			world.CreateAgent("human", "ROCHELLE");
+			world.CreateCharacter("human", "COACH", "Coach");
+			world.CreateCharacter("human", "ELLIS", "Ellis");
+			world.CreateCharacter("human", "NICK", "Nick");
+			world.CreateCharacter("human", "ROCHELLE", "Rochelle");
 
 			world.DefineActorAsCharacter0X("COACH", 1, "health");
 			world.DefineActorAsCharacter0X("ELLIS", 2, "health");
 			world.DefineActorAsCharacter0X("NICK", 3, "health");
 			world.DefineActorAsCharacter0X("ROCHELLE", 4, "health");
 
-			Agent nick;
-			Assert.True(world.TryGetAgent("NICK", out nick));
+			CharacterSheet nick;
+			Assert.True(world.TryGetCharacter("NICK", out nick));
 			Assert.True(nick.Facts.ContainsKey("health"));
 			Assert.That((int)nick.Facts.Get("health").Value, Is.EqualTo(100));
 

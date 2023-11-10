@@ -3,30 +3,28 @@ using System.Collections.Generic;
 
 using Portland.AI.Utility;
 using Portland.Interp;
-using Portland.RPG;
 using Portland.Types;
 
 namespace Portland.AI
 {
 	public sealed class Agent : ICommandRunner
 	{
-		static readonly PropertyDefinition _classPropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Class", TypeName = "string", PropertyId = "agent_class" };
 		static readonly PropertyDefinition _shortNamePropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Name", TypeName = "string", PropertyId = "agent_name" };
 		static readonly PropertyDefinition _longNamePropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Full Name", TypeName = "string", PropertyId = "agent_full_name" };
 
 		public AgentStateFlags Flags;
 		public readonly String AgentId;
-		public readonly String StatUtilitySetId;
+		//public readonly String StatUtilitySetId;
 		public readonly string ShortName;
 		public readonly string LongName;
 		//public TextTableToken Location;
-		public readonly UtilitySet UtilitySet;
-		public readonly CharacterSheet Character;
+		public readonly IUtilitySet UtilitySet;
 		public readonly IBlackboard<String> Facts;
 		public readonly ExecutionContext ScriptCtx;
 		public int RuntimeIndex;
 
 		public Action Alerts;
+		public Action<ExecutionContext, string, Variant> ExecutionCtxCommand;
 
 		public void Update(float deltaTime)
 		{
@@ -35,41 +33,35 @@ namespace Portland.AI
 
 		public void ICommandRunner_Exec(ExecutionContext ctx, string name, Variant args)
 		{
-			throw new NotImplementedException();
+			ExecutionCtxCommand?.Invoke(ctx, name, args);
 		}
 
 		public Agent
 		(
 			Dictionary<SubSig, IFunction> globalFuncs,
 			IUtilityFactory utility,
-			ICharacterManager charMan,
+			in String utilitySetId,
 			IBlackboard<String> globalFacts,
-			in String charId, 
-			in String agentId,
+			//in String charId, 
+			//in String agentId,
 			in string shortName,
-			in string longName,
-			in string raceEffectGrp,
-			in string classEffectGrp,
-			in string faction
+			in string longName
 		)
 		{
-			AgentId = agentId;
-			StatUtilitySetId = charId;
+			AgentId = shortName;//agentId;
+			//StatUtilitySetId = charId;
 			ShortName = shortName;
 			LongName = longName;
 
 			ScriptCtx = new ExecutionContext(globalFuncs, this, null);
 
-			UtilitySet = utility.CreateAgentInstance(charMan.GetCharacterDefinition(charId).UtilitySetId, agentId);
+			UtilitySet = utility.CreateAgentInstance(utilitySetId, shortName);
 
 			Facts = new Blackboard<String>(globalFacts);
 			Facts.Add("objective", UtilitySet.CurrentObjective);
 
-			Facts.Add(_classPropDef.PropertyId, new PropertyValue(_classPropDef) { Value = classEffectGrp });
 			Facts.Add(_shortNamePropDef.PropertyId, new PropertyValue(_shortNamePropDef) { Value = shortName });
 			Facts.Add(_longNamePropDef.PropertyId, new PropertyValue(_longNamePropDef) { Value = longName });
-
-			Character = charMan.CreateCharacter(charId, raceEffectGrp, classEffectGrp, faction, UtilitySet, Facts, ScriptCtx);
 
 			//Character.SetupBlackboard(Facts);
 

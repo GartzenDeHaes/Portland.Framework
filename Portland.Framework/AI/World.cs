@@ -34,8 +34,8 @@ namespace Portland.AI
 		public readonly DialogueManager DialogueMan;
 
 		//public Dictionary<StringTableToken, IObservableValue<Variant8>> Facts = new Dictionary<StringTableToken, IObservableValue<Variant8>>();
-		Dictionary<String, Agent> _agentsById = new Dictionary<String, Agent>();
-		readonly Vector<Agent> _agents = new Vector<Agent>();
+		Dictionary<String, CharacterSheet> _charsById = new();
+		Vector<Agent> _agents = new();
 
 		public IMessageBus<SimpleMessage> Events;
 
@@ -77,78 +77,61 @@ namespace Portland.AI
 			UtilitySystem = new UtilityFactory(clock, PropertyMan);
 			BarkEngine = new BarkRuleEngine(this, rnd);
 			Items = new ItemFactory();
-			CharacterManager = new CharacterManager(PropertyMan, Items);
 			_globalBasFuncs = LoadBasFunctions();
+			CharacterManager = new CharacterManager(_globalBasFuncs, GlobalFacts, UtilitySystem, PropertyMan, Items);
 
-			DialogueMan = new DialogueManager(Flags, GlobalFacts, _agentsById, Events);
+			DialogueMan = new DialogueManager(Flags, GlobalFacts, _charsById, Events);
 		}
 
 		public World(DateTime epoc, float minutesPerDay = 1440f)
 		: this(new Clock(epoc, minutesPerDay), MathHelper.Rnd, new EventBus())
 		{
+			_globalBasFuncs = LoadBasFunctions();
 		}
 
 		public World(DateTime epoc, IMessageBus<SimpleMessage> bus, float minutesPerDay = 1440f)
 		: this(new Clock(epoc, minutesPerDay), MathHelper.Rnd, bus)
 		{
+			_globalBasFuncs = LoadBasFunctions();
 		}
 
-		public Agent CreateAgent(in String charIdUtilId, in String agentId, string shortName, string longName)
-		{
-			return CreateAgent(charIdUtilId, agentId, shortName, longName, String.Empty, String.Empty, String.Empty);
-		}
-
-		public Agent CreateAgent(in String charIdUtilId, in String agentId)
-		{
-			return CreateAgent(charIdUtilId, agentId, agentId, agentId, String.Empty, String.Empty, String.Empty);
-		}
-
-		public Agent CreateAgent
+		public CharacterSheet CreateCharacter
 		(
-			in String charIdUtilId,
-			in String agentId,
-			string shortName,
+			in String charId,
+			string charUniqueName,
+			string longName
+		)
+		{
+			return CreateCharacter(charId, charUniqueName, longName, String.Empty, String.Empty, String.Empty);
+		}
+
+		public CharacterSheet CreateCharacter
+		(
+			in String charId,
+			string charUniqueName,
 			string longName,
 			in String raceEffectGrp,
 			in String classEffectGrp,
 			in String faction
 		)
 		{
-			var agent = new Agent
-			(
-				_globalBasFuncs,
-				UtilitySystem,
-				CharacterManager,
-				GlobalFacts,
-				charIdUtilId,
-				agentId,
-				shortName,
-				longName,
-				raceEffectGrp,
-				classEffectGrp,
-				faction
-			);
+			var charDef = CharacterManager.GetCharacterDefinition(charId);
+			string utilitySetId = charDef.UtilitySetId;
 
-			//// add the utility considerations as agent facts
-			//foreach(var oprop in agent.UtilitySet.Properties.Values)
-			//{
-			//	agent.Facts.Add(oprop.Definition.PropertyId, oprop);
-			//}
+			//var agent = CreateAgent(utilitySetId, agentId, charUniqueName, longName);
 
-			agent.RuntimeIndex = _agents.AddAndGetIndex(agent);
-			_agentsById.Add(agentId, agent);
+			var character = CharacterManager.CreateCharacter(charUniqueName, charId, raceEffectGrp, classEffectGrp, faction);
 
-			//if (!String.IsNullOrWhiteSpace(_actorUtilityObjectiveFactName))
-			//{
-			//	agent.Facts.Add(_actorUtilityObjectiveFactName, agent.UtilitySet.CurrentObjective);
-			//}
+			_charsById.Add(charUniqueName, character);
+			character.Agent.RuntimeIndex = _agents.Count;
+			_agents.Add(character.Agent);
 
-			return agent;
+			return character;
 		}
 
-		public bool TryGetAgent(in String agentId, out Agent actor)
+		public bool TryGetCharacter(in String agentId, out CharacterSheet actor)
 		{
-			return _agentsById.TryGetValue(agentId, out actor);
+			return _charsById.TryGetValue(agentId, out actor);
 			//for (int i = 0; i < _agents.Count; i++)
 			//{
 			//	actor = _agents[i];
@@ -161,14 +144,14 @@ namespace Portland.AI
 			//return false;
 		}
 
-		public void DestroyAgent(in String agentId)
+		public void DestroyCharacter(in String charUniqueId)
 		{
-			if (_agentsById.TryGetValue(agentId, out var agent))
+			if (_charsById.TryGetValue(charUniqueId, out var character))
 			{
-				_agentsById.Remove(agentId);
-				_agents.RemoveAt(agent.RuntimeIndex);
+				_charsById.Remove(charUniqueId);
+				_agents.RemoveAt(character.Agent.RuntimeIndex);
 
-				UtilitySystem.DestroyInstance(agentId);
+				UtilitySystem.DestroyInstance(character.Agent.UtilitySet.Name);
 				//BarkEngine.RemoveRules(agentId);
 				//DialogueMgr.RemoveRules(agentId);
 			}
@@ -261,14 +244,14 @@ namespace Portland.AI
 			string bitKey = $"USER_FLAG_0{characterNum_1to4}";
 			int bitNum = WorldStateFlags.BitNameToNum(bitKey);
 
-			if (TryGetAgent(actorName, out Agent actor))
+			if (TryGetCharacter(actorName, out var actor))
 			{
 				if (actor.Facts.TryGetValue(healthPropertyName, out var prop))
 				{
-					actor.Alerts += () =>
+					actor.Agent.Alerts += () =>
 					{
 						//actor.Flags.IsDead = prop.Value < 0.01f;
-						Flags.Bits.SetTest(bitNum, !actor.Flags.IsDead);
+						Flags.Bits.SetTest(bitNum, !actor.Agent.Flags.IsDead);
 					};
 				}
 			}
@@ -841,23 +824,18 @@ namespace Portland.AI
 			{
 				lex.MatchTagStart("character");
 
-				string agentId = String.Empty;
-				string charId = String.Empty;
+				string charTypeId = String.Empty;
 				string raceGrp = String.Empty;
 				string clsGrp = String.Empty;
 				string faction = String.Empty;
-				string shortName = String.Empty;
+				string uniqueName = String.Empty;
 				string longName = String.Empty;
 
 				while (lex.Token == XmlLex.XmlLexToken.STRING)
 				{
-					if (lex.Lexum.IsEqualTo("agent_id"))
+					if (lex.Lexum.IsEqualTo("chartype_id"))
 					{
-						agentId = lex.MatchProperty("agent_id");
-					}
-					else if (lex.Lexum.IsEqualTo("char_id"))
-					{
-						charId = lex.MatchProperty("char_id");
+						charTypeId = lex.MatchProperty("chartype_id");
 					}
 					else if (lex.Lexum.IsEqualTo("race"))
 					{
@@ -871,9 +849,9 @@ namespace Portland.AI
 					{
 						faction = lex.MatchProperty("faction");
 					}
-					else if (lex.Lexum.IsEqualTo("short_name"))
+					else if (lex.Lexum.IsEqualTo("unique_name"))
 					{
-						shortName = lex.MatchProperty("short_name");
+						uniqueName = lex.MatchProperty("unique_name");
 					}
 					else if (lex.Lexum.IsEqualTo("long_name"))
 					{
@@ -885,16 +863,16 @@ namespace Portland.AI
 					}
 				}
 
-				if (shortName == String.Empty)
+				if (uniqueName == String.Empty)
 				{
-					shortName = agentId;
+					uniqueName = charTypeId;
 				}
 				if (longName == String.Empty)
 				{
-					longName = agentId;
+					longName = uniqueName;
 				}
 
-				var agent = world.CreateAgent(charId, agentId, shortName, longName, raceGrp, clsGrp, faction);
+				var agent = world.CreateCharacter(charTypeId, uniqueName, longName, raceGrp, clsGrp, faction);
 
 				if (lex.Token == XmlLex.XmlLexToken.TAG_END)
 				{
@@ -952,7 +930,7 @@ namespace Portland.AI
 							}
 
 							var item = world.Items.CreateItem(0, itemId, count);
-							agent.Character.InventoryWindow.TryMergSectionItem(windowSection, item);
+							agent.InventoryWindow.TryMergSectionItem(windowSection, item);
 
 							lex.MatchTagEnd();
 						}

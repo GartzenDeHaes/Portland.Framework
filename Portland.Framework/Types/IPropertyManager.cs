@@ -8,7 +8,7 @@ namespace Portland.Types
 {
 	public interface IPropertyManager
 	{
-		PropertySet CreatePropertySet(in string setId, UtilitySet utilityProps);
+		PropertySet CreatePropertySet(in string setId, IUtilitySet utilityProps);
 		void DefinePropertySet(in string setName, string[] propIds, string onUpdateScript);
 		bool TryGetDefinitionSet(in string setId, out PropertyDefinitionSet def);
 		bool HasPropertyDefined(in string statName);

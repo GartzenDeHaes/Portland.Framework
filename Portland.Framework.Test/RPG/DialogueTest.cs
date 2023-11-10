@@ -48,12 +48,12 @@ namespace Portland.RPG
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='Player'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -70,11 +70,11 @@ Coach: This is a line of test dialogue.
 
 			world.Update(1f);
 
-			Assert.True(world.TryGetAgent("Player", out var player));
+			Assert.True(world.TryGetCharacter("Player", out var player));
 			Assert.That(player.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 			Assert.That(player.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 
-			Assert.True(world.TryGetAgent("Coach", out var coach));
+			Assert.True(world.TryGetCharacter("Coach", out var coach));
 			Assert.That(coach.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 
 			world.DialogueMan.StartDialog("Start");
@@ -125,12 +125,12 @@ Coach: This is a line of test dialogue.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='Player'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -172,11 +172,11 @@ Coach: HP is {$Player.HP}.
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
 
-			Assert.True(world.TryGetAgent("Player", out var player));
+			Assert.True(world.TryGetCharacter("Player", out var player));
 			Assert.That(player.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 			Assert.That(player.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 
-			Assert.True(world.TryGetAgent("Coach", out var coach));
+			Assert.True(world.TryGetCharacter("Coach", out var coach));
 			Assert.That(coach.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 
 			world.DialogueMan.StartDialog("Start");
@@ -251,12 +251,12 @@ Coach: HP is {$Player.HP}.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='Player'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -290,7 +290,7 @@ Coach: One was selected.
 
 			world.Events.Subscribe("test", "LOG", (msg) => { msgLog.Append($"{msg.Arg};"); });
 
-			Assert.True(world.TryGetAgent("Player", out var player));
+			Assert.True(world.TryGetCharacter("Player", out var player));
 
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
@@ -368,12 +368,12 @@ Coach: One was selected.
 	<set id='Player' STR INT HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -415,7 +415,7 @@ Coach: Something else.
 			world.Update(1f);
 			Assert.That(world.DialogueMan.PendingCommandCount, Is.EqualTo(0));
 
-			Assert.True(world.TryGetAgent("Player", out var player));
+			Assert.True(world.TryGetCharacter("Player", out var player));
 			Assert.That(player.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 
 			world.DialogueMan.StartDialog("Start");
@@ -487,12 +487,12 @@ Coach: Something else.
 	<set id='Player' STR INT HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -562,12 +562,12 @@ Coach: Chose 1.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Nick' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Nick' chartype_id='Player'/>
 </characters>
 <dialogues>
 Bark: Bare_Test 100%
@@ -652,12 +652,12 @@ Coach: This is text.
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Nick' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Nick' chartype_id='Player'/>
 </characters>
 <dialogues>
 Index: Coach_Greet
@@ -682,7 +682,7 @@ Node: Coach_Greet_Main
 </world>";
 			var world = World.Parse(xml);
 
-			Assert.True(world.TryGetAgent("Coach", out var coach));
+			Assert.True(world.TryGetCharacter("Coach", out var coach));
 			Assert.That(coach.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 
 			world.DialogueMan.StartDialog("Coach_Greet");
@@ -761,12 +761,12 @@ Node: Coach_Greet_Main
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='IdleOnly'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='IdleOnly'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Nick' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Nick' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start
@@ -845,12 +845,12 @@ Coach: 3
 	<set id='Player' HP />
 </property_sets>
 <character_types>
-	<character_def char_id='Player' property_set='Player' utility_set='Player'>
+	<character_def chartype_id='Player' property_set='Player' utility_set='Player'>
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='Player'/>
-	<character agent_id='Player' char_id='Player'/>
+	<character unique_name='Coach' chartype_id='Player'/>
+	<character unique_name='Player' chartype_id='Player'/>
 </characters>
 <dialogues>
 Node: Start

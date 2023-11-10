@@ -41,6 +41,7 @@ namespace Portland.Interp
 		public ExecutionContext(Dictionary<SubSig, IFunction> globalFuncs, ICommandRunner cmds, object userData)
 		: this(cmds)
 		{
+			Debug.Assert(globalFuncs != null);
 			_globalFuncs = globalFuncs;
 			UserData = userData;
 		}
@@ -52,12 +53,12 @@ namespace Portland.Interp
 			_globalFuncs = new Dictionary<SubSig, IFunction>();
 		}
 
-		public ExecutionContext()
-		: this(null)
-		{
-			_cmds = this;
-		}
-
+		//public ExecutionContext()
+		//: this(null)
+		//{
+		//	_cmds = this;
+		//	_globalFuncs = new Dictionary<SubSig, IFunction>();
+		//}
 
 		public void SetError(string message)
 		{

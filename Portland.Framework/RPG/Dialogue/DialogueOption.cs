@@ -51,7 +51,7 @@ namespace Portland.RPG.Dialogue
 		(
 			in WorldStateFlags? worldFlags,
 			in IBlackboard<string> globalFacts,
-			in IDictionary<string, Agent> agentsById,
+			in IDictionary<string, CharacterSheet> agentsById,
 			in BarkEvent tevent 
 		)
 		{
@@ -70,7 +70,7 @@ namespace Portland.RPG.Dialogue
 		(
 			in WorldStateFlags? worldFlags,
 			in IBlackboard<string> globalFacts,
-			in IDictionary<string, Agent> agentsById
+			in IDictionary<string, CharacterSheet> agentsById
 		)
 		{
 			if (Used && !CanReuse)
@@ -91,14 +91,13 @@ namespace Portland.RPG.Dialogue
 			{
 				var flagf = PlayerFlags[i];
 
-				Agent actor;
-				if (!agentsById.TryGetValue(flagf.ActorName, out actor))
+				if (!agentsById.TryGetValue(flagf.ActorName, out var actor))
 				{
 					throw new Exception($"Actor '{flagf.ActorName}' not found");
 				}
 
 				var flagName = flagf.FlagName;
-				bool isSet = actor.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName));
+				bool isSet = actor.Agent.Flags.Bits.IsSet(AgentStateFlags.BitNameToNum(flagName));
 				if (!isSet != flagf.Not)
 				{
 					return false;
@@ -119,8 +118,7 @@ namespace Portland.RPG.Dialogue
 			for (int i = 0; i < PlayerFilters.Count; i++)
 			{
 				filter = PlayerFilters[i];
-				Agent actor;
-				if (!agentsById.TryGetValue(filter.ActorName, out actor))
+				if (!agentsById.TryGetValue(filter.ActorName, out var actor))
 				{
 					throw new Exception($"Actor '{filter.ActorName}' not found");
 				}
@@ -146,7 +144,7 @@ namespace Portland.RPG.Dialogue
 			return true;
 		}
 
-		public void Activate(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
+		public void Activate(in IBlackboard<string> globalFacts, in IDictionary<string, CharacterSheet> agentsById)
 		{
 			CurrentText = Text?.Get(globalFacts, agentsById) ?? String.Empty;
 		}

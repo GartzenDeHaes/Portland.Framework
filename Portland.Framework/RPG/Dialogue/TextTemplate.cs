@@ -15,7 +15,7 @@ namespace Portland.RPG.Dialogue
 	{
 		public interface ITextItem
 		{
-			string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById);
+			string Get(in IBlackboard<string> globalFacts, in IDictionary<string, CharacterSheet> agentsById);
 			string RawText { get; }
 		}
 
@@ -35,7 +35,7 @@ namespace Portland.RPG.Dialogue
 				}
 			}
 
-			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
+			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, CharacterSheet> agentsById)
 			{
 				return Text;
 			}
@@ -63,7 +63,7 @@ namespace Portland.RPG.Dialogue
 				}
 			}
 
-			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
+			public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, CharacterSheet> agentsById)
 			{
 				if (AgentId == String.Empty)
 				{
@@ -90,7 +90,7 @@ namespace Portland.RPG.Dialogue
 			Texts.Add(new TextItem(text));
 		}
 
-		public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, Agent> agentsById)
+		public string Get(in IBlackboard<string> globalFacts, in IDictionary<string, CharacterSheet> agentsById)
 		{
 			StringBuilder buf = new StringBuilder();
 

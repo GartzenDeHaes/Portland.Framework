@@ -18,7 +18,7 @@ namespace Portland.AI
 			world.GetBuilder()
 				.SetupSimplePlayer("player", "human");
 	
-			var chr = world.CreateAgent("player", "player name");
+			var chr = world.CreateCharacter("player", "player unique name", "Player");
 
 			Assert.That(chr.Facts.Count, Is.AtLeast(16));
 		}

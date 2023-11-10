@@ -6,20 +6,20 @@ using Portland.Types;
 
 namespace Portland.AI.Utility
 {
-	public sealed class UtilitySet
+	public sealed class UtilitySet : IUtilitySet
 	{
 		private string _name;
 		private UtilitySetDefinition _setDef;
 
 		// seperate consideration property from property value
-		public Dictionary<String, PropertyValue> Properties = new Dictionary<String, PropertyValue>();
-		public readonly ObjectiveScore[] Objectives;
+		public Dictionary<String, PropertyValue> Properties { get; private set; } = new Dictionary<String, PropertyValue>();
+		public ObjectiveScore[] Objectives { get; private set; }
 
 		//public List<string> ObjectiveHistory = new List<string>();
 
 		private ObjectiveScore _current;
 		private float _currentScore;
-		
+
 		private bool _isTiming = false;
 		public float _actionTimer = 0.0f;
 
@@ -100,10 +100,10 @@ namespace Portland.AI.Utility
 			get; private set;
 		}
 
-		public PropertyValue this[string propertyName] 
+		public PropertyValue this[string propertyName]
 		{
 			get { return Properties[propertyName]; }
-			set { throw new Exception("readonly"); } 
+			set { throw new Exception("readonly"); }
 		}
 
 		public PropertyValue this[in String propertyName]
@@ -133,10 +133,10 @@ namespace Portland.AI.Utility
 			return Properties.TryGetValue(propertyName, out value);
 		}
 
-		public UtilitySet(string name, UtilitySetDefinition agent)
+		public UtilitySet(string name, UtilitySetDefinition def)
 		{
 			_name = name;
-			_setDef = agent;
+			_setDef = def;
 
 			//CurrentObjective = new ObservableValue<Variant8>("objective");
 			//CurrentObjective.Set(String.Empty);

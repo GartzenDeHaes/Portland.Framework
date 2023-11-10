@@ -32,7 +32,7 @@ namespace Portland.RPG.Dialogue
 		(
 			in WorldStateFlags? worldFlags,
 			in IBlackboard<string> globalFacts,
-			in IDictionary<string, Agent> agentsById,
+			in IDictionary<string, CharacterSheet> agentsById,
 			in BarkEvent tevent
 		)
 		{
@@ -64,7 +64,7 @@ namespace Portland.RPG.Dialogue
 		(
 			in WorldStateFlags? worldFlags,
 			in IBlackboard<string> globalFacts,
-			in IDictionary<string, Agent> agentsById
+			in IDictionary<string, CharacterSheet> agentsById
 		)
 		{
 			base.Activate(worldFlags, globalFacts, agentsById);

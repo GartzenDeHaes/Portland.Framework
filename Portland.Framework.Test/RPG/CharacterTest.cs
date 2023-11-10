@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Moq;
+
 using NUnit.Framework;
 
 using Portland.AI;
+using Portland.AI.Utility;
 using Portland.Interp;
 using Portland.RPG.Dialogue;
 using Portland.Types;
@@ -29,14 +32,14 @@ namespace Portland.RPG
 		{
 			var items = new ItemFactory();
 			var props = new PropertyManager();
-			var cmgr = new CharacterManager(props, items);
-			
-			var basCtx = new ExecutionContext(World.LoadBasFunctions(), new CommandRunnerFails(), null);
-			var bb = new Blackboard<string>();
+			var clock = new Mock<IClock>();
+			var utilityFactory = new UtilityFactory(clock.Object, props);
+			var cmgr = new CharacterManager(World.LoadBasFunctions(), new Blackboard<String>(), utilityFactory, props, items);
 
 			cmgr.GetBuilder().SetupDnDTest(false);
 
-			var noclass = cmgr.CreateCharacter("PLAYER", "HUMAN", "", "", null, bb, basCtx);
+			//var noclass = cmgr.CreateCharacter("PLAYER", "HUMAN", "", "", null);
+			var noclass = cmgr.CreateCharacter("PLAYER01", "PLAYER", "HUMAN", "", "");
 
 			Assert.That(noclass.GetStat("STR"), Is.EqualTo(8f));
 			Assert.That(noclass.GetStat("INT"), Is.EqualTo(8f));
@@ -59,8 +62,9 @@ namespace Portland.RPG
 			Assert.That(noclass.GetStat("SNEEK"), Is.EqualTo(1f));
 			Assert.That(noclass.GetStat("SWORD"), Is.EqualTo(1f));
 
-			bb = new Blackboard<string>();
-			var figher = cmgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null, bb, basCtx);
+			//var figher = cmgr.CreateCharacter("PLAYER", "HUMAN", "FIGHTER", "", null, bb, basCtx);
+			//var figher = cmgr.CreateCharacter(bb, basCtx, new UtilitySet("", new UtilitySetDefinition()), "PLAYER", "HUMAN", "FIGHTER", null);
+			var figher = cmgr.CreateCharacter("PLAYER02", "PLAYER", "HUMAN", "FIGHTER", "");
 
 			Assert.That(figher.GetStat("STR"), Is.EqualTo(8f));
 			Assert.That(figher.GetStat("INT"), Is.EqualTo(8f));
@@ -83,8 +87,9 @@ namespace Portland.RPG
 			Assert.That(figher.GetStat("SNEEK"), Is.EqualTo(1f));
 			Assert.That(figher.GetStat("SWORD"), Is.EqualTo(2f));
 
-			bb = new Blackboard<string>();
-			var elfa = cmgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null, bb, basCtx);
+			//var elfa = cmgr.CreateCharacter("PLAYER", "ELF", "ARCHER", "", null, bb, basCtx);
+			//var elfa = cmgr.CreateCharacter(bb, basCtx, new UtilitySet("", new UtilitySetDefinition()), "PLAYER", "ELF", "ARCHER", null);
+			var elfa = cmgr.CreateCharacter("NPC_01", "PLAYER", "ELF", "ARCHER", "");
 
 			Assert.That(elfa.GetStat("STR"), Is.EqualTo(7f));
 			Assert.That(elfa.GetStat("INT"), Is.EqualTo(9f));
@@ -113,13 +118,16 @@ namespace Portland.RPG
 		{
 			var items = new ItemFactory();
 			var props = new PropertyManager();
-			var mgr = new CharacterManager(props, items);
+			var clock = new Mock<IClock>();
+			var utilityFactory = new UtilityFactory(clock.Object, props);
+			var mgr = new CharacterManager(World.LoadBasFunctions(), new Blackboard<String>(), utilityFactory, props, items);
 			var basCtx = new ExecutionContext(World.LoadBasFunctions(), new CommandRunnerFails(), null);
 			var bb = new Blackboard<string>();
 
 			mgr.GetBuilder().SetupDnDTest(false);
 
-			var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "", null, bb, basCtx);
+			//var orc = mgr.CreateCharacter("MONSTER", "ORC", "", "", null, bb, basCtx);
+			var orc = mgr.CreateCharacter("MONSTER01", "MONSTER", "ORC", "", "");
 
 			Assert.That(orc.GetStat("STR"), Is.EqualTo(12f));
 			Assert.That(orc.GetStat("INT"), Is.EqualTo(8f));
@@ -265,7 +273,7 @@ CALL STAT('CARRY', INVENTORY('SUM', '*', 'WEIGHT'))
 	</groups>
 </effects>
 <character_types>
-	<character_def char_id='human' property_set='all' utility_set='IdleOnly'>
+	<character_def chartype_id='human' property_set='all' utility_set='IdleOnly'>
 		<!-- Ultimate Survival setup -->
 		<inventory>
 			<section name='HOTBAR' type_id='0' width='6' height='1' readonly='false' />
@@ -294,23 +302,23 @@ CALL STAT('CARRY', INVENTORY('SUM', '*', 'WEIGHT'))
 	</character_def>
 </character_types>
 <characters>
-	<character agent_id='Coach' char_id='human' race='Human'>
+	<character unique_name='Coach' chartype_id='human' race='Human'>
 		<override INT=3 LUC=7 />
 		<item item_id='CLUB6' count='1' window_section='MAIN' />
 	</character>
-	<character agent_id='Player' char_id='human' race='Human' />
+	<character unique_name='Player' chartype_id='human' race='Human' />
 </characters>
 </world>";
 			var world = World.Parse(xml);
 
 			world.Update(1f);
 
-			Assert.True(world.TryGetAgent("Player", out var player));
+			Assert.True(world.TryGetCharacter("Player", out var player));
 			Assert.That(player.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 			Assert.That(player.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 			Assert.That(player.Facts.Get("INT").Value.ToInt(), Is.EqualTo(5));
 
-			Assert.True(world.TryGetAgent("Coach", out var coach));
+			Assert.True(world.TryGetCharacter("Coach", out var coach));
 			Assert.That(coach.Facts.Get("objective").Value.ToString(), Is.EqualTo("idle"));
 			Assert.That(coach.Facts.Get("HP").Value.ToInt(), Is.EqualTo(100));
 			Assert.That(coach.Facts.Get("INT").Value.ToInt(), Is.EqualTo(3));
@@ -318,8 +326,8 @@ CALL STAT('CARRY', INVENTORY('SUM', '*', 'WEIGHT'))
 
 			Assert.That(coach.Facts.Get("XPMOD").Value.ToFloat(), Is.EqualTo(1.1f));
 
-			Assert.That(player.Character.InventoryWindow[6].StackCount, Is.EqualTo(6));
-			Assert.That(player.Character.InventoryWindow[7].StackCount, Is.EqualTo(6));
+			Assert.That(player.InventoryWindow[6].StackCount, Is.EqualTo(6));
+			Assert.That(player.InventoryWindow[7].StackCount, Is.EqualTo(6));
 		}
 	}
 }

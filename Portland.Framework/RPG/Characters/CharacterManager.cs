@@ -19,9 +19,16 @@ namespace Portland.RPG
 		readonly ItemFactory _items;
 		//StringTable _strings;
 
-		public CharacterManager(IPropertyManager propMan, ItemFactory items)
+		readonly Dictionary<SubSig, IFunction> _globalBasFuncs;
+		readonly IBlackboard<String> _globalFacts;
+		readonly IUtilityFactory _utilityFactory;
+
+		public CharacterManager(Dictionary<SubSig, IFunction> globalBas, IBlackboard<String> globalFacts, IUtilityFactory utilityFactory, IPropertyManager propMan, ItemFactory items)
 		{
 			//_strings = strings;
+			_globalBasFuncs = globalBas;
+			_globalFacts = globalFacts;
+			_utilityFactory = utilityFactory;
 			_props = propMan;
 			_items = items;
 
@@ -53,26 +60,27 @@ namespace Portland.RPG
 
 		#region Characters
 
+		static readonly PropertyDefinition _classPropDef = new PropertyDefinition() { Category = "Agent", DisplayName = "Class", TypeName = "string", PropertyId = "char_class" };
+
 		public CharacterSheet CreateCharacter
 		(
-			in String charId,
+			in String uniqueCharName,
+			in String charTypeId,
 			in String raceEffectGroup,
 			in String classEffectGroup,
-			in String factionEffectGroup,
-			UtilitySet utilityProperties,
-			IBlackboard<string> facts,
-			ExecutionContext basCtx
+			in String factionEffectGroup
 		)
 		{
-			var def = _charDefs[charId];
+			var def = _charDefs[charTypeId];
 
-			_props.CreatePropertySet(def.PropertyGroupId, utilityProperties).AddToBlackBoard(facts);
+			var agent = new Agent(_globalBasFuncs, _utilityFactory, def.UtilitySetId, _globalFacts, uniqueCharName, uniqueCharName);
+
+			_props.CreatePropertySet(def.PropertyGroupId, agent.UtilitySet).AddToBlackBoard(agent.Facts);
 
 			CharacterSheet chr = new CharacterSheet
 			(
 				def,
-				facts,
-				basCtx,
+				agent,
 				_effectGroupByName[raceEffectGroup],
 				_effectGroupByName[classEffectGroup],
 				_effectGroupByName[factionEffectGroup]
@@ -88,6 +96,8 @@ namespace Portland.RPG
 			{
 				CreateDefaultItems(def, classEffectGroup, chr);
 			}
+
+			agent.Facts.Add(_classPropDef.PropertyId, new PropertyValue(_classPropDef) { Value = classEffectGroup });
 
 			return chr;
 		}
@@ -224,7 +234,7 @@ namespace Portland.RPG
 				{
 					lex.MatchTagStart("character_def");
 
-					var builder = CreateCharacterDefinition(lex.MatchProperty("char_id"))
+					var builder = CreateCharacterDefinition(lex.MatchProperty("chartype_id"))
 						.PropertyGroupId(lex.MatchProperty("property_set"))
 						.UtilitySetId(lex.MatchProperty("utility_set"))
 						.AutoCountInventory(true);

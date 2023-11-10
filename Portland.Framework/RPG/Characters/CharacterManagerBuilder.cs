@@ -427,7 +427,7 @@ namespace Portland.RPG
 
 			_manager.CreateCharacterDefinition("PLAYER")
 				.PropertyGroupId("CHAR")
-				.UtilitySetId("CHAR")
+				.UtilitySetId("")
 				.AutoCountInventory(true)
 				//.SetOnChangeScriptBas(statsRecalc.ToString())
 				.AddInventorySection("HOTBAR", 0, false, 4, 1)
@@ -440,7 +440,7 @@ namespace Portland.RPG
 
 			_manager.CreateCharacterDefinition("MONSTER")
 				.PropertyGroupId("CHAR")
-				.UtilitySetId("CHAR")
+				.UtilitySetId("")
 				.AutoCountInventory(true)
 				.AddInventorySection("WEAPON", 0, false, 1, 1)
 				.AddInventorySection("MAIN", 1, false, 3, 1)

@@ -7,7 +7,7 @@ namespace Portland.AI.Utility
 	{
 		void Clear();
 		UtilityFactory.AgentBuilder CreateAgent(string agentTypeName, string agentName);
-		UtilitySet CreateAgentInstance(string agentTypeName, string name);
+		IUtilitySet CreateAgentInstance(string agentTypeName, string name);
 		UtilityFactory.AgentTypeBuilder CreateAgentType(string objectiveSetName, string agentTypeName);
 		UtilityFactory.ConsiderationBuilder CreateConsideration(string objectiveName, in string propertyName);
 		UtilityFactory.ObjectiveBuilder CreateObjective(string name);
