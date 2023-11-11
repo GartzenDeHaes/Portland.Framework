@@ -44,7 +44,10 @@ namespace Portland.RPG.Accounting
 		public AsciiId4 AccountTypeCode;
 		public Vector<AccountBook> AccountBooks = new();
 
-		public int Balance
+		public int BookBalance(in String10 itemId)
+		{
+			return 0;
+		}
 	}
 
 	public class AccountBook
