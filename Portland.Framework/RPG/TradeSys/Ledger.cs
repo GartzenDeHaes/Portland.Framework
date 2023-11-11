@@ -39,10 +39,12 @@ namespace Portland.RPG.Accounting
 
 	public class Account
 	{
-		public int OwnerAgentId;
+		public String10 OwnerCharId;
 		public int AccountId;
 		public AsciiId4 AccountTypeCode;
 		public Vector<AccountBook> AccountBooks = new();
+
+		public int Balance
 	}
 
 	public class AccountBook

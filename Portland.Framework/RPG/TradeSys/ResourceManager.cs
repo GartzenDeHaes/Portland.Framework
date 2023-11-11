@@ -65,12 +65,43 @@ namespace Portland.RPG.Economics
 		public int Size;
 		public int LimitPrice;
 		public Date ExpireDate;
-		public int AgentId;
+		public String10 CharId;
+		public int AccountId;
+	}
+
+	public enum OrderCanceledReason
+	{
+		Unauthorized,
+		InsufficientFunds
+	}
+
+	public struct MsgResourceOrderOnCanceled
+	{
+		public String10 CharId;
+		public int AccountId;
+		public AsciiId4 LocationCode;
+		public String10 ItemId;
+		public int Size;
+		public int LimitPrice;
+		public Date ExpireDate;
+		public OrderCanceledReason Reason;
+
+		public MsgResourceOrderOnCanceled(in MsgResourceOrderDoCreate msg, in OrderCanceledReason reason)
+		{
+			CharId = msg.CharId;
+			AccountId = msg.AccountId;
+			LocationCode = msg.LocationCode;
+			ItemId = msg.ItemId;
+			Size = msg.Size;
+			LimitPrice = msg.LimitPrice;
+			ExpireDate = msg.ExpireDate;
+			Reason = reason;
+		}
 	}
 
 	public class ResourceManager
 	{
-		Vector<Account> _accounts = new();
+		Vector<Account> _accounts = new(65);
 		Dictionary<int, int[]> _accountsByAgentId = new();
 		Dictionary<String10, Ledger> _ledgers = new();
 		Vector<Order> _orders = new();
@@ -100,6 +131,13 @@ namespace Portland.RPG.Economics
 
 		void DoOrderCreate(MsgResourceOrderDoCreate msg)
 		{
+			var account = _accounts[msg.AccountId];
+			if (account.OwnerCharId != msg.CharId)
+			{
+				_bus.Send(new MsgResourceOrderOnCanceled(msg, OrderCanceledReason.Unauthorized));
+				return;
+			}
+			
 			int id = _orders.Count;
 			_orders.Add(new Order { 
 				OrderId = id, 
@@ -112,7 +150,7 @@ namespace Portland.RPG.Economics
 				LimitPrice = msg.LimitPrice, 
 				ExpireDate = msg.ExpireDate, 
 				Status = OrderStatus.Open, 
-				AgentId = msg.AgentId, 
+				AccountId = msg.AccountId, 
 				CreatedDate = _clock.Now
 			});
 
@@ -157,7 +195,7 @@ namespace Portland.RPG.Economics
 		public int LimitPrice;
 		public Date ExpireDate;
 		public OrderStatus Status;
-		public int AgentId;
+		public int AccountId;
 		public ShortDateTime CreatedDate;
 	}
 

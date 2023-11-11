@@ -64,7 +64,7 @@ namespace Portland.RPG
 
 		public CharacterSheet CreateCharacter
 		(
-			in String uniqueCharName,
+			in String10 uniqueCharName,
 			in String charTypeId,
 			in String raceEffectGroup,
 			in String classEffectGroup,
@@ -79,6 +79,7 @@ namespace Portland.RPG
 
 			CharacterSheet chr = new CharacterSheet
 			(
+				uniqueCharName,
 				def,
 				agent,
 				_effectGroupByName[raceEffectGroup],

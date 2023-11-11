@@ -14,7 +14,7 @@ namespace Portland.RPG
 	public class ItemFactory
 	{
 		Dictionary<String, ItemPropertyDefinition> _propertyDefinitions = new Dictionary<String, ItemPropertyDefinition>();
-		Dictionary<String8, ItemDefinition> _itemDefinitions = new Dictionary<String8, ItemDefinition>();
+		Dictionary<String, ItemDefinition> _itemDefinitions = new Dictionary<String, ItemDefinition>();
 		//StatFactory _stats;
 		List<String> _categories = new List<String>();
 

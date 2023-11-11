@@ -15,7 +15,7 @@ namespace Portland.RPG
 	{
 		//public PropertySet Stats;
 		//IBlackboard<string> _stats;
-
+		public readonly String10 CharacterId;
 		public ItemCollection Inventory;
 		public InventoryWindow InventoryWindow;
 
@@ -50,6 +50,7 @@ namespace Portland.RPG
 
 		public CharacterSheet
 		(
+			String10 charUniqueId,
 			CharacterDefinition def,
 			Agent agent,
 			EffectGroup raceEffectGroup,
@@ -59,6 +60,7 @@ namespace Portland.RPG
 			string xpStatId = "XP"
 		)
 		{
+			CharacterId = charUniqueId;
 			Definition = def;
 			Agent = agent;
 

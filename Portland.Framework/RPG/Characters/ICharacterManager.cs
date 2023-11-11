@@ -12,7 +12,7 @@ namespace Portland.RPG
 	{
 		public CharacterSheet CreateCharacter
 		(
-			in String uniqueCharName,
+			in String10 uniqueCharName,
 			in String charTypeId,
 			in String raceEffectGroup,
 			in String classEffectGroup,
