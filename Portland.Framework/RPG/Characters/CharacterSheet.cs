@@ -16,8 +16,8 @@ namespace Portland.RPG
 		//public PropertySet Stats;
 		//IBlackboard<string> _stats;
 		public readonly String10 CharacterId;
-		public ItemCollection Inventory;
-		public InventoryWindow InventoryWindow;
+		public readonly ItemCollection Inventory;
+		public readonly InventoryWindow InventoryWindow;
 
 		// derived stats (AP, AC, Carry Weight, HP, Melee Damage, Companion Nerve, UnArmed Damage, Weapon Damage)
 		// https://fallout.fandom.com/wiki/Fallout:_New_Vegas_SPECIAL#Derived_statistics
