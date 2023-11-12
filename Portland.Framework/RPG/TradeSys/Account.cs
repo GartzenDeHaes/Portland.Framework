@@ -25,12 +25,19 @@ namespace Portland.RPG.Accounting
 		Fee = 'F'
 	}
 
+	public enum AccountTransactionStatus
+	{
+		Pending,
+		Posted
+	}
+
 	public struct AccountTransaction
 	{
 		public int TransactionId;
 		public DateTime Dts;
 		public TransactionType TransactionTypeCode;
 		public AccountTransactionType LedgerTransactionTypeCode;
+		public AccountTransactionStatus Status;
 		public int Amount;
 	}
 
@@ -49,7 +56,7 @@ namespace Portland.RPG.Accounting
 		public Vector<AccountBookStatement> ItemStatements = new();
 	}
 
-public class Account
+	public class Account
 	{
 		public String10 OwnerCharId;
 		public int AccountId;
@@ -68,12 +75,21 @@ public class Account
 		}
 	}
 
+	public enum AccountBookUnitType
+	{
+		Currency,
+		Item
+	}
+
 	public class AccountBook
 	{
 		public String10 ItemId;
+		public AccountBookUnitType Units;
 		public int Balance;
 		public int CreditBalance;
 		public int DebitBalance;
 		public Vector<AccountTransaction> Transactions = new();
+
+
 	}
 }
