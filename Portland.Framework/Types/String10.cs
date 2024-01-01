@@ -13,7 +13,7 @@ namespace Portland
 	/// </summary>
 	[Serializable]
 	//[StructLayout(LayoutKind.Explicit)]
-	public struct String10 : IEquatable<String10>
+	public struct String10 //: IEquatable<String10>
 	{
 		public const int MAX_LEN = 10;
 		public static String10 Empty;

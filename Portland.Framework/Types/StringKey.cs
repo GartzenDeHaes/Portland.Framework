@@ -6,7 +6,7 @@ using Portland.Text;
 namespace Portland.Types
 {
 	[Serializable]
-	public struct StringKey : IEquatable<StringKey>
+	public struct StringKey //: IEquatable<StringKey>
 	{
 		public int HashCode;
 		public readonly string Value;
