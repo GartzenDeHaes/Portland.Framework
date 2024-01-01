@@ -463,12 +463,12 @@ namespace Portland
 		/// <summary>
 		/// Static constructor
 		/// </summary>
-		public static String10 From(StringBuilder sb)
+		public static String10 FromTruncate(StringBuilder sb)
 		{
 			var s = String10.Empty;
 			int len = sb.Length;
 
-			for (int i = 0; i < sb.Length; i++)
+			for (int i = 0; i < sb.Length && i < MAX_LEN; i++)
 			{
 				s[i] = sb[i];
 			}

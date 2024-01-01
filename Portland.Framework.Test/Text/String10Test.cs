@@ -307,7 +307,7 @@ namespace Portland.Text
 		public void StringBufferSetTest()
 		{
 			StringBuilder buf = new StringBuilder();
-			var s = String10.From(buf);
+			var s = String10.FromTruncate(buf);
 
 			Assert.AreEqual(s, String.Empty);
 			Assert.AreEqual(s, "");
@@ -315,13 +315,14 @@ namespace Portland.Text
 			Assert.AreEqual(0, s.Length);
 
 			buf.Append("abc");
-			s = String10.From(buf);
+			s = String10.FromTruncate(buf);
 			Assert.AreEqual(s, "abc");
 
 			buf.Append("defgh");
-			s = String10.From(buf);
+			s = String10.FromTruncate(buf);
 			Assert.AreEqual(s, "abcdefgh");
 		}
+
 		[Test]
 		public void NumberTest()
 		{

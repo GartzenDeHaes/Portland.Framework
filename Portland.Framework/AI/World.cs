@@ -11,6 +11,7 @@ using Portland.Interp;
 using Portland.Mathmatics;
 using Portland.RPG;
 using Portland.RPG.Dialogue;
+using Portland.RPG.Factions;
 using Portland.Text;
 using Portland.Threading;
 using Portland.Types;
@@ -759,12 +760,11 @@ namespace Portland.AI
 			{
 				lex.MatchTagStart("faction");
 
-				string id = String.Empty;
+				String8 id = String8.Empty;
 				string desc = String.Empty;
-				string alignment = "NN";
-				string grouping = "";
+				string alignment = "Neutral-Neutral";
 
-				while (lex.Token == XmlLex.XmlLexToken.STRING)
+				if (lex.Token == XmlLex.XmlLexToken.STRING)
 				{
 					if (lex.Lexum.IsEqualTo("faction_id"))
 					{
@@ -776,15 +776,16 @@ namespace Portland.AI
 					}
 					if (lex.Lexum.IsEqualTo("alignment"))
 					{
-						desc = lex.MatchProperty("alignment");
-					}
-					if (lex.Lexum.IsEqualTo("grouping"))
-					{
-						desc = lex.MatchProperty("grouping");
+						alignment = lex.MatchProperty("alignment");
 					}
 				}
 
-				world.Factions.DefineFaction(id, desc, alignment, grouping);
+				if (! FactionManager.TryParseAlignment(alignment, out var order, out var goodness))
+				{
+					throw new ParseException($"Invalid alignment of {alignment}");
+				}
+
+				world.Factions.DefineFaction(id, desc, goodness == AlignmentGoodness.Evil ? FactionFlags.Evil : FactionFlags.None, order, goodness);
 
 				if (lex.Token == XmlLex.XmlLexToken.TAG_END)
 				{
@@ -797,11 +798,17 @@ namespace Portland.AI
 					while (lex.Lexum.IsEqualTo("relation"))
 					{
 						lex.MatchTagStart("relation");
-						var otherFactionId = lex.MatchProperty("faction_id");
-						var relation = Single.Parse(lex.MatchProperty("relation"));
+						String8 otherFactionId = lex.MatchProperty("faction_id");
+						string relation = lex.MatchProperty("relation");
+						int modifer = Int32.Parse(lex.MatchProperty("modifier"));
 						lex.MatchTagEnd();
 
-						world.Factions.SetFactionRelation(id, otherFactionId, relation);
+						if (! FactionManager.TryParseRelation(relation, out var erelation))
+						{
+							throw new SystemException($"Invalid faction relation {relation}");
+						}
+
+						world.Factions.SetFactionRelation(id, otherFactionId, erelation, modifer);
 					}
 
 					lex.MatchTagClose("faction");

@@ -8,7 +8,7 @@ using Portland.Mathmatics;
 namespace Portland.Collections
 {
 	[Serializable]
-	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>, IList<T>, IReadOnlyList<T>
+	public sealed class Vector<T> : IIndexed<T>, IEnumerable<T>, IList<T>, IReadOnlyList<T>, IDisposable
 	{
 		T[] m_data;
 		int m_used;
@@ -341,6 +341,12 @@ namespace Portland.Collections
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return new VectorEnumerator(m_data, m_used);
+		}
+
+		public void Dispose()
+		{
+			m_data = null;
+			m_used = -1;
 		}
 
 		class VectorEnumerator : IEnumerator<T>

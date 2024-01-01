@@ -11,6 +11,16 @@ namespace Portland.Text
 	public class String8Test
 	{
 		[Test]
+		public void ShouldBeEquality()
+		{
+			String8 s1 = "HUMANS";
+			String8 s2 = "HUMANS";
+			Assert.True(s1 == s2);
+			Assert.That(s1, Is.EqualTo(s2));
+			Assert.True(s1.Equals((object)s2));
+		}
+
+		[Test]
 		public void EmptyString()
 		{
 			String8 s = String8.From(String.Empty);

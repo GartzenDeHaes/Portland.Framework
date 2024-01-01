@@ -157,9 +157,9 @@ namespace Portland.RPG
 		{
 			const string xml = @"<world>
 <factions>
-	<faction faction_id='HUMAMS' desc='Humans' alignment='NN' grouping='race' />
-	<faction faction_id='MEGATON' desc='The city of Megaton' alignment='LN' grouping='city'>
-		<relation faction_id='HUMANS' relation='0.6' />
+	<faction faction_id='HUMANS' desc='Humans' alignment='Neutral-Neutral' />
+	<faction faction_id='MEGATON' desc='The city of Megaton' alignment='Lawful-Neutral'>
+		<relation faction_id='HUMANS' relation='Friend' modifier='30' />
 	</faction>
 </factions>
 <utility>
