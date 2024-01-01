@@ -133,18 +133,18 @@ namespace Portland.Basic
 			StringBuilder printOut = new StringBuilder();
 
 			BasicProgram bas = new BasicProgram();
-			ExecutionContext ctx = bas.CreateDefaultContext();
+			//ExecutionContext ctx = bas.CreateDefaultContext();
 
 			bas.OnPrint += (msg) => { printOut.Append(msg); };
 			bas.OnError += (msg) => { printOut.Append(msg); };
 
 			bas.Parse("LET A = TRUE : PRINT A\n");
-			bas.Execute(ctx);
+			bas.Execute();
 
 			Assert.That(printOut.ToString(), Is.EqualTo("TRUE"));
 
-			var a = ctx.FindVariable("A");
-			Assert.True(a);
+			var a = bas.Context.FindVariable("A");
+			Assert.True(a.ToBool());
 		}
 
 		[Test]

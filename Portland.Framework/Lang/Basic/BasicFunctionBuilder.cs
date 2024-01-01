@@ -41,7 +41,7 @@ namespace Portland.Basic
 		public static readonly string[] ArgNamesA = new string[] { "a" };
 		public static readonly string[] ArgNamesAB = new string[] { "a", "b" };
 
-		public BasicNativeFunctionBuilder Add(string name, Func<Variant> callback)
+		public BasicNativeFunctionBuilder Add(string name, Func<IVariant> callback)
 		{
 			InternalAdd(name, 0, new FuncStub
 			{
@@ -51,7 +51,7 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder Add(string name, Func<Variant, Variant> callback)
+		public BasicNativeFunctionBuilder Add(string name, Func<IVariant, IVariant> callback)
 		{
 			InternalAdd(name, 1, new FuncStub
 			{
@@ -93,7 +93,7 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder AddWithNumericArgCheck(string name, Func<Variant, Variant> callback)
+		public BasicNativeFunctionBuilder AddWithNumericArgCheck(string name, Func<IVariant, IVariant> callback)
 		{
 			Add(name, 1, (ctx) => {
 				var num = ctx.Context["a"];
@@ -110,7 +110,7 @@ namespace Portland.Basic
 			return this;
 		}
 
-		public BasicNativeFunctionBuilder Add(string name, Func<Variant, Variant, Variant> callback)
+		public BasicNativeFunctionBuilder Add(string name, Func<IVariant, IVariant, IVariant> callback)
 		{
 			InternalAdd(name, 2, new FuncStub
 			{
@@ -146,7 +146,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("ABC", 1))
 			{
-				AddWithNumericArgCheck("ABS", (num) => MathF.Abs(num));
+				AddWithNumericArgCheck("ABS", (num) => new Variant(MathF.Abs(num.ToFloat())));
 			}
 			return this;
 		}
@@ -155,7 +155,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("ATAN", 1))
 			{
-				AddWithNumericArgCheck("ATAN", (num) => MathF.Atan(num));
+				AddWithNumericArgCheck("ATAN", (num) => new Variant(MathF.Atan(num.ToFloat())));
 			}
 			return this;
 		}
@@ -164,7 +164,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("COS", 1))
 			{
-				AddWithNumericArgCheck("COS", (num) => MathF.Cos(num));
+				AddWithNumericArgCheck("COS", (num) => new Variant(MathF.Cos(num.ToFloat())));
 			}
 			return this;
 		}
@@ -185,7 +185,7 @@ namespace Portland.Basic
 				Add("ERROR", 1, (ExecutionContext ctx) =>
 				{
 					var msg = ctx.Context["a"];
-					ctx.SetError(msg);
+					ctx.SetError(msg.ToString());
 					ctx.SetReturnValue(msg);
 				});
 			}
@@ -196,7 +196,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("EXP", 1))
 			{
-				AddWithNumericArgCheck("EXP", (num) => MathF.Exp(num));
+				AddWithNumericArgCheck("EXP", (num) => new Variant(MathF.Exp(num.ToFloat())));
 			}
 			return this;
 		}
@@ -205,7 +205,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("HAS", 1))
 			{
-				Add("HAS", (obj, name) => { return obj.HasProp(name); });
+				Add("HAS", (obj, name) => { return new Variant(obj.HasProp(name.ToString())); });
 			}
 			return this;
 		}
@@ -214,7 +214,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("CINT", 1))
 			{
-				AddWithNumericArgCheck("CINT", (num) => (int)MathF.Ceiling((float)num));
+				AddWithNumericArgCheck("CINT", (num) => new Variant((int)MathF.Ceiling(num.ToFloat())));
 			}
 			return this;
 		}
@@ -223,7 +223,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("LEN", 1))
 			{
-				Add("LEN", (obj) => obj.Count);
+				Add("LEN", (obj) => new Variant(obj.Length));
 			}
 			return this;
 		}
@@ -232,7 +232,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("LOG", 1))
 			{
-				AddWithNumericArgCheck("LOG", (num) => (int)MathF.Log(num));
+				AddWithNumericArgCheck("LOG", (num) => new Variant(MathF.Log(num.ToFloat())));
 			}
 			return this;
 		}
@@ -241,7 +241,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("NOW", 1))
 			{
-				Add("NOW", () => { return DateTime.Now.ToString(); });
+				Add("NOW", () => { return new Variant(DateTime.Now.ToString()); });
 			}
 			return this;
 		}
@@ -250,7 +250,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("RND", 1))
 			{
-				Add("RND", () => MathHelper.Rnd.NextFloat());
+				Add("RND", () => new Variant(MathHelper.Rnd.NextFloat()));
 			}
 			return this;
 		}
@@ -262,7 +262,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("SGN", 1))
 			{
-				AddWithNumericArgCheck("SGN", (num) => MathF.Sign(num));
+				AddWithNumericArgCheck("SGN", (num) => new Variant(MathF.Sign(num.ToFloat())));
 			}
 			return this;
 		}
@@ -271,7 +271,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("SIN", 1))
 			{
-				AddWithNumericArgCheck("SIN", (num) => MathF.Sin(num));
+				AddWithNumericArgCheck("SIN", (num) => new Variant(MathF.Sin(num.ToFloat())));
 			}
 			return this;
 		}
@@ -280,7 +280,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("SQR", 1))
 			{
-				AddWithNumericArgCheck("SQR", (num) => MathF.Sqrt(num));
+				AddWithNumericArgCheck("SQR", (num) => new Variant( MathF.Sqrt(num.ToFloat())));
 			}
 			return this;
 		}
@@ -288,7 +288,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("CSTR", 1))
 			{
-				Add("CSTR", (v) => v.ToString());
+				Add("CSTR", (v) => new Variant(v.ToString()));
 			}
 			return this;
 		}
@@ -297,7 +297,7 @@ namespace Portland.Basic
 		{
 			if (!HasFunction("TAN", 1))
 			{
-				AddWithNumericArgCheck("TAN", (num) => MathF.Tan(num));
+				AddWithNumericArgCheck("TAN", (num) => new Variant(MathF.Tan(num.ToFloat())));
 			}
 			return this;
 		}

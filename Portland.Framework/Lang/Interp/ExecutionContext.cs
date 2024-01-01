@@ -104,12 +104,12 @@ namespace Portland.Interp
 			HasError = false;
 		}
 
-		public Variant PopContext()
+		public IVariant PopContext()
 		{
 			return _ctxStk.Pop().Data;
 		}
 
-		public Variant FindVariable(string name)
+		public IVariant FindVariable(string name)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
@@ -122,7 +122,7 @@ namespace Portland.Interp
 			return default(Variant);
 		}
 
-		public bool TryFindVariable(string name, out Variant value)
+		public bool TryFindVariable(string name, out IVariant value)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
@@ -150,7 +150,7 @@ namespace Portland.Interp
 			Context.ClearProp(name);
 		}
 
-		public void SetVariable(string name, in Variant value)
+		public void SetVariable(string name, in IVariant value)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
@@ -162,6 +162,15 @@ namespace Portland.Interp
 			}
 
 			Context.SetProp(name, value);
+		}
+
+		public void SetGlobalVariable(string name, in IVariant value)
+		{
+			if (_ctxStk[0].HasProp(name))
+			{
+				throw new Exception($"Global variable {name} already exists");
+			}
+			_ctxStk[0].SetProp(name, value);
 		}
 
 		public void ClearVariableArray(string name, int size)
@@ -178,7 +187,7 @@ namespace Portland.Interp
 			Context.ClearPropArray(name, size);
 		}
 
-		public void SetVariableArray(string name, string index, in Variant value)
+		public void SetVariableArray(string name, IVariant index, in IVariant value)
 		{
 			for (int x = _ctxStk.Count - 1; x >= 0; x--)
 			{
@@ -208,7 +217,7 @@ namespace Portland.Interp
 			_ctxStk.LastElementRef().Data.Set(val);
 		}
 
-		public void SetReturnValue(in Variant val)
+		public void SetReturnValue(in IVariant val)
 		{
 			_ctxStk.LastElementRef().Data.Set(val);
 		}

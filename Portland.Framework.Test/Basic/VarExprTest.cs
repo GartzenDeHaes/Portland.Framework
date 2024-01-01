@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
+using Portland.Interp;
+
 namespace Portland.Basic
 {
 	[TestFixture]
@@ -54,6 +56,56 @@ namespace Portland.Basic
 			bas.Execute();
 
 			Assert.True(printOut.ToString().StartsWith("7"));
+		}
+
+		class NativeVarTest : NativeVariantBase
+		{
+			public int Value;
+
+			public NativeVarTest()
+			{
+				base.DataType = VtType.VT_INT;
+				base.Length = 1;
+			}
+
+			public override void Set(int i)
+			{
+				Value = i;
+			}
+
+			public override int ToInt()
+			{
+				return Value;
+			}
+
+			public override int AsInt()
+			{
+				return Value;
+			}
+
+			public override string ToString()
+			{
+				return Value.ToString();
+			}
+		}
+
+		[Test]
+		public void VarGlobalNativeTest()
+		{
+			StringBuilder printOut = new StringBuilder();
+
+			BasicProgram bas = new BasicProgram();
+			bas.OnPrint += (msg) => { printOut.Append(msg); };
+			bas.OnError += (msg) => { printOut.Append(msg); };
+
+			var strength = new NativeVarTest();
+			strength.Value = 5;
+			bas.Context.SetGlobalVariable("STR", strength);
+
+			bas.Parse("PRINT STR : LET STR = 12 : PRINT STR\n");
+			bas.Execute();
+
+			Assert.That(printOut.ToString(), Is.EqualTo("512"));
 		}
 	}
 }

@@ -8,11 +8,11 @@ namespace Portland.CodeDom.Operators
 {
 	public sealed class CollectTerms : UnaryOperator
 	{
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
 			if (left != null)
 			{
-				Variant lhs = left.Execute(ctx);
+				var lhs = left.Execute(ctx);
 
 				Debug.Assert(right == null);
 

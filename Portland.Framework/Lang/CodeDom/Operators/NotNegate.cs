@@ -15,15 +15,16 @@ namespace Portland.CodeDom.Operators
 			return _single;
 		}
 
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
 			if (left != null)
 			{
-				Debug.Assert(right == null);
-				return +left.Execute(ctx);
+				//Debug.Assert(right == null);
+				//return +left.Execute(ctx);
+				return left.Execute(ctx);
 			}
 
-			return +right.Execute(ctx);
+			return right.Execute(ctx);
 		}
 	}
 }

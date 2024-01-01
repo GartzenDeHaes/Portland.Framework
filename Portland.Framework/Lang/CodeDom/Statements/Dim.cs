@@ -35,7 +35,7 @@ namespace Portland.CodeDom.Statements
 			else
 			{
 				// array
-				ctx.ClearVariableArray(VarName, Indexer.Execute(ctx));
+				ctx.ClearVariableArray(VarName, Indexer.Execute(ctx).ToInt());
 			}
 
 			return true;

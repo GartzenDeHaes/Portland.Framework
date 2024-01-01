@@ -15,9 +15,9 @@ namespace Portland.CodeDom.Operators
 			return _single;
 		}
 
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
-			return left.Execute(ctx) / right.Execute(ctx);
+			return left.Execute(ctx).MathDiv(right.Execute(ctx));
 		}
 	}
 }

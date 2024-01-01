@@ -25,7 +25,7 @@ namespace Portland.CodeDom.Statements
 
 		public override bool Execute(ExecutionContext ctx)
 		{
-			while (Cond.Execute(ctx))
+			while (Cond.Execute(ctx).ToBool())
 			{
 				if (! CodeBlock.Execute(ctx))
 				{

@@ -12,19 +12,19 @@ namespace Portland.Interp
 
 		//public Variant ReturnValue { get { return Data; } }
 
-		public Variant this[int index]
+		public IVariant this[int index]
 		{
 			get { return Data[index];}
 		}
 
-		public Variant this[string key]
+		public IVariant this[string key]
 		{
 			get { return Data[key]; }
 		}
 
-		public void SetProp(string key, in Variant value)
+		public void SetProp(string key, in IVariant value)
 		{
-			Data.SetProp(key, value);
+			Data.SetProp(new Variant(key), value);
 		}
 
 		public bool HasProp(string name)
@@ -32,12 +32,12 @@ namespace Portland.Interp
 			return Data.HasProp(name);
 		}
 
-		public bool TryGetProp(string name, out Variant value)
+		public bool TryGetProp(string name, out IVariant value)
 		{
-			return Data.TryGetProp(name, out value);
+			return Data.TryGetProp(new Variant(name), out value);
 		}
 
-		public void SetPropArray(string name, string index, in Variant value)
+		public void SetPropArray(string name, IVariant index, in IVariant value)
 		{
 			Data.SetPropArray(name, index, value);
 		}

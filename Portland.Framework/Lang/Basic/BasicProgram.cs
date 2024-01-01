@@ -11,8 +11,9 @@ namespace Portland.Basic
 {
 	public sealed class BasicProgram : CodeDocument
 	{
-		private readonly BasicLex _lex = new BasicLex();
+		private BasicLex _lex;
 
+		public ExecutionContext Context;
 		public Action<ExecutionContext, string, Variant> OnCommand;
 		public Action<string> OnPrint;
 		public Action<string> OnError;
@@ -29,30 +30,23 @@ namespace Portland.Basic
 
 		public BasicProgram()
 		{
-			_lex.TreatCrAsWs = false;
+			Context = new ExecutionContext(new CommandRunner { OnCommand = (ctx, name, args) => { OnRun(ctx, name, args); } });
+
+			Context.OnPrint += (msg) => { OnPrint?.Invoke(msg); };
+			Context.OnLog += (sever, msg) => { OnError?.Invoke(msg); };
 		}
 
 		public void Execute()
 		{
-			using (var context = CreateDefaultContext())
-			{
-				base.Execute(context);
-			} 
+			//using (var context = CreateDefaultContext())
+			//{
+				base.Execute(Context);
+			//} 
 		}
 
 		void OnRun(ExecutionContext ctx, string name, Variant args)
 		{
 			OnCommand?.Invoke(ctx, name, args);
-		}
-
-		public ExecutionContext CreateDefaultContext()
-		{
-			var context = new ExecutionContext(new CommandRunner { OnCommand = (ctx, name, args) => { OnRun(ctx, name, args); } });
-
-			context.OnPrint += (msg) => { OnPrint?.Invoke(msg); };
-			context.OnLog += (sever, msg) => { OnError?.Invoke(msg); };
-
-			return context;
 		}
 
 		private bool Match(LexToken token)
@@ -67,24 +61,28 @@ namespace Portland.Basic
 
 		public void Parse(StringBuilder src)
 		{
-			_lex.Clear();
+			_lex = new();
+			_lex.TreatCrAsWs = false;
 			_lex.AppendInput(src);
 			_lex.Next();
 
 			ParseContinue();
 
 			_lex.Clear();
+			_lex = null;
 		}
 
 		public void Parse(string src)
 		{
-			_lex.Clear();
+			_lex = new();
+			_lex.TreatCrAsWs = false;
 			_lex.AppendInput(src);
 			_lex.Next();
 
 			ParseContinue();
 
 			_lex.Clear();
+			_lex = null;
 		}
 
 		void ParseContinue()
@@ -774,13 +772,13 @@ namespace Portland.Basic
 				case LexToken.STRING:
 					string str = _lex.Lexum;
 					_lex.Next();
-					return new Expression(new Literal(str));
+					return new Expression(new Literal(new Variant(str)));
 				case LexToken.TRUE:
 					_lex.Next();
-					return new Expression(new Literal(true));
+					return new Expression(new Literal(new Variant(true)));
 				case LexToken.FALSE:
 					_lex.Next();
-					return new Expression(new Literal(false));
+					return new Expression(new Literal(new Variant(false)));
 				case LexToken.LPAR:
 					_lex.Next();
 					var expr = Expr();

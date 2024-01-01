@@ -30,7 +30,7 @@ namespace Portland.CodeDom.Statements
 		{
 			var cond = _condition.Execute(ctx);
 
-			if (cond)
+			if (cond.ToBool())
 			{
 				if (! CodeBlock.Execute(ctx))
 				{

@@ -20,6 +20,6 @@ namespace Portland.CodeDom
 			get;
 		}
 
-		public abstract Variant Execute(ExecutionContext ctx, Expression left, Expression right);
+		public abstract IVariant Execute(ExecutionContext ctx, Expression left, Expression right);
 	}
 }

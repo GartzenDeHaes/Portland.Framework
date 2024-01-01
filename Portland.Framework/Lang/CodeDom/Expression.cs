@@ -65,7 +65,7 @@ namespace Portland.CodeDom
 			Right = right;
 		}
 
-		public virtual Variant Execute(ExecutionContext ctx)
+		public virtual IVariant Execute(ExecutionContext ctx)
 		{
 			return Operator.Execute(ctx, _left, _right);
 		}

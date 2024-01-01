@@ -304,7 +304,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (!chr.TrySetStat(name.ToString(), ctx.Context["b"]))
+				if (!chr.TrySetStat(name.ToString(), ctx.Context["b"].ToFloat()))
 				{
 					ctx.SetError($"{"STAT"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
 					ctx.SetReturnValue(ctx.Context["b"]);
@@ -332,7 +332,7 @@ namespace Portland.AI
 			{
 				var chr = (CharacterSheet)ctx.UserData;
 				var name = ctx.Context["a"];
-				if (!chr.TrySetMaximum(name.ToString(), ctx.Context["b"]))
+				if (!chr.TrySetMaximum(name.ToString(), ctx.Context["b"].ToFloat()))
 				{
 					ctx.SetError($"{"STATMAX"}('{name}', {ctx.Context["b"]}): '{name}' NOT FOUND");
 					ctx.SetReturnValue(0f);
@@ -392,7 +392,7 @@ namespace Portland.AI
 			// float: ROLLDICE("1d4+2")
 			.Add("ROLLDICE", 1, (ExecutionContext ctx) =>
 			{
-				string dicetxt = ctx.Context["a"];
+				string dicetxt = ctx.Context["a"].ToString();
 				if (DiceTerm.TryParse(dicetxt, out var dice))
 				{
 					ctx.SetReturnValue(dice.Roll(MathHelper.Rnd));
@@ -414,9 +414,9 @@ namespace Portland.AI
 			.Add("INVENTORY", 3, (ExecutionContext ctx) =>
 			{
 				var chr = (CharacterSheet)ctx.UserData;
-				string op = ctx.Context["a"];
+				string op = ctx.Context["a"].ToString();
 				var window = ctx.Context["b"];
-				string propName = ctx.Context["c"];
+				string propName = ctx.Context["c"].ToString();
 
 				if (op.Equals("GET"))
 				{
@@ -424,7 +424,7 @@ namespace Portland.AI
 					{
 						// Get property for slot
 						// INVENTORY('SUM', SlotNum, 'Property Name');
-						if (chr.InventoryWindow.TryGetProperty(window, propName, out var value8))
+						if (chr.InventoryWindow.TryGetProperty(window.ToInt(), propName, out var value8))
 						{
 							if (value8.TypeIs == VariantType.Int)
 							{
@@ -461,7 +461,7 @@ namespace Portland.AI
 					else
 					{
 						// Sum property for window
-						chr.InventoryWindow.TrySumItemProp(window, propName, out float amt);
+						chr.InventoryWindow.TrySumItemProp(window.ToString(), propName, out float amt);
 						ctx.SetReturnValue(amt);
 					}
 				}

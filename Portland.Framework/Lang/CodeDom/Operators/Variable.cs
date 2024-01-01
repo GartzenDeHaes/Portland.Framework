@@ -16,7 +16,7 @@ namespace Portland.CodeDom.Operators
 			_name = name;
 		}
 
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
 			Debug.Assert(left == null && right == null);
 

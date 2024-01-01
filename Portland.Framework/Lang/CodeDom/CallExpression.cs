@@ -25,7 +25,7 @@ namespace Portland.CodeDom
 			Operator = new CallOperator(this);
 		}
 
-		public override Variant Execute(ExecutionContext ctx)
+		public override IVariant Execute(ExecutionContext ctx)
 		{
 			Debug.Assert(Left == null && Right == null);
 

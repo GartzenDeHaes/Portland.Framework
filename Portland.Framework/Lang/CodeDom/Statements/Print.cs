@@ -28,7 +28,7 @@ namespace Portland.CodeDom.Statements
 				{
 					buf.Append(' ');
 				}
-				buf.Append((string)Args.Execute(x, ctx));
+				buf.Append(Args.Execute(x, ctx).ToString());
 			}
 
 			ctx.WriteLine(buf.ToString());

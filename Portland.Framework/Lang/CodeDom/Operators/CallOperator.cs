@@ -20,7 +20,7 @@ namespace Portland.CodeDom.Operators
 			_callme = call;
 		}
 
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
 			Debug.Assert(left == null && right == null);
 

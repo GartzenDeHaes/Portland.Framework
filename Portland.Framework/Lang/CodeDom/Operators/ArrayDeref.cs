@@ -23,10 +23,10 @@ namespace Portland.CodeDom.Operators
 			VariableName = varname;
 		}
 
-		public override Variant Execute(ExecutionContext ctx, Expression left, Expression right)
+		public override IVariant Execute(ExecutionContext ctx, Expression left, Expression right)
 		{
 			var theVar = ctx.FindVariable(VariableName);
-			if (theVar.TryGetProp((string)Indexer.Execute(ctx), out var ret))
+			if (theVar.TryGetProp(Indexer.Execute(ctx), out var ret))
 			{
 				return ret;
 			}

@@ -28,7 +28,27 @@ PRINT A[0] : PRINT A
 			bas.Parse(src);
 			bas.Execute();
 
-			Assert.True(printOut.ToString().StartsWith("1[0=1]"));
+			Assert.True(printOut.ToString().StartsWith("1[0=\"1\"]"));
+		}
+
+		[Test]
+		public void SimplerTest()
+		{
+			const string src = @"
+LET A[0] = 1
+PRINT A : PRINT A[0]
+";
+
+			StringBuilder printOut = new StringBuilder();
+
+			BasicProgram bas = new BasicProgram();
+			bas.OnPrint += (msg) => { printOut.Append(msg); };
+			bas.OnError += (msg) => { printOut.Append(msg); };
+
+			bas.Parse(src);
+			bas.Execute();
+
+			Assert.True(printOut.ToString().StartsWith("[0=\"1\"]1"));
 		}
 
 		[Test]
@@ -50,7 +70,30 @@ PRINT A : PRINT A[0] : PRINT A[1]
 			bas.Parse(src);
 			bas.Execute();
 
-			Assert.True(printOut.ToString().StartsWith("[0=1,1=2]12"));
+			Assert.True(printOut.ToString().StartsWith("[0=\"1\",1=\"2\"]12"));
+		}
+
+		[Test]
+		public void DimLessTest()
+		{
+			const string src = @"
+DIM A[1]
+LET A[0] = 1
+
+PRINT A : PRINT A[0] : PRINT LEN(A)
+";
+
+			StringBuilder printOut = new StringBuilder();
+
+			BasicProgram bas = new BasicProgram();
+			bas.GetFunctionBuilder().AddLen();
+			bas.OnPrint += (msg) => { printOut.Append(msg); };
+			bas.OnError += (msg) => { printOut.Append(msg); };
+
+			bas.Parse(src);
+			bas.Execute();
+
+			Assert.True(printOut.ToString().StartsWith("[0=\"1\"]11"));
 		}
 
 		[Test]
@@ -77,7 +120,7 @@ PRINT LEN(A)
 			bas.Parse(src);
 			bas.Execute();
 
-			Assert.True(printOut.ToString().StartsWith("[0=1,1=2]1220"));
+			Assert.True(printOut.ToString().StartsWith("[0=\"1\",1=\"2\"]1220"));
 		}
 
 		[Test]

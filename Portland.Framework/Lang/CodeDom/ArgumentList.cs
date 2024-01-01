@@ -16,7 +16,7 @@ namespace Portland.CodeDom
 			get { return _args.Count; }
 		}
 
-		public Variant Execute(int idx, ExecutionContext ctx)
+		public IVariant Execute(int idx, ExecutionContext ctx)
 		{
 			return _args[idx].Execute(ctx);
 		}

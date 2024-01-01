@@ -39,13 +39,13 @@ namespace Portland.CodeDom.Statements
 			string varName = Start.VarName;
 			Start.Execute(ctx);
 
-			int start = ctx.FindVariable(varName);
-			int end = To.Execute(ctx);
+			int start = ctx.FindVariable(varName).AsInt();
+			int end = To.Execute(ctx).AsInt();
 			int step = Step;
 
 			for (int x = start; x <= end; x += step)
 			{
-				ctx.SetVariable(varName, x);
+				ctx.SetVariable(varName, new Variant(x));
 				if (! CodeBlock.Execute(ctx))
 				{
 					return false;
